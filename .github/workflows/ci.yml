@@ -54,6 +54,9 @@ jobs:
       - name: vet and test minimal example
         working-directory: examples/nethttp-minimal
         run: go vet ./... && go test ./...
+      - name: vet and test go-client example
+        working-directory: examples/go-client
+        run: go vet ./... && go test -race ./...
       - name: vet and test router examples
         if: matrix.go == 'stable'
         run: for d in examples/routers/*; do (cd "$d" && go vet ./... && go test -race ./...); done
