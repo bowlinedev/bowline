@@ -17,22 +17,24 @@ import (
 const maxBody = 8 << 20
 
 type Options struct {
-	Tokens []string
-	Logger *slog.Logger
-	UI     fs.FS
-	Now    func() time.Time
+	Tokens   []string
+	Logger   *slog.Logger
+	UI       fs.FS
+	Now      func() time.Time
+	Composer Composer
 }
 
 type Server struct {
-	store  Store
-	tokens []string
-	log    *slog.Logger
-	ui     fs.FS
-	now    func() time.Time
+	store    Store
+	tokens   []string
+	log      *slog.Logger
+	ui       fs.FS
+	now      func() time.Time
+	composer Composer
 }
 
 func NewServer(store Store, opts Options) *Server {
-	s := &Server{store: store, tokens: opts.Tokens, log: opts.Logger, ui: opts.UI, now: opts.Now}
+	s := &Server{store: store, tokens: opts.Tokens, log: opts.Logger, ui: opts.UI, now: opts.Now, composer: opts.Composer}
 	if s.log == nil {
 		s.log = slog.Default()
 	}
@@ -55,8 +57,9 @@ type ServiceDetail struct {
 }
 
 type PublishResult struct {
-	Hash    string `json:"hash"`
-	Created bool   `json:"created"`
+	Hash    string        `json:"hash"`
+	Created bool          `json:"created"`
+	Impact  *ImpactReport `json:"impact,omitempty"`
 }
 
 type Node struct {
@@ -94,6 +97,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("PUT /v1/services/{name}/tags/{tag}", s.write(s.putTag))
 	mux.HandleFunc("POST /v1/services/{name}/consumers", s.write(s.putConsumer))
 	mux.HandleFunc("GET /v1/services/{name}/consumers", s.listConsumers)
+	mux.HandleFunc("POST /v1/services/{name}/impact", s.impact)
 	mux.HandleFunc("POST /v1/gateways/{name}/compositions", s.write(s.putComposition))
 	mux.HandleFunc("GET /v1/graph", s.graph)
 	mux.Handle("GET /", s.index())
@@ -252,6 +256,11 @@ func (s *Server) publishVersion(w http.ResponseWriter, r *http.Request) {
 		fail(w, bowline.Internal, err.Error())
 		return
 	}
+	report, err := ImpactWith(r.Context(), s.store, name, doc, ImpactOptions{Composer: s.composer})
+	if err != nil {
+		failStore(w, err)
+		return
+	}
 	if err := s.ensureService(r, name); err != nil {
 		fail(w, bowline.InvalidArgument, err.Error())
 		return
@@ -271,7 +280,27 @@ func (s *Server) publishVersion(w http.ResponseWriter, r *http.Request) {
 		failStore(w, err)
 		return
 	}
-	writeJSONResponse(w, http.StatusOK, PublishResult{Hash: hash, Created: created})
+	writeJSONResponse(w, http.StatusOK, PublishResult{Hash: hash, Created: created, Impact: report})
+}
+
+func (s *Server) impact(w http.ResponseWriter, r *http.Request) {
+	data, err := io.ReadAll(http.MaxBytesReader(w, r.Body, maxBody))
+	if err != nil {
+		fail(w, bowline.InvalidArgument, "reading the request body: "+err.Error())
+		return
+	}
+	doc, err := contract.Parse(data)
+	if err != nil {
+		fail(w, bowline.InvalidArgument, "the candidate contract is not valid: "+err.Error())
+		return
+	}
+	strict := r.URL.Query().Get("strict") == "true"
+	report, err := ImpactWith(r.Context(), s.store, r.PathValue("name"), doc, ImpactOptions{Strict: strict, Composer: s.composer})
+	if err != nil {
+		failStore(w, err)
+		return
+	}
+	writeJSONResponse(w, http.StatusOK, report)
 }
 
 func (s *Server) listVersions(w http.ResponseWriter, r *http.Request) {

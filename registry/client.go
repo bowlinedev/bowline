@@ -142,6 +142,26 @@ func parseDocument(data []byte) (*contract.Document, error) {
 	return doc, nil
 }
 
+func (c *Client) Impact(ctx context.Context, service string, candidate *contract.Document, strict bool) (*ImpactReport, error) {
+	body, err := candidate.Marshal()
+	if err != nil {
+		return nil, &bowline.Error{Code: bowline.InvalidArgument, Message: err.Error()}
+	}
+	path := "/v1/services/" + url.PathEscape(service) + "/impact"
+	if strict {
+		path += "?strict=true"
+	}
+	data, err := c.do(ctx, http.MethodPost, path, body, nil)
+	if err != nil {
+		return nil, err
+	}
+	var report ImpactReport
+	if err := json.Unmarshal(data, &report); err != nil {
+		return nil, &bowline.Error{Code: bowline.Internal, Message: "decoding the impact report: " + err.Error()}
+	}
+	return &report, nil
+}
+
 func (c *Client) Services(ctx context.Context) ([]Service, error) {
 	data, err := c.do(ctx, http.MethodGet, "/v1/services", nil, nil)
 	if err != nil {

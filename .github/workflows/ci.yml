@@ -42,6 +42,7 @@ jobs:
             gateway/go.sum
             agent/go.sum
             contracttest/go.sum
+            registry/go.sum
             adapters/fiber/go.sum
       - name: gofmt
         run: |
@@ -97,6 +98,10 @@ jobs:
         if: matrix.go == 'stable'
         working-directory: contracttest
         run: go vet ./... && go test -race ./...
+      - name: vet and test registry
+        if: matrix.go == 'stable'
+        working-directory: registry
+        run: go vet ./... && go test -race ./...
       - name: contracts are current
         if: matrix.go == 'stable'
         run: |
@@ -116,6 +121,7 @@ jobs:
           (cd gateway && staticcheck ./...)
           (cd agent && staticcheck ./...)
           (cd contracttest && staticcheck ./...)
+          (cd registry && staticcheck ./...)
           (cd adapters/fiber && staticcheck ./...)
           (cd playground && staticcheck ./...)
       - name: runtime module has no dependencies
