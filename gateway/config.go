@@ -31,6 +31,12 @@ type Upstream struct {
 	Registry string
 	Version  string
 	Retries  int
+	Signing  *Signing
+}
+
+type Signing struct {
+	KeyID  string
+	Secret []byte
 }
 
 type configFile struct {
@@ -42,11 +48,41 @@ type configFile struct {
 }
 
 type upstreamFile struct {
-	URL      string `json:"url"`
-	Contract string `json:"contract"`
-	Registry string `json:"registry"`
-	Version  string `json:"version"`
-	Retries  *int   `json:"retries"`
+	URL      string       `json:"url"`
+	Contract string       `json:"contract"`
+	Registry string       `json:"registry"`
+	Version  string       `json:"version"`
+	Retries  *int         `json:"retries"`
+	Signing  *signingFile `json:"signing"`
+}
+
+type signingFile struct {
+	KeyID     string `json:"keyId"`
+	Secret    string `json:"secret"`
+	SecretEnv string `json:"secretEnv"`
+}
+
+func (s *signingFile) parse(service string) (*Signing, error) {
+	if s == nil {
+		return nil, nil
+	}
+	if s.KeyID == "" {
+		return nil, fmt.Errorf("service %q: signing needs a keyId", service)
+	}
+	secret := s.Secret
+	if s.SecretEnv != "" {
+		if secret != "" {
+			return nil, fmt.Errorf("service %q: signing sets both secret and secretEnv", service)
+		}
+		secret = os.Getenv(s.SecretEnv)
+		if secret == "" {
+			return nil, fmt.Errorf("service %q: signing reads %s, which is empty", service, s.SecretEnv)
+		}
+	}
+	if secret == "" {
+		return nil, fmt.Errorf("service %q: signing needs a secret or a secretEnv", service)
+	}
+	return &Signing{KeyID: s.KeyID, Secret: []byte(secret)}, nil
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -109,6 +145,10 @@ func ParseConfig(data []byte, path string) (*Config, error) {
 		if up.Version == "" {
 			return nil, fmt.Errorf("%s: service %q needs a \"version\" pinning the contract hash", path, name)
 		}
+		sign, err := up.Signing.parse(name)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", path, err)
+		}
 		retries := DefaultRetries
 		if up.Retries != nil {
 			if *up.Retries < 0 {
@@ -116,7 +156,7 @@ func ParseConfig(data []byte, path string) (*Config, error) {
 			}
 			retries = *up.Retries
 		}
-		cfg.Services[name] = Upstream{URL: up.URL, Contract: up.Contract, Registry: up.Registry, Version: up.Version, Retries: retries}
+		cfg.Services[name] = Upstream{URL: up.URL, Contract: up.Contract, Registry: up.Registry, Version: up.Version, Retries: retries, Signing: sign}
 	}
 	return cfg, nil
 }

@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/bowlinedev/bowline/signing"
 	"sync"
 	"time"
 )
@@ -69,6 +71,9 @@ func (g *Gateway) probe(ctx context.Context, name string) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, target, nil)
 	if err != nil {
 		return err
+	}
+	if up.Signing != nil {
+		req.Header.Set(signing.Header, signing.Sign(req.Method, req.URL.RequestURI(), nil, up.Signing.KeyID, up.Signing.Secret, g.nowFunc()))
 	}
 	resp, err := g.clients[name].Do(req)
 	if err != nil {

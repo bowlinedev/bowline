@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/bowlinedev/bowline/contract"
+	"github.com/bowlinedev/bowline/signing"
 )
 
 func healthServer(t *testing.T, hash string, hits *atomic.Int32) *httptest.Server {
@@ -153,5 +154,53 @@ func TestReadyProbesConcurrentlyWithABoundedTimeout(t *testing.T) {
 	}
 	if probes["ledger"] == nil || probes["billing"] == nil {
 		t.Fatalf("probes %v", probes)
+	}
+}
+
+func TestProbeSignsWhenTheUpstreamDeclaresAKey(t *testing.T) {
+	secret := []byte("s3cret")
+	pin := hashOf(t, "ledger.contract.json")
+	var verified error
+	var seen bool
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seen = true
+		verified = signing.Verify(r.Context(), signing.StaticSecrets{"edge": secret}, r.Header.Get(signing.Header), r.Method, r.URL.RequestURI(), nil, time.Now())
+		if verified != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"ok":true,"hash":%q}`, pin)
+	}))
+	defer upstream.Close()
+	g := readyGateway(t,
+		map[string]Upstream{"ledger": {URL: upstream.URL + "/api", Version: pin, Signing: &Signing{KeyID: "edge", Secret: secret}}},
+		map[string]*contract.Document{"ledger": load(t, "ledger.contract.json")})
+	if err := g.Ready(context.Background())["ledger"]; err != nil {
+		t.Fatalf("ready: %v", err)
+	}
+	if !seen || verified != nil {
+		t.Fatalf("probe was not signed: seen=%v verified=%v", seen, verified)
+	}
+}
+
+func TestParseConfigReadsTheSigningSecretFromTheEnvironment(t *testing.T) {
+	t.Setenv("LEDGER_SIGNING_SECRET", "from-env")
+	cfg, err := ParseConfig([]byte(`{"services":{"ledger":{"url":"http://x/api","contract":"c.json","version":"sha256:abc","signing":{"keyId":"edge","secretEnv":"LEDGER_SIGNING_SECRET"}}}}`), "test.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := cfg.Services["ledger"].Signing
+	if got == nil || got.KeyID != "edge" || string(got.Secret) != "from-env" {
+		t.Fatalf("got %+v", got)
+	}
+	for _, bad := range []string{
+		`{"services":{"ledger":{"url":"http://x/api","contract":"c.json","version":"sha256:a","signing":{"secret":"s"}}}}`,
+		`{"services":{"ledger":{"url":"http://x/api","contract":"c.json","version":"sha256:a","signing":{"keyId":"edge"}}}}`,
+		`{"services":{"ledger":{"url":"http://x/api","contract":"c.json","version":"sha256:a","signing":{"keyId":"edge","secret":"s","secretEnv":"LEDGER_SIGNING_SECRET"}}}}`,
+	} {
+		if _, err := ParseConfig([]byte(bad), "test.json"); err == nil {
+			t.Fatalf("expected a rejection for %s", bad)
+		}
 	}
 }
