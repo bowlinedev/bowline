@@ -1,0 +1,27 @@
+{
+  "name": "ledger-astro",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gen": "cp ../ledger/web/src/bowline.ts src/bowline.ts",
+    "check:gen": "cmp ../ledger/web/src/bowline.ts src/bowline.ts",
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "start": "node ./dist/server/entry.mjs",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@astrojs/node": "11.1.5",
+    "@astrojs/solid-js": "7.0.2",
+    "@bowline/client": "workspace:*",
+    "@bowline/solid": "workspace:*",
+    "astro": "7.3.2",
+    "solid-js": "1.9.15"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@playwright/test": "1.55.0",
+    "@types/node": "24.7.0",
+    "typescript": "5.9.2"
+  }
+}

@@ -10,3 +10,4 @@ playwright-report/
 !playground/ui/dist/
 playground/ui/dist/*
 !playground/ui/dist/placeholder.html
+.astro/

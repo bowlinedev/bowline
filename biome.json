@@ -18,7 +18,9 @@
       "!**/evals",
       "!**/.svelte-kit",
       "!**/build",
-      "!**/*.svelte"
+      "!**/*.svelte",
+      "!**/.astro",
+      "!**/*.astro"
     ],
     "ignoreUnknown": true
   },
