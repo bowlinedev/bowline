@@ -171,13 +171,6 @@ func resolveGateway(opts GatewayOptions) (*gateway.Config, map[string]*contract.
 		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
 		return nil, nil, 1
 	}
-	base := filepath.Dir(path)
-	for name, up := range cfg.Services {
-		if up.Contract != "" && !filepath.IsAbs(up.Contract) {
-			up.Contract = filepath.Join(base, filepath.FromSlash(up.Contract))
-			cfg.Services[name] = up
-		}
-	}
 	docs, err := gateway.ResolveWith(context.Background(), cfg, registryFetcher{token: opts.Token})
 	if err != nil {
 		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
