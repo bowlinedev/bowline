@@ -1,6 +1,18 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.2.4/schema.json",
-  "files": { "includes": ["packages/**", "*.json", "!**/dist"], "ignoreUnknown": true },
-  "formatter": { "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },
-  "linter": { "enabled": true, "rules": { "recommended": true } }
+  "files": {
+    "includes": ["packages/**", "examples/**", "*.json", "!**/dist", "!**/src/bowline.ts"],
+    "ignoreUnknown": true
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  }
 }
