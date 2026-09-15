@@ -28,6 +28,7 @@ func (h *handler) serveSubscription(w http.ResponseWriter, req *http.Request, rt
 		h.writeError(w, nil, 0, Errorf(Internal, "response writer does not support streaming"))
 		return
 	}
+	h.secure(w, http.MethodGet)
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("X-Accel-Buffering", "no")

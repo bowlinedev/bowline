@@ -49,6 +49,9 @@ type handler struct {
 	signatures signing.SecretProvider
 	signedBody int64
 
+	csrf            *csrf
+	securityHeaders bool
+
 	idempotency    IdempotencyStore
 	idempotencyTTL time.Duration
 	requireKey     bool
@@ -94,6 +97,10 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if !methodAllowed(proc, req.Method) {
 		w.Header().Set("Allow", proc.Method())
 		h.writeError(w, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, rt.path, proc.Method()))
+		return
+	}
+	if h.csrf != nil && !h.csrf.allows(req) {
+		h.writeError(w, nil, 0, Errorf(PermissionDenied, "cross-origin request rejected"))
 		return
 	}
 	if proc.Kind == KindMutation && proc.Idempotent && h.idempotency != nil {
@@ -164,6 +171,7 @@ func (h *handler) writeOutput(w http.ResponseWriter, ctx context.Context, rt *ro
 	if rt.proc.Deprecated != "" {
 		w.Header().Set("Deprecation", "true")
 	}
+	h.secure(w, methodOf(ctx))
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
@@ -231,6 +239,7 @@ func (h *handler) writeError(w http.ResponseWriter, proc *Procedure, statusOverr
 		body = []byte(fmt.Sprintf(`{"error":{"code":"INTERNAL","message":%q}}`, "error encoding failed"))
 		status = http.StatusInternalServerError
 	}
+	h.secure(w, http.MethodPost)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	w.Write(body)

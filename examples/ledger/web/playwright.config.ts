@@ -7,7 +7,13 @@ export default defineConfig({
   workers: 1,
   use: { baseURL: "http://localhost:4173" },
   webServer: [
-    { command: "go run ./cmd/server", cwd: "..", port: 8080, reuseExistingServer: !process.env.CI },
+    {
+      command: "go run ./cmd/server",
+      cwd: "..",
+      port: 8080,
+      env: { CSRF: "on" },
+      reuseExistingServer: !process.env.CI,
+    },
     { command: "pnpm preview", port: 4173, reuseExistingServer: !process.env.CI },
   ],
 });
