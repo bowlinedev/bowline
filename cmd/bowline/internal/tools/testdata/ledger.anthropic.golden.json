@@ -1,0 +1,112 @@
+[
+  {
+    "description": "Search finds customers whose name or email contains the query.",
+    "input_schema": {
+      "$defs": {
+        "SearchCustomersInput": {
+          "additionalProperties": false,
+          "properties": {
+            "query": {
+              "minLength": 2,
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/SearchCustomersInput",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "customers_search"
+  },
+  {
+    "description": "Get returns one invoice by ID.",
+    "input_schema": {
+      "$defs": {
+        "GetInvoiceInput": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/GetInvoiceInput",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "invoices_get"
+  },
+  {
+    "description": "List returns a page of invoices, optionally filtered by status.",
+    "input_schema": {
+      "$defs": {
+        "ListInvoicesInput": {
+          "additionalProperties": false,
+          "properties": {
+            "cursor": {
+              "type": "string"
+            },
+            "limit": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "status": {
+              "$ref": "#/$defs/Status"
+            }
+          },
+          "required": [
+            "limit"
+          ],
+          "type": "object"
+        },
+        "Status": {
+          "enum": [
+            "draft",
+            "sent",
+            "paid",
+            "void"
+          ],
+          "type": "string"
+        }
+      },
+      "$ref": "#/$defs/ListInvoicesInput",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "invoices_list"
+  },
+  {
+    "description": "Void cancels a draft or sent invoice.\nErrors: InvoiceLocked",
+    "input_schema": {
+      "$defs": {
+        "VoidInvoiceInput": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/VoidInvoiceInput",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "invoices_void"
+  }
+]

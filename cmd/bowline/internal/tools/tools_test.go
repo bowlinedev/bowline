@@ -54,6 +54,41 @@ func TestEncodeGoldens(t *testing.T) {
 	}
 }
 
+func TestLedgerGoldens(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "examples", "ledger", "api", "bowline.contract.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := contract.Parse(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	list, err := FromContract(doc, Filter{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(list) != 4 || list[0].Name != "customers_search" || list[3].Name != "invoices_void" || !list[3].Destructive {
+		t.Fatalf("tools %+v", list)
+	}
+	for _, format := range []string{FormatAnthropic, FormatOpenAI, FormatJSONSchema} {
+		got, err := Encode(list, format)
+		if err != nil {
+			t.Fatal(err)
+		}
+		golden := filepath.Join("testdata", "ledger."+format+".golden.json")
+		if *update {
+			os.WriteFile(golden, got, 0o644)
+		}
+		want, err := os.ReadFile(golden)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !bytes.Equal(got, want) {
+			t.Fatalf("ledger golden mismatch for %s; run go test ./internal/tools -update after reviewing", format)
+		}
+	}
+}
+
 func TestFilters(t *testing.T) {
 	doc := toolsDoc(t)
 	billing, _ := FromContract(doc, Filter{Scopes: []string{"billing"}})
