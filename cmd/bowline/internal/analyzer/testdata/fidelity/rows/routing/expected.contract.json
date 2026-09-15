@@ -1,0 +1,141 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:be5dc390d4966f5900cee40ef7d9756dc31d800079a5c309a4d999ef4483c4cd",
+  "types": {
+    "fidelity.test/rows/routing.ID": {
+      "kind": "struct",
+      "name": "ID",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/routing.Item": {
+      "kind": "struct",
+      "name": "Item",
+      "fields": [
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/routing/sub.ID": {
+      "kind": "struct",
+      "name": "ID",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "admin.purge",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/routing.ID"
+      },
+      "output": {
+        "kind": "struct"
+      },
+      "goInput": "fidelity.test/rows/routing.ID",
+      "goOutput": "struct{}",
+      "deprecated": "use sub.remove",
+      "meta": {
+        "auth": "admin"
+      }
+    },
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/routing.ID"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/routing.Item"
+      },
+      "goInput": "fidelity.test/rows/routing.ID",
+      "goOutput": "fidelity.test/rows/routing.Item",
+      "doc": "Get fetches an item."
+    },
+    {
+      "path": "search",
+      "kind": "query",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/routing.Item"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/routing.Item"
+      },
+      "goInput": "fidelity.test/rows/routing.Item",
+      "goOutput": "fidelity.test/rows/routing.Item"
+    },
+    {
+      "path": "sub.remove",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/routing/sub.ID"
+      },
+      "output": {
+        "kind": "struct"
+      },
+      "goInput": "fidelity.test/rows/routing/sub.ID",
+      "goOutput": "struct{}",
+      "doc": "Remove deletes an item by ID."
+    }
+  ],
+  "positions": {
+    "admin.purge": {
+      "file": "rows/routing/api.go",
+      "line": 21
+    },
+    "fidelity.test/rows/routing.ID": {
+      "file": "rows/routing/api.go",
+      "line": 12
+    },
+    "fidelity.test/rows/routing.Item": {
+      "file": "rows/routing/api.go",
+      "line": 16
+    },
+    "fidelity.test/rows/routing/sub.ID": {
+      "file": "rows/routing/sub/sub.go",
+      "line": 9
+    },
+    "get": {
+      "file": "rows/routing/api.go",
+      "line": 32
+    },
+    "search": {
+      "file": "rows/routing/api.go",
+      "line": 33
+    },
+    "sub.remove": {
+      "file": "rows/routing/sub/sub.go",
+      "line": 17
+    }
+  }
+}
