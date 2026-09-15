@@ -28,6 +28,7 @@ jobs:
           cache-dependency-path: |
             go.sum
             cmd/bowline/go.sum
+            examples/ledger/go.sum
       - name: gofmt
         run: |
           out="$(gofmt -l .)"
@@ -36,6 +37,9 @@ jobs:
         run: go vet ./... && go test -race ./...
       - name: vet and test cli module
         working-directory: cmd/bowline
+        run: go vet ./... && go test -race ./...
+      - name: vet and test ledger example
+        working-directory: examples/ledger
         run: go vet ./... && go test -race ./...
       - name: staticcheck
         if: matrix.os == 'ubuntu-latest' && matrix.go == 'stable'
