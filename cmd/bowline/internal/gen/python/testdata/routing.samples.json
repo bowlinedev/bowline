@@ -1,0 +1,26 @@
+{
+  "admin.purge": {
+    "input": "Routing_ID",
+    "model": "Empty",
+    "output": {}
+  },
+  "get": {
+    "input": "Routing_ID",
+    "model": "Item",
+    "output": {
+      "name": "drift sierra"
+    }
+  },
+  "search": {
+    "input": "Item",
+    "model": "Item",
+    "output": {
+      "name": "anchor quartz"
+    }
+  },
+  "sub.remove": {
+    "input": "Sub_ID",
+    "model": "Empty",
+    "output": {}
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "get": {
+    "input": "ID",
+    "model": "Item",
+    "output": {
+      "name": "drift sierra"
+    }
+  },
+  "hidden": {
+    "input": "ID",
+    "model": "Item",
+    "output": {
+      "name": "mesa"
+    }
+  },
+  "remove": {
+    "input": "ID",
+    "model": "Empty",
+    "output": {}
+  },
+  "search": {
+    "input": "Item",
+    "model": "Item",
+    "output": {
+      "name": "anchor quartz"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "get": {
+    "input": "Empty",
+    "model": "Line",
+    "output": {
+      "meta": {
+        "kind": "sage"
+      },
+      "origin": [
+        609.37,
+        863.73
+      ],
+      "price": "dune maple kestrel",
+      "prices": [
+        "zinc heron",
+        "beacon pebble"
+      ]
+    }
+  }
+}
