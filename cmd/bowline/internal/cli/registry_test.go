@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,6 +31,11 @@ type registryFixture struct {
 
 func startRegistry(t *testing.T) registryFixture {
 	t.Helper()
+	return startRegistryWithUI(t, false)
+}
+
+func startRegistryWithUI(t *testing.T, ui bool) registryFixture {
+	t.Helper()
 	dir := fixtureCopy(t)
 	if err := os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/routing.Routes"}`), 0o644); err != nil {
 		t.Fatal(err)
@@ -44,6 +51,7 @@ func startRegistry(t *testing.T) registryFixture {
 			Store:   "registry-data",
 			Listen:  "127.0.0.1:0",
 			Tokens:  []string{"s3cret"},
+			UI:      ui,
 			Ready:   ready,
 		})
 	}()
@@ -181,6 +189,31 @@ func TestRegistryServeReadsTokensFromTheEnvironment(t *testing.T) {
 	t.Setenv("BOWLINE_REGISTRY_TOKEN", "")
 	if got := envTokens(); got != nil {
 		t.Fatalf("got %v", got)
+	}
+}
+
+func TestRegistryServesTheUIOnlyWhenAsked(t *testing.T) {
+	for _, ui := range []bool{false, true} {
+		f := startRegistryWithUI(t, ui)
+		resp, err := http.Get(f.url + "/")
+		if err != nil {
+			t.Fatal(err)
+		}
+		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if resp.StatusCode != http.StatusOK {
+			t.Fatalf("ui=%v: GET / answered %d", ui, resp.StatusCode)
+		}
+		kind := resp.Header.Get("Content-Type")
+		if ui && !strings.HasPrefix(kind, "text/html") {
+			t.Fatalf("ui=true served %q: %q", kind, body)
+		}
+		if !ui && !strings.HasPrefix(kind, "text/plain") {
+			t.Fatalf("ui=false served %q: %q", kind, body)
+		}
 	}
 }
 
