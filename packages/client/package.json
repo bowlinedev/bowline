@@ -1,6 +1,6 @@
 {
   "name": "@bowline/client",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Runtime client for Bowline generated TypeScript contracts",
   "license": "Apache-2.0",
   "repository": {

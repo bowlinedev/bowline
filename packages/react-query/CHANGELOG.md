@@ -1,5 +1,11 @@
 # @bowline/react-query
 
+## 0.5.0
+
+### Patch Changes
+
+- Built on the shared key helper from `@bowline/client`.
+
 ## 0.4.0
 
 ### Patch Changes
