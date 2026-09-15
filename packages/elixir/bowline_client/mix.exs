@@ -20,8 +20,7 @@ defmodule BowlineClient.MixProject do
 
   defp deps do
     [
-      {:req, "~> 0.7"},
-      {:plug, "~> 1.16", only: :test}
+      {:req, "~> 0.7"}
     ]
   end
 
