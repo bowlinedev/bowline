@@ -1,11 +1,22 @@
 package cli
 
 import (
+	"errors"
+	"flag"
 	"fmt"
 )
 
-func Gen(opts Options) int {
-	files, diags, err := Produce(opts)
+func Gen(opts Options, args []string) int {
+	flags := flag.NewFlagSet("gen", flag.ContinueOnError)
+	flags.SetOutput(opts.Stderr)
+	from := flags.String("from", "", "generate the targets from this contract document instead of analyzing the module")
+	if err := flags.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return 0
+		}
+		return 2
+	}
+	files, diags, err := ProduceFrom(opts, *from)
 	if err != nil {
 		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
 		return 1

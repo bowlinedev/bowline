@@ -38,7 +38,7 @@ func TestGenThenCheck(t *testing.T) {
 	dir := fixtureCopy(t)
 	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/routing.Routes","contract":"out/contract.json"}`), 0o644)
 	opts, out, errOut := testOptions(dir)
-	if code := Gen(opts); code != 0 {
+	if code := Gen(opts, nil); code != 0 {
 		t.Fatalf("gen exit %d: %s", code, errOut.String())
 	}
 	if !strings.Contains(out.String(), "wrote out/contract.json") {
@@ -52,7 +52,7 @@ func TestGenThenCheck(t *testing.T) {
 		t.Fatalf("check exit %d: %s", code, errOut.String())
 	}
 	opts, out, _ = testOptions(dir)
-	Gen(opts)
+	Gen(opts, nil)
 	if !strings.Contains(out.String(), "unchanged out/contract.json") {
 		t.Fatalf("second gen stdout %q", out.String())
 	}
@@ -65,7 +65,7 @@ func TestCheckDetectsDrift(t *testing.T) {
 	if code := Check(opts, nil); code != 1 || !strings.Contains(errOut.String(), "missing   bowline.contract.json") {
 		t.Fatalf("exit %d stderr %s", code, errOut.String())
 	}
-	Gen(testOptionsOnly(dir))
+	Gen(testOptionsOnly(dir), nil)
 	os.WriteFile(filepath.Join(dir, "bowline.contract.json"), []byte("{}"), 0o644)
 	opts, _, errOut = testOptions(dir)
 	if code := Check(opts, nil); code != 1 || !strings.Contains(errOut.String(), "outdated  bowline.contract.json") {
@@ -82,7 +82,7 @@ func TestGenReportsDiagnostics(t *testing.T) {
 	dir := fixtureCopy(t)
 	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/reject-interface.Routes"}`), 0o644)
 	opts, _, errOut := testOptions(dir)
-	if code := Gen(opts); code != 1 {
+	if code := Gen(opts, nil); code != 1 {
 		t.Fatalf("exit %d", code)
 	}
 	if !strings.Contains(errOut.String(), "rows/reject-interface/api.go:") || !strings.Contains(errOut.String(), "nothing written") {
@@ -97,7 +97,7 @@ func TestUnknownTarget(t *testing.T) {
 	dir := fixtureCopy(t)
 	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/routing.Routes","targets":{"cobol":{"out":"x"}}}`), 0o644)
 	opts, _, errOut := testOptions(dir)
-	if code := Gen(opts); code != 1 || !strings.Contains(errOut.String(), `unknown target "cobol"`) {
+	if code := Gen(opts, nil); code != 1 || !strings.Contains(errOut.String(), `unknown target "cobol"`) {
 		t.Fatalf("exit %d stderr %s", code, errOut.String())
 	}
 }
@@ -106,7 +106,7 @@ func TestGenWritesOpenAPIWhenConfigured(t *testing.T) {
 	dir := fixtureCopy(t)
 	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/routing.Routes","contract":"api/c.json","openapi":{"title":"Routing","version":"1.2.3"}}`), 0o644)
 	opts, out, errOut := testOptions(dir)
-	if code := Gen(opts); code != 0 {
+	if code := Gen(opts, nil); code != 0 {
 		t.Fatalf("exit %d: %s", code, errOut.String())
 	}
 	if !strings.Contains(out.String(), "wrote api/openapi.json") {
@@ -149,7 +149,7 @@ func TestToolsTargetAndSchemas(t *testing.T) {
 	dir := fixtureCopy(t)
 	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/tools.Routes","schemas":true,"targets":{"tools":{"out":"tools.json","format":"openai"}}}`), 0o644)
 	opts, _, errOut := testOptions(dir)
-	if code := Gen(opts); code != 0 {
+	if code := Gen(opts, nil); code != 0 {
 		t.Fatalf("exit %d: %s", code, errOut.String())
 	}
 	data, _ := os.ReadFile(filepath.Join(dir, "tools.json"))
@@ -163,5 +163,35 @@ func TestToolsTargetAndSchemas(t *testing.T) {
 	opts, _, errOut = testOptions(dir)
 	if code := Check(opts, nil); code != 0 {
 		t.Fatalf("check exit %d: %s", code, errOut.String())
+	}
+}
+
+func TestGenFromAnExistingDocument(t *testing.T) {
+	dir := fixtureCopy(t)
+	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/routing.Routes","targets":{"ts":{"out":"out/bowline.ts"}}}`), 0o644)
+	if code := Gen(testOptionsOnly(dir), nil); code != 0 {
+		t.Fatal("gen failed")
+	}
+	source, err := os.ReadFile(filepath.Join(dir, "bowline.contract.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.MkdirAll(filepath.Join(dir, "composed"), 0o755)
+	os.WriteFile(filepath.Join(dir, "composed", "contract.json"), source, 0o644)
+	os.Remove(filepath.Join(dir, "out", "bowline.ts"))
+	opts, out, errOut := testOptions(dir)
+	if code := Gen(opts, []string{"--from", "composed/contract.json"}); code != 0 {
+		t.Fatalf("exit %d: %s", code, errOut.String())
+	}
+	if !strings.Contains(out.String(), "wrote out/bowline.ts") || strings.Contains(out.String(), "bowline.contract.json") {
+		t.Fatalf("stdout %q", out.String())
+	}
+	generated, err := os.ReadFile(filepath.Join(dir, "out", "bowline.ts"))
+	if err != nil || !strings.Contains(string(generated), "createClient") {
+		t.Fatalf("%v %s", err, generated)
+	}
+	opts, _, errOut = testOptions(dir)
+	if code := Gen(opts, []string{"--from", "nowhere.json"}); code != 1 || !strings.Contains(errOut.String(), "nowhere.json") {
+		t.Fatalf("exit %d: %s", code, errOut.String())
 	}
 }
