@@ -167,3 +167,17 @@ jobs:
       - run: pnpm --filter ledger-expo check:gen
       - run: pnpm --filter ledger-expo typecheck
       - run: pnpm --filter ledger-expo test
+
+  dart:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.9.4
+      - name: dart ledger client against the Go server
+        working-directory: examples/ledger/dart
+        run: dart pub get && dart analyze --fatal-infos && dart test
