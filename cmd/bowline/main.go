@@ -21,9 +21,11 @@ commands:
   dev [--playground addr]
              regenerate on every save; optionally serve the playground for the live contract
   check      verify the committed contract and targets are up to date
-             --against <git-ref> diffs the contract against that ref instead
+             --against <ref> diffs the contract against that ref instead
              and fails on breaking changes unless --allow-breaking is set;
              consumer contracts under contracts/consumers annotate the report
+             --registry URL --service NAME [--strict] asks a registry which
+             consumers a change would break and fails when any would
   export openapi [-o path]
              write an OpenAPI 3.1 document derived from the contract
   export tools [--format anthropic|openai|json-schema] [--scope S] [--read-only] [--out path]
@@ -42,6 +44,12 @@ commands:
              compose the configured services and proxy calls to their upstreams
   gateway compose [-c bowline.gateway.json] -o composed.contract.json
              write the composed contract without serving
+  registry serve --store <dir> [--listen :8095] [--token T]
+             serve the contract registry over HTTP from a directory of records
+  publish --registry URL --service NAME [--tag main] [--ref SHA] [--contract PATH]
+             publish this module's contract as a version of a service
+  publish --registry URL --consumer NAME --provider SERVICE --usage PATH
+             publish what a consumer uses of a service
   migrate-contract [path]
              rewrite a contract document from an older format version
   diff <old> <new> [--format text|markdown|json] [--consumers dir]
@@ -90,6 +98,13 @@ func run(args []string, stdout, stderr io.Writer) int {
 		defer cancel()
 		opts.Stop = ctx.Done()
 		return cli.Gateway(opts, args[1:])
+	case "registry":
+		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+		defer cancel()
+		opts.Stop = ctx.Done()
+		return cli.Registry(opts, args[1:])
+	case "publish":
+		return cli.Publish(opts, args[1:])
 	case "mcp":
 		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 		defer cancel()
