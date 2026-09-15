@@ -1,6 +1,6 @@
 {
   "bowline": "1.1",
-  "hash": "sha256:3f226b9b74e418e845a5cd72998a6910efb515b8956c93aa3c22eae7a1b9af2c",
+  "hash": "sha256:ca334acb3b4d5a9e4e32bd761dfb1ae5f7bfd4a3161ebb37be9a454ba70bd1ae",
   "types": {
     "github.com/bowlinedev/bowline/examples/ledger/api.AttachInput": {
       "kind": "struct",
@@ -563,7 +563,94 @@
         ]
       },
       "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.SearchCustomersInput",
-      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Page[github.com/bowlinedev/bowline/examples/ledger/ledger.Customer]"
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Page[github.com/bowlinedev/bowline/examples/ledger/ledger.Customer]",
+      "tool": {
+        "scopes": [
+          "crm"
+        ],
+        "readOnly": true
+      },
+      "schemas": {
+        "input": {
+          "$defs": {
+            "SearchCustomersInput": {
+              "additionalProperties": false,
+              "properties": {
+                "query": {
+                  "minLength": 2,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query"
+              ],
+              "type": "object"
+            }
+          },
+          "$ref": "#/$defs/SearchCustomersInput",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        },
+        "output": {
+          "$defs": {
+            "Customer": {
+              "additionalProperties": false,
+              "properties": {
+                "createdAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "email": {
+                  "format": "email",
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "id": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "name": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "createdAt",
+                "email",
+                "id",
+                "name",
+                "updatedAt"
+              ],
+              "type": "object"
+            },
+            "Page_Customer": {
+              "additionalProperties": false,
+              "properties": {
+                "items": {
+                  "items": {
+                    "$ref": "#/$defs/Customer"
+                  },
+                  "type": "array"
+                },
+                "nextCursor": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "items"
+              ],
+              "type": "object"
+            }
+          },
+          "$ref": "#/$defs/Page_Customer",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        }
+      },
+      "doc": "Search finds customers whose name or email contains the query."
     },
     {
       "path": "health",
@@ -646,6 +733,121 @@
       },
       "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.GetInvoiceInput",
       "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice",
+      "tool": {
+        "scopes": [
+          "billing"
+        ],
+        "readOnly": true
+      },
+      "schemas": {
+        "input": {
+          "$defs": {
+            "GetInvoiceInput": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "type": "object"
+            }
+          },
+          "$ref": "#/$defs/GetInvoiceInput",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        },
+        "output": {
+          "$defs": {
+            "Invoice": {
+              "additionalProperties": false,
+              "properties": {
+                "createdAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "customerId": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "id": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "lines": {
+                  "items": {
+                    "$ref": "#/$defs/Line"
+                  },
+                  "type": "array"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "status": {
+                  "$ref": "#/$defs/Status"
+                },
+                "total": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "createdAt",
+                "customerId",
+                "id",
+                "lines",
+                "status",
+                "total",
+                "updatedAt"
+              ],
+              "type": "object"
+            },
+            "Line": {
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "quantity": {
+                  "maximum": 2147483647,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "unitPrice": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "unitPrice"
+              ],
+              "type": "object"
+            },
+            "Status": {
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "void"
+              ],
+              "type": "string"
+            }
+          },
+          "$ref": "#/$defs/Invoice",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        }
+      },
       "doc": "Get returns one invoice by ID."
     },
     {
@@ -667,7 +869,156 @@
         ]
       },
       "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.ListInvoicesInput",
-      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Page[github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice]"
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Page[github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice]",
+      "tool": {
+        "scopes": [
+          "billing"
+        ],
+        "readOnly": true
+      },
+      "schemas": {
+        "input": {
+          "$defs": {
+            "ListInvoicesInput": {
+              "additionalProperties": false,
+              "properties": {
+                "cursor": {
+                  "type": "string"
+                },
+                "limit": {
+                  "maximum": 100,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "status": {
+                  "$ref": "#/$defs/Status"
+                }
+              },
+              "required": [
+                "limit"
+              ],
+              "type": "object"
+            },
+            "Status": {
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "void"
+              ],
+              "type": "string"
+            }
+          },
+          "$ref": "#/$defs/ListInvoicesInput",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        },
+        "output": {
+          "$defs": {
+            "Invoice": {
+              "additionalProperties": false,
+              "properties": {
+                "createdAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "customerId": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "id": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "lines": {
+                  "items": {
+                    "$ref": "#/$defs/Line"
+                  },
+                  "type": "array"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "status": {
+                  "$ref": "#/$defs/Status"
+                },
+                "total": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "createdAt",
+                "customerId",
+                "id",
+                "lines",
+                "status",
+                "total",
+                "updatedAt"
+              ],
+              "type": "object"
+            },
+            "Line": {
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "quantity": {
+                  "maximum": 2147483647,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "unitPrice": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "unitPrice"
+              ],
+              "type": "object"
+            },
+            "Page_Invoice": {
+              "additionalProperties": false,
+              "properties": {
+                "items": {
+                  "items": {
+                    "$ref": "#/$defs/Invoice"
+                  },
+                  "type": "array"
+                },
+                "nextCursor": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "items"
+              ],
+              "type": "object"
+            },
+            "Status": {
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "void"
+              ],
+              "type": "string"
+            }
+          },
+          "$ref": "#/$defs/Page_Invoice",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        }
+      },
+      "doc": "List returns a page of invoices, optionally filtered by status."
     },
     {
       "path": "invoices.void",
@@ -686,6 +1037,122 @@
       "errors": [
         "github.com/bowlinedev/bowline/examples/ledger/api.InvoiceLocked"
       ],
+      "tool": {
+        "scopes": [
+          "billing"
+        ],
+        "destructive": true
+      },
+      "schemas": {
+        "input": {
+          "$defs": {
+            "VoidInvoiceInput": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "type": "object"
+            }
+          },
+          "$ref": "#/$defs/VoidInvoiceInput",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        },
+        "output": {
+          "$defs": {
+            "Invoice": {
+              "additionalProperties": false,
+              "properties": {
+                "createdAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "customerId": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "id": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "lines": {
+                  "items": {
+                    "$ref": "#/$defs/Line"
+                  },
+                  "type": "array"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "status": {
+                  "$ref": "#/$defs/Status"
+                },
+                "total": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "createdAt",
+                "customerId",
+                "id",
+                "lines",
+                "status",
+                "total",
+                "updatedAt"
+              ],
+              "type": "object"
+            },
+            "Line": {
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "quantity": {
+                  "maximum": 2147483647,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "unitPrice": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "unitPrice"
+              ],
+              "type": "object"
+            },
+            "Status": {
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "void"
+              ],
+              "type": "string"
+            }
+          },
+          "$ref": "#/$defs/Invoice",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        }
+      },
+      "doc": "Void cancels a draft or sent invoice.",
       "meta": {
         "auth": "admin"
       }
@@ -734,7 +1201,7 @@
     },
     "github.com/bowlinedev/bowline/examples/ledger/api.HealthOutput": {
       "file": "api/routes.go",
-      "line": 21
+      "line": 23
     },
     "github.com/bowlinedev/bowline/examples/ledger/api.InvoiceLocked": {
       "file": "api/errors.go",
@@ -786,7 +1253,7 @@
     },
     "health": {
       "file": "api/routes.go",
-      "line": 33
+      "line": 47
     },
     "invoices.attach": {
       "file": "api/invoices.go",

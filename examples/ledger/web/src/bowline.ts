@@ -111,6 +111,7 @@ export type ProcedureError<P extends keyof Errors> = Errors[P];
 export interface Client {
   customers: {
     get: Query<GetCustomerInput, Customer>;
+    /** Search finds customers whose name or email contains the query. */
     search: Query<SearchCustomersInput, Page<Customer>>;
   };
   health: Query<Record<string, never>, HealthOutput>;
@@ -121,7 +122,9 @@ export interface Client {
     create: Mutation<CreateInvoiceInput, Invoice>;
     /** Get returns one invoice by ID. */
     get: Query<GetInvoiceInput, Invoice>;
+    /** List returns a page of invoices, optionally filtered by status. */
     list: Query<ListInvoicesInput, Page<Invoice>>;
+    /** Void cancels a draft or sent invoice. */
     "void": Mutation<VoidInvoiceInput, Invoice, Errors["invoices.void"]>;
     /** Watch streams every invoice change. */
     watch: Subscription<WatchInput, Invoice>;

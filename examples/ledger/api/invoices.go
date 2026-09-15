@@ -34,14 +34,14 @@ type WatchInput struct {
 
 func (a *API) invoices() *bowline.Router {
 	return bowline.NewRouter(
-		bowline.Query("get", a.getInvoice, bowline.Description("Get returns one invoice by ID.")),
-		bowline.Query("list", a.listInvoices),
+		bowline.Query("get", a.getInvoice, bowline.Description("Get returns one invoice by ID."), bowline.Tool(bowline.Scope("billing"))),
+		bowline.Query("list", a.listInvoices, bowline.Description("List returns a page of invoices, optionally filtered by status."), bowline.Tool(bowline.Scope("billing"))),
 		bowline.Mutation("create", a.createInvoice, bowline.Idempotent()),
-		bowline.Mutation("void", a.voidInvoice, bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{})),
+		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive())),
 		bowline.Subscription("watch", a.watchInvoices, bowline.Description("Watch streams every invoice change.")),
 		bowline.Upload("attach", a.attach, bowline.Description("Attach stores a file against an invoice.")),
 		bowline.Query("attachments", a.listAttachments),
-	)
+	).Use(RequireToken(a.token))
 }
 
 func (a *API) watchInvoices(ctx context.Context, in WatchInput, stream *bowline.Stream[ledger.Invoice]) error {

@@ -49,6 +49,7 @@
     },
     "/customers.search": {
       "post": {
+        "description": "Search finds customers whose name or email contains the query.",
         "operationId": "customers.search",
         "requestBody": {
           "content": {
@@ -281,6 +282,7 @@
     },
     "/invoices.list": {
       "get": {
+        "description": "List returns a page of invoices, optionally filtered by status.",
         "operationId": "invoices.list",
         "parameters": [
           {
@@ -318,6 +320,7 @@
     },
     "/invoices.void": {
       "post": {
+        "description": "Void cancels a draft or sent invoice.",
         "operationId": "invoices.void",
         "requestBody": {
           "content": {
