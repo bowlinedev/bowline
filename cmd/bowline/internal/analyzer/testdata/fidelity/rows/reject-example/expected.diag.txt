@@ -1,0 +1,4 @@
+rows/reject-example/api.go:22:2: Sample.Since: example "yesterday" is not an RFC 3339 timestamp. write the example as the value would appear on the wire
+rows/reject-example/api.go:23:2: Sample.Status: example "void" is not a value of Status (draft, sent). write the example as the value would appear on the wire
+rows/reject-example/api.go:24:2: Sample.Home: example "{city: Rome}" is not valid JSON. write the example as the value would appear on the wire
+rows/reject-example/api.go:25:2: Sample.Age: example "many" is not a valid int32. write the example as the value would appear on the wire

@@ -1,0 +1,59 @@
+import { createClient as create, type ClientOptions, type ContractRuntime, type Base64, type BowlineError, type DurationNs, type Query } from "@bowline/client";
+
+export interface Address {
+  city: string;
+}
+
+export type Level = 1 | 10;
+
+export interface Sample {
+  name: string;
+  email: string;
+  age: number;
+  big: bigint;
+  ratio: number;
+  active: boolean;
+  status: Status;
+  level: Level;
+  slug: Slug;
+  since: Date;
+  timeout: DurationNs;
+  blob: Base64;
+  raw: unknown;
+  tags: string[];
+  counts: Record<string, number>;
+  home: Address;
+  nick?: string;
+  ratings: Level[];
+}
+
+export type Slug = string;
+
+export type Status = "draft" | "sent";
+
+export interface Errors {
+  "get": BowlineError;
+}
+
+export type ProcedureError<P extends keyof Errors> = Errors[P];
+
+export interface Client {
+  get: Query<Record<string, never>, Sample>;
+}
+
+export const contract = {
+  version: "1.2",
+  hydrators: {
+    "Sample": [
+      { path: ["big"], kind: "bigint" },
+      { path: ["since"], kind: "timestamp" },
+    ],
+  },
+  procedures: {
+    "get": { kind: "query", method: "GET", output: "Sample" },
+  },
+} satisfies ContractRuntime;
+
+export function createClient(options: ClientOptions): Client {
+  return create(contract, options) as Client;
+}

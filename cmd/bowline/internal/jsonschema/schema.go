@@ -297,6 +297,9 @@ func (b *builder) object(fields []*contract.Field, doc string, env map[string]*c
 			prop = withDescription(prop, f.Doc)
 		}
 		prop = applyRules(prop, f)
+		if f.Example != nil {
+			prop = withExample(prop, f.Example)
+		}
 		props[f.Name] = prop
 		if !f.Optional {
 			required = append(required, f.Name)
@@ -319,5 +322,14 @@ func withDescription(n node, doc string) node {
 		copied[k] = v
 	}
 	copied["description"] = doc
+	return copied
+}
+
+func withExample(n node, example any) node {
+	copied := node{}
+	for k, v := range n {
+		copied[k] = v
+	}
+	copied["examples"] = []any{example}
 	return copied
 }

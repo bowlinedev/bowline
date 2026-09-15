@@ -1,8 +1,8 @@
 {
-  "bowline": "1.1",
+  "bowline": "1.2",
   "eval": 1,
-  "contract": "sha256:ca334acb3b4d5a9e4e32bd761dfb1ae5f7bfd4a3161ebb37be9a454ba70bd1ae",
-  "recordedAt": "2026-09-15T20:01:37Z",
+  "contract": "sha256:102791c91fb7d39ac9772b19272968617b47fbda071231812a7a43283d726ed8",
+  "recordedAt": "2026-09-15T20:10:37Z",
   "volatile": [],
   "steps": [
     {

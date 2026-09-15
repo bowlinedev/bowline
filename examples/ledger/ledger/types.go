@@ -17,8 +17,8 @@ type Audit struct {
 }
 
 type Line struct {
-	Description string `json:"description" validate:"required,max=200"`
-	Quantity    int32  `json:"quantity" validate:"min=1"`
+	Description string `json:"description" validate:"required,max=200" example:"Consulting"`
+	Quantity    int32  `json:"quantity" validate:"min=1" example:"10"`
 	UnitPrice   Money  `json:"unitPrice"`
 }
 
@@ -28,14 +28,14 @@ type Invoice struct {
 	Status     Status  `json:"status"`
 	Total      Money   `json:"total"`
 	Lines      []Line  `json:"lines"`
-	Note       *string `json:"note,omitempty"`
+	Note       *string `json:"note,omitempty" example:"net 30"`
 	Audit
 }
 
 type Customer struct {
 	ID    int64  `json:"id"`
-	Name  string `json:"name" validate:"required"`
-	Email string `json:"email" validate:"required,email"`
+	Name  string `json:"name" validate:"required" example:"Ada Lovelace"`
+	Email string `json:"email" validate:"required,email" example:"ada@example.com"`
 	Audit
 }
 

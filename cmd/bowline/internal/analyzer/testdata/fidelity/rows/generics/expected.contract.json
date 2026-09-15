@@ -1,6 +1,6 @@
 {
-  "bowline": "1.1",
-  "hash": "sha256:f657127d8af04addc15f76d5d15ba66b78d902d3f26a4f9490afd2ebe09a01c5",
+  "bowline": "1.2",
+  "hash": "sha256:ae463234847bbfbbf699ed9b2be72fdea29d7f141f46ba23f84aab9023f53f4f",
   "types": {
     "fidelity.test/rows/generics.Page": {
       "kind": "generic",
