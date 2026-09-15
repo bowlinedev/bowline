@@ -15,12 +15,15 @@ const usage = `usage: bowline <command>
 
 commands:
   gen        analyze the module and write the contract and every target
-  export     export openapi [-o path], or export tools [--format F] [--scope S] [--read-only] [--out path]
   check      verify the committed contract and targets are up to date
              --against <git-ref> diffs the contract against that ref instead
              and fails on breaking changes unless --allow-breaking is set
   export openapi [-o path]
              write an OpenAPI 3.1 document derived from the contract
+  export tools [--format anthropic|openai|json-schema] [--scope S] [--read-only] [--out path]
+             write LLM tool definitions for every exposed procedure
+  mcp --url <base> [--listen addr] [--scope S] [--read-only] [--rate N --burst B] [--header "K: v"]
+             serve the exposed procedures to MCP clients over stdio or HTTP
   migrate-contract [path]
              rewrite a contract document from an older format version
   diff <old> <new> [--format text|markdown|json]
@@ -54,6 +57,12 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cli.Migrate(opts, args[1:])
 	case "diff":
 		return cli.DiffCommand(opts, args[1:])
+	case "mcp":
+		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+		defer cancel()
+		opts.Stdin = os.Stdin
+		opts.Stop = ctx.Done()
+		return cli.MCP(opts, args[1:])
 	case "dev":
 		stop := make(chan struct{})
 		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)

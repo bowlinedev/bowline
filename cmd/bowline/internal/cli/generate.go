@@ -26,8 +26,10 @@ var Generators = map[string]Generator{}
 type Options struct {
 	Dir    string
 	Env    []string
+	Stdin  io.Reader
 	Stdout io.Writer
 	Stderr io.Writer
+	Stop   <-chan struct{}
 }
 
 func Produce(opts Options) (map[string][]byte, []analyzer.Diagnostic, error) {
