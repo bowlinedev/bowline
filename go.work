@@ -8,6 +8,8 @@ use (
 	./agent
 	./playground
 	./contracttest
+	./adapters/fiber
+	./examples/routers/fiber
 	./examples/ledger
 	./examples/nethttp-minimal
 )
