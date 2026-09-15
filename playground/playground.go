@@ -57,13 +57,19 @@ func NewDynamic(contract func() []byte, opts ...Option) http.Handler {
 	for _, opt := range opts {
 		opt(h)
 	}
-	assets, err := fs.Sub(bundle, "ui/dist")
-	if err != nil {
-		assets = bundle
+	if h.assets == nil {
+		assets, err := fs.Sub(bundle, "ui/dist")
+		if err != nil {
+			assets = bundle
+		}
+		h.assets = assets
 	}
-	h.assets = assets
-	h.files = http.FileServerFS(assets)
+	h.files = http.FileServerFS(h.assets)
 	return h
+}
+
+func withAssets(assets fs.FS) Option {
+	return func(h *handler) { h.assets = assets }
 }
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
