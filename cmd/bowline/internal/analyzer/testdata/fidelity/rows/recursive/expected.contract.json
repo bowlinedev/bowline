@@ -1,6 +1,6 @@
 {
-  "bowline": "0.1",
-  "hash": "sha256:ca44c2371ea89f7c66e995f06f7f6f445d2e50b74b2fba2885cf7f5f402d111c",
+  "bowline": "1.0",
+  "hash": "sha256:c75d24593d43b2a6b217986b8c429748583f191c6fadde25950f5587c037826e",
   "types": {
     "fidelity.test/rows/recursive.Node": {
       "kind": "struct",
@@ -34,6 +34,7 @@
       ]
     }
   },
+  "errors": {},
   "procedures": [
     {
       "path": "get",

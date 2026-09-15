@@ -16,6 +16,8 @@ const usage = `usage: bowline <command>
 commands:
   gen        analyze the module and write the contract and every target
   check      verify the committed contract and targets are up to date
+  migrate-contract [path]
+             rewrite a contract document from an older format version
   version    print the bowline version
 `
 
@@ -39,6 +41,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cli.Gen(opts)
 	case "check":
 		return cli.Check(opts)
+	case "migrate-contract":
+		return cli.Migrate(opts, args[1:])
 	case "dev":
 		stop := make(chan struct{})
 		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)

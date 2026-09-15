@@ -59,7 +59,7 @@ func TestMarshalIsCanonical(t *testing.T) {
 	if !bytes.HasSuffix(first, []byte("\n")) {
 		t.Fatal("output must end with a newline")
 	}
-	if !strings.HasPrefix(string(first), "{\n  \"bowline\": \"0.1\"") {
+	if !strings.HasPrefix(string(first), "{\n  \"bowline\": \"1.0\"") {
 		t.Fatalf("unexpected prefix: %q", first[:40])
 	}
 	getIdx := strings.Index(string(first), `"path": "users.get"`)
@@ -108,24 +108,24 @@ func TestParseRoundTrip(t *testing.T) {
 }
 
 func TestParseRejectsOtherMajor(t *testing.T) {
-	_, err := Parse([]byte(`{"bowline":"1.0","types":{},"procedures":[]}`))
+	_, err := Parse([]byte(`{"bowline":"2.0","types":{},"procedures":[]}`))
 	if err == nil {
 		t.Fatal("expected error for major version mismatch")
 	}
-	if !strings.Contains(err.Error(), "1.0") {
+	if !strings.Contains(err.Error(), "2.0") {
 		t.Fatalf("error should name the version: %v", err)
 	}
 }
 
 func TestParseAcceptsSameMajorHigherMinor(t *testing.T) {
-	_, err := Parse([]byte(`{"bowline":"0.9","types":{},"procedures":[],"future":true}`))
+	_, err := Parse([]byte(`{"bowline":"1.9","types":{},"procedures":[],"future":true}`))
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestParseKeepsIntegerEnumValues(t *testing.T) {
-	doc, err := Parse([]byte(`{"bowline":"0.1","types":{"p.Level":{"kind":"enum","name":"Level","base":"int64","values":[{"name":"High","value":9007199254740993}]}},"procedures":[]}`))
+	doc, err := Parse([]byte(`{"bowline":"1.0","types":{"p.Level":{"kind":"enum","name":"Level","base":"int64","values":[{"name":"High","value":9007199254740993}]}},"procedures":[]}`))
 	if err != nil {
 		t.Fatal(err)
 	}

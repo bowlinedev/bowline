@@ -19,6 +19,31 @@
       ],
       "type": "object"
     },
+    "ErrorDecl": {
+      "additionalProperties": true,
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "doc": {
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/Field"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "code"
+      ],
+      "type": "object"
+    },
     "Field": {
       "additionalProperties": true,
       "properties": {
@@ -75,11 +100,20 @@
         "doc": {
           "type": "string"
         },
+        "errors": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "goInput": {
           "type": "string"
         },
         "goOutput": {
           "type": "string"
+        },
+        "idempotent": {
+          "type": "boolean"
         },
         "input": {
           "$ref": "#/$defs/Type"
@@ -245,12 +279,18 @@
       "type": "object"
     }
   },
-  "$id": "https://bowline.dev/spec/contract/0.1/contract.schema.json",
+  "$id": "https://bowline.dev/spec/contract/1.0/contract.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": true,
   "properties": {
     "bowline": {
       "type": "string"
+    },
+    "errors": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ErrorDecl"
+      },
+      "type": "object"
     },
     "hash": {
       "type": "string"
@@ -277,6 +317,7 @@
   "required": [
     "bowline",
     "types",
+    "errors",
     "procedures"
   ],
   "title": "Bowline contract document",

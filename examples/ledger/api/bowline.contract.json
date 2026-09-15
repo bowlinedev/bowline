@@ -1,6 +1,6 @@
 {
-  "bowline": "0.1",
-  "hash": "sha256:a1f7f27156183fb3f53b2934fcab33d6f16e287e4d57a058d1f7e9a044a562d6",
+  "bowline": "1.0",
+  "hash": "sha256:dcb7a77672c871ee845a6888125f4bf8989b44b9753cb6644983d9a20237e359",
   "types": {
     "github.com/bowlinedev/bowline/examples/ledger/api.CreateInvoiceInput": {
       "kind": "struct",
@@ -400,6 +400,7 @@
       ]
     }
   },
+  "errors": {},
   "procedures": [
     {
       "path": "customers.get",
