@@ -99,6 +99,9 @@ async function prepare(
     headers.set(k, v);
   }
   headers.set("accept", accept);
+  if (callOptions?.idempotencyKey !== undefined) {
+    headers.set("idempotency-key", callOptions.idempotencyKey);
+  }
   const body = serialize(input ?? {});
   let url = `${base}/${path}`;
   const init: RequestInit = { method: proc.method, headers, signal: callOptions?.signal ?? null };

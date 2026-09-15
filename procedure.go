@@ -24,6 +24,7 @@ type Procedure struct {
 	Description string
 	Deprecated  string
 	Sensitive   bool
+	Idempotent  bool
 	Meta        map[string]string
 	In          reflect.Type
 	Out         reflect.Type

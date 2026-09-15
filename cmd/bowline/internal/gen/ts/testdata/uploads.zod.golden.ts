@@ -1,0 +1,22 @@
+import { z } from "zod";
+
+const AttachInput = z.object({
+  invoiceId: z.number().int(),
+});
+
+const Attachment = z.object({
+  name: z.string(),
+  size: z.number().int(),
+});
+
+export const schemas = {
+  AttachInput,
+  Attachment,
+} as const;
+
+export const inputs = {
+  "attach": AttachInput,
+} as const;
+
+export const errors = {
+} as const;

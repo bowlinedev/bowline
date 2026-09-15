@@ -7,6 +7,7 @@ export type DurationNs = number & { readonly __bowline: "duration-ns" };
 export interface CallOptions {
   signal?: AbortSignal;
   headers?: HeadersInit;
+  idempotencyKey?: string;
 }
 
 export type HeadersSource = HeadersInit | (() => HeadersInit | Promise<HeadersInit>);

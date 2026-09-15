@@ -1,0 +1,70 @@
+{
+  "bowline": "1.0",
+  "hash": "sha256:49622a241dfebfabb52265100fe6e998632c5f35edc252629e8ee96117abfa4e",
+  "types": {
+    "fidelity.test/rows/idempotent.CreateInput": {
+      "kind": "struct",
+      "name": "CreateInput",
+      "fields": [
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
+    "fidelity.test/rows/idempotent.Created": {
+      "kind": "struct",
+      "name": "Created",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    }
+  },
+  "errors": {},
+  "procedures": [
+    {
+      "path": "create",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/idempotent.CreateInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/idempotent.Created"
+      },
+      "goInput": "fidelity.test/rows/idempotent.CreateInput",
+      "goOutput": "fidelity.test/rows/idempotent.Created",
+      "idempotent": true
+    }
+  ],
+  "positions": {
+    "create": {
+      "file": "rows/idempotent/api.go",
+      "line": 20
+    },
+    "fidelity.test/rows/idempotent.CreateInput": {
+      "file": "rows/idempotent/api.go",
+      "line": 9
+    },
+    "fidelity.test/rows/idempotent.Created": {
+      "file": "rows/idempotent/api.go",
+      "line": 13
+    }
+  }
+}

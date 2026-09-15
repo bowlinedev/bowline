@@ -319,3 +319,16 @@ test("subscribe delivers callbacks and unsubscribe aborts the request", async ()
   expect(aborted).toBe(true);
   expect(done).toBe(false);
 });
+
+test("idempotencyKey sets the header", async () => {
+  let seen: Headers | undefined;
+  const client = createClient(contract, {
+    url: "http://api.test",
+    fetch: fakeFetch((_url, init) => {
+      seen = new Headers(init.headers);
+      return json({ id: 1, createdAt: "2026-09-15T12:00:00Z" });
+    }),
+  }) as Client;
+  await client.users.create({ name: "ada", big: 1n }, { idempotencyKey: "abc" });
+  expect(seen?.get("idempotency-key")).toBe("abc");
+});

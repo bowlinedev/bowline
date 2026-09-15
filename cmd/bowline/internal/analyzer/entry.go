@@ -24,6 +24,7 @@ type procedureSpec struct {
 	Description string
 	Deprecated  string
 	Sensitive   bool
+	Idempotent  bool
 	Meta        map[string]string
 	Errors      []errorRef
 }
@@ -290,6 +291,8 @@ func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedure
 		spec.Deprecated, _ = e.constArg(pkg, call, 0, spec.Path)
 	case "Sensitive":
 		spec.Sensitive = true
+	case "Idempotent":
+		spec.Idempotent = true
 	case "Meta":
 		k, ok1 := e.constArg(pkg, call, 0, spec.Path)
 		v, ok2 := e.constArg(pkg, call, 1, spec.Path)
@@ -307,7 +310,7 @@ func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedure
 		}
 	case "Use":
 	default:
-		e.fail(call.Pos(), spec.Path, "unsupported procedure option", "use bowline.Description, Deprecated, Sensitive, Meta, Errors, or Use")
+		e.fail(call.Pos(), spec.Path, "unsupported procedure option", "use bowline.Description, Deprecated, Sensitive, Idempotent, Meta, Errors, or Use")
 	}
 }
 

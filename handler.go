@@ -42,6 +42,10 @@ type handler struct {
 	strict     bool
 	heartbeat  time.Duration
 	maxUpload  int64
+
+	idempotency    IdempotencyStore
+	idempotencyTTL time.Duration
+	requireKey     bool
 }
 
 func (r *Router) Handler(opts ...HandlerOption) http.Handler {
@@ -75,6 +79,15 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.writeError(w, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, rt.path, proc.Method()))
 		return
 	}
+	if proc.Kind == KindMutation && proc.Idempotent && h.idempotency != nil {
+		h.serveIdempotent(w, req, rt)
+		return
+	}
+	h.execute(w, req, rt)
+}
+
+func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route) {
+	proc := rt.proc
 	if proc.Kind == KindUpload {
 		h.serveUpload(w, req, rt)
 		return

@@ -37,6 +37,7 @@ func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
 			Method:     spec.Method,
 			GoInput:    goTypeName(spec.In),
 			GoOutput:   goTypeName(spec.Out),
+			Idempotent: spec.Idempotent,
 			Deprecated: spec.Deprecated,
 		}
 		if len(spec.Meta) > 0 {
