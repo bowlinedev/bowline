@@ -21,5 +21,6 @@ A client target is official when every check below is green in this repository's
 | `dart` | `cmd/bowline/internal/gen/dart` | `packages/dart/bowline` | `goldens-dart` | `dart` in `e2e.yml` | `docs/guides/dart.md` |
 | `python` | `cmd/bowline/internal/gen/python` | `packages/python/bowline-client` | `goldens-python` | `python` in `e2e.yml` | `docs/guides/python.md` |
 | `rust` | `cmd/bowline/internal/gen/rust` | `packages/rust/bowline-client` | `goldens-rust` | `rust` in `e2e.yml` | `docs/guides/rust.md` |
+| `elixir` | `cmd/bowline/internal/gen/elixir` | `packages/elixir/bowline_client` | `goldens-elixir` | `elixir` in `e2e.yml` | `docs/guides/elixir.md` |
 
 Client packages share the CLI's minor version and are bumped together by `scripts/bump-clients.sh`; the `release-clients` workflow publishes each on demand once the registry accounts exist.
