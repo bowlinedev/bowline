@@ -34,6 +34,7 @@ export interface ContractField {
   optional?: boolean;
   nullable?: boolean;
   rules?: ContractRule[];
+  example?: unknown;
 }
 
 export interface ContractEnumValue {
