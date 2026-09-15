@@ -102,6 +102,10 @@ jobs:
         if: matrix.go == 'stable'
         working-directory: registry
         run: go vet ./... && go test -race ./...
+      - name: vet and test federation billing service
+        if: matrix.go == 'stable'
+        working-directory: examples/federation/billing
+        run: go vet ./... && go test -race ./...
       - name: contracts are current
         if: matrix.go == 'stable'
         run: |
