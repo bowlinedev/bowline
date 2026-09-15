@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Security: every error path in the runtime is audited in `docs/security/audit-2026.md`; production now redacts the message, details, and issues of every 5xx, including `bowline.Errorf(bowline.Internal, ...)` and panics, and decoder failures answer `invalid input` instead of echoing the request body.
+- Runtime: `bowline.CSRF` rejects cross-origin mutations by origin and fetch metadata, `bowline.SecurityHeaders` sets the header set, `bowline.MaxBody` sets a per-procedure body limit recorded in the contract, and `bowline.RateLimit` is a token bucket middleware with key eviction.
+
 ## 0.7.0
 
 - Runtime: `bowline.WithContract` serves `.bowline/contract` and `.bowline/health`; `bowline.Signed` verifies HMAC request signatures before decoding, with the `signing` package for clients.
