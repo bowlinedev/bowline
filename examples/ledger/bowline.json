@@ -1,4 +1,5 @@
 {
   "entry": "./api.Routes",
-  "contract": "api/bowline.contract.json"
+  "contract": "api/bowline.contract.json",
+  "targets": { "ts": { "out": "web/src/bowline.ts" } }
 }
