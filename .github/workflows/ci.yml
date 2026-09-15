@@ -145,6 +145,8 @@ jobs:
             examples/ledger/go.sum
       - name: run every runnable block in the guides
         run: scripts/docs-check.sh
+      - name: guide snippets match their sources
+        run: scripts/check-snippets.sh
 
   devloop-windows:
     runs-on: windows-latest
