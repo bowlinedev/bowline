@@ -1,0 +1,68 @@
+package cli
+
+import (
+	"flag"
+	"fmt"
+	"os"
+	"path"
+	"path/filepath"
+
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/export/openapi"
+	"github.com/bowlinedev/bowline/contract"
+)
+
+func Export(opts Options, args []string) int {
+	if len(args) == 0 || args[0] != "openapi" {
+		fmt.Fprintln(opts.Stderr, "bowline: usage: bowline export openapi [-o path]")
+		return 2
+	}
+	flags := flag.NewFlagSet("export openapi", flag.ContinueOnError)
+	flags.SetOutput(opts.Stderr)
+	out := flags.String("o", "", "output path relative to the module root")
+	if err := flags.Parse(args[1:]); err != nil {
+		return 2
+	}
+	cfg, err := LoadConfig(opts.Dir)
+	if err != nil {
+		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
+		return 1
+	}
+	files, diags, err := Produce(opts)
+	if err != nil {
+		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
+		return 1
+	}
+	if len(diags) > 0 {
+		printDiagnostics(opts.Stderr, diags)
+		return 1
+	}
+	doc, err := contract.Parse(files[cfg.Contract])
+	if err != nil {
+		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
+		return 1
+	}
+	info := openapi.Info{}
+	if cfg.OpenAPI != nil {
+		info = openapi.Info{Title: cfg.OpenAPI.Title, Version: cfg.OpenAPI.Version, ServerURL: cfg.OpenAPI.ServerURL}
+	}
+	data, err := openapi.Export(doc, info)
+	if err != nil {
+		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
+		return 1
+	}
+	rel := *out
+	if rel == "" {
+		rel = path.Join(path.Dir(cfg.Contract), "openapi.json")
+	}
+	target := filepath.Join(opts.Dir, filepath.FromSlash(rel))
+	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
+		return 1
+	}
+	if err := os.WriteFile(target, data, 0o644); err != nil {
+		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
+		return 1
+	}
+	fmt.Fprintf(opts.Stdout, "wrote %s\n", rel)
+	return 0
+}

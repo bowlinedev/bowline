@@ -16,6 +16,8 @@ const usage = `usage: bowline <command>
 commands:
   gen        analyze the module and write the contract and every target
   check      verify the committed contract and targets are up to date
+  export openapi [-o path]
+             write an OpenAPI 3.1 document derived from the contract
   migrate-contract [path]
              rewrite a contract document from an older format version
   diff <old> <new> [--format text|markdown|json]
@@ -43,6 +45,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cli.Gen(opts)
 	case "check":
 		return cli.Check(opts)
+	case "export":
+		return cli.Export(opts, args[1:])
 	case "migrate-contract":
 		return cli.Migrate(opts, args[1:])
 	case "diff":

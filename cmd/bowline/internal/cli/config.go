@@ -15,6 +15,13 @@ type Config struct {
 	Entry    string            `json:"entry"`
 	Contract string            `json:"contract"`
 	Targets  map[string]Target `json:"targets"`
+	OpenAPI  *OpenAPIConfig    `json:"openapi"`
+}
+
+type OpenAPIConfig struct {
+	Title     string `json:"title"`
+	Version   string `json:"version"`
+	ServerURL string `json:"serverUrl"`
 }
 
 type Target struct {
