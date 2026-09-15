@@ -3,7 +3,7 @@ module github.com/bowlinedev/bowline/examples/ledger
 go 1.24
 
 require (
-	github.com/bowlinedev/bowline v0.3.1-0.20260915213025-04f36e789796
+	github.com/bowlinedev/bowline v0.5.1-0.20260915223516-4d7c7a13fdd1
 	github.com/bowlinedev/bowline/contracttest v0.0.0
 	github.com/bowlinedev/bowline/mcp v0.0.0
 	github.com/bowlinedev/bowline/playground v0.0.0
