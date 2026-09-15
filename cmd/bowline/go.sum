@@ -1,9 +1,9 @@
-github.com/bowlinedev/bowline v0.2.1-0.20260915200631-adb3f4301a38 h1:smIcJ8J5YnrJ9JlFAjKSbFZsMfOkh7qQRULZdnbo1Wc=
-github.com/bowlinedev/bowline v0.2.1-0.20260915200631-adb3f4301a38/go.mod h1:QnIKfuTN7Lm8pRibyY3h+a8K4TwPb3S+5mt5/fh5U5U=
-github.com/bowlinedev/bowline/mcp v0.0.0-20260915200631-adb3f4301a38 h1:8jmDla7RyUAsWKM/8xj/OdA19rawtyBcvWgxTnJWqBg=
-github.com/bowlinedev/bowline/mcp v0.0.0-20260915200631-adb3f4301a38/go.mod h1:HTGuKx6RXW7SbjwYGcOFXk+PLZzoADbjFbWrC1XlQkI=
-github.com/bowlinedev/bowline/playground v0.0.0-20260915202207-587961b36b09 h1:dxwbIR9qNaU9duOpH9HfbQnnkNG79sA8aiERkizYz5M=
-github.com/bowlinedev/bowline/playground v0.0.0-20260915202207-587961b36b09/go.mod h1:Hn07mfeY9LDzu1+0A+JfhoPPlZMKSHOrRyswuontuEk=
+github.com/bowlinedev/bowline v0.3.1-0.20260915204325-ba2c558170f5 h1:cZ0myToWWULB9Zxd7tg0GgL9qXpS827qEAyMYkoFQsk=
+github.com/bowlinedev/bowline v0.3.1-0.20260915204325-ba2c558170f5/go.mod h1:QnIKfuTN7Lm8pRibyY3h+a8K4TwPb3S+5mt5/fh5U5U=
+github.com/bowlinedev/bowline/mcp v0.3.1-0.20260915204325-ba2c558170f5 h1:ANQhj3f7CqCX4LK/g2qpBrqBoc0Yrh6/FUIueLwNLCU=
+github.com/bowlinedev/bowline/mcp v0.3.1-0.20260915204325-ba2c558170f5/go.mod h1:EA8va6x7w6VV2Efx0YELve0kwqjC2MSPZ0WoZ6q9dmM=
+github.com/bowlinedev/bowline/playground v0.0.0-20260915204325-ba2c558170f5 h1:dF0rRJgDFgYIbkjlMZ9ETpSiuOYJNgIdt1KB+4MqM5c=
+github.com/bowlinedev/bowline/playground v0.0.0-20260915204325-ba2c558170f5/go.mod h1:Hn07mfeY9LDzu1+0A+JfhoPPlZMKSHOrRyswuontuEk=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 golang.org/x/mod v0.41.0 h1:qJmnOUb4YB+FsEuM3HcWucdZASCPGhsX6uljO6pog0c=
