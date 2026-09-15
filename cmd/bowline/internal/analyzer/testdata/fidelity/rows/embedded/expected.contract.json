@@ -1,0 +1,116 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:9d1487af1058e68d78de92419aed05289165b467477a0d7b7bafa8a7e3757839",
+  "types": {
+    "fidelity.test/rows/embedded.Audit": {
+      "kind": "struct",
+      "name": "Audit",
+      "fields": [
+        {
+          "name": "createdBy",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "version",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/embedded.Named": {
+      "kind": "struct",
+      "name": "Named",
+      "fields": [
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/embedded.Record": {
+      "kind": "struct",
+      "name": "Record",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "createdBy",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "version",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          }
+        },
+        {
+          "name": "named",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/embedded.Named"
+          },
+          "nullable": true
+        },
+        {
+          "name": "extra",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/embedded.Audit"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/embedded.Record"
+      },
+      "goInput": "fidelity.test/rows/embedded.Audit",
+      "goOutput": "fidelity.test/rows/embedded.Record"
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/embedded.Audit": {
+      "file": "rows/embedded/api.go",
+      "line": 9
+    },
+    "fidelity.test/rows/embedded.Named": {
+      "file": "rows/embedded/api.go",
+      "line": 18
+    },
+    "fidelity.test/rows/embedded.Record": {
+      "file": "rows/embedded/api.go",
+      "line": 22
+    },
+    "get": {
+      "file": "rows/embedded/api.go",
+      "line": 33
+    }
+  }
+}

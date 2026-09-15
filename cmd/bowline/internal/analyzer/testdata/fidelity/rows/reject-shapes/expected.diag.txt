@@ -1,0 +1,10 @@
+rows/reject-shapes/api.go:10:2: Weird.PP: pointer to pointer is not supported. use a single pointer
+rows/reject-shapes/api.go:11:2: Weird.C: chan int is not supported. use a struct, slice, map, or primitive
+rows/reject-shapes/api.go:12:2: Weird.F: func() is not supported. use a struct, slice, map, or primitive
+rows/reject-shapes/api.go:13:2: Weird.Z: complex128 is not supported. use a sized integer, float, string, or bool
+rows/reject-shapes/api.go:14:2: Weird.U: uintptr is not supported. use a sized integer, float, string, or bool
+rows/reject-shapes/api.go:15:2: Weird.K: map key type struct{} is not supported. use a string, integer, or encoding.TextMarshaler key
+rows/reject-shapes/api.go:16:2: Weird.S: the json ",string" option is only supported on int64 and uint64 fields. remove the option or change the field type
+rows/reject-shapes/api.go:17:2: Weird.Bad: unsupported validation rule "gte"; supported: required, min, max, len, oneof, email, url, uuid. use only required, min, max, len, oneof, email, url, uuid
+rows/reject-shapes/api.go:18:2: Weird.Wrong: validation rule "email" does not apply to int32. remove the rule or change the field type
+rows/reject-shapes/api.go:26:54: anon: input type struct{X int32} must be a named type or struct{}. declare a named struct for it

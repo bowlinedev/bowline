@@ -1,0 +1,3 @@
+rows/reject-interface/api.go:10:2: Bag.Any: interfaces are not supported. use a concrete struct, or json.RawMessage for an untyped payload
+rows/reject-interface/api.go:11:2: Bag.Meta: interfaces are not supported. use a concrete struct, or json.RawMessage for an untyped payload
+rows/reject-interface/api.go:12:2: Bag.Err: error is an interface type, which is not supported. use a concrete struct, or json.RawMessage for an untyped payload

@@ -1,0 +1,114 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:1a11c90bb11c49262f3770b4f1941284e75370434f30b16d23be2558dd77ef1a",
+  "types": {
+    "fidelity.test/rows/pointers.Doc": {
+      "kind": "struct",
+      "name": "Doc",
+      "fields": [
+        {
+          "name": "title",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "nullable": true
+        },
+        {
+          "name": "subtitle",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "optional": true
+        },
+        {
+          "name": "primary",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/pointers.Tag"
+          },
+          "nullable": true
+        },
+        {
+          "name": "tags",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "ref",
+              "id": "fidelity.test/rows/pointers.Tag",
+              "nullable": true
+            }
+          }
+        },
+        {
+          "name": "byName",
+          "type": {
+            "kind": "map",
+            "key": {
+              "kind": "primitive",
+              "name": "string"
+            },
+            "value": {
+              "kind": "ref",
+              "id": "fidelity.test/rows/pointers.Tag",
+              "nullable": true
+            }
+          }
+        },
+        {
+          "name": "count",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "optional": true
+        }
+      ]
+    },
+    "fidelity.test/rows/pointers.Tag": {
+      "kind": "struct",
+      "name": "Tag",
+      "fields": [
+        {
+          "name": "label",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/pointers.Tag"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/pointers.Doc"
+      },
+      "goInput": "fidelity.test/rows/pointers.Tag",
+      "goOutput": "fidelity.test/rows/pointers.Doc"
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/pointers.Doc": {
+      "file": "rows/pointers/api.go",
+      "line": 13
+    },
+    "fidelity.test/rows/pointers.Tag": {
+      "file": "rows/pointers/api.go",
+      "line": 9
+    },
+    "get": {
+      "file": "rows/pointers/api.go",
+      "line": 25
+    }
+  }
+}

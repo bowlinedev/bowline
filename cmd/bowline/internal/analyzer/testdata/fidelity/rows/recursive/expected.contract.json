@@ -1,0 +1,64 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:ca44c2371ea89f7c66e995f06f7f6f445d2e50b74b2fba2885cf7f5f402d111c",
+  "types": {
+    "fidelity.test/rows/recursive.Node": {
+      "kind": "struct",
+      "name": "Node",
+      "fields": [
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "children",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "ref",
+              "id": "fidelity.test/rows/recursive.Node"
+            }
+          }
+        },
+        {
+          "name": "parent",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/recursive.Node"
+          },
+          "optional": true
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/recursive.Node"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/recursive.Node"
+      },
+      "goInput": "fidelity.test/rows/recursive.Node",
+      "goOutput": "fidelity.test/rows/recursive.Node"
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/recursive.Node": {
+      "file": "rows/recursive/api.go",
+      "line": 9
+    },
+    "get": {
+      "file": "rows/recursive/api.go",
+      "line": 18
+    }
+  }
+}

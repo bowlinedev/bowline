@@ -1,0 +1,1 @@
+rows/reject-computed-name/api.go:17:41: procedure name must be a string constant. use a string literal or a const
