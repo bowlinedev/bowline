@@ -28,13 +28,41 @@ type VoidInvoiceInput struct {
 	ID int64 `json:"id" validate:"required"`
 }
 
+type WatchInput struct {
+	Status *ledger.Status `json:"status,omitempty"`
+}
+
 func (a *API) invoices() *bowline.Router {
 	return bowline.NewRouter(
 		bowline.Query("get", a.getInvoice, bowline.Description("Get returns one invoice by ID.")),
 		bowline.Query("list", a.listInvoices),
-		bowline.Mutation("create", a.createInvoice),
-		bowline.Mutation("void", a.voidInvoice, bowline.Meta("auth", "admin")),
+		bowline.Mutation("create", a.createInvoice, bowline.Idempotent()),
+		bowline.Mutation("void", a.voidInvoice, bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{})),
+		bowline.Subscription("watch", a.watchInvoices, bowline.Description("Watch streams every invoice change.")),
+		bowline.Upload("attach", a.attach, bowline.Description("Attach stores a file against an invoice.")),
+		bowline.Query("attachments", a.listAttachments),
 	)
+}
+
+func (a *API) watchInvoices(ctx context.Context, in WatchInput, stream *bowline.Stream[ledger.Invoice]) error {
+	changes, stop := a.store.Watch()
+	defer stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case inv, ok := <-changes:
+			if !ok {
+				return nil
+			}
+			if in.Status != nil && inv.Status != *in.Status {
+				continue
+			}
+			if err := stream.Send(inv); err != nil {
+				return err
+			}
+		}
+	}
 }
 
 func (a *API) getInvoice(ctx context.Context, in GetInvoiceInput) (ledger.Invoice, error) {
@@ -62,8 +90,8 @@ func (a *API) voidInvoice(ctx context.Context, in VoidInvoiceInput) (ledger.Invo
 	if errors.Is(err, ledger.ErrNotFound) {
 		return ledger.Invoice{}, bowline.Errorf(bowline.NotFound, "invoice %d not found", in.ID)
 	}
-	if inv.Status == ledger.StatusPaid {
-		return ledger.Invoice{}, bowline.Errorf(bowline.FailedPrecondition, "paid invoices cannot be voided")
+	if inv.Status == ledger.StatusPaid || inv.Status == ledger.StatusVoid {
+		return ledger.Invoice{}, InvoiceLocked{ID: inv.ID, Status: inv.Status}
 	}
 	inv.Status = ledger.StatusVoid
 	return a.store.PutInvoice(inv), nil

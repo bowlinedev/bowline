@@ -7,9 +7,12 @@
       "*.json",
       "!**/dist",
       "!**/src/bowline.ts",
+      "!**/src/bowline.zod.ts",
       "!**/bowline.contract.json",
       "!**/test-results",
-      "!.claude"
+      "!.claude",
+      "!**/openapi.json",
+      "!**/bowline.json"
     ],
     "ignoreUnknown": true
   },
