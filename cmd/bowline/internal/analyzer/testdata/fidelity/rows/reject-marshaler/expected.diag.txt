@@ -1,0 +1,1 @@
+rows/reject-marshaler/api.go:16:2: Price.Amount: Money implements json.Marshaler, so its wire shape cannot be inferred. declare it with var _ = bowline.WireAs[Money, W]() where W is the type it marshals as

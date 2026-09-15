@@ -1,0 +1,148 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:c1f3a41701219e69b718d3701f5b4d89022e3828e0a0ff3f22e4ac61188aa8ad",
+  "types": {
+    "fidelity.test/rows/structs.Address": {
+      "kind": "struct",
+      "name": "Address",
+      "doc": "Address is where mail goes.",
+      "fields": [
+        {
+          "name": "street",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "doc": "Street line."
+        },
+        {
+          "name": "city",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
+    "fidelity.test/rows/structs.Person": {
+      "kind": "struct",
+      "name": "Person",
+      "fields": [
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            },
+            {
+              "rule": "min",
+              "param": "1"
+            },
+            {
+              "rule": "max",
+              "param": "80"
+            }
+          ]
+        },
+        {
+          "name": "age",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          },
+          "rules": [
+            {
+              "rule": "min",
+              "param": "0"
+            },
+            {
+              "rule": "max",
+              "param": "150"
+            }
+          ]
+        },
+        {
+          "name": "email",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "rules": [
+            {
+              "rule": "email"
+            }
+          ]
+        },
+        {
+          "name": "home",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/structs.Address"
+          }
+        },
+        {
+          "name": "NoTag",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "inline",
+          "type": {
+            "kind": "struct",
+            "fields": [
+              {
+                "name": "x",
+                "type": {
+                  "kind": "primitive",
+                  "name": "int32"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/structs.Address"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/structs.Person"
+      },
+      "goInput": "fidelity.test/rows/structs.Address",
+      "goOutput": "fidelity.test/rows/structs.Person"
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/structs.Address": {
+      "file": "rows/structs/api.go",
+      "line": 10
+    },
+    "fidelity.test/rows/structs.Person": {
+      "file": "rows/structs/api.go",
+      "line": 16
+    },
+    "get": {
+      "file": "rows/structs/api.go",
+      "line": 32
+    }
+  }
+}

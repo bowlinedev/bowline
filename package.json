@@ -1,0 +1,19 @@
+{
+  "name": "bowline-workspace",
+  "private": true,
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "biome check . && pnpm -r exec tsc --noEmit && pnpm --filter @bowline/client exec tsc -p tsconfig.golden.json",
+    "test": "pnpm -r test",
+    "build": "pnpm -r build",
+    "release": "changeset publish"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.4",
+    "@changesets/cli": "2.29.7",
+    "typescript": "5.9.2"
+  }
+}

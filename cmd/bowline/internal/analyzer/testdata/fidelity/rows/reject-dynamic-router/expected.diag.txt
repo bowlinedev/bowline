@@ -1,0 +1,1 @@
+rows/reject-dynamic-router/api.go:24:9: router structure must be static: expected bowline.NewRouter(...), a call to a function returning *bowline.Router, or a package-level router variable. build routers from literal bowline.NewRouter expressions

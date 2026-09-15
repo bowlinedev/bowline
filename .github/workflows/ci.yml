@@ -1,0 +1,117 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  go:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        go: ["1.24", "stable"]
+    runs-on: ${{ matrix.os }}
+    env:
+      GOWORK: ${{ matrix.go == '1.24' && 'off' || '' }}
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          cache-dependency-path: |
+            go.sum
+            cmd/bowline/go.sum
+            examples/ledger/go.sum
+            examples/nethttp-minimal/go.sum
+      - name: gofmt
+        run: |
+          out="$(gofmt -l .)"
+          if [ -n "$out" ]; then echo "$out"; exit 1; fi
+      - name: vet and test runtime module
+        run: go vet ./... && go test -race ./...
+      - name: vet and test ledger example
+        working-directory: examples/ledger
+        run: go vet ./... && go test -race ./...
+      - name: vet and test minimal example
+        working-directory: examples/nethttp-minimal
+        run: go vet ./... && go test ./...
+      - name: vet and test cli module
+        if: matrix.go == 'stable'
+        working-directory: cmd/bowline
+        run: go vet ./... && go test -race ./...
+      - name: contracts are current
+        if: matrix.go == 'stable'
+        run: |
+          (cd examples/ledger && go run github.com/bowlinedev/bowline/cmd/bowline check)
+          (cd examples/nethttp-minimal && go run github.com/bowlinedev/bowline/cmd/bowline check)
+      - name: staticcheck
+        if: matrix.os == 'ubuntu-latest' && matrix.go == 'stable'
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          staticcheck ./...
+          (cd cmd/bowline && staticcheck ./...)
+      - name: runtime module has no dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          if grep -q '^require' go.mod; then echo "root go.mod must not require anything"; exit 1; fi
+
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm test
+      - run: pnpm build
+
+  devloop-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: session and watcher on Windows
+        working-directory: cmd/bowline
+        run: go test ./internal/analyzer -run 'TestSession|TestDevLoopBudget' -v && go test ./internal/watch -v && go test ./internal/cli -run TestDev -v
+
+  dco:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: every commit is signed off
+        run: |
+          missing=0
+          for sha in $(git rev-list ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}); do
+            if ! git show -s --format=%B "$sha" | grep -q '^Signed-off-by: '; then
+              echo "missing sign-off: $sha"; missing=1
+            fi
+          done
+          exit $missing
+
+  ci:
+    runs-on: ubuntu-latest
+    needs: [go, node, devloop-windows]
+    steps:
+      - run: echo ok

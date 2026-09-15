@@ -1,0 +1,142 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:42020eaf132380346bd3818c0675a8ff879271846a92ae7b0d5ba815e5019994",
+  "types": {
+    "fidelity.test/rows/collections.Cell": {
+      "kind": "struct",
+      "name": "Cell",
+      "fields": [
+        {
+          "name": "v",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/collections.Grid": {
+      "kind": "struct",
+      "name": "Grid",
+      "fields": [
+        {
+          "name": "rows",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "array",
+              "elem": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/collections.Cell"
+              }
+            }
+          }
+        },
+        {
+          "name": "fixed",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "primitive",
+              "name": "int32"
+            },
+            "length": 3
+          }
+        },
+        {
+          "name": "byKey",
+          "type": {
+            "kind": "map",
+            "key": {
+              "kind": "primitive",
+              "name": "string"
+            },
+            "value": {
+              "kind": "ref",
+              "id": "fidelity.test/rows/collections.Cell"
+            }
+          }
+        },
+        {
+          "name": "byInt",
+          "type": {
+            "kind": "map",
+            "key": {
+              "kind": "primitive",
+              "name": "int64"
+            },
+            "value": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          }
+        },
+        {
+          "name": "names",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          },
+          "optional": true,
+          "rules": [
+            {
+              "rule": "max",
+              "param": "10"
+            }
+          ]
+        },
+        {
+          "name": "blob",
+          "type": {
+            "kind": "primitive",
+            "name": "bytes"
+          }
+        },
+        {
+          "name": "ids",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "primitive",
+              "name": "int64"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/collections.Cell"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/collections.Grid"
+      },
+      "goInput": "fidelity.test/rows/collections.Cell",
+      "goOutput": "fidelity.test/rows/collections.Grid"
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/collections.Cell": {
+      "file": "rows/collections/api.go",
+      "line": 11
+    },
+    "fidelity.test/rows/collections.Grid": {
+      "file": "rows/collections/api.go",
+      "line": 15
+    },
+    "get": {
+      "file": "rows/collections/api.go",
+      "line": 30
+    }
+  }
+}

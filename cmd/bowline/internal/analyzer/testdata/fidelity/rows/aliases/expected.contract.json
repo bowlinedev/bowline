@@ -1,0 +1,73 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:460557d67528eae602f0340910ff19c14a9eb5381e057434112172bfac71d11e",
+  "types": {
+    "fidelity.test/rows/aliases.Holder": {
+      "kind": "struct",
+      "name": "Holder",
+      "fields": [
+        {
+          "name": "a",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/aliases.Real"
+          }
+        },
+        {
+          "name": "b",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "ref",
+              "id": "fidelity.test/rows/aliases.Real"
+            }
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/aliases.Real": {
+      "kind": "struct",
+      "name": "Real",
+      "fields": [
+        {
+          "name": "n",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/aliases.Real"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/aliases.Holder"
+      },
+      "goInput": "fidelity.test/rows/aliases.Real",
+      "goOutput": "fidelity.test/rows/aliases.Holder"
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/aliases.Holder": {
+      "file": "rows/aliases/api.go",
+      "line": 15
+    },
+    "fidelity.test/rows/aliases.Real": {
+      "file": "rows/aliases/api.go",
+      "line": 9
+    },
+    "get": {
+      "file": "rows/aliases/api.go",
+      "line": 23
+    }
+  }
+}

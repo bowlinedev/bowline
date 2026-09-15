@@ -1,0 +1,90 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:f2e74a46699ee7034497d2d860c0ef939efc4b5b1025b9a02f2ed7f351a388de",
+  "types": {
+    "fidelity.test/rows/wireas.Envelope": {
+      "kind": "struct",
+      "name": "Envelope",
+      "fields": [
+        {
+          "name": "kind",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/wireas.Line": {
+      "kind": "struct",
+      "name": "Line",
+      "fields": [
+        {
+          "name": "price",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "origin",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "primitive",
+              "name": "float64"
+            },
+            "length": 2
+          }
+        },
+        {
+          "name": "meta",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/wireas.Envelope"
+          }
+        },
+        {
+          "name": "prices",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "struct"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/wireas.Line"
+      },
+      "goInput": "struct{}",
+      "goOutput": "fidelity.test/rows/wireas.Line"
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/wireas.Envelope": {
+      "file": "rows/wireas/api.go",
+      "line": 27
+    },
+    "fidelity.test/rows/wireas.Line": {
+      "file": "rows/wireas/api.go",
+      "line": 39
+    },
+    "get": {
+      "file": "rows/wireas/api.go",
+      "line": 49
+    }
+  }
+}

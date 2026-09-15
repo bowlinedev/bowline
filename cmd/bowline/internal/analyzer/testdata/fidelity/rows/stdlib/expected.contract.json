@@ -1,0 +1,82 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:da2b242a6e88fd4f73cceb42c8e31e92d4d48a0db6af653c57fd1defb178883e",
+  "types": {
+    "fidelity.test/rows/stdlib.Event": {
+      "kind": "struct",
+      "name": "Event",
+      "fields": [
+        {
+          "name": "at",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        },
+        {
+          "name": "took",
+          "type": {
+            "kind": "primitive",
+            "name": "duration"
+          }
+        },
+        {
+          "name": "payload",
+          "type": {
+            "kind": "primitive",
+            "name": "raw"
+          }
+        },
+        {
+          "name": "addr",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "big",
+          "type": {
+            "kind": "primitive",
+            "name": "int64",
+            "encoding": "string"
+          }
+        },
+        {
+          "name": "unsigned",
+          "type": {
+            "kind": "primitive",
+            "name": "uint64",
+            "encoding": "string"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "struct"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/stdlib.Event"
+      },
+      "goInput": "struct{}",
+      "goOutput": "fidelity.test/rows/stdlib.Event"
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/stdlib.Event": {
+      "file": "rows/stdlib/api.go",
+      "line": 12
+    },
+    "get": {
+      "file": "rows/stdlib/api.go",
+      "line": 24
+    }
+  }
+}

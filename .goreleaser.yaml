@@ -1,0 +1,27 @@
+version: 2
+
+project_name: bowline
+
+builds:
+  - id: bowline
+    dir: cmd/bowline
+    main: .
+    binary: bowline
+    env: [CGO_ENABLED=0]
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w
+
+archives:
+  - id: bowline
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  use: github

@@ -1,0 +1,223 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:21292f4b3debdaa73d70ebfea915dda1de4e670efcf82b09a8bd01d76063e949",
+  "types": {
+    "github.com/acme/app/pkg/page.Page": {
+      "kind": "generic",
+      "name": "Page",
+      "params": [
+        "T"
+      ],
+      "body": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "items",
+            "type": {
+              "kind": "array",
+              "elem": {
+                "kind": "param",
+                "name": "T"
+              }
+            }
+          },
+          {
+            "name": "next",
+            "type": {
+              "kind": "primitive",
+              "name": "string"
+            },
+            "optional": true
+          }
+        ]
+      }
+    },
+    "github.com/acme/app/users.GetInput": {
+      "kind": "struct",
+      "name": "GetInput",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
+    "github.com/acme/app/users.ListInput": {
+      "kind": "struct",
+      "name": "ListInput",
+      "fields": [
+        {
+          "name": "cursor",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "optional": true
+        },
+        {
+          "name": "limit",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          },
+          "rules": [
+            {
+              "rule": "min",
+              "param": "1"
+            },
+            {
+              "rule": "max",
+              "param": "100"
+            }
+          ]
+        }
+      ]
+    },
+    "github.com/acme/app/users.Status": {
+      "kind": "enum",
+      "name": "Status",
+      "base": "string",
+      "values": [
+        {
+          "name": "StatusActive",
+          "value": "active"
+        },
+        {
+          "name": "StatusBanned",
+          "value": "banned"
+        }
+      ]
+    },
+    "github.com/acme/app/users.User": {
+      "kind": "struct",
+      "name": "User",
+      "doc": "A registered user.",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "email",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "rules": [
+            {
+              "rule": "email"
+            }
+          ]
+        },
+        {
+          "name": "createdAt",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        },
+        {
+          "name": "nickname",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "optional": true,
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "github.com/acme/app/users.Status"
+          }
+        },
+        {
+          "name": "tags",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          }
+        },
+        {
+          "name": "attributes",
+          "type": {
+            "kind": "map",
+            "key": {
+              "kind": "primitive",
+              "name": "string"
+            },
+            "value": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "users.get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "github.com/acme/app/users.GetInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "github.com/acme/app/users.User"
+      },
+      "goInput": "github.com/acme/app/users.GetInput",
+      "goOutput": "github.com/acme/app/users.User",
+      "doc": "Get returns one user."
+    },
+    {
+      "path": "users.list",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "github.com/acme/app/users.ListInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "github.com/acme/app/pkg/page.Page",
+        "args": [
+          {
+            "kind": "ref",
+            "id": "github.com/acme/app/users.User"
+          }
+        ]
+      },
+      "goInput": "github.com/acme/app/users.ListInput",
+      "goOutput": "github.com/acme/app/pkg/page.Page[github.com/acme/app/users.User]",
+      "deprecated": "use users.search"
+    }
+  ],
+  "positions": {
+    "github.com/acme/app/users.User": {
+      "file": "users/user.go",
+      "line": 12
+    },
+    "users.get": {
+      "file": "users/router.go",
+      "line": 9
+    }
+  }
+}

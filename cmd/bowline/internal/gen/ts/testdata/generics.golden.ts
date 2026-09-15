@@ -1,0 +1,62 @@
+import { createClient as create, type ClientOptions, type ContractRuntime, type Query } from "@bowline/client";
+
+/** Page is one page of results. */
+export interface Page<T> {
+  items: T[];
+  next?: string;
+}
+
+export interface Pair<K, V> {
+  key: K;
+  value: V;
+}
+
+export interface Range_float64 {
+  low: number;
+  high: number;
+}
+
+export interface Range_int32 {
+  low: number;
+  high: number;
+}
+
+export interface Range_int64 {
+  low: number;
+  high: number;
+}
+
+export interface Report {
+  users: Page<User>;
+  nested: Page<Page<User>>;
+  pairs: Pair<string, User>[];
+  tree: Tree<User>;
+  ints: Range_int64;
+  floats: Range_float64;
+  scores: Page<Range_int32>;
+}
+
+export interface Tree<T> {
+  value: T;
+  children: Tree<T>[];
+}
+
+export interface User {
+  name: string;
+}
+
+export interface Client {
+  get: Query<Page<User>, Report>;
+}
+
+export const contract = {
+  version: "0.1",
+  hydrators: {},
+  procedures: {
+    "get": { kind: "query", method: "GET" },
+  },
+} satisfies ContractRuntime;
+
+export function createClient(options: ClientOptions): Client {
+  return create(contract, options) as Client;
+}

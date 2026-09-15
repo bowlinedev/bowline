@@ -1,0 +1,98 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:b2b6329feb10770ce23855f6719906aed5f9d4625e352be1b7de199f1f0ae333",
+  "types": {
+    "fidelity.test/rows/basics.Input": {
+      "kind": "struct",
+      "name": "Input",
+      "fields": [
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "count",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "small",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          }
+        },
+        {
+          "name": "big",
+          "type": {
+            "kind": "primitive",
+            "name": "uint64"
+          }
+        },
+        {
+          "name": "ratio",
+          "type": {
+            "kind": "primitive",
+            "name": "float64"
+          }
+        },
+        {
+          "name": "on",
+          "type": {
+            "kind": "primitive",
+            "name": "bool"
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/basics.Output": {
+      "kind": "struct",
+      "name": "Output",
+      "fields": [
+        {
+          "name": "echo",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "echo",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/basics.Input"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/basics.Output"
+      },
+      "goInput": "fidelity.test/rows/basics.Input",
+      "goOutput": "fidelity.test/rows/basics.Output"
+    }
+  ],
+  "positions": {
+    "echo": {
+      "file": "rows/basics/api.go",
+      "line": 27
+    },
+    "fidelity.test/rows/basics.Input": {
+      "file": "rows/basics/api.go",
+      "line": 9
+    },
+    "fidelity.test/rows/basics.Output": {
+      "file": "rows/basics/api.go",
+      "line": 18
+    }
+  }
+}

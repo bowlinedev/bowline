@@ -1,0 +1,1 @@
+rows/reject-wireas-conflict/api.go:15:9: fidelity.test/rows/reject-wireas-conflict.Money: WireAs declared twice with different wire types string and int64. keep one declaration

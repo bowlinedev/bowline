@@ -1,0 +1,9 @@
+dist/
+node_modules/
+*.test
+*.out
+coverage.*
+.DS_Store
+/cmd/bowline/bowline
+test-results/
+playwright-report/

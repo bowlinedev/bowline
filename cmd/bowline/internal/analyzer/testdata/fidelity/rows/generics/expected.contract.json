@@ -1,0 +1,334 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:28a2f003dd594c8d4269bfd1aa6f01ebf1d96c821af34c78e4a1e70dd06db77f",
+  "types": {
+    "fidelity.test/rows/generics.Page": {
+      "kind": "generic",
+      "name": "Page",
+      "doc": "Page is one page of results.",
+      "params": [
+        "T"
+      ],
+      "body": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "items",
+            "type": {
+              "kind": "array",
+              "elem": {
+                "kind": "param",
+                "name": "T"
+              }
+            }
+          },
+          {
+            "name": "next",
+            "type": {
+              "kind": "primitive",
+              "name": "string"
+            },
+            "optional": true
+          }
+        ]
+      }
+    },
+    "fidelity.test/rows/generics.Pair": {
+      "kind": "generic",
+      "name": "Pair",
+      "params": [
+        "K",
+        "V"
+      ],
+      "body": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "key",
+            "type": {
+              "kind": "param",
+              "name": "K"
+            }
+          },
+          {
+            "name": "value",
+            "type": {
+              "kind": "param",
+              "name": "V"
+            }
+          }
+        ]
+      }
+    },
+    "fidelity.test/rows/generics.Range[float64]": {
+      "kind": "struct",
+      "name": "Range_float64",
+      "fields": [
+        {
+          "name": "low",
+          "type": {
+            "kind": "primitive",
+            "name": "float64"
+          }
+        },
+        {
+          "name": "high",
+          "type": {
+            "kind": "primitive",
+            "name": "float64"
+          }
+        }
+      ],
+      "origin": "fidelity.test/rows/generics.Range"
+    },
+    "fidelity.test/rows/generics.Range[int32]": {
+      "kind": "struct",
+      "name": "Range_int32",
+      "fields": [
+        {
+          "name": "low",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          }
+        },
+        {
+          "name": "high",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          }
+        }
+      ],
+      "origin": "fidelity.test/rows/generics.Range"
+    },
+    "fidelity.test/rows/generics.Range[int64]": {
+      "kind": "struct",
+      "name": "Range_int64",
+      "fields": [
+        {
+          "name": "low",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "high",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ],
+      "origin": "fidelity.test/rows/generics.Range"
+    },
+    "fidelity.test/rows/generics.Report": {
+      "kind": "struct",
+      "name": "Report",
+      "fields": [
+        {
+          "name": "users",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/generics.Page",
+            "args": [
+              {
+                "kind": "ref",
+                "id": "fidelity.test/rows/generics.User"
+              }
+            ]
+          }
+        },
+        {
+          "name": "nested",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/generics.Page",
+            "args": [
+              {
+                "kind": "ref",
+                "id": "fidelity.test/rows/generics.Page",
+                "args": [
+                  {
+                    "kind": "ref",
+                    "id": "fidelity.test/rows/generics.User"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pairs",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "ref",
+              "id": "fidelity.test/rows/generics.Pair",
+              "args": [
+                {
+                  "kind": "primitive",
+                  "name": "string"
+                },
+                {
+                  "kind": "ref",
+                  "id": "fidelity.test/rows/generics.User"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "tree",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/generics.Tree",
+            "args": [
+              {
+                "kind": "ref",
+                "id": "fidelity.test/rows/generics.User"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ints",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/generics.Range[int64]"
+          }
+        },
+        {
+          "name": "floats",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/generics.Range[float64]"
+          }
+        },
+        {
+          "name": "scores",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/generics.Page",
+            "args": [
+              {
+                "kind": "ref",
+                "id": "fidelity.test/rows/generics.Range[int32]"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/generics.Tree": {
+      "kind": "generic",
+      "name": "Tree",
+      "params": [
+        "T"
+      ],
+      "body": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "value",
+            "type": {
+              "kind": "param",
+              "name": "T"
+            }
+          },
+          {
+            "name": "children",
+            "type": {
+              "kind": "array",
+              "elem": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/generics.Tree",
+                "args": [
+                  {
+                    "kind": "param",
+                    "name": "T"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "fidelity.test/rows/generics.User": {
+      "kind": "struct",
+      "name": "User",
+      "fields": [
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/generics.Page",
+        "args": [
+          {
+            "kind": "ref",
+            "id": "fidelity.test/rows/generics.User"
+          }
+        ]
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/generics.Report"
+      },
+      "goInput": "fidelity.test/rows/generics.Page[fidelity.test/rows/generics.User]",
+      "goOutput": "fidelity.test/rows/generics.Report"
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/generics.Page": {
+      "file": "rows/generics/api.go",
+      "line": 10
+    },
+    "fidelity.test/rows/generics.Pair": {
+      "file": "rows/generics/api.go",
+      "line": 15
+    },
+    "fidelity.test/rows/generics.Range[float64]": {
+      "file": "rows/generics/api.go",
+      "line": 29
+    },
+    "fidelity.test/rows/generics.Range[int32]": {
+      "file": "rows/generics/api.go",
+      "line": 29
+    },
+    "fidelity.test/rows/generics.Range[int64]": {
+      "file": "rows/generics/api.go",
+      "line": 29
+    },
+    "fidelity.test/rows/generics.Report": {
+      "file": "rows/generics/api.go",
+      "line": 38
+    },
+    "fidelity.test/rows/generics.Tree": {
+      "file": "rows/generics/api.go",
+      "line": 20
+    },
+    "fidelity.test/rows/generics.User": {
+      "file": "rows/generics/api.go",
+      "line": 34
+    },
+    "get": {
+      "file": "rows/generics/api.go",
+      "line": 51
+    }
+  }
+}
