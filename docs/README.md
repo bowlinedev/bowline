@@ -22,6 +22,7 @@
 - `guides/federation.md`: composing several services into one client behind a gateway.
 - `guides/registry.md`: the contract registry and the "who breaks" query.
 - `guides/signing.md`: signed service-to-service calls.
+- `guides/security.md`: CSRF, security headers, what `Sensitive()` does, and the reverse proxy checklist.
 - `lts.md`: release cadence, support windows, and what gets backported.
 - `security/audit-2026.md`: every error path in the runtime, what it says in production, and the test that pins it.
 - `adoption-test.md`: the ten-minute adoption protocol run before each minor release.
