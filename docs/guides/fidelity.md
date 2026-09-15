@@ -87,3 +87,23 @@ r.Mount("/api", routes.Handler(bowline.WithContract(api.Contract)))
 ```
 
 Procedure names cannot contain a slash, so the reserved paths can never shadow a procedure.
+
+## Signed service-to-service calls
+
+`bowline.Signed(provider)` requires every request to this handler to carry a `Bowline-Signature` header, verified before the input is decoded and before any procedure runs.
+
+```go
+routes.Handler(bowline.Signed(signing.StaticSecrets{"edge": secret}))
+```
+
+The header is `v1,t=<unix seconds>,kid=<key id>,sig=<base64 HMAC-SHA256>`. The signed message is four newline-terminated lines: the method, the request target with its query string, the lowercase hex SHA-256 of the body (of the empty string for `GET`), and the timestamp. A call fails with `UNAUTHENTICATED` when the header is missing or malformed, when the timestamp is more than 300 seconds from server time, when the key ID does not resolve, or when the HMAC does not match; the response never says which, and the reason is logged instead.
+
+Callers sign with `signing.Transport`, which is an `http.RoundTripper`, so the generated Go client takes it without any generator change:
+
+```go
+client := ledgerclient.New(url, ledgerclient.WithHTTPClient(&http.Client{
+	Transport: &signing.Transport{KeyID: "edge", Secret: secret},
+}))
+```
+
+The signature covers the request target as it goes on the wire, so a handler mounted behind `http.StripPrefix` still verifies correctly. Signing applies to every path the handler serves, including the reserved ones, so a probe of a signed handler must be signed too. The 300-second window is the only replay bound: there is no nonce cache, and a signature can be replayed inside that window.
