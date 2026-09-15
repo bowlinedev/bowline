@@ -48,6 +48,7 @@ type handler struct {
 	reserved   *reserved
 	signatures signing.SecretProvider
 	signedBody int64
+	replay     *signing.ReplayCache
 
 	csrf            *csrf
 	securityHeaders bool

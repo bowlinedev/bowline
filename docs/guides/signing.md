@@ -4,17 +4,22 @@ Service-to-service calls carry an HMAC signature so a server can prove the calle
 
 ## On the server
 
-source: signed.go:12-14
+source: signed.go:12-19
 
 ```go
 func Signed(provider signing.SecretProvider) HandlerOption {
-	return func(h *handler) { h.signatures = provider }
+	return func(h *handler) {
+		h.signatures = provider
+		if h.replay == nil {
+			h.replay = signing.NewReplayCache(signing.DefaultReplayCacheSize)
+		}
+	}
 }
 ```
 
 A provider maps a key ID to a secret. The simplest one is a map:
 
-source: signing/signing.go:29-41
+source: signing/signing.go:41-53
 
 ```go
 type SecretProvider interface {
@@ -64,11 +69,13 @@ The transport buffers the body once to hash it, signs, and restores the body, so
 ## The header
 
 ```
-Bowline-Signature: v1,t=1762084800,kid=billing-2026,sig=<base64 HMAC-SHA256>
+Bowline-Signature: v1,t=1762084800,kid=billing-2026,sig=<base64 HMAC-SHA256>,n=<base64url nonce>
 ```
 
-The signed string is four newline-terminated lines: the method, the request target with its query string, the lowercase hex SHA-256 of the body (of the empty string for `GET`), and the timestamp. Those four values pin a signature to one call at one moment without parsing the body.
+The signed string is five newline-terminated lines: the method, the request target with its query string, the lowercase hex SHA-256 of the body (of the empty string for `GET`), the timestamp, and the nonce. Those five values pin a signature to one call at one moment without parsing the body. The nonce is sixteen random bytes drawn per signature, which is what makes two identical calls in the same second produce different signatures.
 
-Verification requires the timestamp to be within 300 seconds of server time, the key ID to resolve, and the HMAC to match in constant time. The window is the only replay protection: a captured request can be repeated inside it. A nonce cache would need state shared between server instances and is deliberately out of scope, so keep the window in mind for mutations that are not idempotent, and reach for `bowline.Idempotent()` where repeating a call must not repeat its effect.
+A header without `n=` omits the nonce line and still verifies, so a caller built against 0.7.0 keeps working; it forfeits replay protection, because without a nonce two identical calls in the same second are indistinguishable from a replay.
+
+Verification requires the timestamp to be within 300 seconds of server time, the key ID to resolve, and the HMAC to match in constant time. A signature that passes all three is then recorded, and a second request carrying it is rejected. The record is a bounded in-memory set per process: it holds at most `signing.DefaultReplayCacheSize` signatures per window and forgets everything older than two windows, so memory is bounded without a timer. Nothing is shared between server instances, so a fleet behind a load balancer protects each instance rather than the fleet; for mutations where repeating a call must not repeat its effect, reach for `bowline.Idempotent()`, which is durable and shared.
 
 Signing covers the request target as it appears on the wire, before any `http.StripPrefix`, because that is the only string both sides see identically. A signed handler also protects `.bowline/contract` and `.bowline/health`, so anything probing a signed service, a gateway included, signs its probes too.
