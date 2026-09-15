@@ -25,6 +25,10 @@ type Procedure struct {
 	Deprecated  string
 	Sensitive   bool
 	Idempotent  bool
+	Exposed     bool
+	ReadOnly    bool
+	Destructive bool
+	Scopes      []string
 	Meta        map[string]string
 	In          reflect.Type
 	Out         reflect.Type

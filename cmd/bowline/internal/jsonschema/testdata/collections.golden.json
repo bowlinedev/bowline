@@ -1,0 +1,108 @@
+{
+  "get": {
+    "input": {
+      "$defs": {
+        "Cell": {
+          "additionalProperties": false,
+          "properties": {
+            "v": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "v"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Cell",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Cell": {
+          "additionalProperties": false,
+          "properties": {
+            "v": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "v"
+          ],
+          "type": "object"
+        },
+        "Grid": {
+          "additionalProperties": false,
+          "properties": {
+            "blob": {
+              "contentEncoding": "base64",
+              "type": "string"
+            },
+            "byInt": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "byKey": {
+              "additionalProperties": {
+                "$ref": "#/$defs/Cell"
+              },
+              "type": "object"
+            },
+            "fixed": {
+              "items": {
+                "maximum": 2147483647,
+                "minimum": -2147483648,
+                "type": "integer"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            "ids": {
+              "items": {
+                "maximum": 9007199254740991,
+                "minimum": -9007199254740991,
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "names": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 10,
+              "type": "array"
+            },
+            "rows": {
+              "items": {
+                "items": {
+                  "$ref": "#/$defs/Cell"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "blob",
+            "byInt",
+            "byKey",
+            "fixed",
+            "ids",
+            "rows"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Grid",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

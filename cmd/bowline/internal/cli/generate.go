@@ -12,6 +12,8 @@ import (
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/analyzer"
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/export/openapi"
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/ts"
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/jsonschema"
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/tools"
 	"github.com/bowlinedev/bowline/contract"
 )
 
@@ -24,8 +26,10 @@ var Generators = map[string]Generator{}
 type Options struct {
 	Dir    string
 	Env    []string
+	Stdin  io.Reader
 	Stdout io.Writer
 	Stderr io.Writer
+	Stop   <-chan struct{}
 }
 
 func Produce(opts Options) (map[string][]byte, []analyzer.Diagnostic, error) {
@@ -34,7 +38,7 @@ func Produce(opts Options) (map[string][]byte, []analyzer.Diagnostic, error) {
 		return nil, nil, err
 	}
 	for name := range cfg.Targets {
-		if _, ok := Generators[name]; !ok {
+		if _, ok := Generators[name]; !ok && name != "tools" {
 			return nil, nil, fmt.Errorf("unknown target %q; available: %s", name, availableTargets())
 		}
 	}
@@ -59,6 +63,21 @@ func Produce(opts Options) (map[string][]byte, []analyzer.Diagnostic, error) {
 
 func render(doc *contract.Document, cfg *Config) (map[string][]byte, error) {
 	files := map[string][]byte{}
+	if cfg.Schemas {
+		for _, p := range doc.Procedures {
+			if p.Tool == nil {
+				continue
+			}
+			input, output, err := jsonschema.Procedure(doc, p)
+			if err != nil {
+				return nil, fmt.Errorf("schemas: %w", err)
+			}
+			p.Schemas = &contract.Schemas{Input: input, Output: output}
+		}
+		if err := doc.SetHash(); err != nil {
+			return nil, err
+		}
+	}
 	data, err := doc.Marshal()
 	if err != nil {
 		return nil, err
@@ -76,6 +95,22 @@ func render(doc *contract.Document, cfg *Config) (map[string][]byte, error) {
 		files[out] = spec
 	}
 	for name, target := range cfg.Targets {
+		if name == "tools" {
+			format := target.Format
+			if format == "" {
+				format = tools.FormatJSONSchema
+			}
+			list, err := tools.FromContract(doc, tools.Filter{})
+			if err != nil {
+				return nil, fmt.Errorf("target tools: %w", err)
+			}
+			content, err := tools.Encode(list, format)
+			if err != nil {
+				return nil, fmt.Errorf("target tools: %w", err)
+			}
+			files[target.Out] = content
+			continue
+		}
 		content, err := Generators[name].Generate(doc, target.Out)
 		if err != nil {
 			return nil, fmt.Errorf("target %s: %w", name, err)
@@ -125,10 +160,11 @@ func writeFiles(dir string, files map[string][]byte) ([]string, error) {
 }
 
 func availableTargets() string {
-	names := make([]string, 0, len(Generators))
+	names := make([]string, 0, len(Generators)+1)
 	for name := range Generators {
 		names = append(names, name)
 	}
+	names = append(names, "tools")
 	sort.Strings(names)
 	if len(names) == 0 {
 		return "none"

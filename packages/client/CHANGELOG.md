@@ -1,5 +1,11 @@
 # @bowline/client
 
+## 0.3.0
+
+### Minor Changes
+
+- `ContractDocument` and its companion types describe a parsed `bowline.contract.json`, including tool exposure and embedded schemas.
+
 ## 0.2.0
 
 ### Minor Changes

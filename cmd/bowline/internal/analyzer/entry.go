@@ -7,8 +7,10 @@ import (
 	"go/token"
 	"go/types"
 	"path/filepath"
+	"slices"
 	"strings"
 
+	"github.com/bowlinedev/bowline/contract"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -25,6 +27,7 @@ type procedureSpec struct {
 	Deprecated  string
 	Sensitive   bool
 	Idempotent  bool
+	Tool        *contract.Tool
 	Meta        map[string]string
 	Errors      []errorRef
 }
@@ -293,6 +296,16 @@ func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedure
 		spec.Sensitive = true
 	case "Idempotent":
 		spec.Idempotent = true
+	case "Tool":
+		if spec.Kind == "subscription" || spec.Kind == "upload" {
+			e.fail(call.Pos(), spec.Path, "subscriptions and uploads cannot be exposed as tools", "expose a query that returns a snapshot instead")
+			return
+		}
+		tool := &contract.Tool{ReadOnly: spec.Kind == "query"}
+		for _, arg := range call.Args {
+			e.toolOption(pkg, arg, spec, tool)
+		}
+		spec.Tool = tool
 	case "Meta":
 		k, ok1 := e.constArg(pkg, call, 0, spec.Path)
 		v, ok2 := e.constArg(pkg, call, 1, spec.Path)
@@ -310,7 +323,35 @@ func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedure
 		}
 	case "Use":
 	default:
-		e.fail(call.Pos(), spec.Path, "unsupported procedure option", "use bowline.Description, Deprecated, Sensitive, Idempotent, Meta, Errors, or Use")
+		e.fail(call.Pos(), spec.Path, "unsupported procedure option", "use bowline.Description, Deprecated, Sensitive, Idempotent, Tool, Meta, Errors, or Use")
+	}
+}
+
+func (e *evaluator) toolOption(pkg *packages.Package, expr ast.Expr, spec *procedureSpec, tool *contract.Tool) {
+	call, ok := ast.Unparen(expr).(*ast.CallExpr)
+	if !ok {
+		e.fail(expr.Pos(), spec.Path, "tool options must be literal bowline.Scope or bowline.Destructive calls", "")
+		return
+	}
+	switch bowlineFunc(pkg, call) {
+	case "Scope":
+		for i := range call.Args {
+			name, ok := e.constArg(pkg, call, i, spec.Path)
+			if !ok {
+				continue
+			}
+			if name == "" {
+				e.fail(call.Args[i].Pos(), spec.Path, "scope names must not be empty", "")
+				continue
+			}
+			if !slices.Contains(tool.Scopes, name) {
+				tool.Scopes = append(tool.Scopes, name)
+			}
+		}
+	case "Destructive":
+		tool.Destructive = true
+	default:
+		e.fail(call.Pos(), spec.Path, "unsupported tool option", "use bowline.Scope or bowline.Destructive")
 	}
 }
 

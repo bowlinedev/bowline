@@ -1,0 +1,246 @@
+{
+  "get": {
+    "input": {
+      "$defs": {
+        "Page_User": {
+          "additionalProperties": false,
+          "description": "Page is one page of results.",
+          "properties": {
+            "items": {
+              "items": {
+                "$ref": "#/$defs/User"
+              },
+              "type": "array"
+            },
+            "next": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "items"
+          ],
+          "type": "object"
+        },
+        "User": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Page_User",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Page_Page_User": {
+          "additionalProperties": false,
+          "description": "Page is one page of results.",
+          "properties": {
+            "items": {
+              "items": {
+                "$ref": "#/$defs/Page_User"
+              },
+              "type": "array"
+            },
+            "next": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "items"
+          ],
+          "type": "object"
+        },
+        "Page_Range_int32": {
+          "additionalProperties": false,
+          "description": "Page is one page of results.",
+          "properties": {
+            "items": {
+              "items": {
+                "$ref": "#/$defs/Range_int32"
+              },
+              "type": "array"
+            },
+            "next": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "items"
+          ],
+          "type": "object"
+        },
+        "Page_User": {
+          "additionalProperties": false,
+          "description": "Page is one page of results.",
+          "properties": {
+            "items": {
+              "items": {
+                "$ref": "#/$defs/User"
+              },
+              "type": "array"
+            },
+            "next": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "items"
+          ],
+          "type": "object"
+        },
+        "Pair_string_User": {
+          "additionalProperties": false,
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/User"
+            }
+          },
+          "required": [
+            "key",
+            "value"
+          ],
+          "type": "object"
+        },
+        "Range_float64": {
+          "additionalProperties": false,
+          "properties": {
+            "high": {
+              "type": "number"
+            },
+            "low": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "high",
+            "low"
+          ],
+          "type": "object"
+        },
+        "Range_int32": {
+          "additionalProperties": false,
+          "properties": {
+            "high": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            },
+            "low": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "high",
+            "low"
+          ],
+          "type": "object"
+        },
+        "Range_int64": {
+          "additionalProperties": false,
+          "properties": {
+            "high": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            },
+            "low": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "high",
+            "low"
+          ],
+          "type": "object"
+        },
+        "Report": {
+          "additionalProperties": false,
+          "properties": {
+            "floats": {
+              "$ref": "#/$defs/Range_float64"
+            },
+            "ints": {
+              "$ref": "#/$defs/Range_int64"
+            },
+            "nested": {
+              "$ref": "#/$defs/Page_Page_User"
+            },
+            "pairs": {
+              "items": {
+                "$ref": "#/$defs/Pair_string_User"
+              },
+              "type": "array"
+            },
+            "scores": {
+              "$ref": "#/$defs/Page_Range_int32"
+            },
+            "tree": {
+              "$ref": "#/$defs/Tree_User"
+            },
+            "users": {
+              "$ref": "#/$defs/Page_User"
+            }
+          },
+          "required": [
+            "floats",
+            "ints",
+            "nested",
+            "pairs",
+            "scores",
+            "tree",
+            "users"
+          ],
+          "type": "object"
+        },
+        "Tree_User": {
+          "additionalProperties": false,
+          "properties": {
+            "children": {
+              "items": {
+                "$ref": "#/$defs/Tree_User"
+              },
+              "type": "array"
+            },
+            "value": {
+              "$ref": "#/$defs/User"
+            }
+          },
+          "required": [
+            "children",
+            "value"
+          ],
+          "type": "object"
+        },
+        "User": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Report",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

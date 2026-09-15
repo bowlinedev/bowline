@@ -57,7 +57,7 @@ func TestContractMatchesRouter(t *testing.T) {
 }
 
 func TestWatchStreamsChanges(t *testing.T) {
-	a := New(ledger.NewStore(time.Now), slog.Default())
+	a := New(ledger.NewStore(time.Now), slog.Default(), "")
 	h := a.Router().Handler()
 	ctx, cancel := context.WithCancel(context.Background())
 	req := httptest.NewRequest(http.MethodGet, "/invoices.watch", nil).WithContext(ctx)
@@ -79,7 +79,7 @@ func TestWatchStreamsChanges(t *testing.T) {
 }
 
 func TestAttachStoresMetadata(t *testing.T) {
-	a := New(ledger.NewStore(time.Now), slog.Default())
+	a := New(ledger.NewStore(time.Now), slog.Default(), "")
 	h := a.Router().Handler()
 	var buf bytes.Buffer
 	mw := multipart.NewWriter(&buf)

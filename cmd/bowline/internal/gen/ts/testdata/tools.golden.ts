@@ -1,0 +1,41 @@
+import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type Mutation, type Query } from "@bowline/client";
+
+export interface ID {
+  id: number;
+}
+
+export interface Item {
+  name: string;
+}
+
+export interface Errors {
+  "get": BowlineError;
+  "hidden": BowlineError;
+  "remove": BowlineError;
+  "search": BowlineError;
+}
+
+export type ProcedureError<P extends keyof Errors> = Errors[P];
+
+export interface Client {
+  /** Get returns one item. */
+  get: Query<ID, Item>;
+  hidden: Query<ID, Item>;
+  remove: Mutation<ID, Record<string, never>>;
+  search: Query<Item, Item>;
+}
+
+export const contract = {
+  version: "1.1",
+  hydrators: {},
+  procedures: {
+    "get": { kind: "query", method: "GET" },
+    "hidden": { kind: "query", method: "GET" },
+    "remove": { kind: "mutation", method: "POST" },
+    "search": { kind: "query", method: "POST" },
+  },
+} satisfies ContractRuntime;
+
+export function createClient(options: ClientOptions): Client {
+  return create(contract, options) as Client;
+}

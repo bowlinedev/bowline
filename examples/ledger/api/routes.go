@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"log/slog"
+	"os"
 	"time"
 
 	"github.com/bowlinedev/bowline"
@@ -12,10 +13,11 @@ import (
 type API struct {
 	store *ledger.Store
 	log   *slog.Logger
+	token string
 }
 
-func New(store *ledger.Store, log *slog.Logger) *API {
-	return &API{store: store, log: log}
+func New(store *ledger.Store, log *slog.Logger, token string) *API {
+	return &API{store: store, log: log, token: token}
 }
 
 type HealthOutput struct {
@@ -24,8 +26,20 @@ type HealthOutput struct {
 }
 
 func Routes() *bowline.Router {
-	a := New(ledger.NewStore(time.Now), slog.Default())
+	a := New(ledger.NewStore(Clock()), slog.Default(), os.Getenv("LEDGER_TOKEN"))
 	return a.Router()
+}
+
+func Clock() func() time.Time {
+	fixed := os.Getenv("LEDGER_FIXED_TIME")
+	if fixed == "" {
+		return time.Now
+	}
+	at, err := time.Parse(time.RFC3339, fixed)
+	if err != nil {
+		panic("LEDGER_FIXED_TIME: " + err.Error())
+	}
+	return func() time.Time { return at }
 }
 
 func (a *API) Router() *bowline.Router {

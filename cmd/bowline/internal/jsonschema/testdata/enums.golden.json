@@ -1,0 +1,72 @@
+{
+  "get": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "Level": {
+          "enum": [
+            1,
+            10
+          ],
+          "type": "integer"
+        },
+        "Order": {
+          "additionalProperties": false,
+          "properties": {
+            "history": {
+              "additionalProperties": {
+                "maximum": 2147483647,
+                "minimum": -2147483648,
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            "level": {
+              "$ref": "#/$defs/Level"
+            },
+            "levels": {
+              "items": {
+                "$ref": "#/$defs/Level"
+              },
+              "type": "array"
+            },
+            "slug": {
+              "type": "string"
+            },
+            "status": {
+              "$ref": "#/$defs/Status",
+              "enum": [
+                "draft",
+                "sent"
+              ]
+            }
+          },
+          "required": [
+            "history",
+            "level",
+            "levels",
+            "slug",
+            "status"
+          ],
+          "type": "object"
+        },
+        "Status": {
+          "description": "Status is the lifecycle state of an order.",
+          "enum": [
+            "draft",
+            "sent",
+            "void"
+          ],
+          "type": "string"
+        }
+      },
+      "$ref": "#/$defs/Order",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

@@ -20,6 +20,14 @@ commands:
              and fails on breaking changes unless --allow-breaking is set
   export openapi [-o path]
              write an OpenAPI 3.1 document derived from the contract
+  export tools [--format anthropic|openai|json-schema] [--scope S] [--read-only] [--out path]
+             write LLM tool definitions for every exposed procedure
+  mcp --url <base> [--listen addr] [--scope S] [--read-only] [--rate N --burst B] [--header "K: v"]
+             serve the exposed procedures to MCP clients over stdio or HTTP
+  eval record --url <base> --script <path> --out <path> [--volatile key] [--header "K: v"] [--agent]
+             run scripted tool calls and write a recording
+  eval replay <recording> --url <base> [--strict-messages] [--header "K: v"]
+             re-run a recording and fail on any changed result
   migrate-contract [path]
              rewrite a contract document from an older format version
   diff <old> <new> [--format text|markdown|json]
@@ -53,6 +61,15 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cli.Migrate(opts, args[1:])
 	case "diff":
 		return cli.DiffCommand(opts, args[1:])
+	case "eval":
+		opts.Stdin = os.Stdin
+		return cli.Eval(opts, args[1:])
+	case "mcp":
+		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+		defer cancel()
+		opts.Stdin = os.Stdin
+		opts.Stop = ctx.Done()
+		return cli.MCP(opts, args[1:])
 	case "dev":
 		stop := make(chan struct{})
 		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)

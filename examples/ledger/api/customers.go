@@ -19,7 +19,7 @@ type SearchCustomersInput struct {
 func (a *API) customers() *bowline.Router {
 	return bowline.NewRouter(
 		bowline.Query("get", a.getCustomer),
-		bowline.Query("search", a.searchCustomers, bowline.Sensitive()),
+		bowline.Query("search", a.searchCustomers, bowline.Sensitive(), bowline.Description("Search finds customers whose name or email contains the query."), bowline.Tool(bowline.Scope("crm"))),
 	)
 }
 

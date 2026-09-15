@@ -135,6 +135,12 @@
         },
         "path": {
           "type": "string"
+        },
+        "schemas": {
+          "$ref": "#/$defs/Schemas"
+        },
+        "tool": {
+          "$ref": "#/$defs/Tool"
         }
       },
       "required": [
@@ -159,6 +165,36 @@
       "required": [
         "rule"
       ],
+      "type": "object"
+    },
+    "Schemas": {
+      "additionalProperties": true,
+      "properties": {
+        "input": {},
+        "output": {}
+      },
+      "required": [
+        "input",
+        "output"
+      ],
+      "type": "object"
+    },
+    "Tool": {
+      "additionalProperties": true,
+      "properties": {
+        "destructive": {
+          "type": "boolean"
+        },
+        "readOnly": {
+          "type": "boolean"
+        },
+        "scopes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
       "type": "object"
     },
     "Type": {
@@ -279,7 +315,7 @@
       "type": "object"
     }
   },
-  "$id": "https://bowline.dev/spec/contract/1.0/contract.schema.json",
+  "$id": "https://bowline.dev/spec/contract/1.1/contract.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": true,
   "properties": {

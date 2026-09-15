@@ -14,6 +14,7 @@ const configFile = "bowline.json"
 type Config struct {
 	Entry    string            `json:"entry"`
 	Contract string            `json:"contract"`
+	Schemas  bool              `json:"schemas"`
 	Targets  map[string]Target `json:"targets"`
 	OpenAPI  *OpenAPIConfig    `json:"openapi"`
 }
@@ -26,8 +27,9 @@ type OpenAPIConfig struct {
 }
 
 type Target struct {
-	Out string `json:"out"`
-	Zod bool   `json:"zod,omitempty"`
+	Out    string `json:"out"`
+	Zod    bool   `json:"zod,omitempty"`
+	Format string `json:"format,omitempty"`
 }
 
 func LoadConfig(dir string) (*Config, error) {

@@ -1,0 +1,9 @@
+{
+  "volatile": [],
+  "calls": [
+    { "id": "1", "tool": "invoices_list", "input": { "limit": 2 } },
+    { "id": "2", "tool": "invoices_get", "input": { "id": 3 } },
+    { "id": "3", "tool": "invoices_get", "input": { "id": 999 } },
+    { "id": "4", "tool": "customers_search", "input": { "query": "ada" } }
+  ]
+}

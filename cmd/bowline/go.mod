@@ -2,9 +2,12 @@ module github.com/bowlinedev/bowline/cmd/bowline
 
 go 1.26.0
 
-require github.com/bowlinedev/bowline v0.0.0-20260915193157-1fa2c17b86eb
+require github.com/bowlinedev/bowline v0.2.1-0.20260915200631-adb3f4301a38
 
-require golang.org/x/tools v0.50.0
+require (
+	github.com/bowlinedev/bowline/mcp v0.0.0-20260915200631-adb3f4301a38
+	golang.org/x/tools v0.50.0
+)
 
 require (
 	golang.org/x/mod v0.41.0 // indirect

@@ -1,0 +1,110 @@
+{
+  "secret": {
+    "input": {
+      "$defs": {
+        "WatchInput": {
+          "additionalProperties": false,
+          "properties": {
+            "limit": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "limit"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/WatchInput",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Change": {
+          "additionalProperties": false,
+          "properties": {
+            "at": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            },
+            "tags": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "at",
+            "id",
+            "tags"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Change",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  },
+  "watch": {
+    "input": {
+      "$defs": {
+        "WatchInput": {
+          "additionalProperties": false,
+          "properties": {
+            "limit": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "limit"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/WatchInput",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Change": {
+          "additionalProperties": false,
+          "properties": {
+            "at": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            },
+            "tags": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "at",
+            "id",
+            "tags"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Change",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

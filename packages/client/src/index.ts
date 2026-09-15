@@ -1,4 +1,18 @@
 export type {
+  ContractDocument,
+  ContractEnumValue,
+  ContractErrorDecl,
+  ContractField,
+  ContractPosition,
+  ContractProcedure,
+  ContractRule,
+  ContractSchemas,
+  ContractTool,
+  ContractType,
+  ContractTypeDecl,
+  TypeKind,
+} from "./contract.js";
+export type {
   BowlineErrorOptions,
   Code,
   Issue,
@@ -30,5 +44,5 @@ export type {
 export type { WebSocketTransportOptions } from "./ws.js";
 export { websocketTransport } from "./ws.js";
 
-export const version = "0.2.0";
+export const version = "0.3.0";
 export { createClient } from "./client.js";

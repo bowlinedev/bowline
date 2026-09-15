@@ -1,0 +1,81 @@
+[
+  {
+    "function": {
+      "description": "Get returns one item.",
+      "name": "get",
+      "parameters": {
+        "$defs": {
+          "ID": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "maximum": 9007199254740991,
+                "minimum": -9007199254740991,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "type": "object"
+          }
+        },
+        "$ref": "#/$defs/ID",
+        "$schema": "https://json-schema.org/draft/2020-12/schema"
+      }
+    },
+    "type": "function"
+  },
+  {
+    "function": {
+      "description": "",
+      "name": "remove",
+      "parameters": {
+        "$defs": {
+          "ID": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "maximum": 9007199254740991,
+                "minimum": -9007199254740991,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "type": "object"
+          }
+        },
+        "$ref": "#/$defs/ID",
+        "$schema": "https://json-schema.org/draft/2020-12/schema"
+      }
+    },
+    "type": "function"
+  },
+  {
+    "function": {
+      "description": "",
+      "name": "search",
+      "parameters": {
+        "$defs": {
+          "Item": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "type": "object"
+          }
+        },
+        "$ref": "#/$defs/Item",
+        "$schema": "https://json-schema.org/draft/2020-12/schema"
+      }
+    },
+    "type": "function"
+  }
+]

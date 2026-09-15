@@ -1,0 +1,60 @@
+{
+  "get": {
+    "input": {
+      "$defs": {
+        "Node": {
+          "additionalProperties": false,
+          "properties": {
+            "children": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "name": {
+              "type": "string"
+            },
+            "parent": {
+              "$ref": "#/$defs/Node"
+            }
+          },
+          "required": [
+            "children",
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Node",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Node": {
+          "additionalProperties": false,
+          "properties": {
+            "children": {
+              "items": {
+                "$ref": "#/$defs/Node"
+              },
+              "type": "array"
+            },
+            "name": {
+              "type": "string"
+            },
+            "parent": {
+              "$ref": "#/$defs/Node"
+            }
+          },
+          "required": [
+            "children",
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Node",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

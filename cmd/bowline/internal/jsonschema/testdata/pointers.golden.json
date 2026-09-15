@@ -1,0 +1,102 @@
+{
+  "get": {
+    "input": {
+      "$defs": {
+        "Tag": {
+          "additionalProperties": false,
+          "properties": {
+            "label": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Tag",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Doc": {
+          "additionalProperties": false,
+          "properties": {
+            "byName": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/Tag"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "count": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            },
+            "primary": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Tag"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "tags": {
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/Tag"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            "title": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "byName",
+            "primary",
+            "tags",
+            "title"
+          ],
+          "type": "object"
+        },
+        "Tag": {
+          "additionalProperties": false,
+          "properties": {
+            "label": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Doc",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

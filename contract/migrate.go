@@ -13,10 +13,10 @@ func Migrate(data []byte) ([]byte, error) {
 	if err := dec.Decode(&doc); err != nil {
 		return nil, fmt.Errorf("contract: migrate: %w", err)
 	}
-	switch doc.Bowline {
-	case "":
+	if doc.Bowline == "" {
 		return nil, fmt.Errorf("contract: migrate: document has no version")
-	case Version:
+	}
+	if checkVersion(doc.Bowline) == nil {
 		return data, nil
 	}
 	if doc.Bowline[0] != '0' {

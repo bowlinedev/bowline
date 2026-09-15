@@ -1,6 +1,6 @@
 {
-  "bowline": "1.0",
-  "hash": "sha256:9826f118fcde30bb96d4775be6b091650d68b0e33d03b3288bc7fb4a8b460e64",
+  "bowline": "1.1",
+  "hash": "sha256:cb5ddd28fbe09d8dc41a196a8543805e7e92ac6f694f98b89fb399d2bce32894",
   "types": {
     "fidelity.test/rows/stdlib.Event": {
       "kind": "struct",

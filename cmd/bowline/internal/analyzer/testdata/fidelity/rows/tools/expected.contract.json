@@ -1,0 +1,140 @@
+{
+  "bowline": "1.1",
+  "hash": "sha256:1f7086a07cfd622e5abf180cf94de9bf17698eb430fda3b1d0b0b514f622bede",
+  "types": {
+    "fidelity.test/rows/tools.ID": {
+      "kind": "struct",
+      "name": "ID",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/tools.Item": {
+      "kind": "struct",
+      "name": "Item",
+      "fields": [
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    }
+  },
+  "errors": {},
+  "procedures": [
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/tools.ID"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/tools.Item"
+      },
+      "goInput": "fidelity.test/rows/tools.ID",
+      "goOutput": "fidelity.test/rows/tools.Item",
+      "tool": {
+        "scopes": [
+          "billing"
+        ],
+        "readOnly": true
+      },
+      "doc": "Get returns one item."
+    },
+    {
+      "path": "hidden",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/tools.ID"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/tools.Item"
+      },
+      "goInput": "fidelity.test/rows/tools.ID",
+      "goOutput": "fidelity.test/rows/tools.Item"
+    },
+    {
+      "path": "remove",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/tools.ID"
+      },
+      "output": {
+        "kind": "struct"
+      },
+      "goInput": "fidelity.test/rows/tools.ID",
+      "goOutput": "struct{}",
+      "tool": {
+        "scopes": [
+          "billing"
+        ],
+        "destructive": true
+      }
+    },
+    {
+      "path": "search",
+      "kind": "query",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/tools.Item"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/tools.Item"
+      },
+      "goInput": "fidelity.test/rows/tools.Item",
+      "goOutput": "fidelity.test/rows/tools.Item",
+      "tool": {
+        "scopes": [
+          "crm",
+          "billing"
+        ],
+        "readOnly": true
+      }
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/tools.ID": {
+      "file": "rows/tools/api.go",
+      "line": 9
+    },
+    "fidelity.test/rows/tools.Item": {
+      "file": "rows/tools/api.go",
+      "line": 13
+    },
+    "get": {
+      "file": "rows/tools/api.go",
+      "line": 30
+    },
+    "hidden": {
+      "file": "rows/tools/api.go",
+      "line": 33
+    },
+    "remove": {
+      "file": "rows/tools/api.go",
+      "line": 32
+    },
+    "search": {
+      "file": "rows/tools/api.go",
+      "line": 31
+    }
+  }
+}

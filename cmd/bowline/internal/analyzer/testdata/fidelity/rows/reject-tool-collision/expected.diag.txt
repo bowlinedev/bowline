@@ -1,0 +1,1 @@
+rows/reject-tool-collision/api.go:18:42: a_b.c: tool name "a_b_c" collides with procedure a.b_c. rename one procedure so the underscore-joined names differ

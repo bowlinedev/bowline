@@ -1,0 +1,2 @@
+rows/reject-tool-on-stream/api.go:19:40: watch: subscriptions and uploads cannot be exposed as tools. expose a query that returns a snapshot instead
+rows/reject-tool-on-stream/api.go:20:36: attach: subscriptions and uploads cannot be exposed as tools. expose a query that returns a snapshot instead

@@ -1,0 +1,60 @@
+{
+  "get": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "Envelope": {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "type": "object"
+        },
+        "Line": {
+          "additionalProperties": false,
+          "properties": {
+            "meta": {
+              "$ref": "#/$defs/Envelope"
+            },
+            "origin": {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            "price": {
+              "type": "string"
+            },
+            "prices": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "meta",
+            "origin",
+            "price",
+            "prices"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Line",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

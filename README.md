@@ -47,6 +47,8 @@ const greeting = await client.greet({ name: "ada" });
 - Idempotency keys for mutations with a pluggable store.
 - A frozen contract format with a semantic diff, and a CI gate that comments breaking changes on pull requests.
 - OpenAPI 3.1 export derived from the contract.
+- Every procedure you mark with `bowline.Tool()` is an LLM tool with a faithful JSON Schema, served to MCP clients by one handler or one command, with your own middleware still deciding who may call it.
+- Agent SDKs in Go, TypeScript, and Python that emit Anthropic and OpenAI tool definitions and dispatch typed calls, plus recorded runs that replay deterministically in CI.
 - `bowline check` fails CI when any generated file drifts from the Go code, and the server verifies the committed contract at startup.
 - `bowline dev` regenerates in well under a second after every save.
 - An `http.Handler` with no dependencies outside the standard library and an overhead under 5 percent against a hand-written handler.
@@ -64,22 +66,41 @@ const greeting = await client.greet({ name: "ada" });
 | `docs/guides/idempotency.md` | idempotency keys and stores |
 | `docs/guides/contract.md` | the contract, the semantic diff, and the breaking-change gate |
 | `docs/guides/openapi.md` | OpenAPI 3.1 export |
+| `docs/guides/tools.md` | exposing procedures as LLM tools |
+| `docs/guides/mcp.md` | the MCP server, in process or `bowline mcp` |
+| `docs/guides/agents.md` | the Go, TypeScript, and Python agent SDKs |
+| `docs/guides/evals.md` | recording and replaying agent runs |
 | `spec/contract.md` | the contract document every generator reads |
 | `spec/mapping-table.md` | the normative Go to TypeScript mapping |
 
 Examples: `examples/ledger` is a Chi server with a React web app and an end-to-end test; `examples/nethttp-minimal` is one procedure on the standard library mux.
 
+## Your API as agent tools
+
+```go
+bowline.Query("get", a.getInvoice, bowline.Tool(bowline.Scope("billing")))
+```
+
+```bash
+bowline mcp --url http://localhost:8080/api --header "Authorization: Bearer dev"
+```
+
+That is an MCP server for every exposed procedure, with schemas derived from your Go types and validation tags, and every call passing through the same middleware a browser request does. `bowline export tools --format anthropic` prints the same tools for a direct integration, and the agent packages dispatch calls from Go, TypeScript, or Python.
+
 ## Status
 
-This is the 0.2 alpha. Applications need Go 1.24 or later; building the CLI needs Go 1.26 or later, and `go install` fetches that toolchain automatically. The contract document format is frozen at 1.0; the Go API and the generated code may still change before 1.0. Coming next: every procedure as an LLM tool and `bowline mcp`.
+This is the 0.3 alpha. Applications need Go 1.24 or later; building the CLI needs Go 1.26 or later, and `go install` fetches that toolchain automatically. The contract document format is 1.1, an additive step from the frozen 1.0; the Go API and the generated code may still change before 1.0. Coming next: a contract-derived mock server and a playground.
 
 ## Layout
 
 - `/` runtime module, `github.com/bowlinedev/bowline`
-- `/cmd/bowline` the CLI: `gen`, `check`, `dev`, `diff`, `export`, `migrate-contract`
+- `/cmd/bowline` the CLI: `gen`, `check`, `dev`, `diff`, `export`, `mcp`, `eval`, `migrate-contract`
 - `/transport/websocket` the WebSocket subscription transport
+- `/mcp` the MCP server module
+- `/agent` the Go agent SDK
 - `/contract` contract document types
-- `/packages` npm packages `@bowline/client` and `@bowline/react-query`
+- `/packages` npm packages `@bowline/client`, `@bowline/react-query`, and `@bowline/agent`
+- `/python/bowline-agent` the Python agent package
 - `/spec` contract specification and JSON Schema
 - `/docs` guides and the adoption protocol
 
