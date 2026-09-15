@@ -56,7 +56,7 @@ func main() {
 EOF
 
 go mod tidy >/dev/null
-(cd "$repo/cmd/bowline" && go build -o "$work/bowline" .)
+(cd "$repo/cmd/bowline" && go build -buildvcs=false -o "$work/bowline" .)
 
 cat > bowline.json <<'EOF'
 {
