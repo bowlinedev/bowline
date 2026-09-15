@@ -1,71 +1,22 @@
 package ts
 
 import (
-	"bytes"
-	"flag"
-	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/goldens"
 	"github.com/bowlinedev/bowline/contract"
 )
 
-var update = flag.Bool("update", false, "rewrite golden files")
-
 func TestGoldens(t *testing.T) {
-	inputs, err := filepath.Glob(filepath.Join("..", "..", "analyzer", "testdata", "fidelity", "rows", "*", "expected.contract.json"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(inputs) == 0 {
-		t.Fatal("no contracts found; run the analyzer fidelity suite first")
-	}
-	for _, input := range inputs {
-		row := filepath.Base(filepath.Dir(input))
-		t.Run(row, func(t *testing.T) {
-			data, err := os.ReadFile(input)
-			if err != nil {
-				t.Fatal(err)
-			}
-			doc, err := contract.Parse(data)
-			if err != nil {
-				t.Fatal(err)
-			}
-			got, err := Generator{}.Generate(doc, "bowline.ts")
-			if err != nil {
-				t.Fatal(err)
-			}
-			golden := filepath.Join("testdata", row+".golden.ts")
-			if *update {
-				os.MkdirAll("testdata", 0o755)
-				if err := os.WriteFile(golden, got, 0o644); err != nil {
-					t.Fatal(err)
-				}
-			}
-			want, err := os.ReadFile(golden)
-			if err != nil {
-				t.Fatalf("%v\n%s", err, got)
-			}
-			if !bytes.Equal(got, want) {
-				t.Fatalf("golden mismatch; run go test ./internal/gen/ts -update after review:\n%s", got)
-			}
+	goldens.Run(t, "ts", "ts", Generator{})
+	for row, doc := range goldens.Rows(t) {
+		t.Run(row+"/zod", func(t *testing.T) {
 			zod, err := Generator{}.GenerateZodFor(doc, row+".golden.ts")
 			if err != nil {
 				t.Fatal(err)
 			}
-			zodGolden := filepath.Join("testdata", row+".zod.golden.ts")
-			if *update {
-				if err := os.WriteFile(zodGolden, zod, 0o644); err != nil {
-					t.Fatal(err)
-				}
-			}
-			wantZod, err := os.ReadFile(zodGolden)
-			if err != nil {
-				t.Fatalf("%v\n%s", err, zod)
-			}
-			if !bytes.Equal(zod, wantZod) {
-				t.Fatalf("zod golden mismatch; run go test ./internal/gen/ts -update after review:\n%s", zod)
-			}
+			goldens.Compare(t, "ts", filepath.Join("testdata", row+".zod.golden.ts"), zod)
 		})
 	}
 }
