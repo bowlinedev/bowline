@@ -14,7 +14,7 @@ type Generator struct {
 	Package string
 }
 
-func (g Generator) WithPackage(pkg string) Generator {
+func (g Generator) WithPackage(pkg string) any {
 	g.Package = pkg
 	return g
 }
