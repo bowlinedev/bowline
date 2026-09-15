@@ -12,6 +12,8 @@ bowline registry serve --store ./registry-data --listen :8095 --token "$CI_TOKEN
 
 Reads are open; every write needs `Authorization: Bearer <token>` matching one of the configured tokens, so with no token the server is read-only. Records are plain JSON under the store directory, one file per service, version, tag, consumer, and composition, so a human can read and diff them.
 
+The server carries a browser UI at `/`, built into the binary. It lists every service with its owners and latest version, shows a version's hash, ref, and tags beside the consumers recorded against it, draws the dependency graph, browses a contract's types and procedures, and runs an impact query against a document you paste or upload. Pass `--ui=false` to serve the API alone.
+
 ## Publishing
 
 ```bash
