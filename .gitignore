@@ -18,3 +18,6 @@ playground/ui/dist/*
 next-env.d.ts
 .dart_tool/
 target/
+
+_build/
+deps/
