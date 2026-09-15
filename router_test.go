@@ -136,7 +136,7 @@ func TestCallFromContext(t *testing.T) {
 	if CallFrom(context.Background()) != nil {
 		t.Fatal("expected nil without a call")
 	}
-	ctx := withCall(context.Background(), Call{Procedure: Procedure{Path: "x"}})
+	ctx := withCall(context.Background(), Call{Procedure: &Procedure{Path: "x"}})
 	if CallFrom(ctx).Procedure.Path != "x" {
 		t.Fatal("call not stored")
 	}

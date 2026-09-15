@@ -34,7 +34,7 @@ func StrictInput() HandlerOption {
 }
 
 type handler struct {
-	routes     map[string]route
+	routes     map[string]*route
 	maxBody    int64
 	log        *slog.Logger
 	production bool
@@ -42,12 +42,12 @@ type handler struct {
 }
 
 func (r *Router) Handler(opts ...HandlerOption) http.Handler {
-	h := &handler{routes: map[string]route{}, maxBody: 1 << 20, log: slog.Default()}
+	h := &handler{routes: map[string]*route{}, maxBody: 1 << 20, log: slog.Default()}
 	for _, opt := range opts {
 		opt(h)
 	}
 	for _, rt := range r.routes() {
-		h.routes[rt.path] = rt
+		h.routes[rt.path] = &rt
 	}
 	return h
 }
@@ -73,7 +73,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.writeError(w, status, err)
 		return
 	}
-	ptr := proc.newIn()
+	ctx, ptr := proc.newFrame(req.Context(), Call{Procedure: &rt.procedure, Request: req})
 	if err := codec.Decode(raw, ptr, h.strict); err != nil {
 		h.writeError(w, 0, Errorf(InvalidArgument, "invalid input: %v", err))
 		return
@@ -88,7 +88,6 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.writeError(w, 0, e)
 		return
 	}
-	ctx := withCall(req.Context(), Call{Procedure: rt.procedure, Request: req})
 	out, err := h.invoke(ctx, rt, in)
 	if err != nil {
 		if status, _ := classify(err, h.production); status >= 500 {
@@ -148,7 +147,7 @@ func (h *handler) readInput(w http.ResponseWriter, req *http.Request) ([]byte, i
 	return body, 0, nil
 }
 
-func (h *handler) invoke(ctx context.Context, rt route, in any) (out any, err error) {
+func (h *handler) invoke(ctx context.Context, rt *route, in any) (out any, err error) {
 	defer func() {
 		if rec := recover(); rec != nil {
 			h.log.ErrorContext(ctx, "bowline: procedure panicked", "procedure", rt.path, "panic", rec, "stack", string(debug.Stack()))

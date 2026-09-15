@@ -73,7 +73,12 @@ func newProcedure[In, Out any](kind ProcedureKind, name string, fn func(context.
 	}
 	p.checker = checker
 	p.plan = codec.Compile(p.Out)
-	p.newIn = func() any { return new(In) }
+	p.newFrame = func(parent context.Context, call Call) (context.Context, any) {
+		f := &frame[In]{}
+		f.ctx.Context = parent
+		f.ctx.call = call
+		return &f.ctx, &f.in
+	}
 	p.call = func(ctx context.Context, in any) (any, error) {
 		return fn(ctx, *in.(*In))
 	}
@@ -88,4 +93,9 @@ func isNamedOrEmptyStruct(t reflect.Type) bool {
 		return true
 	}
 	return t.Kind() == reflect.Struct && t.NumField() == 0
+}
+
+type frame[In any] struct {
+	ctx callContext
+	in  In
 }

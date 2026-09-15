@@ -10,7 +10,7 @@ type Next func(ctx context.Context, in any) (any, error)
 type Middleware func(next Next) Next
 
 type Call struct {
-	Procedure Procedure
+	Procedure *Procedure
 	Request   *http.Request
 }
 

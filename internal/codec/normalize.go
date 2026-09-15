@@ -188,7 +188,15 @@ func (p *Plan) Normalize(v any) (any, error) {
 	if !p.root.active || v == nil {
 		return v, nil
 	}
-	out, changed, err := normalize(p.root, reflect.ValueOf(v), "")
+	rv := reflect.ValueOf(v)
+	needed, err := inspect(p.root, rv, "")
+	if err != nil {
+		return nil, err
+	}
+	if !needed {
+		return v, nil
+	}
+	out, changed, err := normalize(p.root, rv, "")
 	if err != nil {
 		return nil, err
 	}
@@ -196,6 +204,71 @@ func (p *Plan) Normalize(v any) (any, error) {
 		return v, nil
 	}
 	return out.Interface(), nil
+}
+
+func inspect(n *node, v reflect.Value, path string) (bool, error) {
+	if !n.active {
+		return false, nil
+	}
+	switch n.kind {
+	case checkInt:
+		i := v.Int()
+		if i > maxSafeInteger || i < -maxSafeInteger {
+			return false, &RangeError{Path: path, Value: strconv.FormatInt(i, 10)}
+		}
+	case checkUint:
+		u := v.Uint()
+		if u > maxSafeInteger {
+			return false, &RangeError{Path: path, Value: strconv.FormatUint(u, 10)}
+		}
+	case pointer:
+		if v.IsNil() {
+			return false, nil
+		}
+		return inspect(n.elem, v.Elem(), path)
+	case slice:
+		if v.IsNil() {
+			return true, nil
+		}
+		return inspectElements(n, v, path)
+	case array:
+		return inspectElements(n, v, path)
+	case mapping:
+		if v.IsNil() {
+			return true, nil
+		}
+		if !n.elem.active {
+			return false, nil
+		}
+		iter := v.MapRange()
+		for iter.Next() {
+			needed, err := inspect(n.elem, iter.Value(), path+"["+fmt.Sprint(iter.Key().Interface())+"]")
+			if needed || err != nil {
+				return needed, err
+			}
+		}
+	case structure:
+		for _, f := range n.fields {
+			needed, err := inspect(f.node, v.Field(f.index), joinPath(path, f.name))
+			if needed || err != nil {
+				return needed, err
+			}
+		}
+	}
+	return false, nil
+}
+
+func inspectElements(n *node, v reflect.Value, path string) (bool, error) {
+	if !n.elem.active {
+		return false, nil
+	}
+	for i := 0; i < v.Len(); i++ {
+		needed, err := inspect(n.elem, v.Index(i), path+"["+strconv.Itoa(i)+"]")
+		if needed || err != nil {
+			return needed, err
+		}
+	}
+	return false, nil
 }
 
 func normalize(n *node, v reflect.Value, path string) (reflect.Value, bool, error) {

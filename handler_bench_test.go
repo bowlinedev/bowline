@@ -76,22 +76,22 @@ func TestOverheadBudget(t *testing.T) {
 	if os.Getenv("BOWLINE_BENCH") == "" {
 		t.Skip("set BOWLINE_BENCH=1 to run")
 	}
-	best := func(fn func(*testing.B)) float64 {
-		min := 0.0
-		for i := 0; i < 7; i++ {
-			r := testing.Benchmark(fn)
-			ns := float64(r.NsPerOp())
-			if min == 0 || ns < min {
-				min = ns
-			}
-		}
-		return min
+	raw, bl := 0.0, 0.0
+	for i := 0; i < 7; i++ {
+		raw = best(raw, testing.Benchmark(BenchmarkRawNetHTTP))
+		bl = best(bl, testing.Benchmark(BenchmarkBowline))
 	}
-	raw := best(BenchmarkRawNetHTTP)
-	bl := best(BenchmarkBowline)
 	ratio := bl / raw
 	t.Logf("raw %.0f ns/op, bowline %.0f ns/op, ratio %.3f", raw, bl, ratio)
 	if ratio > 1.05 {
 		t.Fatalf("overhead %.1f%% exceeds the 5%% budget", (ratio-1)*100)
 	}
+}
+
+func best(current float64, r testing.BenchmarkResult) float64 {
+	ns := float64(r.NsPerOp())
+	if current == 0 || ns < current {
+		return ns
+	}
+	return current
 }
