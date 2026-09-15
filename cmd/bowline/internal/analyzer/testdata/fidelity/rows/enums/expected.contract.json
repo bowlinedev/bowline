@@ -1,0 +1,141 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:bfe3ea48b3a132d1f14d61f819fca14579c9692c418e65ac478253c8a24bc1eb",
+  "types": {
+    "fidelity.test/rows/enums.Level": {
+      "kind": "enum",
+      "name": "Level",
+      "base": "int32",
+      "values": [
+        {
+          "name": "LevelLow",
+          "value": 1
+        },
+        {
+          "name": "LevelHigh",
+          "value": 10
+        }
+      ]
+    },
+    "fidelity.test/rows/enums.Order": {
+      "kind": "struct",
+      "name": "Order",
+      "fields": [
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/enums.Status"
+          },
+          "rules": [
+            {
+              "rule": "oneof",
+              "param": "draft sent"
+            }
+          ]
+        },
+        {
+          "name": "level",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/enums.Level"
+          }
+        },
+        {
+          "name": "slug",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/enums.Slug"
+          }
+        },
+        {
+          "name": "history",
+          "type": {
+            "kind": "map",
+            "key": {
+              "kind": "primitive",
+              "name": "string"
+            },
+            "value": {
+              "kind": "primitive",
+              "name": "int32"
+            }
+          }
+        },
+        {
+          "name": "levels",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "ref",
+              "id": "fidelity.test/rows/enums.Level"
+            }
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/enums.Slug": {
+      "kind": "primitive",
+      "name": "Slug",
+      "primitive": "string"
+    },
+    "fidelity.test/rows/enums.Status": {
+      "kind": "enum",
+      "name": "Status",
+      "doc": "Status is the lifecycle state of an order.",
+      "base": "string",
+      "values": [
+        {
+          "name": "StatusDraft",
+          "value": "draft"
+        },
+        {
+          "name": "StatusSent",
+          "value": "sent"
+        },
+        {
+          "name": "statusVoid",
+          "value": "void"
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "struct"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/enums.Order"
+      },
+      "goInput": "struct{}",
+      "goOutput": "fidelity.test/rows/enums.Order"
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/enums.Level": {
+      "file": "rows/enums/api.go",
+      "line": 18
+    },
+    "fidelity.test/rows/enums.Order": {
+      "file": "rows/enums/api.go",
+      "line": 27
+    },
+    "fidelity.test/rows/enums.Slug": {
+      "file": "rows/enums/api.go",
+      "line": 25
+    },
+    "fidelity.test/rows/enums.Status": {
+      "file": "rows/enums/api.go",
+      "line": 10
+    },
+    "get": {
+      "file": "rows/enums/api.go",
+      "line": 38
+    }
+  }
+}

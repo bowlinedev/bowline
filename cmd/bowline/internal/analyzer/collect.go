@@ -349,12 +349,3 @@ func implementsMethod(t types.Type, name string) bool {
 	}
 	return false
 }
-
-func (c *collector) basicDecl(t *types.Named, basic *types.Basic, decl *contract.TypeDecl) {
-	decl.Kind = contract.Primitive
-	decl.Primitive = basicNames[basic.Kind()]
-}
-
-func (c *collector) generic(t *types.Named, pos token.Pos, path string) *contract.Type {
-	return c.fail(pos, path, "generic types are not supported yet", "")
-}

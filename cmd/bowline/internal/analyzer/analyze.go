@@ -6,7 +6,6 @@ import (
 	"sort"
 
 	"github.com/bowlinedev/bowline/contract"
-	"golang.org/x/tools/go/packages"
 )
 
 func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
@@ -76,5 +75,3 @@ func (c *collector) procedureType(t types.Type, spec procedureSpec, role string)
 	}
 	return c.typeNode(u, spec.Pos, spec.Path+" "+role)
 }
-
-func (c *collector) scanWireAs(from *packages.Package) {}
