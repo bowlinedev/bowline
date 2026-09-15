@@ -54,6 +54,7 @@ const greeting = await client.greet({ name: "ada" });
 - Consumer contracts: the client records what it uses, `bowline verify-consumers` and `contracttest` verify it, and the gate names the consumers a breaking change would hit.
 - One `http.Handler` for every Go router, proven by a conformance suite that runs through the standard mux, Chi, Gin, Echo, Connect, and a Fiber adapter.
 - Bindings for React Query, SWR, Svelte, Solid, and Vue on one shared key shape, a server-side caller for Next.js, React Router, SvelteKit, and Astro, and a generated Go client for service-to-service calls.
+- Generated Dart, Python, Rust, and Elixir clients with typed errors, native validation, streaming, and uploads, each backed by a small runtime package and proven against the ledger in CI.
 - `bowline check` fails CI when any generated file drifts from the Go code, and the server verifies the committed contract at startup.
 - `bowline dev` regenerates in well under a second after every save.
 - An `http.Handler` with no dependencies outside the standard library and an overhead under 5 percent against a hand-written handler.
@@ -79,6 +80,8 @@ const greeting = await client.greet({ name: "ada" });
 | `docs/guides/playground.md` | the embeddable playground |
 | `docs/guides/consumer-contracts.md` | recording and verifying consumer usage |
 | `docs/guides/frameworks/README.md` | every Go router and frontend framework, with verified snippets |
+| `docs/guides/dart.md`, `python.md`, `rust.md`, `elixir.md` | the generated Dart, Python, Rust, and Elixir clients |
+| `docs/certification.md` | what makes a client target official |
 | `spec/contract.md` | the contract document every generator reads |
 | `spec/mapping-table.md` | the normative Go to TypeScript mapping |
 
@@ -114,6 +117,7 @@ This is the 0.5 alpha. Applications need Go 1.24 or later; building the CLI need
 - `/contract` contract document types
 - `/packages` npm packages `@bowline/client`, `@bowline/react-query`, `@bowline/swr`, `@bowline/svelte`, `@bowline/solid`, `@bowline/vue`, and `@bowline/agent`, plus the playground app
 - `/python/bowline-agent` the Python agent package
+- `/packages/dart/bowline`, `/packages/python/bowline-client`, `/packages/rust/bowline-client`, `/packages/elixir/bowline_client` the client runtimes for the generated Dart, Python, Rust, and Elixir clients
 - `/spec` contract specification and JSON Schema
 - `/docs` guides and the adoption protocol
 
