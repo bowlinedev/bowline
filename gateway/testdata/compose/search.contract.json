@@ -1,0 +1,20 @@
+{
+  "bowline": "1.2",
+  "types": {
+    "github.com/acme/search/search.Hit": {
+      "kind": "struct",
+      "name": "Hit",
+      "fields": [{ "name": "id", "type": { "kind": "primitive", "name": "string" } }]
+    }
+  },
+  "errors": {},
+  "procedures": [
+    {
+      "path": "query",
+      "kind": "query",
+      "method": "GET",
+      "input": { "kind": "struct" },
+      "output": { "kind": "array", "elem": { "kind": "ref", "id": "github.com/acme/search/search.Hit" } }
+    }
+  ]
+}

@@ -4,6 +4,7 @@ use (
 	.
 	./cmd/bowline
 	./mcp
+	./gateway
 	./transport/websocket
 	./agent
 	./playground

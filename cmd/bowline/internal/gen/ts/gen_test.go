@@ -1,12 +1,34 @@
 package ts
 
 import (
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/goldens"
 	"github.com/bowlinedev/bowline/contract"
 )
+
+func TestGeneratesFromAComposedGatewayContract(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "..", "gateway", "testdata", "compose", "two-services.golden.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := contract.Parse(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	out, err := Generator{}.Generate(doc, "bowline.ts")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"ledger", "billing", "Ledger_Status", "Billing_Status"} {
+		if !strings.Contains(string(out), want) {
+			t.Fatalf("generated client lacks %q", want)
+		}
+	}
+}
 
 func TestGoldens(t *testing.T) {
 	goldens.Run(t, "ts", "ts", Generator{})
