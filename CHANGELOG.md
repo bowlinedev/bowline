@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Contract: format 1.2 adds `example` on fields from the `example` struct tag, checked by the analyzer and emitted into JSON Schemas.
+- CLI: `mock` serves generated or recorded responses from the contract alone, with a state model, `--record` and `--replay --strict`, and the playground at `/_playground/`; `verify-consumers` checks recorded consumer files against the contract; `diff` and `check --against` name the consumers a breaking change affects; `eval` gains `--backend mock|replay|url`; `dev --playground` serves the playground for the live contract.
+- Playground: the `playground` module embeds a browser app with a router tree, a TypeScript type browser, generated forms, history, and shareable links, calling the API through a same-origin proxy.
+- Client: the `record` option and `@bowline/client/node`'s `fileSink` write consumer contracts; `ContractDocument` carries examples.
+- Contract tests: the `contracttest` module replays consumer files against a router in `go test`.
+- Examples: the ledger carries example tags, a recorded consumer file, a mock-backed browser suite, and the playground at `/playground/`.
+
 ## 0.3.0
 
 - Runtime: `bowline.Tool`, `bowline.Scope`, and `bowline.Destructive` mark procedures as LLM tools; the fields are readable from `bowline.CallFrom(ctx).Procedure`.

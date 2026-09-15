@@ -49,6 +49,9 @@ const greeting = await client.greet({ name: "ada" });
 - OpenAPI 3.1 export derived from the contract.
 - Every procedure you mark with `bowline.Tool()` is an LLM tool with a faithful JSON Schema, served to MCP clients by one handler or one command, with your own middleware still deciding who may call it.
 - Agent SDKs in Go, TypeScript, and Python that emit Anthropic and OpenAI tool definitions and dispatch typed calls, plus recorded runs that replay deterministically in CI.
+- A mock server derived from the contract, with deterministic data, a small state model, and record-and-replay, so a frontend team works with the Go backend stopped.
+- A playground that browses the router, renders every type as TypeScript, and calls procedures through a same-origin proxy, embeddable in your server or served by `bowline dev` and `bowline mock`.
+- Consumer contracts: the client records what it uses, `bowline verify-consumers` and `contracttest` verify it, and the gate names the consumers a breaking change would hit.
 - `bowline check` fails CI when any generated file drifts from the Go code, and the server verifies the committed contract at startup.
 - `bowline dev` regenerates in well under a second after every save.
 - An `http.Handler` with no dependencies outside the standard library and an overhead under 5 percent against a hand-written handler.
@@ -70,6 +73,9 @@ const greeting = await client.greet({ name: "ada" });
 | `docs/guides/mcp.md` | the MCP server, in process or `bowline mcp` |
 | `docs/guides/agents.md` | the Go, TypeScript, and Python agent SDKs |
 | `docs/guides/evals.md` | recording and replaying agent runs |
+| `docs/guides/mock-server.md` | the contract-derived mock server |
+| `docs/guides/playground.md` | the embeddable playground |
+| `docs/guides/consumer-contracts.md` | recording and verifying consumer usage |
 | `spec/contract.md` | the contract document every generator reads |
 | `spec/mapping-table.md` | the normative Go to TypeScript mapping |
 
@@ -89,17 +95,19 @@ That is an MCP server for every exposed procedure, with schemas derived from you
 
 ## Status
 
-This is the 0.3 alpha. Applications need Go 1.24 or later; building the CLI needs Go 1.26 or later, and `go install` fetches that toolchain automatically. The contract document format is 1.1, an additive step from the frozen 1.0; the Go API and the generated code may still change before 1.0. Coming next: a contract-derived mock server and a playground.
+This is the 0.4 alpha. Applications need Go 1.24 or later; building the CLI needs Go 1.26 or later, and `go install` fetches that toolchain automatically. The contract document format is 1.1, an additive step from the frozen 1.0; the Go API and the generated code may still change before 1.0. Coming next: framework adapters and a generated Go client.
 
 ## Layout
 
 - `/` runtime module, `github.com/bowlinedev/bowline`
-- `/cmd/bowline` the CLI: `gen`, `check`, `dev`, `diff`, `export`, `mcp`, `eval`, `migrate-contract`
+- `/cmd/bowline` the CLI: `gen`, `check`, `dev`, `diff`, `export`, `mcp`, `eval`, `mock`, `verify-consumers`, `migrate-contract`
 - `/transport/websocket` the WebSocket subscription transport
 - `/mcp` the MCP server module
 - `/agent` the Go agent SDK
+- `/playground` the embeddable playground handler
+- `/contracttest` in-process consumer verification for `go test`
 - `/contract` contract document types
-- `/packages` npm packages `@bowline/client`, `@bowline/react-query`, and `@bowline/agent`
+- `/packages` npm packages `@bowline/client`, `@bowline/react-query`, and `@bowline/agent`, plus the playground app
 - `/python/bowline-agent` the Python agent package
 - `/spec` contract specification and JSON Schema
 - `/docs` guides and the adoption protocol

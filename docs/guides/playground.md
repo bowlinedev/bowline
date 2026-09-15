@@ -1,0 +1,29 @@
+# Playground
+
+The playground is a browser app that reads `bowline.contract.json` and lets anyone browse the router tree, read every type as TypeScript, and call procedures with a generated form. It needs no build of the app and no CORS setup, because it calls the API through a same-origin proxy.
+
+## In your server
+
+```go
+import "github.com/bowlinedev/bowline/playground"
+
+r.Handle("/playground/*", http.StripPrefix("/playground", playground.New(api.Contract, playground.WithUpstream("/api"))))
+```
+
+`playground.New` takes the contract bytes and returns an `http.Handler` that serves the embedded app, `contract.json`, and `/proxy/<procedure>`. `WithUpstream` names where calls go: a same-origin path such as `/api`, resolved against the incoming request's host, or an absolute URL. The proxy forwards the method, the body, the `input` query parameter, and an allowlist of headers (`Authorization`, `Content-Type`, `Accept`, `Idempotency-Key`, and any `X-` header); `WithHeaderAllowlist` widens it and `WithTitle` names the page. The ledger mounts it outside production in `examples/ledger/cmd/server/main.go`, and `examples/ledger/cmd/server/mcp_test.go` checks that production builds do not.
+
+## From the CLI
+
+`bowline dev --playground 127.0.0.1:8091` serves the playground for the live contract, re-reading it after every regeneration, with calls forwarded to the `dev.app` address in `bowline.json`:
+
+```json
+{ "entry": "./api.Routes", "dev": { "app": "http://localhost:8080/api" } }
+```
+
+`bowline mock` serves it at `/_playground/` on its own address, so the mock and its explorer come up together.
+
+## The app
+
+Three panes: the router tree with kinds, docs, deprecations, and tool hints; a type browser rendering each declaration as TypeScript with the same mapping the generator uses; and the call panel, with a form derived from the input type, enums as selects, optional fields toggled, nested structs collapsible, arrays with add and remove, and a raw JSON editor kept in sync. Example tags fill the form's initial values. A headers editor is persisted in the browser, the response shows timestamps in local time, and the last fifty calls are kept as history. The whole view state except `Authorization` is encoded in the URL fragment, so a link reproduces a request.
+
+The module `playground/` is standard library only and embeds the bundle from `playground/ui/dist`. A fresh clone carries only a placeholder page with the build instruction; `pnpm --filter @bowline/playground build` fills the directory, CI builds it before the browser tests, and the release workflow commits the bundle into the tree that the `playground/vX.Y.Z` tag points at, because the Go module proxy serves exactly that tree. The Playwright smoke test in `packages/playground/e2e/playground.spec.ts` drives `invoices.get` through the proxy against the mock.

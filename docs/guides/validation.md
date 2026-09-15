@@ -21,11 +21,15 @@ From `examples/ledger/ledger/types.go`:
 
 ```go
 type Line struct {
-	Description string `json:"description" validate:"required,max=200"`
-	Quantity    int32  `json:"quantity" validate:"min=1"`
-	UnitPrice   Money  `json:"unitPrice"`
+	Description string `json:"description" validate:"required,max=200" example:"Consulting"`
+	Quantity    int32  `json:"quantity" validate:"min=1" example:"10"`
+	UnitPrice   Money  `json:"unitPrice" example:"USD 150.00"`
 }
 ```
+
+## Examples
+
+An `example` tag beside the rules gives a sample wire value that the analyzer checks against the field's type: strings verbatim, numbers and booleans parsed, timestamps in RFC 3339, enum members only, JSON for structs and collections. Examples are carried in the contract, emitted into JSON Schemas for tools, used as initial form values in the playground, and preferred over generated data by the mock server. A bad example is a diagnostic from `bowline gen`.
 
 ## Nested values
 
