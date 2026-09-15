@@ -3,7 +3,7 @@ module github.com/bowlinedev/bowline/adapters/fiber
 go 1.25.0
 
 require (
-	github.com/bowlinedev/bowline v0.3.1-0.20260915204325-ba2c558170f5
+	github.com/bowlinedev/bowline v0.3.1-0.20260915213025-04f36e789796
 	github.com/gofiber/fiber/v2 v2.52.15
 	github.com/valyala/fasthttp v1.74.0
 )
