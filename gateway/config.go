@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"time"
 )
@@ -156,7 +157,7 @@ func ParseConfig(data []byte, path string) (*Config, error) {
 			}
 			retries = *up.Retries
 		}
-		cfg.Services[name] = Upstream{URL: up.URL, Contract: up.Contract, Registry: up.Registry, Version: up.Version, Retries: retries, Signing: sign}
+		cfg.Services[name] = Upstream{URL: up.URL, Contract: relativeTo(path, up.Contract), Registry: up.Registry, Version: up.Version, Retries: retries, Signing: sign}
 	}
 	return cfg, nil
 }
@@ -168,4 +169,15 @@ func (c *Config) ServiceNames() []string {
 	}
 	sort.Strings(names)
 	return names
+}
+
+func relativeTo(configPath, contract string) string {
+	if contract == "" || filepath.IsAbs(contract) {
+		return contract
+	}
+	dir := filepath.Dir(configPath)
+	if dir == "" || dir == "." {
+		return contract
+	}
+	return filepath.Join(dir, filepath.FromSlash(contract))
 }

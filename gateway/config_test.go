@@ -98,3 +98,22 @@ func TestLoadConfigMissingFile(t *testing.T) {
 		t.Fatalf("got %v", err)
 	}
 }
+
+func TestContractPathsResolveAgainstTheConfigFile(t *testing.T) {
+	cfg, err := ParseConfig([]byte(`{"services":{"ledger":{"url":"http://x/api","contract":"contracts/ledger.contract.json","version":"sha256:a"}}}`), "deploy/edge/bowline.gateway.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := filepath.Join("deploy", "edge", "contracts", "ledger.contract.json")
+	if got := cfg.Services["ledger"].Contract; got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+	absolute := filepath.Join(string(filepath.Separator), "etc", "bowline", "ledger.json")
+	cfg, err = ParseConfig([]byte(`{"services":{"ledger":{"url":"http://x/api","contract":"`+filepath.ToSlash(absolute)+`","version":"sha256:a"}}}`), "deploy/edge/bowline.gateway.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := cfg.Services["ledger"].Contract; got != absolute {
+		t.Fatalf("absolute path rewritten to %q", got)
+	}
+}
