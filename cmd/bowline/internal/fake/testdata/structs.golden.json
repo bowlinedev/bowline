@@ -1,0 +1,15 @@
+{
+  "get": {
+    "NoTag": "heron",
+    "age": 30,
+    "email": "basil@example.com",
+    "home": {
+      "city": "river delta glade",
+      "street": "comet"
+    },
+    "inline": {
+      "x": 383
+    },
+    "name": "drift sierra"
+  }
+}

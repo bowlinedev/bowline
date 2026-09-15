@@ -1,0 +1,36 @@
+{
+  "get": {
+    "active": true,
+    "age": 36,
+    "big": "9007199254740993",
+    "blob": "aGVsbG8=",
+    "counts": {
+      "x": 1
+    },
+    "email": "ada@example.com",
+    "home": {
+      "city": "Rome"
+    },
+    "level": 10,
+    "name": "Ada Lovelace",
+    "nick": "ada",
+    "ratings": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "ratio": 0.75,
+    "raw": {
+      "any": 1
+    },
+    "since": "2026-01-01T00:00:00Z",
+    "slug": "ada-lovelace",
+    "status": "sent",
+    "tags": [
+      "a",
+      "b"
+    ],
+    "timeout": 1500000000
+  }
+}

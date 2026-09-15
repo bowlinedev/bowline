@@ -1,0 +1,10 @@
+{
+  "admin.purge": {},
+  "get": {
+    "name": "drift sierra"
+  },
+  "search": {
+    "name": "anchor quartz"
+  },
+  "sub.remove": {}
+}
