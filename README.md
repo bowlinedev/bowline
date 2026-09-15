@@ -98,7 +98,7 @@ That is an MCP server for every exposed procedure, with schemas derived from you
 
 ## Status
 
-This is the 0.4 alpha. Applications need Go 1.24 or later; building the CLI needs Go 1.26 or later, and `go install` fetches that toolchain automatically. The contract document format is 1.1, an additive step from the frozen 1.0; the Go API and the generated code may still change before 1.0. Coming next: framework adapters and a generated Go client.
+This is the 0.5 alpha. Applications need Go 1.24 or later; building the CLI needs Go 1.26 or later, and `go install` fetches that toolchain automatically. The contract document format is 1.1, an additive step from the frozen 1.0; the Go API and the generated code may still change before 1.0. Coming next: Dart, Python, and Rust clients.
 
 ## Layout
 

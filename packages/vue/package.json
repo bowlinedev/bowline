@@ -1,6 +1,6 @@
 {
   "name": "@bowline/vue",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Vue composables and TanStack Vue Query option builders for Bowline clients",
   "license": "Apache-2.0",
   "repository": {

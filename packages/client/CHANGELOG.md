@@ -1,5 +1,11 @@
 # @bowline/client
 
+## 0.5.0
+
+### Minor Changes
+
+- `procedureKey`, `walkProcedures`, `InputOf`, and `OutputOf` are shared with every binding, and `@bowline/client/server` exports `createServerClient` with header forwarding and `fetch` cache passthrough.
+
 ## 0.4.0
 
 ### Minor Changes
