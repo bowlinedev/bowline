@@ -5,6 +5,7 @@ use (
 	./cmd/bowline
 	./mcp
 	./transport/websocket
+	./agent
 	./examples/ledger
 	./examples/nethttp-minimal
 )
