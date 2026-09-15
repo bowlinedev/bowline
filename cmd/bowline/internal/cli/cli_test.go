@@ -48,7 +48,7 @@ func TestGenThenCheck(t *testing.T) {
 		t.Fatal(err)
 	}
 	opts, _, errOut = testOptions(dir)
-	if code := Check(opts); code != 0 {
+	if code := Check(opts, nil); code != 0 {
 		t.Fatalf("check exit %d: %s", code, errOut.String())
 	}
 	opts, out, _ = testOptions(dir)
@@ -62,13 +62,13 @@ func TestCheckDetectsDrift(t *testing.T) {
 	dir := fixtureCopy(t)
 	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/routing.Routes"}`), 0o644)
 	opts, _, errOut := testOptions(dir)
-	if code := Check(opts); code != 1 || !strings.Contains(errOut.String(), "missing   bowline.contract.json") {
+	if code := Check(opts, nil); code != 1 || !strings.Contains(errOut.String(), "missing   bowline.contract.json") {
 		t.Fatalf("exit %d stderr %s", code, errOut.String())
 	}
 	Gen(testOptionsOnly(dir))
 	os.WriteFile(filepath.Join(dir, "bowline.contract.json"), []byte("{}"), 0o644)
 	opts, _, errOut = testOptions(dir)
-	if code := Check(opts); code != 1 || !strings.Contains(errOut.String(), "outdated  bowline.contract.json") {
+	if code := Check(opts, nil); code != 1 || !strings.Contains(errOut.String(), "outdated  bowline.contract.json") {
 		t.Fatalf("exit %d stderr %s", code, errOut.String())
 	}
 }
