@@ -1,0 +1,47 @@
+{
+  "name": "@bowline/swr",
+  "version": "0.4.0",
+  "description": "SWR bindings for Bowline clients",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bowlinedev/bowline.git",
+    "directory": "packages/swr"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@bowline/client": "workspace:*",
+    "react": "^18 || ^19",
+    "swr": "^2.0.0"
+  },
+  "devDependencies": {
+    "@bowline/client": "workspace:*",
+    "@testing-library/react": "16.3.3",
+    "@types/react": "19.1.12",
+    "@types/react-dom": "19.1.9",
+    "jsdom": "27.4.0",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "swr": "2.3.8",
+    "tsup": "8.5.0",
+    "vitest": "3.2.4"
+  }
+}
