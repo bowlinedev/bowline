@@ -38,6 +38,10 @@ commands:
              run scripted tool calls and write a recording; the default backend is the in-process mock
   eval replay <recording> [--backend mock|replay|url] [--url <base>] [--strict-messages] [--header "K: v"]
              re-run a recording and fail on any changed result
+  gateway [-c bowline.gateway.json]
+             compose the configured services and proxy calls to their upstreams
+  gateway compose [-c bowline.gateway.json] -o composed.contract.json
+             write the composed contract without serving
   migrate-contract [path]
              rewrite a contract document from an older format version
   diff <old> <new> [--format text|markdown|json] [--consumers dir]
@@ -81,6 +85,11 @@ func run(args []string, stdout, stderr io.Writer) int {
 	case "eval":
 		opts.Stdin = os.Stdin
 		return cli.Eval(opts, args[1:])
+	case "gateway":
+		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+		defer cancel()
+		opts.Stop = ctx.Done()
+		return cli.Gateway(opts, args[1:])
 	case "mcp":
 		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 		defer cancel()
