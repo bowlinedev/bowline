@@ -61,7 +61,7 @@ Examples: `examples/ledger` is a Chi server with a React web app and an end-to-e
 
 ## Status
 
-This is the 0.1 alpha. Nothing is stable yet: the Go API, the contract document, and the generated code may all change before 1.0. Coming next: subscriptions, uploads, custom typed errors, a frozen contract format with semantic diff and a breaking-change gate, OpenAPI export, and Zod schemas.
+This is the 0.1 alpha. Applications need Go 1.24 or later; building the CLI needs Go 1.26 or later, and `go install` fetches that toolchain automatically. Nothing is stable yet: the Go API, the contract document, and the generated code may all change before 1.0. Coming next: subscriptions, uploads, custom typed errors, a frozen contract format with semantic diff and a breaking-change gate, OpenAPI export, and Zod schemas.
 
 ## Layout
 

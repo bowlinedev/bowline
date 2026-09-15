@@ -10,7 +10,7 @@ Pull requests with unsigned commits fail CI.
 
 ## Toolchain
 
-- Go 1.24 or later
+- Go 1.26 or later to build the CLI and run the workspace; the runtime module itself supports Go 1.24
 - pnpm 10 or later
 - staticcheck: `go install honnef.co/go/tools/cmd/staticcheck@latest`
 
