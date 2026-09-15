@@ -1,4 +1,18 @@
 export type {
+  ContractDocument,
+  ContractEnumValue,
+  ContractErrorDecl,
+  ContractField,
+  ContractPosition,
+  ContractProcedure,
+  ContractRule,
+  ContractSchemas,
+  ContractTool,
+  ContractType,
+  ContractTypeDecl,
+  TypeKind,
+} from "./contract.js";
+export type {
   BowlineErrorOptions,
   Code,
   Issue,
