@@ -1,0 +1,12 @@
+name: ledger_dart
+description: A Dart command-line client for the Bowline ledger example.
+publish_to: none
+environment:
+  sdk: ^3.5.0
+dependencies:
+  bowline:
+    path: ../../../packages/dart/bowline
+  http: ^1.2.0
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.25.0
