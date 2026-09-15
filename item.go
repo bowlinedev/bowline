@@ -27,6 +27,10 @@ func Sensitive() ProcOption {
 	return func(p *Procedure) { p.Sensitive = true }
 }
 
+func MaxBody(n int64) ProcOption {
+	return func(p *Procedure) { p.MaxBody = n }
+}
+
 func Meta(key, value string) ProcOption {
 	return func(p *Procedure) { p.Meta[key] = value }
 }

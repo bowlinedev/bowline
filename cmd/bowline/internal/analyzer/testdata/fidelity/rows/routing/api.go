@@ -18,7 +18,7 @@ type Item struct {
 }
 
 var admin = bowline.NewRouter(
-	bowline.Mutation("purge", purge, bowline.Meta("auth", "admin"), bowline.Deprecated("use sub.remove")),
+	bowline.Mutation("purge", purge, bowline.Meta("auth", "admin"), bowline.MaxBody(1<<20), bowline.Deprecated("use sub.remove")),
 )
 
 func get(ctx context.Context, in ID) (Item, error) { return Item{}, nil }
