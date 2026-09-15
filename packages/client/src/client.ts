@@ -171,7 +171,7 @@ async function call(
   );
   const response = await send(fetchFn, url, init, path, callOptions?.signal);
   const text = await response.text();
-  record(sink, path, input, response.status, text);
+  record(sink, path, proc.method, input, response.status, text);
   if (!response.ok) {
     throw toError(response.status, text, path, contract);
   }
@@ -217,7 +217,7 @@ function uploadLeaf(
       callOptions?.signal,
     );
     const text = await response.text();
-    record(sink, path, input, response.status, text);
+    record(sink, path, "POST", input, response.status, text);
     if (!response.ok) {
       throw toError(response.status, text, path, contract);
     }

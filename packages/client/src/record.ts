@@ -1,5 +1,6 @@
 export interface Interaction {
   procedure: string;
+  method?: "GET" | "POST";
   input: unknown;
   response: { status: number; body: unknown };
 }
@@ -39,6 +40,7 @@ function canonicalize(value: unknown): unknown {
 export function record(
   sink: RecordSink | undefined,
   procedure: string,
+  method: "GET" | "POST",
   input: unknown,
   status: number,
   text: string,
@@ -56,6 +58,7 @@ export function record(
   }
   sink.write({
     procedure,
+    method,
     input: canonicalize(input ?? {}),
     response: { status, body },
   });
