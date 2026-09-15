@@ -1,4 +1,5 @@
 #[allow(dead_code)]
+#[rustfmt::skip]
 mod bowline;
 
 use bowline::{Client, CreateInvoiceInput, Line, ListInvoicesInput, VoidInvoiceInput};

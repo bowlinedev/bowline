@@ -1,5 +1,6 @@
 #[path = "../src/bowline.rs"]
 #[allow(dead_code)]
+#[rustfmt::skip]
 mod bowline;
 
 use bowline::{
