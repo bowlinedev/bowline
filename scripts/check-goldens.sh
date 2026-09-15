@@ -52,7 +52,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-bowline-client = { path = "$repo/rust/bowline-client" }
+bowline-client = { path = "$repo/packages/rust/bowline-client" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 chrono = { version = "0.4", features = ["serde"] }
@@ -66,7 +66,7 @@ TOML
       cp "$f" "$work/goldens/src/$name.rs"
       echo "pub mod $name;" >> "$work/goldens/src/lib.rs"
     done
-    (cd "$work/goldens" && cargo check --quiet)
+    (cd "$work/goldens" && cargo check --quiet && cargo clippy --quiet -- -D warnings)
     ;;
   *)
     echo "check-goldens: unknown target $target" >&2

@@ -1,0 +1,16 @@
+[package]
+name = "ledger-rust"
+version = "0.5.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+bowline-client = { path = "../../../packages/rust/bowline-client" }
+chrono = { version = "0.4", features = ["serde"] }
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+
+[dev-dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
