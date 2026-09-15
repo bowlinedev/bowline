@@ -26,7 +26,18 @@
       "!**/next-env.d.ts",
       "!**/.expo",
       "!**/android",
-      "!**/ios"
+      "!**/ios",
+      "!**/.dart_tool",
+      "!**/_build",
+      "!**/deps",
+      "!**/target",
+      "!**/.elixir_ls",
+      "!**/__pycache__",
+      "!**/.venv",
+      "!**/lib/bowline.ex",
+      "!**/lib/bowline.dart",
+      "!**/src/bowline.rs",
+      "!**/python/bowline.py"
     ],
     "ignoreUnknown": true
   },
