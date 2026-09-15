@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.6.0
 
 - CLI: `dart`, `python`, `rust`, and `elixir` generator targets with goldens compiled by each language's toolchain in CI; naming rules shared across every generator.
 - Runtimes: `bowline` on pub.dev, `bowline-client` on PyPI and crates.io, and `bowline_client` on Hex, each with transport, error envelope, validation rules, server-sent events, and uploads.
