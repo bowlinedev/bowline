@@ -16,3 +16,4 @@ export type {
 } from "./types.js";
 
 export const version = "0.0.0";
+export { createClient } from "./client.js";
