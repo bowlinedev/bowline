@@ -43,6 +43,9 @@ type handler struct {
 	heartbeat  time.Duration
 	maxUpload  int64
 
+	contract []byte
+	reserved *reserved
+
 	idempotency    IdempotencyStore
 	idempotencyTTL time.Duration
 	requireKey     bool
@@ -53,6 +56,9 @@ func (r *Router) Handler(opts ...HandlerOption) http.Handler {
 	for _, opt := range opts {
 		opt(h)
 	}
+	if h.contract != nil {
+		h.reserved = mustReserved(h.contract)
+	}
 	for _, rt := range r.routes() {
 		h.routes[rt.path] = &rt
 	}
@@ -60,6 +66,10 @@ func (r *Router) Handler(opts ...HandlerOption) http.Handler {
 }
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	if name := reservedPath(req.URL.Path); name != "" {
+		h.serveReserved(w, req, name)
+		return
+	}
 	path := strings.TrimSuffix(req.URL.Path, "/")
 	if i := strings.LastIndexByte(path, '/'); i >= 0 {
 		path = path[i+1:]
