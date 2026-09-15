@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const Version = "1.1"
+const Version = "1.2"
 
 type Kind string
 
@@ -73,6 +73,7 @@ type Field struct {
 	Optional bool   `json:"optional,omitempty"`
 	Nullable bool   `json:"nullable,omitempty"`
 	Rules    []Rule `json:"rules,omitempty"`
+	Example  any    `json:"example,omitempty"`
 }
 
 type Rule struct {

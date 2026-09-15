@@ -77,6 +77,6 @@ The dispatcher uses `urllib.request` with an injectable opener, which is how the
 
 ## Parity
 
-The three packages are tested against the goldens in `cmd/bowline/internal/tools/testdata`, made from the ledger contract, so the Anthropic and OpenAI definitions they produce are identical to each other and to `bowline export tools`. Each package has a recording tracer that writes one JSON line per call, `{"id","tool","input","output","error","durationMs"}`, which `bowline eval record --agent` reads; see `evals.md`.
+The three packages are tested against the goldens in `cmd/bowline/internal/tools/testdata`, made from the ledger contract, so the Anthropic and OpenAI definitions they produce are identical to each other and to `bowline export tools`. Each package has a recording tracer that writes one JSON line per call, `{"id","tool","input","output","error","durationMs"}`, which `bowline eval record --agent` reads and replays against the mock server, recorded fixtures, or a live handler; see `evals.md`.
 
 Sources: `agent/agent_test.go`, `packages/agent/src/tools.test.ts`, `python/bowline-agent/tests/test_encode.py`.

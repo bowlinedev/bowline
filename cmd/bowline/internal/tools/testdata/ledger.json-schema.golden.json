@@ -32,6 +32,9 @@
               "type": "string"
             },
             "email": {
+              "examples": [
+                "ada@example.com"
+              ],
               "format": "email",
               "minLength": 1,
               "type": "string"
@@ -42,6 +45,9 @@
               "type": "integer"
             },
             "name": {
+              "examples": [
+                "Ada Lovelace"
+              ],
               "minLength": 1,
               "type": "string"
             },
@@ -137,12 +143,21 @@
               "type": "array"
             },
             "note": {
+              "examples": [
+                "net 30"
+              ],
               "type": "string"
             },
             "status": {
-              "$ref": "#/$defs/Status"
+              "$ref": "#/$defs/Status",
+              "examples": [
+                "sent"
+              ]
             },
             "total": {
+              "examples": [
+                "USD 1500.00"
+              ],
               "type": "string"
             },
             "updatedAt": {
@@ -165,16 +180,25 @@
           "additionalProperties": false,
           "properties": {
             "description": {
+              "examples": [
+                "Consulting"
+              ],
               "maxLength": 200,
               "minLength": 1,
               "type": "string"
             },
             "quantity": {
+              "examples": [
+                10
+              ],
               "maximum": 2147483647,
               "minimum": 1,
               "type": "integer"
             },
             "unitPrice": {
+              "examples": [
+                "USD 150.00"
+              ],
               "type": "string"
             }
           },
@@ -269,12 +293,21 @@
               "type": "array"
             },
             "note": {
+              "examples": [
+                "net 30"
+              ],
               "type": "string"
             },
             "status": {
-              "$ref": "#/$defs/Status"
+              "$ref": "#/$defs/Status",
+              "examples": [
+                "sent"
+              ]
             },
             "total": {
+              "examples": [
+                "USD 1500.00"
+              ],
               "type": "string"
             },
             "updatedAt": {
@@ -297,16 +330,25 @@
           "additionalProperties": false,
           "properties": {
             "description": {
+              "examples": [
+                "Consulting"
+              ],
               "maxLength": 200,
               "minLength": 1,
               "type": "string"
             },
             "quantity": {
+              "examples": [
+                10
+              ],
               "maximum": 2147483647,
               "minimum": 1,
               "type": "integer"
             },
             "unitPrice": {
+              "examples": [
+                "USD 150.00"
+              ],
               "type": "string"
             }
           },
@@ -404,12 +446,21 @@
               "type": "array"
             },
             "note": {
+              "examples": [
+                "net 30"
+              ],
               "type": "string"
             },
             "status": {
-              "$ref": "#/$defs/Status"
+              "$ref": "#/$defs/Status",
+              "examples": [
+                "sent"
+              ]
             },
             "total": {
+              "examples": [
+                "USD 1500.00"
+              ],
               "type": "string"
             },
             "updatedAt": {
@@ -432,16 +483,25 @@
           "additionalProperties": false,
           "properties": {
             "description": {
+              "examples": [
+                "Consulting"
+              ],
               "maxLength": 200,
               "minLength": 1,
               "type": "string"
             },
             "quantity": {
+              "examples": [
+                10
+              ],
               "maximum": 2147483647,
               "minimum": 1,
               "type": "integer"
             },
             "unitPrice": {
+              "examples": [
+                "USD 150.00"
+              ],
               "type": "string"
             }
           },

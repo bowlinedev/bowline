@@ -1,6 +1,6 @@
 {
   "name": "@bowline/client",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Runtime client for Bowline generated TypeScript contracts",
   "license": "Apache-2.0",
   "repository": {
@@ -18,6 +18,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "import": "./dist/node.js",
+      "require": "./dist/node.cjs"
     }
   },
   "files": [

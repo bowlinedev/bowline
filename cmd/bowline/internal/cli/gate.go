@@ -16,17 +16,18 @@ func Check(opts Options, args []string) int {
 	fs.SetOutput(io.Discard)
 	against := fs.String("against", "", "")
 	allowBreaking := fs.Bool("allow-breaking", false, "")
+	consumersDir := fs.String("consumers", "", "")
 	if err := fs.Parse(args); err != nil {
-		fmt.Fprintf(opts.Stderr, "bowline: check: %v\nusage: bowline check [--against <git-ref>] [--allow-breaking]\n", err)
+		fmt.Fprintf(opts.Stderr, "bowline: check: %v\nusage: bowline check [--against <git-ref>] [--allow-breaking] [--consumers dir]\n", err)
 		return 2
 	}
 	if *against == "" {
 		return checkDrift(opts)
 	}
-	return checkAgainst(opts, *against, *allowBreaking)
+	return checkAgainst(opts, *against, *allowBreaking, *consumersDir)
 }
 
-func checkAgainst(opts Options, ref string, allowBreaking bool) int {
+func checkAgainst(opts Options, ref string, allowBreaking bool, consumersDir string) int {
 	cfg, err := LoadConfig(opts.Dir)
 	if err != nil {
 		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
@@ -73,7 +74,12 @@ func checkAgainst(opts Options, ref string, allowBreaking bool) int {
 		fmt.Fprintln(opts.Stdout, "no contract changes")
 		return 0
 	}
-	fmt.Fprint(opts.Stdout, contract.FormatMarkdown(changes))
+	list, err := consumerList(opts.Dir, consumersDir)
+	if err != nil {
+		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
+		return 1
+	}
+	fmt.Fprint(opts.Stdout, renderMarkdown(old, changes, list))
 	breaking := 0
 	for _, c := range changes {
 		if c.Category == contract.Breaking {

@@ -1,0 +1,2 @@
+broken    consumer ledger-web: invoices.void → response.error.type: error variant InvoiceLocked is no longer declared
+bowline: 1 problem(s) across consumer contracts

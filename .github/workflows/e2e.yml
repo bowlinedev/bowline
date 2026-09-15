@@ -28,3 +28,43 @@ jobs:
       - run: pnpm --filter ledger-web test:e2e
         env:
           CI: "1"
+
+  ledger-mock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @bowline/client build && pnpm --filter @bowline/react-query build
+      - run: pnpm --filter ledger-web build
+      - run: pnpm --filter ledger-web exec playwright install --with-deps chromium
+      - run: pnpm --filter ledger-web test:e2e:mock
+        env:
+          CI: "1"
+
+  playground:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @bowline/client build
+      - run: pnpm --filter @bowline/playground build
+      - run: pnpm --filter @bowline/playground exec playwright install --with-deps chromium
+      - run: pnpm --filter @bowline/playground test:e2e
+        env:
+          CI: "1"

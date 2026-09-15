@@ -21,6 +21,8 @@ export type {
   UntypedError,
 } from "./error.js";
 export { BowlineError } from "./error.js";
+export type { Interaction, RecordSink } from "./record.js";
+export { canonicalInput } from "./record.js";
 export type { ServerEvent } from "./sse.js";
 export type {
   Base64,
@@ -44,5 +46,5 @@ export type {
 export type { WebSocketTransportOptions } from "./ws.js";
 export { websocketTransport } from "./ws.js";
 
-export const version = "0.3.0";
+export const version = "0.4.0";
 export { createClient } from "./client.js";

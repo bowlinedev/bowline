@@ -1,0 +1,2 @@
+broken    consumer ledger-web: invoices.list → response.items.0.total: field removed
+bowline: 1 problem(s) across consumer contracts

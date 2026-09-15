@@ -11,7 +11,10 @@
       "!**/bowline.contract.json",
       "!**/test-results",
       "!**/openapi.json",
-      "!**/bowline.json"
+      "!**/bowline.json",
+      "!**/contracts/consumers",
+      "!**/mocks",
+      "!**/evals"
     ],
     "ignoreUnknown": true
   },

@@ -1,0 +1,287 @@
+{
+  "bowline": "1.2",
+  "hash": "sha256:8e275f7f8176b03371ff272e7758cc594f957165df423047a62d953c02846ac2",
+  "types": {
+    "fidelity.test/rows/examples.Address": {
+      "kind": "struct",
+      "name": "Address",
+      "fields": [
+        {
+          "name": "city",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "example": "Paris"
+        }
+      ]
+    },
+    "fidelity.test/rows/examples.Level": {
+      "kind": "enum",
+      "name": "Level",
+      "base": "int32",
+      "values": [
+        {
+          "name": "LevelLow",
+          "value": 1
+        },
+        {
+          "name": "LevelHigh",
+          "value": 10
+        }
+      ]
+    },
+    "fidelity.test/rows/examples.Sample": {
+      "kind": "struct",
+      "name": "Sample",
+      "fields": [
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ],
+          "example": "Ada Lovelace"
+        },
+        {
+          "name": "email",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "rules": [
+            {
+              "rule": "email"
+            }
+          ],
+          "example": "ada@example.com"
+        },
+        {
+          "name": "age",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          },
+          "rules": [
+            {
+              "rule": "min",
+              "param": "0"
+            }
+          ],
+          "example": 36
+        },
+        {
+          "name": "big",
+          "type": {
+            "kind": "primitive",
+            "name": "int64",
+            "encoding": "string"
+          },
+          "example": "9007199254740993"
+        },
+        {
+          "name": "ratio",
+          "type": {
+            "kind": "primitive",
+            "name": "float64"
+          },
+          "example": 0.75
+        },
+        {
+          "name": "active",
+          "type": {
+            "kind": "primitive",
+            "name": "bool"
+          },
+          "example": true
+        },
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/examples.Status"
+          },
+          "example": "sent"
+        },
+        {
+          "name": "level",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/examples.Level"
+          },
+          "example": 10
+        },
+        {
+          "name": "slug",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/examples.Slug"
+          },
+          "example": "ada-lovelace"
+        },
+        {
+          "name": "since",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          },
+          "example": "2026-01-01T00:00:00Z"
+        },
+        {
+          "name": "timeout",
+          "type": {
+            "kind": "primitive",
+            "name": "duration"
+          },
+          "example": 1500000000
+        },
+        {
+          "name": "blob",
+          "type": {
+            "kind": "primitive",
+            "name": "bytes"
+          },
+          "example": "aGVsbG8="
+        },
+        {
+          "name": "raw",
+          "type": {
+            "kind": "primitive",
+            "name": "raw"
+          },
+          "example": {
+            "any": 1
+          }
+        },
+        {
+          "name": "tags",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          },
+          "example": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "name": "counts",
+          "type": {
+            "kind": "map",
+            "key": {
+              "kind": "primitive",
+              "name": "string"
+            },
+            "value": {
+              "kind": "primitive",
+              "name": "int32"
+            }
+          },
+          "example": {
+            "x": 1
+          }
+        },
+        {
+          "name": "home",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/examples.Address"
+          },
+          "example": {
+            "city": "Rome"
+          }
+        },
+        {
+          "name": "nick",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "optional": true,
+          "example": "ada"
+        },
+        {
+          "name": "ratings",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "ref",
+              "id": "fidelity.test/rows/examples.Level"
+            }
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/examples.Slug": {
+      "kind": "primitive",
+      "name": "Slug",
+      "primitive": "string"
+    },
+    "fidelity.test/rows/examples.Status": {
+      "kind": "enum",
+      "name": "Status",
+      "base": "string",
+      "values": [
+        {
+          "name": "StatusDraft",
+          "value": "draft"
+        },
+        {
+          "name": "StatusSent",
+          "value": "sent"
+        }
+      ]
+    }
+  },
+  "errors": {},
+  "procedures": [
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "struct"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/examples.Sample"
+      },
+      "goInput": "struct{}",
+      "goOutput": "fidelity.test/rows/examples.Sample"
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/examples.Address": {
+      "file": "rows/examples/api.go",
+      "line": 27
+    },
+    "fidelity.test/rows/examples.Level": {
+      "file": "rows/examples/api.go",
+      "line": 18
+    },
+    "fidelity.test/rows/examples.Sample": {
+      "file": "rows/examples/api.go",
+      "line": 31
+    },
+    "fidelity.test/rows/examples.Slug": {
+      "file": "rows/examples/api.go",
+      "line": 25
+    },
+    "fidelity.test/rows/examples.Status": {
+      "file": "rows/examples/api.go",
+      "line": 11
+    },
+    "get": {
+      "file": "rows/examples/api.go",
+      "line": 55
+    }
+  }
+}

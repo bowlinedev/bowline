@@ -6,6 +6,8 @@ use (
 	./mcp
 	./transport/websocket
 	./agent
+	./playground
+	./contracttest
 	./examples/ledger
 	./examples/nethttp-minimal
 )

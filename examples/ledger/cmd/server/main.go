@@ -9,6 +9,7 @@ import (
 	"github.com/bowlinedev/bowline"
 	"github.com/bowlinedev/bowline/examples/ledger/api"
 	"github.com/bowlinedev/bowline/mcp"
+	"github.com/bowlinedev/bowline/playground"
 	bowlinews "github.com/bowlinedev/bowline/transport/websocket"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -54,5 +55,8 @@ func newHandler(routes *bowline.Router, production bool) (http.Handler, error) {
 	r.Mount("/api", routes.Handler(options...))
 	r.Handle("/ws", bowlinews.Handler(routes, bowlinews.Options{OriginPatterns: []string{"localhost:*", "127.0.0.1:*"}, Handler: options}))
 	r.Handle("/mcp", tools)
+	if !production {
+		r.Handle("/playground/*", http.StripPrefix("/playground", playground.New(api.Contract, playground.WithUpstream("/api"), playground.WithTitle("Ledger playground"))))
+	}
 	return r, nil
 }

@@ -1,4 +1,9 @@
-import { websocketTransport } from "@bowline/client";
+import {
+  type ClientOptions,
+  type Interaction,
+  type RecordSink,
+  websocketTransport,
+} from "@bowline/client";
 import { bowlineQuery } from "@bowline/react-query";
 import { createClient } from "./bowline.js";
 
@@ -10,9 +15,40 @@ function socketUrl(): string {
   return `${scheme}://${window.location.host}/ws`;
 }
 
-export const client = createClient(
-  transportName === "ws"
-    ? { url: "/api", transport: websocketTransport(socketUrl()) }
-    : { url: "/api" },
-);
+declare global {
+  interface Window {
+    __bowlineInteractions?: Interaction[];
+  }
+}
+
+function recorder(): RecordSink | undefined {
+  let enabled = false;
+  try {
+    enabled = window.localStorage.getItem("bowline.record") === "1";
+  } catch {
+    enabled = false;
+  }
+  if (!enabled) {
+    return undefined;
+  }
+  window.__bowlineInteractions = [];
+  return {
+    consumer: "ledger-web",
+    write(interaction) {
+      window.__bowlineInteractions?.push(interaction);
+    },
+  };
+}
+
+const record = recorder();
+
+const options: ClientOptions = { url: "/api" };
+if (transportName === "ws") {
+  options.transport = websocketTransport(socketUrl());
+}
+if (record !== undefined) {
+  options.record = record;
+}
+
+export const client = createClient(options);
 export const bq = bowlineQuery(client);

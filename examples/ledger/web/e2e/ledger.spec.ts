@@ -1,10 +1,12 @@
 import { expect, test } from "@playwright/test";
+import { arm, collect } from "./record.js";
 
 for (const transport of ["sse", "ws"]) {
   test(`lists, creates, validates, streams, attaches, and voids invoices over ${transport}`, async ({
     browser,
   }) => {
     const context = await browser.newContext();
+    await arm(context);
     const page = await context.newPage();
     const observer = await context.newPage();
     const url = transport === "ws" ? "/?transport=ws" : "/";
@@ -64,6 +66,9 @@ for (const transport of ["sse", "ws"]) {
       },
     });
     expect(response.status()).toBe(413);
+    if (transport === "sse") {
+      await collect(page, observer);
+    }
     await context.close();
   });
 }

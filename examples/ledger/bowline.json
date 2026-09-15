@@ -2,11 +2,12 @@
   "entry": "./api.Routes",
   "contract": "api/bowline.contract.json",
   "schemas": true,
+  "dev": { "app": "/api" },
   "targets": { "ts": { "out": "web/src/bowline.ts", "zod": true } },
   "openapi": {
     "out": "api/openapi.json",
     "title": "Ledger",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "serverUrl": "http://localhost:8080/api"
   }
 }

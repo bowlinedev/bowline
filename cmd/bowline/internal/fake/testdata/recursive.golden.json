@@ -1,0 +1,82 @@
+{
+  "get": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "name": "jade river"
+          },
+          {
+            "children": [],
+            "name": "comet lagoon quartz"
+          },
+          {
+            "children": [],
+            "name": "ridge"
+          },
+          {
+            "children": [],
+            "name": "forest"
+          }
+        ],
+        "name": "zephyr grove",
+        "parent": {
+          "children": [],
+          "name": "cinder meadow"
+        }
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "name": "garnet sage"
+          },
+          {
+            "children": [],
+            "name": "zephyr"
+          },
+          {
+            "children": [],
+            "name": "garnet summit"
+          },
+          {
+            "children": [],
+            "name": "cinder drift slate"
+          }
+        ],
+        "name": "breeze hazel beacon",
+        "parent": {
+          "children": [],
+          "name": "glade prairie linen"
+        }
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "name": "juniper reed"
+          },
+          {
+            "children": [],
+            "name": "kestrel basil delta"
+          },
+          {
+            "children": [],
+            "name": "mist breeze canyon"
+          },
+          {
+            "children": [],
+            "name": "zephyr"
+          }
+        ],
+        "name": "thistle juniper crest",
+        "parent": {
+          "children": [],
+          "name": "harbor"
+        }
+      }
+    ],
+    "name": "drift sierra"
+  }
+}

@@ -1,6 +1,6 @@
 {
-  "bowline": "1.1",
-  "hash": "sha256:e8ad9dcd3eb8d1e7049764aff697e0f1192c8dfd964d48d4450f03efd0d98b67",
+  "bowline": "1.2",
+  "hash": "sha256:4319e3e03a8d4ac8af283c9ecb7c647c01c3fc243f65d15a031ca64e67d5926f",
   "types": {
     "fidelity.test/rows/aliases.Holder": {
       "kind": "struct",

@@ -6,7 +6,7 @@
 
 ```json
 {
-  "bowline": "1.1",
+  "bowline": "1.2",
   "eval": 1,
   "contract": "sha256:4f1c…",
   "recordedAt": "2026-09-15T12:00:00Z",

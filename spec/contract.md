@@ -1,4 +1,4 @@
-# Bowline contract document, version 1.1
+# Bowline contract document, version 1.2
 
 `bowline.contract.json` is the language-neutral description of an API produced by `bowline gen`. Every generator, export, and tool reads this file and nothing else. It is a public specification; third parties may produce or consume it.
 
@@ -51,6 +51,7 @@ Any type node may carry `nullable: true`, meaning the value at that position may
 | `nullable` | May be JSON `null`. Set for pointers without `omitempty`. |
 | `rules` | Validation rules: `rule` and optional `param`, using the go-playground vocabulary subset. |
 | `doc` | Doc comment |
+| `example` | A sample wire value from the `example` struct tag, typed by the field's node: strings verbatim, numbers and booleans parsed, timestamps in RFC 3339, enum members only, and JSON for everything else. Mock servers and playgrounds prefer it over generated data. |
 
 ## Error variants
 
@@ -91,4 +92,4 @@ Object keys are sorted, procedures are sorted by path, struct fields and enum va
 
 ## Versioning
 
-Additive changes increment the minor version. Removing or renaming a field increments the major version and ships with a migration command. Version 1.0 is the first frozen format; `bowline migrate-contract` rewrites a 0.x document, and readers reject 0.x documents with a message naming that command.
+Additive changes increment the minor version. Removing or renaming a field increments the major version and ships with a migration command. Version 1.0 is the first frozen format, 1.1 added `tool` and `schemas` on procedures, and 1.2 added `example` on fields; `bowline migrate-contract` rewrites a 0.x document, and readers reject 0.x documents with a message naming that command.

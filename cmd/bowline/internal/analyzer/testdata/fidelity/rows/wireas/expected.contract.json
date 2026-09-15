@@ -1,6 +1,6 @@
 {
-  "bowline": "1.1",
-  "hash": "sha256:941c8d92b74ccb2e74fa53122694a2d2083688901aa19144acfc1f57c7624e5f",
+  "bowline": "1.2",
+  "hash": "sha256:2bd95bc34abb77b19c77340dd518fdfd323d5294a69c1fb7e7554221c386015d",
   "types": {
     "fidelity.test/rows/wireas.Envelope": {
       "kind": "struct",

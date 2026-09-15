@@ -1,6 +1,6 @@
 {
-  "bowline": "1.1",
-  "hash": "sha256:7603fd48561489d6ff041dae6a84ea222e0e693690ed89a73d13204ad68c0298",
+  "bowline": "1.2",
+  "hash": "sha256:c1b4e5b0fed5cf1c4783dfc5b9bb28a12aba94b53cad2226459bc37f8f337f26",
   "types": {
     "fidelity.test/rows/idempotent.CreateInput": {
       "kind": "struct",

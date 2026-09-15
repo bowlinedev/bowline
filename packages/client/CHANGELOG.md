@@ -1,5 +1,11 @@
 # @bowline/client
 
+## 0.4.0
+
+### Minor Changes
+
+- The `record` option delivers every call to a `RecordSink`, and `@bowline/client/node` exports `fileSink` to write consumer contract files; `ContractField` carries `example`.
+
 ## 0.3.0
 
 ### Minor Changes

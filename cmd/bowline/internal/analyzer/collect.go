@@ -254,7 +254,7 @@ func (c *collector) collectFields(st *types.Struct, path string, depth int) ([]f
 		if !f.Exported() {
 			continue
 		}
-		field, fieldOK := c.field(f, jsonName, opts, tag.Get("validate"), path)
+		field, fieldOK := c.field(f, jsonName, opts, tag.Get("validate"), tag.Get("example"), path)
 		if !fieldOK {
 			ok = false
 			continue
@@ -264,7 +264,7 @@ func (c *collector) collectFields(st *types.Struct, path string, depth int) ([]f
 	return entries, ok
 }
 
-func (c *collector) field(f *types.Var, jsonName, opts, validateTag, path string) (*contract.Field, bool) {
+func (c *collector) field(f *types.Var, jsonName, opts, validateTag, exampleTag, path string) (*contract.Field, bool) {
 	name := jsonName
 	if name == "" {
 		name = f.Name()
@@ -306,6 +306,14 @@ func (c *collector) field(f *types.Var, jsonName, opts, validateTag, path string
 			return nil, false
 		}
 		field.Rules = append(field.Rules, contract.Rule{Rule: r.Name, Param: r.Param})
+	}
+	if exampleTag != "" {
+		example, err := c.example(exampleTag, node)
+		if err != nil {
+			c.fail(f.Pos(), fieldPath, err.Error(), "write the example as the value would appear on the wire")
+			return nil, false
+		}
+		field.Example = example
 	}
 	return field, true
 }

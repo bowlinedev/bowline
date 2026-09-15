@@ -1,4 +1,5 @@
 import type { BowlineError, Result } from "./error.js";
+import type { RecordSink } from "./record.js";
 
 export type Base64 = string & { readonly __bowline: "base64" };
 
@@ -30,6 +31,7 @@ export interface ClientOptions {
   fetch?: typeof fetch;
   headers?: HeadersSource;
   transport?: SubscriptionTransport;
+  record?: RecordSink;
 }
 
 type Callable<I, O> = Record<string, never> extends I

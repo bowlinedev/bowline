@@ -1,6 +1,6 @@
 {
-  "bowline": "1.1",
-  "hash": "sha256:ca334acb3b4d5a9e4e32bd761dfb1ae5f7bfd4a3161ebb37be9a454ba70bd1ae",
+  "bowline": "1.2",
+  "hash": "sha256:7a000058282e720946b7f5296f5b52756ffc662626b3386981f88bb30abeb527",
   "types": {
     "github.com/bowlinedev/bowline/examples/ledger/api.AttachInput": {
       "kind": "struct",
@@ -112,14 +112,16 @@
           "type": {
             "kind": "primitive",
             "name": "bool"
-          }
+          },
+          "example": true
         },
         {
           "name": "version",
           "type": {
             "kind": "primitive",
             "name": "string"
-          }
+          },
+          "example": "0.4.0"
         }
       ]
     },
@@ -310,7 +312,8 @@
             {
               "rule": "required"
             }
-          ]
+          ],
+          "example": "Ada Lovelace"
         },
         {
           "name": "email",
@@ -325,7 +328,8 @@
             {
               "rule": "email"
             }
-          ]
+          ],
+          "example": "ada@example.com"
         },
         {
           "name": "createdAt",
@@ -366,14 +370,16 @@
           "type": {
             "kind": "ref",
             "id": "github.com/bowlinedev/bowline/examples/ledger/ledger.Status"
-          }
+          },
+          "example": "sent"
         },
         {
           "name": "total",
           "type": {
             "kind": "primitive",
             "name": "string"
-          }
+          },
+          "example": "USD 1500.00"
         },
         {
           "name": "lines",
@@ -391,7 +397,8 @@
             "kind": "primitive",
             "name": "string"
           },
-          "optional": true
+          "optional": true,
+          "example": "net 30"
         },
         {
           "name": "createdAt",
@@ -427,7 +434,8 @@
               "rule": "max",
               "param": "200"
             }
-          ]
+          ],
+          "example": "Consulting"
         },
         {
           "name": "quantity",
@@ -440,14 +448,16 @@
               "rule": "min",
               "param": "1"
             }
-          ]
+          ],
+          "example": 10
         },
         {
           "name": "unitPrice",
           "type": {
             "kind": "primitive",
             "name": "string"
-          }
+          },
+          "example": "USD 150.00"
         }
       ]
     },
@@ -600,6 +610,9 @@
                   "type": "string"
                 },
                 "email": {
+                  "examples": [
+                    "ada@example.com"
+                  ],
                   "format": "email",
                   "minLength": 1,
                   "type": "string"
@@ -610,6 +623,9 @@
                   "type": "integer"
                 },
                 "name": {
+                  "examples": [
+                    "Ada Lovelace"
+                  ],
                   "minLength": 1,
                   "type": "string"
                 },
@@ -786,12 +802,21 @@
                   "type": "array"
                 },
                 "note": {
+                  "examples": [
+                    "net 30"
+                  ],
                   "type": "string"
                 },
                 "status": {
-                  "$ref": "#/$defs/Status"
+                  "$ref": "#/$defs/Status",
+                  "examples": [
+                    "sent"
+                  ]
                 },
                 "total": {
+                  "examples": [
+                    "USD 1500.00"
+                  ],
                   "type": "string"
                 },
                 "updatedAt": {
@@ -814,16 +839,25 @@
               "additionalProperties": false,
               "properties": {
                 "description": {
+                  "examples": [
+                    "Consulting"
+                  ],
                   "maxLength": 200,
                   "minLength": 1,
                   "type": "string"
                 },
                 "quantity": {
+                  "examples": [
+                    10
+                  ],
                   "maximum": 2147483647,
                   "minimum": 1,
                   "type": "integer"
                 },
                 "unitPrice": {
+                  "examples": [
+                    "USD 150.00"
+                  ],
                   "type": "string"
                 }
               },
@@ -938,12 +972,21 @@
                   "type": "array"
                 },
                 "note": {
+                  "examples": [
+                    "net 30"
+                  ],
                   "type": "string"
                 },
                 "status": {
-                  "$ref": "#/$defs/Status"
+                  "$ref": "#/$defs/Status",
+                  "examples": [
+                    "sent"
+                  ]
                 },
                 "total": {
+                  "examples": [
+                    "USD 1500.00"
+                  ],
                   "type": "string"
                 },
                 "updatedAt": {
@@ -966,16 +1009,25 @@
               "additionalProperties": false,
               "properties": {
                 "description": {
+                  "examples": [
+                    "Consulting"
+                  ],
                   "maxLength": 200,
                   "minLength": 1,
                   "type": "string"
                 },
                 "quantity": {
+                  "examples": [
+                    10
+                  ],
                   "maximum": 2147483647,
                   "minimum": 1,
                   "type": "integer"
                 },
                 "unitPrice": {
+                  "examples": [
+                    "USD 150.00"
+                  ],
                   "type": "string"
                 }
               },
@@ -1090,12 +1142,21 @@
                   "type": "array"
                 },
                 "note": {
+                  "examples": [
+                    "net 30"
+                  ],
                   "type": "string"
                 },
                 "status": {
-                  "$ref": "#/$defs/Status"
+                  "$ref": "#/$defs/Status",
+                  "examples": [
+                    "sent"
+                  ]
                 },
                 "total": {
+                  "examples": [
+                    "USD 1500.00"
+                  ],
                   "type": "string"
                 },
                 "updatedAt": {
@@ -1118,16 +1179,25 @@
               "additionalProperties": false,
               "properties": {
                 "description": {
+                  "examples": [
+                    "Consulting"
+                  ],
                   "maxLength": 200,
                   "minLength": 1,
                   "type": "string"
                 },
                 "quantity": {
+                  "examples": [
+                    10
+                  ],
                   "maximum": 2147483647,
                   "minimum": 1,
                   "type": "integer"
                 },
                 "unitPrice": {
+                  "examples": [
+                    "USD 150.00"
+                  ],
                   "type": "string"
                 }
               },

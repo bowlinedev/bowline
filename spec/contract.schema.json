@@ -50,6 +50,7 @@
         "doc": {
           "type": "string"
         },
+        "example": {},
         "name": {
           "type": "string"
         },
@@ -315,7 +316,7 @@
       "type": "object"
     }
   },
-  "$id": "https://bowline.dev/spec/contract/1.1/contract.schema.json",
+  "$id": "https://bowline.dev/spec/contract/1.2/contract.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": true,
   "properties": {

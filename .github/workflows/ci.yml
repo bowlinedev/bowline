@@ -36,6 +36,7 @@ jobs:
             transport/websocket/go.sum
             mcp/go.sum
             agent/go.sum
+            contracttest/go.sum
       - name: gofmt
         run: |
           out="$(gofmt -l .)"
@@ -64,11 +65,22 @@ jobs:
         if: matrix.go == 'stable'
         working-directory: agent
         run: go vet ./... && go test -race ./...
+      - name: vet and test playground
+        if: matrix.go == 'stable'
+        working-directory: playground
+        run: go vet ./... && go test -race ./...
+      - name: vet and test contracttest
+        if: matrix.go == 'stable'
+        working-directory: contracttest
+        run: go vet ./... && go test -race ./...
       - name: contracts are current
         if: matrix.go == 'stable'
         run: |
           (cd examples/ledger && go run github.com/bowlinedev/bowline/cmd/bowline check)
           (cd examples/nethttp-minimal && go run github.com/bowlinedev/bowline/cmd/bowline check)
+      - name: consumer contracts still hold
+        if: matrix.go == 'stable'
+        run: (cd examples/ledger && go run github.com/bowlinedev/bowline/cmd/bowline verify-consumers)
       - name: staticcheck
         if: matrix.os == 'ubuntu-latest' && matrix.go == 'stable'
         run: |
@@ -78,6 +90,8 @@ jobs:
           (cd transport/websocket && staticcheck ./...)
           (cd mcp && staticcheck ./...)
           (cd agent && staticcheck ./...)
+          (cd contracttest && staticcheck ./...)
+          (cd playground && staticcheck ./...)
       - name: runtime module has no dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -131,6 +145,8 @@ jobs:
             examples/ledger/go.sum
       - name: run every runnable block in the guides
         run: scripts/docs-check.sh
+      - name: guide snippets match their sources
+        run: scripts/check-snippets.sh
 
   devloop-windows:
     runs-on: windows-latest
