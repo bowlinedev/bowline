@@ -14,6 +14,7 @@ import (
 type Tool struct {
 	Name        string
 	Procedure   string
+	Method      string
 	Description string
 	Input       json.RawMessage
 	Output      json.RawMessage
@@ -56,6 +57,7 @@ func FromContract(doc *contract.Document, filter Filter) ([]Tool, error) {
 		list = append(list, Tool{
 			Name:        name,
 			Procedure:   p.Path,
+			Method:      p.Method,
 			Description: Describe(doc, p),
 			Input:       input,
 			Output:      output,
