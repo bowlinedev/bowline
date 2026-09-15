@@ -9,6 +9,7 @@ use (
 	./agent
 	./playground
 	./contracttest
+	./registry
 	./adapters/fiber
 	./examples/routers/fiber
 	./examples/ledger
