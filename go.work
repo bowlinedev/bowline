@@ -3,6 +3,7 @@ go 1.26.0
 use (
 	.
 	./cmd/bowline
+	./transport/websocket
 	./examples/ledger
 	./examples/nethttp-minimal
 )

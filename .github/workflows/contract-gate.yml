@@ -1,0 +1,27 @@
+name: contract-gate
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        directory: [examples/ledger, examples/nethttp-minimal]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: ./.github/actions/contract-gate
+        with:
+          working-directory: ${{ matrix.directory }}
+          base-ref: origin/${{ github.base_ref }}

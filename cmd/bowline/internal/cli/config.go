@@ -15,10 +15,19 @@ type Config struct {
 	Entry    string            `json:"entry"`
 	Contract string            `json:"contract"`
 	Targets  map[string]Target `json:"targets"`
+	OpenAPI  *OpenAPIConfig    `json:"openapi"`
+}
+
+type OpenAPIConfig struct {
+	Out       string `json:"out,omitempty"`
+	Title     string `json:"title"`
+	Version   string `json:"version"`
+	ServerURL string `json:"serverUrl"`
 }
 
 type Target struct {
 	Out string `json:"out"`
+	Zod bool   `json:"zod,omitempty"`
 }
 
 func LoadConfig(dir string) (*Config, error) {

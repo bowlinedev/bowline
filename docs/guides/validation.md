@@ -59,3 +59,23 @@ The ledger web app renders these in `examples/ledger/web/src/invoices.tsx`:
 ## Cost
 
 Rules are compiled once per procedure when the router is built. A valid input is checked in a single pass with no allocations; only an invalid input pays for building the issue list. The overhead benchmark in `handler_bench_test.go` includes a `required` rule and stays within the 5 percent budget against a hand-written handler.
+
+
+## Zod schemas
+
+Setting `"zod": true` on the TypeScript target writes `bowline.zod.ts` next to the client file. It exports `schemas` with one Zod schema per declared type, `inputs` keyed by procedure path, and `errors` keyed by variant name, all carrying the same rules the server enforces, so a form can validate before the request leaves the browser and the two can never disagree.
+
+```json
+{ "entry": "./api.Routes", "targets": { "ts": { "out": "web/src/bowline.ts", "zod": true } } }
+```
+
+```ts
+import { inputs } from "./bowline.zod.js";
+
+const parsed = inputs["invoices.create"].safeParse(form);
+if (!parsed.success) {
+  showIssues(parsed.error.issues);
+}
+```
+
+Generic types become functions of their element schemas, for example `schemas.Page(schemas.Invoice)`, and recursive types use property getters, which is how Zod 4 defers a self-reference without a type annotation. The test `packages/client/src/zod.test.ts` shows an email rule rejecting an invalid value through a generated schema.

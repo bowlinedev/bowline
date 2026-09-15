@@ -48,7 +48,7 @@ func TestGenThenCheck(t *testing.T) {
 		t.Fatal(err)
 	}
 	opts, _, errOut = testOptions(dir)
-	if code := Check(opts); code != 0 {
+	if code := Check(opts, nil); code != 0 {
 		t.Fatalf("check exit %d: %s", code, errOut.String())
 	}
 	opts, out, _ = testOptions(dir)
@@ -62,13 +62,13 @@ func TestCheckDetectsDrift(t *testing.T) {
 	dir := fixtureCopy(t)
 	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/routing.Routes"}`), 0o644)
 	opts, _, errOut := testOptions(dir)
-	if code := Check(opts); code != 1 || !strings.Contains(errOut.String(), "missing   bowline.contract.json") {
+	if code := Check(opts, nil); code != 1 || !strings.Contains(errOut.String(), "missing   bowline.contract.json") {
 		t.Fatalf("exit %d stderr %s", code, errOut.String())
 	}
 	Gen(testOptionsOnly(dir))
 	os.WriteFile(filepath.Join(dir, "bowline.contract.json"), []byte("{}"), 0o644)
 	opts, _, errOut = testOptions(dir)
-	if code := Check(opts); code != 1 || !strings.Contains(errOut.String(), "outdated  bowline.contract.json") {
+	if code := Check(opts, nil); code != 1 || !strings.Contains(errOut.String(), "outdated  bowline.contract.json") {
 		t.Fatalf("exit %d stderr %s", code, errOut.String())
 	}
 }
@@ -99,5 +99,25 @@ func TestUnknownTarget(t *testing.T) {
 	opts, _, errOut := testOptions(dir)
 	if code := Gen(opts); code != 1 || !strings.Contains(errOut.String(), `unknown target "cobol"`) {
 		t.Fatalf("exit %d stderr %s", code, errOut.String())
+	}
+}
+
+func TestGenWritesOpenAPIWhenConfigured(t *testing.T) {
+	dir := fixtureCopy(t)
+	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/routing.Routes","contract":"api/c.json","openapi":{"title":"Routing","version":"1.2.3"}}`), 0o644)
+	opts, out, errOut := testOptions(dir)
+	if code := Gen(opts); code != 0 {
+		t.Fatalf("exit %d: %s", code, errOut.String())
+	}
+	if !strings.Contains(out.String(), "wrote api/openapi.json") {
+		t.Fatalf("stdout %q", out.String())
+	}
+	data, _ := os.ReadFile(filepath.Join(dir, "api", "openapi.json"))
+	if !strings.Contains(string(data), `"title": "Routing"`) || !strings.Contains(string(data), `"1.2.3"`) {
+		t.Fatalf("openapi %s", data[:200])
+	}
+	opts, _, errOut = testOptions(dir)
+	if code := Check(opts, nil); code != 0 {
+		t.Fatalf("check exit %d: %s", code, errOut.String())
 	}
 }

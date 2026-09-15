@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func Check(opts Options) int {
+func checkDrift(opts Options) int {
 	files, diags, err := Produce(opts)
 	if err != nil {
 		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)

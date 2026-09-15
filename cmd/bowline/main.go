@@ -16,6 +16,14 @@ const usage = `usage: bowline <command>
 commands:
   gen        analyze the module and write the contract and every target
   check      verify the committed contract and targets are up to date
+             --against <git-ref> diffs the contract against that ref instead
+             and fails on breaking changes unless --allow-breaking is set
+  export openapi [-o path]
+             write an OpenAPI 3.1 document derived from the contract
+  migrate-contract [path]
+             rewrite a contract document from an older format version
+  diff <old> <new> [--format text|markdown|json]
+             list semantic changes between two contract documents
   version    print the bowline version
 `
 
@@ -38,7 +46,13 @@ func run(args []string, stdout, stderr io.Writer) int {
 	case "gen":
 		return cli.Gen(opts)
 	case "check":
-		return cli.Check(opts)
+		return cli.Check(opts, args[1:])
+	case "export":
+		return cli.Export(opts, args[1:])
+	case "migrate-contract":
+		return cli.Migrate(opts, args[1:])
+	case "diff":
+		return cli.DiffCommand(opts, args[1:])
 	case "dev":
 		stop := make(chan struct{})
 		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)

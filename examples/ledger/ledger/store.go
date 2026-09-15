@@ -12,17 +12,60 @@ import (
 var ErrNotFound = errors.New("not found")
 
 type Store struct {
-	mu        sync.RWMutex
-	now       func() time.Time
-	invoices  map[int64]Invoice
-	customers map[int64]Customer
-	nextID    int64
+	mu          sync.RWMutex
+	now         func() time.Time
+	invoices    map[int64]Invoice
+	customers   map[int64]Customer
+	attachments map[int64]Attachment
+	watchers    map[int64]chan Invoice
+	nextID      int64
+	nextWatcher int64
 }
 
 func NewStore(now func() time.Time) *Store {
-	s := &Store{now: now, invoices: map[int64]Invoice{}, customers: map[int64]Customer{}, nextID: 1}
+	s := &Store{now: now, invoices: map[int64]Invoice{}, customers: map[int64]Customer{}, attachments: map[int64]Attachment{}, watchers: map[int64]chan Invoice{}, nextID: 1}
 	s.seed()
 	return s
+}
+
+func (s *Store) Watch() (<-chan Invoice, func()) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	id := s.nextWatcher
+	s.nextWatcher++
+	ch := make(chan Invoice, 64)
+	s.watchers[id] = ch
+	return ch, func() {
+		s.mu.Lock()
+		defer s.mu.Unlock()
+		if _, ok := s.watchers[id]; ok {
+			delete(s.watchers, id)
+			close(ch)
+		}
+	}
+}
+
+func (s *Store) Attach(invoiceID int64, name, contentType string, size int64) Attachment {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	now := s.now()
+	a := Attachment{ID: s.nextID, InvoiceID: invoiceID, Name: name, ContentType: contentType, Size: size, Audit: Audit{CreatedAt: now, UpdatedAt: now}}
+	s.nextID++
+	s.attachments[a.ID] = a
+	return a
+}
+
+func (s *Store) Attachments(invoiceID int64) []Attachment {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	var out []Attachment
+	for _, a := range s.attachments {
+		if a.InvoiceID == invoiceID {
+			out = append(out, a)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
 }
 
 func (s *Store) seed() {
@@ -86,6 +129,12 @@ func (s *Store) PutInvoice(inv Invoice) Invoice {
 	}
 	inv.Total = total
 	s.invoices[inv.ID] = inv
+	for _, ch := range s.watchers {
+		select {
+		case ch <- inv:
+		default:
+		}
+	}
 	return inv
 }
 

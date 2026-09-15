@@ -1,0 +1,31 @@
+import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type Mutation } from "@bowline/client";
+
+export interface CreateInput {
+  name: string;
+}
+
+export interface Created {
+  id: number;
+}
+
+export interface Errors {
+  "create": BowlineError;
+}
+
+export type ProcedureError<P extends keyof Errors> = Errors[P];
+
+export interface Client {
+  create: Mutation<CreateInput, Created>;
+}
+
+export const contract = {
+  version: "1.0",
+  hydrators: {},
+  procedures: {
+    "create": { kind: "mutation", method: "POST" },
+  },
+} satisfies ContractRuntime;
+
+export function createClient(options: ClientOptions): Client {
+  return create(contract, options) as Client;
+}

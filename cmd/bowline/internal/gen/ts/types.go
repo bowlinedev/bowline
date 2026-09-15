@@ -11,11 +11,12 @@ import (
 )
 
 type generator struct {
-	doc       *contract.Document
-	names     map[string]string
-	needs     map[string]bool
-	hydrators map[string][]hydrateEntry
-	order     []string
+	doc        *contract.Document
+	names      map[string]string
+	needs      map[string]bool
+	hydrators  map[string][]hydrateEntry
+	order      []string
+	errorOrder []string
 }
 
 func newGenerator(doc *contract.Document) *generator {
@@ -24,6 +25,10 @@ func newGenerator(doc *contract.Document) *generator {
 		g.order = append(g.order, id)
 	}
 	sort.Slice(g.order, func(i, j int) bool { return g.names[g.order[i]] < g.names[g.order[j]] })
+	for id := range doc.Errors {
+		g.errorOrder = append(g.errorOrder, id)
+	}
+	sort.Slice(g.errorOrder, func(i, j int) bool { return g.names[g.errorOrder[i]] < g.names[g.errorOrder[j]] })
 	return g
 }
 
@@ -141,6 +146,16 @@ func jsdoc(indent string, lines ...string) string {
 
 func (g *generator) declarations() string {
 	var b strings.Builder
+	for _, id := range g.errorOrder {
+		decl := g.doc.Errors[id]
+		b.WriteString(jsdoc("", decl.Doc))
+		b.WriteString("export interface " + g.names[id] + " {\n")
+		for _, f := range decl.Fields {
+			b.WriteString(jsdoc("  ", f.Doc))
+			b.WriteString("  " + g.fieldSignature(f) + "\n")
+		}
+		b.WriteString("}\n\n")
+	}
 	for _, id := range g.order {
 		decl := g.doc.Types[id]
 		name := g.names[id]

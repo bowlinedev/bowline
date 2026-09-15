@@ -1,0 +1,29 @@
+import { z } from "zod";
+
+const Address = z.object({
+  street: z.string(),
+  city: z.string().min(1),
+});
+
+const Person = z.object({
+  name: z.string().min(1).max(80),
+  age: z.number().int().min(0).max(150),
+  email: z.string().email(),
+  home: Address,
+  NoTag: z.string(),
+  inline: z.object({
+  x: z.number().int(),
+}),
+});
+
+export const schemas = {
+  Address,
+  Person,
+} as const;
+
+export const inputs = {
+  "get": Address,
+} as const;
+
+export const errors = {
+} as const;

@@ -1,0 +1,27 @@
+import { z } from "zod";
+
+const Cell = z.object({
+  v: z.number().int(),
+});
+
+const Grid = z.object({
+  rows: z.array(z.array(Cell)),
+  fixed: z.array(z.number().int()),
+  byKey: z.record(z.string(), Cell),
+  byInt: z.record(z.string(), z.string()),
+  names: z.array(z.string()).max(10).optional(),
+  blob: z.string(),
+  ids: z.array(z.number().int()),
+});
+
+export const schemas = {
+  Cell,
+  Grid,
+} as const;
+
+export const inputs = {
+  "get": Cell,
+} as const;
+
+export const errors = {
+} as const;

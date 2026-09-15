@@ -1,4 +1,4 @@
-# Bowline contract document, version 0.1
+# Bowline contract document, version 1.0
 
 `bowline.contract.json` is the language-neutral description of an API produced by `bowline gen`. Every generator, export, and tool reads this file and nothing else. It is a public specification; third parties may produce or consume it.
 
@@ -11,6 +11,7 @@ The machine-readable schema is `contract.schema.json` in this directory. A worke
 | `bowline` | Document version, `major.minor`. Readers accept any document with the same major and ignore unknown fields. |
 | `hash` | `sha256:` plus the hex digest of the canonical serialization with `hash` and `positions` removed. |
 | `types` | Map from canonical type ID to a type declaration. Keys are sorted. |
+| `errors` | Map from canonical Go type name to a declared error variant. Always present, empty when no procedure declares variants. |
 | `procedures` | List of procedures sorted by `path`. |
 | `positions` | Optional map from type ID or procedure path to source file and line. Excluded from the hash. |
 
@@ -51,15 +52,21 @@ Any type node may carry `nullable: true`, meaning the value at that position may
 | `rules` | Validation rules: `rule` and optional `param`, using the go-playground vocabulary subset. |
 | `doc` | Doc comment |
 
+## Error variants
+
+An entry in `errors` describes a typed error a procedure may return. `name` is the Go type name, `code` is one of the sixteen error codes and fixes the HTTP status, `fields` are the exported fields that travel under `details` on the wire, and `doc` is the type's doc comment. A procedure lists the keys of its variants in `errors`. A variant used by several procedures is declared once.
+
 ## Procedures
 
 | Field | Meaning |
 |---|---|
 | `path` | Dotted path, mount names then the procedure name |
-| `kind` | `query` or `mutation` |
-| `method` | `GET` or `POST` |
+| `kind` | `query`, `mutation`, `subscription`, or `upload` |
+| `method` | `GET` or `POST`; subscriptions follow query rules, uploads are always `POST` |
 | `input`, `output` | Type nodes, normally `ref` |
 | `goInput`, `goOutput` | Canonical Go names of the input and output types: full import path, a dot, the type name, generic arguments in square brackets spelled the same way, and `struct{}` for the empty struct. Used by the runtime to verify the committed document against the running router. |
+| `errors` | Keys into the top-level `errors` map for the variants this procedure declares |
+| `idempotent` | `true` when the mutation honors an `Idempotency-Key` header |
 | `doc` | Description |
 | `deprecated` | Reason string when the procedure is deprecated |
 | `meta` | Free-form string metadata declared in Go |
@@ -78,4 +85,4 @@ Object keys are sorted, procedures are sorted by path, struct fields and enum va
 
 ## Versioning
 
-Additive changes increment the minor version. Removing or renaming a field increments the major version and ships with a migration command. Version 0.x is unstable until frozen as 1.0.
+Additive changes increment the minor version. Removing or renaming a field increments the major version and ships with a migration command. Version 1.0 is the first frozen format; `bowline migrate-contract` rewrites a 0.x document, and readers reject 0.x documents with a message naming that command.

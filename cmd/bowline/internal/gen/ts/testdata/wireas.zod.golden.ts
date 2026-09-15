@@ -1,0 +1,24 @@
+import { z } from "zod";
+
+const Envelope = z.object({
+  kind: z.string(),
+});
+
+const Line = z.object({
+  price: z.string(),
+  origin: z.array(z.number()),
+  meta: Envelope,
+  prices: z.array(z.string()),
+});
+
+export const schemas = {
+  Envelope,
+  Line,
+} as const;
+
+export const inputs = {
+  "get": z.object({}),
+} as const;
+
+export const errors = {
+} as const;

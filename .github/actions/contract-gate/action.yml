@@ -1,0 +1,40 @@
+name: bowline contract gate
+description: Diff the generated contract against the pull request base and post the result as a comment
+inputs:
+  working-directory:
+    description: Directory containing bowline.json
+    required: true
+  base-ref:
+    description: Git ref to compare against
+    required: true
+  allow-breaking:
+    description: Set to "true" to report breaking changes without failing
+    required: false
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - name: contract diff
+      id: diff
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        ALLOW: ${{ inputs.allow-breaking }}
+        BASE: ${{ inputs.base-ref }}
+      run: |
+        set +e
+        args=(--against "$BASE")
+        if [ "$ALLOW" = "true" ]; then args+=(--allow-breaking); fi
+        go run github.com/bowlinedev/bowline/cmd/bowline check "${args[@]}" > "$RUNNER_TEMP/contract.md" 2> "$RUNNER_TEMP/contract.err"
+        echo "code=$?" >> "$GITHUB_OUTPUT"
+        cat "$RUNNER_TEMP/contract.err" >&2
+        cat "$RUNNER_TEMP/contract.md"
+    - name: comment
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        DIRECTORY: ${{ inputs.working-directory }}
+      run: bash "${{ github.action_path }}/comment.sh" "$RUNNER_TEMP/contract.md"
+    - name: gate
+      shell: bash
+      run: exit ${{ steps.diff.outputs.code }}

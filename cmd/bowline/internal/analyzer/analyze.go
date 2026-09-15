@@ -12,6 +12,7 @@ func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
 	doc := &contract.Document{
 		Bowline:   contract.Version,
 		Types:     map[string]*contract.TypeDecl{},
+		Errors:    map[string]*contract.ErrorDecl{},
 		Positions: map[string]contract.Position{},
 	}
 	fn, entryPkg, diag := prog.resolveEntry(entry)
@@ -36,6 +37,7 @@ func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
 			Method:     spec.Method,
 			GoInput:    goTypeName(spec.In),
 			GoOutput:   goTypeName(spec.Out),
+			Idempotent: spec.Idempotent,
 			Deprecated: spec.Deprecated,
 		}
 		if len(spec.Meta) > 0 {
@@ -50,6 +52,16 @@ func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
 		if proc.Input == nil || proc.Output == nil {
 			continue
 		}
+		seenErrors := map[string]bool{}
+		for _, ref := range spec.Errors {
+			id, ok := c.errorDecl(ref, spec.Path)
+			if !ok || seenErrors[id] {
+				continue
+			}
+			seenErrors[id] = true
+			proc.Errors = append(proc.Errors, id)
+		}
+		sort.Strings(proc.Errors)
 		c.recordPosition(spec.Path, spec.Pos)
 		doc.Procedures = append(doc.Procedures, proc)
 	}

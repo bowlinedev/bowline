@@ -1,4 +1,4 @@
-import { createClient as create, type ClientOptions, type ContractRuntime, type Query } from "@bowline/client";
+import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type Query } from "@bowline/client";
 
 export interface Node {
   name: string;
@@ -6,12 +6,18 @@ export interface Node {
   parent?: Node;
 }
 
+export interface Errors {
+  "get": BowlineError;
+}
+
+export type ProcedureError<P extends keyof Errors> = Errors[P];
+
 export interface Client {
   get: Query<Node, Node>;
 }
 
 export const contract = {
-  version: "0.1",
+  version: "1.0",
   hydrators: {},
   procedures: {
     "get": { kind: "query", method: "GET" },

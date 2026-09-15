@@ -1,6 +1,6 @@
 {
-  "bowline": "0.1",
-  "hash": "sha256:21292f4b3debdaa73d70ebfea915dda1de4e670efcf82b09a8bd01d76063e949",
+  "bowline": "1.0",
+  "hash": "sha256:d9e5ffdfbf4c9278e349d754df50b1edf71fd2b05521b8c6e4114d9c39370ee2",
   "types": {
     "github.com/acme/app/pkg/page.Page": {
       "kind": "generic",
@@ -170,6 +170,7 @@
       ]
     }
   },
+  "errors": {},
   "procedures": [
     {
       "path": "users.get",

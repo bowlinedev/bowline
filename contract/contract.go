@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const Version = "0.1"
+const Version = "1.0"
 
 type Kind string
 
@@ -24,11 +24,19 @@ const (
 )
 
 type Document struct {
-	Bowline    string               `json:"bowline"`
-	Hash       string               `json:"hash,omitempty"`
-	Types      map[string]*TypeDecl `json:"types"`
-	Procedures []*Procedure         `json:"procedures"`
-	Positions  map[string]Position  `json:"positions,omitempty"`
+	Bowline    string                `json:"bowline"`
+	Hash       string                `json:"hash,omitempty"`
+	Types      map[string]*TypeDecl  `json:"types"`
+	Errors     map[string]*ErrorDecl `json:"errors"`
+	Procedures []*Procedure          `json:"procedures"`
+	Positions  map[string]Position   `json:"positions,omitempty"`
+}
+
+type ErrorDecl struct {
+	Name   string   `json:"name"`
+	Code   string   `json:"code"`
+	Doc    string   `json:"doc,omitempty"`
+	Fields []*Field `json:"fields,omitempty"`
 }
 
 type TypeDecl struct {
@@ -85,6 +93,8 @@ type Procedure struct {
 	Output     *Type             `json:"output"`
 	GoInput    string            `json:"goInput,omitempty"`
 	GoOutput   string            `json:"goOutput,omitempty"`
+	Errors     []string          `json:"errors,omitempty"`
+	Idempotent bool              `json:"idempotent,omitempty"`
 	Doc        string            `json:"doc,omitempty"`
 	Deprecated string            `json:"deprecated,omitempty"`
 	Meta       map[string]string `json:"meta,omitempty"`
@@ -103,6 +113,9 @@ func (d *Document) Marshal() ([]byte, error) {
 	})
 	if sorted.Types == nil {
 		sorted.Types = map[string]*TypeDecl{}
+	}
+	if sorted.Errors == nil {
+		sorted.Errors = map[string]*ErrorDecl{}
 	}
 	if sorted.Procedures == nil {
 		sorted.Procedures = []*Procedure{}
@@ -134,7 +147,7 @@ func checkVersion(v string) error {
 	major, _, ok := strings.Cut(v, ".")
 	wantMajor, _, _ := strings.Cut(Version, ".")
 	if !ok || major != wantMajor {
-		return fmt.Errorf("contract: document version %q is not compatible with reader version %q", v, Version)
+		return fmt.Errorf("contract: document version %q is not compatible with reader version %q; run bowline migrate-contract", v, Version)
 	}
 	return nil
 }

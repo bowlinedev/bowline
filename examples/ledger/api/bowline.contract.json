@@ -1,7 +1,25 @@
 {
-  "bowline": "0.1",
-  "hash": "sha256:a1f7f27156183fb3f53b2934fcab33d6f16e287e4d57a058d1f7e9a044a562d6",
+  "bowline": "1.0",
+  "hash": "sha256:2bd65447f5d0f83ce1bd228fcc1ee6bf184a358e33c4efef5602da6000bf83d8",
   "types": {
+    "github.com/bowlinedev/bowline/examples/ledger/api.AttachInput": {
+      "kind": "struct",
+      "name": "AttachInput",
+      "fields": [
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
     "github.com/bowlinedev/bowline/examples/ledger/api.CreateInvoiceInput": {
       "kind": "struct",
       "name": "CreateInvoiceInput",
@@ -105,6 +123,24 @@
         }
       ]
     },
+    "github.com/bowlinedev/bowline/examples/ledger/api.ListAttachmentsInput": {
+      "kind": "struct",
+      "name": "ListAttachmentsInput",
+      "fields": [
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
     "github.com/bowlinedev/bowline/examples/ledger/api.ListInvoicesInput": {
       "kind": "struct",
       "name": "ListInvoicesInput",
@@ -181,6 +217,75 @@
               "rule": "required"
             }
           ]
+        }
+      ]
+    },
+    "github.com/bowlinedev/bowline/examples/ledger/api.WatchInput": {
+      "kind": "struct",
+      "name": "WatchInput",
+      "fields": [
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "github.com/bowlinedev/bowline/examples/ledger/ledger.Status"
+          },
+          "optional": true
+        }
+      ]
+    },
+    "github.com/bowlinedev/bowline/examples/ledger/ledger.Attachment": {
+      "kind": "struct",
+      "name": "Attachment",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "contentType",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "size",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
         }
       ]
     },
@@ -400,6 +505,29 @@
       ]
     }
   },
+  "errors": {
+    "github.com/bowlinedev/bowline/examples/ledger/api.InvoiceLocked": {
+      "name": "InvoiceLocked",
+      "code": "FAILED_PRECONDITION",
+      "doc": "InvoiceLocked is returned when an invoice can no longer change.",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "github.com/bowlinedev/bowline/examples/ledger/ledger.Status"
+          }
+        }
+      ]
+    }
+  },
   "procedures": [
     {
       "path": "customers.get",
@@ -452,6 +580,43 @@
       "goOutput": "github.com/bowlinedev/bowline/examples/ledger/api.HealthOutput"
     },
     {
+      "path": "invoices.attach",
+      "kind": "upload",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/ledger/api.AttachInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/ledger/ledger.Attachment"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.AttachInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Attachment",
+      "doc": "Attach stores a file against an invoice."
+    },
+    {
+      "path": "invoices.attachments",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/ledger/api.ListAttachmentsInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/ledger/ledger.Page",
+        "args": [
+          {
+            "kind": "ref",
+            "id": "github.com/bowlinedev/bowline/examples/ledger/ledger.Attachment"
+          }
+        ]
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.ListAttachmentsInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Page[github.com/bowlinedev/bowline/examples/ledger/ledger.Attachment]"
+    },
+    {
       "path": "invoices.create",
       "kind": "mutation",
       "method": "POST",
@@ -464,7 +629,8 @@
         "id": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice"
       },
       "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.CreateInvoiceInput",
-      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice"
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice",
+      "idempotent": true
     },
     {
       "path": "invoices.get",
@@ -517,9 +683,28 @@
       },
       "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.VoidInvoiceInput",
       "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice",
+      "errors": [
+        "github.com/bowlinedev/bowline/examples/ledger/api.InvoiceLocked"
+      ],
       "meta": {
         "auth": "admin"
       }
+    },
+    {
+      "path": "invoices.watch",
+      "kind": "subscription",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/ledger/api.WatchInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.WatchInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice",
+      "doc": "Watch streams every invoice change."
     }
   ],
   "positions": {
@@ -530,6 +715,10 @@
     "customers.search": {
       "file": "api/customers.go",
       "line": 22
+    },
+    "github.com/bowlinedev/bowline/examples/ledger/api.AttachInput": {
+      "file": "api/attachments.go",
+      "line": 12
     },
     "github.com/bowlinedev/bowline/examples/ledger/api.CreateInvoiceInput": {
       "file": "api/invoices.go",
@@ -547,6 +736,14 @@
       "file": "api/routes.go",
       "line": 21
     },
+    "github.com/bowlinedev/bowline/examples/ledger/api.InvoiceLocked": {
+      "file": "api/errors.go",
+      "line": 11
+    },
+    "github.com/bowlinedev/bowline/examples/ledger/api.ListAttachmentsInput": {
+      "file": "api/attachments.go",
+      "line": 16
+    },
     "github.com/bowlinedev/bowline/examples/ledger/api.ListInvoicesInput": {
       "file": "api/invoices.go",
       "line": 15
@@ -558,6 +755,14 @@
     "github.com/bowlinedev/bowline/examples/ledger/api.VoidInvoiceInput": {
       "file": "api/invoices.go",
       "line": 27
+    },
+    "github.com/bowlinedev/bowline/examples/ledger/api.WatchInput": {
+      "file": "api/invoices.go",
+      "line": 31
+    },
+    "github.com/bowlinedev/bowline/examples/ledger/ledger.Attachment": {
+      "file": "ledger/types.go",
+      "line": 47
     },
     "github.com/bowlinedev/bowline/examples/ledger/ledger.Customer": {
       "file": "ledger/types.go",
@@ -583,21 +788,33 @@
       "file": "api/routes.go",
       "line": 33
     },
+    "invoices.attach": {
+      "file": "api/invoices.go",
+      "line": 42
+    },
+    "invoices.attachments": {
+      "file": "api/invoices.go",
+      "line": 43
+    },
     "invoices.create": {
       "file": "api/invoices.go",
-      "line": 35
+      "line": 39
     },
     "invoices.get": {
       "file": "api/invoices.go",
-      "line": 33
+      "line": 37
     },
     "invoices.list": {
       "file": "api/invoices.go",
-      "line": 34
+      "line": 38
     },
     "invoices.void": {
       "file": "api/invoices.go",
-      "line": 36
+      "line": 40
+    },
+    "invoices.watch": {
+      "file": "api/invoices.go",
+      "line": 41
     }
   }
 }

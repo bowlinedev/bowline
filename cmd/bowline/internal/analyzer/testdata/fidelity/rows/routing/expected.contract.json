@@ -1,6 +1,6 @@
 {
-  "bowline": "0.1",
-  "hash": "sha256:be5dc390d4966f5900cee40ef7d9756dc31d800079a5c309a4d999ef4483c4cd",
+  "bowline": "1.0",
+  "hash": "sha256:01e5e70af098cf8105d8ae88a6938406e2dd036d8449d49dc49d82b303681faa",
   "types": {
     "fidelity.test/rows/routing.ID": {
       "kind": "struct",
@@ -42,6 +42,7 @@
       ]
     }
   },
+  "errors": {},
   "procedures": [
     {
       "path": "admin.purge",

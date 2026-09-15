@@ -1,6 +1,6 @@
 {
-  "bowline": "0.1",
-  "hash": "sha256:1a11c90bb11c49262f3770b4f1941284e75370434f30b16d23be2558dd77ef1a",
+  "bowline": "1.0",
+  "hash": "sha256:2cc3d4ff034f125e5ce2fcebf215f03225f7f2581dc107c0f51a82eadc6d4102",
   "types": {
     "fidelity.test/rows/pointers.Doc": {
       "kind": "struct",
@@ -80,6 +80,7 @@
       ]
     }
   },
+  "errors": {},
   "procedures": [
     {
       "path": "get",

@@ -43,3 +43,12 @@ type Page[T any] struct {
 	Items      []T    `json:"items"`
 	NextCursor string `json:"nextCursor,omitempty"`
 }
+
+type Attachment struct {
+	ID          int64  `json:"id"`
+	InvoiceID   int64  `json:"invoiceId"`
+	Name        string `json:"name"`
+	ContentType string `json:"contentType"`
+	Size        int64  `json:"size"`
+	Audit
+}

@@ -1,0 +1,159 @@
+{
+  "bowline": "1.0",
+  "hash": "sha256:c2b559bf3dbac8747b23184d6e5558f22a603a0fe25989cc32301686942a0a6c",
+  "types": {
+    "fidelity.test/rows/errors.ID": {
+      "kind": "struct",
+      "name": "ID",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/errors.Invoice": {
+      "kind": "struct",
+      "name": "Invoice",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/errors.Status": {
+      "kind": "enum",
+      "name": "Status",
+      "base": "string",
+      "values": [
+        {
+          "name": "StatusDraft",
+          "value": "draft"
+        },
+        {
+          "name": "StatusPaid",
+          "value": "paid"
+        }
+      ]
+    }
+  },
+  "errors": {
+    "fidelity.test/rows/errors.InvoiceLocked": {
+      "name": "InvoiceLocked",
+      "code": "FAILED_PRECONDITION",
+      "doc": "InvoiceLocked is returned when an invoice cannot change.",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/errors.Status"
+          }
+        },
+        {
+          "name": "since",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/errors.QuotaExceeded": {
+      "name": "QuotaExceeded",
+      "code": "RESOURCE_EXHAUSTED",
+      "fields": [
+        {
+          "name": "limit",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "send",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/errors.ID"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/errors.Invoice"
+      },
+      "goInput": "fidelity.test/rows/errors.ID",
+      "goOutput": "fidelity.test/rows/errors.Invoice",
+      "errors": [
+        "fidelity.test/rows/errors.InvoiceLocked"
+      ]
+    },
+    {
+      "path": "void",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/errors.ID"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/errors.Invoice"
+      },
+      "goInput": "fidelity.test/rows/errors.ID",
+      "goOutput": "fidelity.test/rows/errors.Invoice",
+      "errors": [
+        "fidelity.test/rows/errors.InvoiceLocked",
+        "fidelity.test/rows/errors.QuotaExceeded"
+      ]
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/errors.ID": {
+      "file": "rows/errors/api.go",
+      "line": 37
+    },
+    "fidelity.test/rows/errors.Invoice": {
+      "file": "rows/errors/api.go",
+      "line": 41
+    },
+    "fidelity.test/rows/errors.InvoiceLocked": {
+      "file": "rows/errors/api.go",
+      "line": 19
+    },
+    "fidelity.test/rows/errors.QuotaExceeded": {
+      "file": "rows/errors/api.go",
+      "line": 29
+    },
+    "fidelity.test/rows/errors.Status": {
+      "file": "rows/errors/api.go",
+      "line": 11
+    },
+    "send": {
+      "file": "rows/errors/api.go",
+      "line": 52
+    },
+    "void": {
+      "file": "rows/errors/api.go",
+      "line": 51
+    }
+  }
+}

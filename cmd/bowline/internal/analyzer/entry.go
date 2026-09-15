@@ -24,7 +24,9 @@ type procedureSpec struct {
 	Description string
 	Deprecated  string
 	Sensitive   bool
+	Idempotent  bool
 	Meta        map[string]string
+	Errors      []errorRef
 }
 
 func (p *Program) resolveEntry(entry string) (*types.Func, *packages.Package, *Diagnostic) {
@@ -215,7 +217,7 @@ func (e *evaluator) item(pkg *packages.Package, expr ast.Expr, prefix string) []
 		return nil
 	}
 	switch bowlineFunc(pkg, call) {
-	case "Query", "Mutation":
+	case "Query", "Mutation", "Subscription", "Upload":
 		return e.procedure(pkg, call, prefix)
 	case "Mount":
 		if len(call.Args) != 2 {
@@ -270,7 +272,7 @@ func (e *evaluator) procedure(pkg *packages.Package, call *ast.CallExpr, prefix 
 	for _, opt := range call.Args[2:] {
 		e.option(pkg, opt, &spec)
 	}
-	if kind == "query" && !spec.Sensitive {
+	if (kind == "query" || kind == "subscription") && !spec.Sensitive {
 		spec.Method = "GET"
 	}
 	return []procedureSpec{spec}
@@ -289,15 +291,26 @@ func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedure
 		spec.Deprecated, _ = e.constArg(pkg, call, 0, spec.Path)
 	case "Sensitive":
 		spec.Sensitive = true
+	case "Idempotent":
+		spec.Idempotent = true
 	case "Meta":
 		k, ok1 := e.constArg(pkg, call, 0, spec.Path)
 		v, ok2 := e.constArg(pkg, call, 1, spec.Path)
 		if ok1 && ok2 {
 			spec.Meta[k] = v
 		}
+	case "Errors":
+		for _, arg := range call.Args {
+			tv, ok := pkg.TypesInfo.Types[arg]
+			if !ok || tv.Type == nil {
+				e.fail(arg.Pos(), spec.Path, "could not determine the error variant type", "pass a value of the variant type, such as InvoiceLocked{}")
+				continue
+			}
+			spec.Errors = append(spec.Errors, errorRef{Type: tv.Type, Pos: arg.Pos()})
+		}
 	case "Use":
 	default:
-		e.fail(call.Pos(), spec.Path, "unsupported procedure option", "use bowline.Description, Deprecated, Sensitive, Meta, or Use")
+		e.fail(call.Pos(), spec.Path, "unsupported procedure option", "use bowline.Description, Deprecated, Sensitive, Idempotent, Meta, Errors, or Use")
 	}
 }
 

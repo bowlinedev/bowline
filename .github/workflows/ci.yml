@@ -33,6 +33,7 @@ jobs:
             cmd/bowline/go.sum
             examples/ledger/go.sum
             examples/nethttp-minimal/go.sum
+            transport/websocket/go.sum
       - name: gofmt
         run: |
           out="$(gofmt -l .)"
@@ -49,6 +50,10 @@ jobs:
         if: matrix.go == 'stable'
         working-directory: cmd/bowline
         run: go vet ./... && go test -race ./...
+      - name: vet and test websocket transport
+        if: matrix.go == 'stable'
+        working-directory: transport/websocket
+        run: go vet ./... && go test -race ./...
       - name: contracts are current
         if: matrix.go == 'stable'
         run: |
@@ -60,6 +65,7 @@ jobs:
           go install honnef.co/go/tools/cmd/staticcheck@latest
           staticcheck ./...
           (cd cmd/bowline && staticcheck ./...)
+          (cd transport/websocket && staticcheck ./...)
       - name: runtime module has no dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
