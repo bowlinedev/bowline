@@ -39,7 +39,8 @@
       "!**/src/bowline.rs",
       "!**/python/bowline.py",
       "!**/federation/web/src/bowline.ts",
-      "!**/federation/billing/web"
+      "!**/federation/billing/web",
+      "!**/registry-data"
     ],
     "ignoreUnknown": true
   },
