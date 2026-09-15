@@ -4,6 +4,7 @@
 
 - Security: every error path in the runtime is audited in `docs/security/audit-2026.md`; production now redacts the message, details, and issues of every 5xx, including `bowline.Errorf(bowline.Internal, ...)` and panics, and decoder failures answer `invalid input` instead of echoing the request body.
 - Runtime: `bowline.CSRF` rejects cross-origin mutations by origin and fetch metadata, `bowline.SecurityHeaders` sets the header set, `bowline.MaxBody` sets a per-procedure body limit recorded in the contract, and `bowline.RateLimit` is a token bucket middleware with key eviction.
+- Benchmarks: `docs/benchmarks.md` reports handler overhead, regeneration latency, and generator throughput, regenerated from a run published on each `main` push with history and a five percent regression gate.
 
 ## 0.7.0
 
