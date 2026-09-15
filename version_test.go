@@ -3,7 +3,7 @@ package bowline
 import "testing"
 
 func TestVersionIsSemver(t *testing.T) {
-	if Version != "0.3.0" {
+	if Version != "0.4.0" {
 		t.Fatalf("unexpected version %q", Version)
 	}
 }
