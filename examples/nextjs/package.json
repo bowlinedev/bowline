@@ -1,0 +1,29 @@
+{
+  "name": "example-nextjs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gen": "cp ../ledger/web/src/bowline.ts src/bowline.ts",
+    "check:gen": "cmp ../ledger/web/src/bowline.ts src/bowline.ts",
+    "dev": "next dev --port 3100",
+    "build": "next build",
+    "start": "next start --port 3100",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@bowline/client": "workspace:*",
+    "@bowline/react-query": "workspace:*",
+    "@tanstack/react-query": "5.90.2",
+    "next": "15.5.25",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0",
+    "@types/node": "24.7.0",
+    "@types/react": "19.1.12",
+    "@types/react-dom": "19.1.9",
+    "typescript": "5.9.2"
+  }
+}
