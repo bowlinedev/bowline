@@ -1,0 +1,33 @@
+import { z } from "zod";
+
+const ID = z.object({
+  id: z.number().int(),
+});
+
+const Invoice = z.object({
+  id: z.number().int(),
+});
+
+const Status = z.enum(["draft", "paid"]);
+
+export const schemas = {
+  ID,
+  Invoice,
+  Status,
+} as const;
+
+export const inputs = {
+  "send": ID,
+  "void": ID,
+} as const;
+
+export const errors = {
+  InvoiceLocked: z.object({
+    id: z.number().int(),
+    status: Status,
+    since: z.date(),
+  }),
+  QuotaExceeded: z.object({
+    limit: z.number().int(),
+  }),
+} as const;

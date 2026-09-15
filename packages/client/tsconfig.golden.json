@@ -3,12 +3,16 @@
   "compilerOptions": {
     "noEmit": true,
     "baseUrl": ".",
-    "paths": { "@bowline/client": ["src/index.ts"] },
+    "paths": {
+      "@bowline/client": ["src/index.ts"],
+      "zod": ["node_modules/zod"]
+    },
     "rootDir": "../.."
   },
   "include": [
     "src/**/*.ts",
     "test/**/*.ts",
-    "../../cmd/bowline/internal/gen/ts/testdata/*.golden.ts"
+    "../../cmd/bowline/internal/gen/ts/testdata/*.golden.ts",
+    "../../cmd/bowline/internal/gen/ts/testdata/*.zod.golden.ts"
   ]
 }

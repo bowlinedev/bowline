@@ -1,0 +1,29 @@
+import { z } from "zod";
+
+const Level = z.union([z.literal(1), z.literal(10)]);
+
+const Slug = z.string();
+
+const Status = z.enum(["draft", "sent", "void"]);
+
+const Order = z.object({
+  status: z.enum(["draft", "sent"]),
+  level: Level,
+  slug: Slug,
+  history: z.record(z.string(), z.number().int()),
+  levels: z.array(Level),
+});
+
+export const schemas = {
+  Level,
+  Order,
+  Slug,
+  Status,
+} as const;
+
+export const inputs = {
+  "get": z.object({}),
+} as const;
+
+export const errors = {
+} as const;

@@ -1,0 +1,21 @@
+import { z } from "zod";
+
+const Event = z.object({
+  at: z.date(),
+  took: z.number().int(),
+  payload: z.unknown(),
+  addr: z.string(),
+  big: z.bigint(),
+  unsigned: z.bigint(),
+});
+
+export const schemas = {
+  Event,
+} as const;
+
+export const inputs = {
+  "get": z.object({}),
+} as const;
+
+export const errors = {
+} as const;

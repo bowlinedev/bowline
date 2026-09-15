@@ -1,0 +1,68 @@
+import { z } from "zod";
+
+const Page = <T extends z.ZodTypeAny>(t: T) =>
+  z.object({
+    items: z.array(t),
+    next: z.string().optional(),
+  });
+
+const Pair = <K extends z.ZodTypeAny, V extends z.ZodTypeAny>(k: K, v: V) =>
+  z.object({
+    key: k,
+    value: v,
+  });
+
+const Range_float64 = z.object({
+  low: z.number(),
+  high: z.number(),
+});
+
+const Range_int32 = z.object({
+  low: z.number().int(),
+  high: z.number().int(),
+});
+
+const Range_int64 = z.object({
+  low: z.number().int(),
+  high: z.number().int(),
+});
+
+const Tree = <T extends z.ZodTypeAny>(t: T) =>
+  z.object({
+    value: t,
+    get children() {
+      return z.array(Tree(t));
+    },
+  });
+
+const User = z.object({
+  name: z.string(),
+});
+
+const Report = z.object({
+  users: Page(User),
+  nested: Page(Page(User)),
+  pairs: z.array(Pair(z.string(), User)),
+  tree: Tree(User),
+  ints: Range_int64,
+  floats: Range_float64,
+  scores: Page(Range_int32),
+});
+
+export const schemas = {
+  Page,
+  Pair,
+  Range_float64,
+  Range_int32,
+  Range_int64,
+  Report,
+  Tree,
+  User,
+} as const;
+
+export const inputs = {
+  "get": Page(User),
+} as const;
+
+export const errors = {
+} as const;

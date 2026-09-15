@@ -26,6 +26,7 @@ type OpenAPIConfig struct {
 
 type Target struct {
 	Out string `json:"out"`
+	Zod bool   `json:"zod,omitempty"`
 }
 
 func LoadConfig(dir string) (*Config, error) {

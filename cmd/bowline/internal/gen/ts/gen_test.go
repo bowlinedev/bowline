@@ -49,6 +49,23 @@ func TestGoldens(t *testing.T) {
 			if !bytes.Equal(got, want) {
 				t.Fatalf("golden mismatch; run go test ./internal/gen/ts -update after review:\n%s", got)
 			}
+			zod, err := Generator{}.GenerateZodFor(doc, row+".golden.ts")
+			if err != nil {
+				t.Fatal(err)
+			}
+			zodGolden := filepath.Join("testdata", row+".zod.golden.ts")
+			if *update {
+				if err := os.WriteFile(zodGolden, zod, 0o644); err != nil {
+					t.Fatal(err)
+				}
+			}
+			wantZod, err := os.ReadFile(zodGolden)
+			if err != nil {
+				t.Fatalf("%v\n%s", err, zod)
+			}
+			if !bytes.Equal(zod, wantZod) {
+				t.Fatalf("zod golden mismatch; run go test ./internal/gen/ts -update after review:\n%s", zod)
+			}
 		})
 	}
 }

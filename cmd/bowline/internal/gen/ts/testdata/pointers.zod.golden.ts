@@ -1,0 +1,26 @@
+import { z } from "zod";
+
+const Tag = z.object({
+  label: z.string(),
+});
+
+const Doc = z.object({
+  title: z.string().nullable(),
+  subtitle: z.string().optional(),
+  primary: Tag.nullable(),
+  tags: z.array(Tag.nullable()),
+  byName: z.record(z.string(), Tag.nullable()),
+  count: z.number().int().optional(),
+});
+
+export const schemas = {
+  Doc,
+  Tag,
+} as const;
+
+export const inputs = {
+  "get": Tag,
+} as const;
+
+export const errors = {
+} as const;

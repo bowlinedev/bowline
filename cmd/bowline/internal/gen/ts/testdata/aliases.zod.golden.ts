@@ -1,0 +1,22 @@
+import { z } from "zod";
+
+const Real = z.object({
+  n: z.number().int(),
+});
+
+const Holder = z.object({
+  a: Real,
+  b: z.array(Real),
+});
+
+export const schemas = {
+  Holder,
+  Real,
+} as const;
+
+export const inputs = {
+  "get": Real,
+} as const;
+
+export const errors = {
+} as const;

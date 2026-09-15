@@ -1,0 +1,29 @@
+import { z } from "zod";
+
+const Item = z.object({
+  name: z.string(),
+});
+
+const Routing_ID = z.object({
+  id: z.number().int(),
+});
+
+const Sub_ID = z.object({
+  id: z.number().int(),
+});
+
+export const schemas = {
+  Item,
+  Routing_ID,
+  Sub_ID,
+} as const;
+
+export const inputs = {
+  "admin.purge": Routing_ID,
+  "get": Routing_ID,
+  "search": Item,
+  "sub.remove": Sub_ID,
+} as const;
+
+export const errors = {
+} as const;

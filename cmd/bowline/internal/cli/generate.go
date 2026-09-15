@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/analyzer"
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/ts"
 	"github.com/bowlinedev/bowline/contract"
 )
 
@@ -67,8 +69,28 @@ func render(doc *contract.Document, cfg *Config) (map[string][]byte, error) {
 			return nil, fmt.Errorf("target %s: %w", name, err)
 		}
 		files[target.Out] = content
+		if target.Zod {
+			zodOut, zod, err := zodOutput(doc, name, target.Out)
+			if err != nil {
+				return nil, fmt.Errorf("target %s: %w", name, err)
+			}
+			files[zodOut] = zod
+		}
 	}
 	return files, nil
+}
+
+func zodOutput(doc *contract.Document, name, out string) (string, []byte, error) {
+	if name != "ts" {
+		return "", nil, fmt.Errorf("zod is only available on the ts target")
+	}
+	dir := path.Dir(out)
+	zodOut := "bowline.zod.ts"
+	if dir != "." {
+		zodOut = dir + "/" + zodOut
+	}
+	zod, err := ts.Generator{}.GenerateZodFor(doc, path.Base(out))
+	return zodOut, zod, err
 }
 
 func writeFiles(dir string, files map[string][]byte) ([]string, error) {
