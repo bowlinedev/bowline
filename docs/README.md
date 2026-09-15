@@ -25,6 +25,7 @@
 - `guides/security.md`: CSRF, security headers, what `Sensitive()` does, and the reverse proxy checklist.
 - `lts.md`: release cadence, support windows, and what gets backported.
 - `security/audit-2026.md`: every error path in the runtime, what it says in production, and the test that pins it.
+- `benchmarks.md`: handler overhead, regeneration latency, and generator throughput, with history.
 - `adoption-test.md`: the ten-minute adoption protocol run before each minor release.
 - `../spec/contract.md`: the contract document format that every generator reads.
 - `../spec/mapping-table.md`: the normative Go to contract to TypeScript mapping.

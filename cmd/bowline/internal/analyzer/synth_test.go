@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func writeSynth(t *testing.T, dir string, packages, typesPerPackage, procsPerPackage int) {
+func writeSynth(t testing.TB, dir string, packages, typesPerPackage, procsPerPackage int) {
 	t.Helper()
 	root, err := filepath.Abs(filepath.Join("..", "..", "..", ".."))
 	if err != nil {

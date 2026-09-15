@@ -86,6 +86,7 @@ const greeting = await client.greet({ name: "ada" });
 | `docs/guides/registry.md` | the contract registry and impact queries |
 | `docs/guides/signing.md` | signed service-to-service calls |
 | `docs/guides/security.md` | CSRF, security headers, and the reverse proxy checklist |
+| `docs/benchmarks.md` | handler overhead, regeneration latency, and generator throughput |
 | `spec/contract.md` | the contract document every generator reads |
 | `spec/mapping-table.md` | the normative Go to TypeScript mapping |
 
