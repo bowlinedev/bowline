@@ -31,6 +31,7 @@ type Procedure struct {
 	newFrame   func(parent context.Context, call Call) (context.Context, any)
 	plan       *codec.Plan
 	checker    *validate.Checker
+	variants   []variant
 }
 
 func (p Procedure) Method() string {

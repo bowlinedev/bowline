@@ -41,6 +41,7 @@ func (e *Error) WithDetails(d any) *Error {
 type wireError struct {
 	Code    Code    `json:"code"`
 	Message string  `json:"message"`
+	Type    string  `json:"type,omitempty"`
 	Details any     `json:"details,omitempty"`
 	Issues  []Issue `json:"issues,omitempty"`
 }
@@ -49,19 +50,27 @@ type wireEnvelope struct {
 	Error wireError `json:"error"`
 }
 
-func classify(err error, production bool) (int, wireEnvelope) {
+func classify(err error, production bool, variants []variant) (int, wireEnvelope, bool) {
+	for _, v := range variants {
+		if coded, value, ok := v.match(err); ok {
+			return coded.Code().HTTPStatus(), v.envelope(coded, value), false
+		}
+	}
 	var be *Error
+	var coded Coded
 	switch {
 	case errors.As(err, &be):
-		return be.Code.HTTPStatus(), wireEnvelope{wireError{Code: be.Code, Message: be.Message, Details: be.Details, Issues: be.Issues}}
+		return be.Code.HTTPStatus(), wireEnvelope{wireError{Code: be.Code, Message: be.Message, Details: be.Details, Issues: be.Issues}}, false
+	case errors.As(err, &coded):
+		return coded.Code().HTTPStatus(), wireEnvelope{wireError{Code: coded.Code(), Message: coded.Error()}}, true
 	case errors.Is(err, context.Canceled):
-		return Canceled.HTTPStatus(), wireEnvelope{wireError{Code: Canceled, Message: "request canceled"}}
+		return Canceled.HTTPStatus(), wireEnvelope{wireError{Code: Canceled, Message: "request canceled"}}, false
 	case errors.Is(err, context.DeadlineExceeded):
-		return DeadlineExceeded.HTTPStatus(), wireEnvelope{wireError{Code: DeadlineExceeded, Message: "deadline exceeded"}}
+		return DeadlineExceeded.HTTPStatus(), wireEnvelope{wireError{Code: DeadlineExceeded, Message: "deadline exceeded"}}, false
 	}
 	message := "internal error"
 	if !production {
 		message = err.Error()
 	}
-	return Internal.HTTPStatus(), wireEnvelope{wireError{Code: Internal, Message: message}}
+	return Internal.HTTPStatus(), wireEnvelope{wireError{Code: Internal, Message: message}}, false
 }

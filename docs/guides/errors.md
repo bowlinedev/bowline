@@ -44,6 +44,30 @@ A `*bowline.Error` anywhere in a wrapped chain is used as is. `context.Canceled`
 return nil, bowline.Errorf(bowline.FailedPrecondition, "invoice is locked").WithDetails(map[string]any{"lockedBy": userID})
 ```
 
+## Declared variants
+
+A procedure can declare typed errors it may return. A variant is a named struct with a `Code` method; its exported fields travel under `details`, and the type name travels as `type`, so clients can narrow on it.
+
+```go
+type InvoiceLocked struct {
+	ID     int64         `json:"id"`
+	Status ledger.Status `json:"status"`
+}
+
+func (e InvoiceLocked) Error() string { return fmt.Sprintf("invoice %d is %s", e.ID, e.Status) }
+func (e InvoiceLocked) Code() bowline.Code { return bowline.FailedPrecondition }
+
+bowline.Mutation("void", a.voidInvoice, bowline.Errors(InvoiceLocked{}))
+```
+
+Returning `InvoiceLocked{ID: 4, Status: "paid"}` from the handler, wrapped or not, produces:
+
+```json
+{"error":{"code":"FAILED_PRECONDITION","message":"invoice 4 is paid","type":"InvoiceLocked","details":{"id":4,"status":"paid"}}}
+```
+
+Details pass through the same normalizer as outputs, so nil slices are `[]` and `time.Time` fields are RFC 3339. A `Code()` method that returns anything but a single constant is rejected by `bowline gen`, because the client needs the status at generation time. An error with a `Code` method that a procedure did not declare is still serialized with its code and message, without `type`, and logged as a warning in development so the omission is noticed.
+
 ## Redaction
 
 In development every `INTERNAL` error carries the underlying message. With `bowline.Production(true)` on the handler the message is replaced by `internal error` and the original is written to the logger. The ledger server switches on the `ENV` variable in `examples/ledger/cmd/server/main.go`.

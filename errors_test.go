@@ -57,7 +57,7 @@ func TestClassify(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			status, env := classify(tc.err, tc.production)
+			status, env, _ := classify(tc.err, tc.production, nil)
 			if status != tc.status || env.Error.Code != tc.code || env.Error.Message != tc.message {
 				t.Fatalf("got %d %s %q, want %d %s %q", status, env.Error.Code, env.Error.Message, tc.status, tc.code, tc.message)
 			}
@@ -68,7 +68,7 @@ func TestClassify(t *testing.T) {
 func TestClassifyKeepsDetailsAndIssues(t *testing.T) {
 	err := Errorf(InvalidArgument, "invalid input").WithDetails(map[string]int{"n": 1})
 	err.Issues = []Issue{{Path: []string{"email"}, Rule: "email", Message: "must be a valid email"}}
-	_, env := classify(err, true)
+	_, env, _ := classify(err, true, nil)
 	if env.Error.Details == nil || len(env.Error.Issues) != 1 {
 		t.Fatal("details or issues dropped")
 	}

@@ -59,23 +59,23 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	rt, ok := h.routes[path]
 	if !ok {
-		h.writeError(w, 0, Errorf(Unimplemented, "unknown procedure %q", path))
+		h.writeError(w, nil, 0, Errorf(Unimplemented, "unknown procedure %q", path))
 		return
 	}
 	proc := rt.proc
 	if !methodAllowed(proc, req.Method) {
 		w.Header().Set("Allow", proc.Method())
-		h.writeError(w, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, rt.path, proc.Method()))
+		h.writeError(w, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, rt.path, proc.Method()))
 		return
 	}
 	raw, status, err := h.readInput(w, req)
 	if err != nil {
-		h.writeError(w, status, err)
+		h.writeError(w, nil, status, err)
 		return
 	}
 	ctx, ptr := proc.newFrame(req.Context(), Call{Procedure: &rt.procedure, Request: req})
 	if err := codec.Decode(raw, ptr, h.strict); err != nil {
-		h.writeError(w, 0, Errorf(InvalidArgument, "invalid input: %v", err))
+		h.writeError(w, nil, 0, Errorf(InvalidArgument, "invalid input: %v", err))
 		return
 	}
 	in := ptr
@@ -85,27 +85,31 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		for i, issue := range issues {
 			e.Issues[i] = Issue{Path: issue.Path, Rule: issue.Rule, Message: issue.Message}
 		}
-		h.writeError(w, 0, e)
+		h.writeError(w, nil, 0, e)
 		return
 	}
 	out, err := h.invoke(ctx, rt, in)
 	if err != nil {
-		if status, _ := classify(err, h.production); status >= 500 {
+		status, _, undeclared := classify(err, h.production, proc.variants)
+		if status >= 500 {
 			h.log.ErrorContext(ctx, "bowline: procedure failed", "procedure", rt.path, "error", err)
 		}
-		h.writeError(w, 0, err)
+		if undeclared && !h.production {
+			h.log.WarnContext(ctx, "bowline: undeclared error variant", "procedure", rt.path, "error", err)
+		}
+		h.writeError(w, proc, 0, err)
 		return
 	}
 	out, err = proc.plan.Normalize(out)
 	if err != nil {
 		h.log.ErrorContext(ctx, "bowline: output normalization failed", "procedure", rt.path, "error", err)
-		h.writeError(w, 0, Errorf(Internal, "output normalization failed: %w", err))
+		h.writeError(w, nil, 0, Errorf(Internal, "output normalization failed: %w", err))
 		return
 	}
 	body, err := json.Marshal(out)
 	if err != nil {
 		h.log.ErrorContext(ctx, "bowline: output encoding failed", "procedure", rt.path, "error", err)
-		h.writeError(w, 0, Errorf(Internal, "output encoding failed: %w", err))
+		h.writeError(w, nil, 0, Errorf(Internal, "output encoding failed: %w", err))
 		return
 	}
 	if proc.Deprecated != "" {
@@ -157,8 +161,12 @@ func (h *handler) invoke(ctx context.Context, rt *route, in any) (out any, err e
 	return rt.next(ctx, in)
 }
 
-func (h *handler) writeError(w http.ResponseWriter, statusOverride int, err error) {
-	status, env := classify(err, h.production)
+func (h *handler) writeError(w http.ResponseWriter, proc *Procedure, statusOverride int, err error) {
+	var variants []variant
+	if proc != nil {
+		variants = proc.variants
+	}
+	status, env, _ := classify(err, h.production, variants)
 	if statusOverride != 0 {
 		status = statusOverride
 	}
