@@ -10,6 +10,7 @@ import (
 	"sort"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/analyzer"
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/export/openapi"
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/ts"
 	"github.com/bowlinedev/bowline/contract"
 )
@@ -63,6 +64,17 @@ func render(doc *contract.Document, cfg *Config) (map[string][]byte, error) {
 		return nil, err
 	}
 	files[cfg.Contract] = data
+	if cfg.OpenAPI != nil {
+		out := cfg.OpenAPI.Out
+		if out == "" {
+			out = path.Join(path.Dir(cfg.Contract), "openapi.json")
+		}
+		spec, err := openapi.Export(doc, openapi.Info{Title: cfg.OpenAPI.Title, Version: cfg.OpenAPI.Version, ServerURL: cfg.OpenAPI.ServerURL})
+		if err != nil {
+			return nil, fmt.Errorf("openapi: %w", err)
+		}
+		files[out] = spec
+	}
 	for name, target := range cfg.Targets {
 		content, err := Generators[name].Generate(doc, target.Out)
 		if err != nil {

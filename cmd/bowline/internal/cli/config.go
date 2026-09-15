@@ -19,6 +19,7 @@ type Config struct {
 }
 
 type OpenAPIConfig struct {
+	Out       string `json:"out,omitempty"`
 	Title     string `json:"title"`
 	Version   string `json:"version"`
 	ServerURL string `json:"serverUrl"`

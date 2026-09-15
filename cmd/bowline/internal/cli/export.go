@@ -51,6 +51,9 @@ func Export(opts Options, args []string) int {
 		return 1
 	}
 	rel := *out
+	if rel == "" && cfg.OpenAPI != nil {
+		rel = cfg.OpenAPI.Out
+	}
 	if rel == "" {
 		rel = path.Join(path.Dir(cfg.Contract), "openapi.json")
 	}
