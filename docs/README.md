@@ -23,6 +23,8 @@
 - `guides/registry.md`: the contract registry and the "who breaks" query.
 - `guides/signing.md`: signed service-to-service calls.
 - `guides/security.md`: CSRF, security headers, what `Sensitive()` does, and the reverse proxy checklist.
+- `cli.md`: every command, flag, exit code, and machine-readable output.
+- `stability.md`: what does not change inside a major version.
 - `lts.md`: release cadence, support windows, and what gets backported.
 - `security/audit-2026.md`: every error path in the runtime, what it says in production, and the test that pins it.
 - `benchmarks.md`: handler overhead, regeneration latency, and generator throughput, with history.

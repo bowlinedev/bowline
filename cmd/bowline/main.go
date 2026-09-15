@@ -20,41 +20,45 @@ commands:
              render the targets from an existing document such as a composed one
   dev [--playground addr]
              regenerate on every save; optionally serve the playground for the live contract
-  check      verify the committed contract and targets are up to date
+  check [--json]
+             verify the committed contract and targets are up to date
              --against <ref> diffs the contract against that ref instead
              and fails on breaking changes unless --allow-breaking is set;
-             consumer contracts under contracts/consumers annotate the report
-             --registry URL --service NAME [--strict] asks a registry which
-             consumers a change would break and fails when any would
+             --consumers dir annotates the report with recorded consumers
+             --registry URL --service NAME [--strict] [--token T] asks a
+             registry which consumers a change would break and fails when any would
   export openapi [-o path]
              write an OpenAPI 3.1 document derived from the contract
   export tools [--format anthropic|openai|json-schema] [--scope S] [--read-only] [--out path]
              write LLM tool definitions for every exposed procedure
-  mcp --url <base> [--listen addr] [--scope S] [--read-only] [--rate N --burst B] [--header "K: v"]
+  mcp --url <base> [--stdio] [--listen addr] [--scope S] [--read-only] [--rate N --burst B] [--header "K: v"]
              serve the exposed procedures to MCP clients over stdio or HTTP
   verify-consumers [dir]
              check recorded consumer interactions against the current contract
   mock [--addr :8090] [--seed N] [--record URL] [--replay] [--strict] [--fixtures dir] [--no-playground]
              serve generated or recorded responses from the contract alone
-  eval record --script <path> --out <path> [--backend mock|replay|url] [--url <base>] [--volatile key] [--header "K: v"] [--agent]
+  eval record --script <path> --out <path> [--backend mock|replay|url] [--url <base>] [--fixtures dir] [--seed N] [--volatile key] [--header "K: v"] [--agent]
              run scripted tool calls and write a recording; the default backend is the in-process mock
-  eval replay <recording> [--backend mock|replay|url] [--url <base>] [--strict-messages] [--header "K: v"]
+  eval replay <recording> [--backend mock|replay|url] [--url <base>] [--fixtures dir] [--seed N] [--strict-messages] [--header "K: v"]
              re-run a recording and fail on any changed result
-  gateway [-c bowline.gateway.json]
+  gateway [-c bowline.gateway.json] [--token T]
              compose the configured services and proxy calls to their upstreams
-  gateway compose [-c bowline.gateway.json] -o composed.contract.json
+  gateway compose [-c bowline.gateway.json] [--token T] -o composed.contract.json
              write the composed contract without serving
-  registry serve --store <dir> [--listen :8095] [--token T]
+  registry serve --store <dir> [--listen :8095] [--token T] [--ui=false]
              serve the contract registry over HTTP from a directory of records
-  publish --registry URL --service NAME [--tag main] [--ref SHA] [--contract PATH]
+  publish --registry URL --service NAME [--tag main] [--ref SHA] [--contract PATH] [--token T]
              publish this module's contract as a version of a service
-  publish --registry URL --consumer NAME --provider SERVICE --usage PATH
+  publish --registry URL --consumer NAME --provider SERVICE --usage PATH [--token T]
              publish what a consumer uses of a service
   migrate-contract [path]
              rewrite a contract document from an older format version
-  diff <old> <new> [--format text|markdown|json] [--consumers dir]
+  diff <old> <new> [--format text|markdown|json] [--json] [--consumers dir]
              list semantic changes between two contract documents, naming affected consumers
   version    print the bowline version
+
+exit codes:
+  0 success; 1 the command ran and the answer is no; 2 the command line is wrong
 `
 
 func main() {

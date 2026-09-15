@@ -29,12 +29,14 @@ func DiffCommand(opts Options, args []string) int {
 			}
 			consumersDir = args[i+1]
 			i++
+		case "--json":
+			format = "json"
 		default:
 			paths = append(paths, args[i])
 		}
 	}
 	if len(paths) != 2 {
-		fmt.Fprintln(opts.Stderr, "usage: bowline diff <old.json> <new.json> [--format text|markdown|json] [--consumers dir]")
+		fmt.Fprintln(opts.Stderr, "usage: bowline diff <old.json> <new.json> [--format text|markdown|json] [--json] [--consumers dir]")
 		return 2
 	}
 	old, err := readContract(opts.Dir, paths[0])
