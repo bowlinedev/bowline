@@ -116,6 +116,22 @@ jobs:
       - run: uv run python -m mypy --strict src tests
       - run: uv run pytest
 
+  docs-check:
+    runs-on: ubuntu-latest
+    env:
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache-dependency-path: |
+            go.sum
+            cmd/bowline/go.sum
+            examples/ledger/go.sum
+      - name: run every runnable block in the guides
+        run: scripts/docs-check.sh
+
   devloop-windows:
     runs-on: windows-latest
     defaults:
@@ -149,6 +165,6 @@ jobs:
 
   ci:
     runs-on: ubuntu-latest
-    needs: [go, node, python, devloop-windows]
+    needs: [go, node, python, docs-check, devloop-windows]
     steps:
       - run: echo ok

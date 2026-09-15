@@ -49,6 +49,16 @@ A tool hidden by `Scopes` or `ReadOnly` is not listed and a call to it fails wit
 
 `mcp.NewServer(tools, dispatcher, opts...)` and `mcp.Serve(server, opts...)` are the pieces under `Handler`, for a process that builds its tool list another way or wants to dispatch to a remote Bowline API through its own `Dispatcher`.
 
+## Without changing the app
+
+`bowline mcp` serves the same protocol from the CLI and forwards every call to a running API over HTTP, so an app that cannot add a dependency, or one written before tools existed, gets an MCP server from its contract alone:
+
+```bash
+bowline mcp --url http://localhost:8080/api --header "Authorization: Bearer dev" --scope billing
+```
+
+Stdio is the default, which is what desktop MCP clients spawn; `--listen 127.0.0.1:9090` serves streamable HTTP instead and forwards each caller's `Authorization` and `Cookie` headers upstream, where they override the static `--header` values. `--scope`, `--read-only`, and `--rate N --burst B` mirror the options above. Tools come from `bowline.contract.json` in the working directory, so the command needs no build of the app.
+
 ## The wire
 
 The transport accepts `POST` with a JSON-RPC message or an array of them and answers with `application/json`; an array is answered with an array. A notification, a message without an `id`, gets `202 Accepted` and no body. `GET` is answered with `405` and an `Allow: POST` header, because the server never opens a server-sent event stream. A message that is not JSON gets `-32700`.

@@ -9,7 +9,12 @@
 - `guides/idempotency.md`: idempotency keys, replay, and stores.
 - `guides/contract.md`: the contract document, the semantic diff, and the breaking-change gate.
 - `guides/openapi.md`: exporting OpenAPI 3.1 from the contract.
+- `guides/tools.md`: exposing procedures as LLM tools with derived JSON Schemas.
+- `guides/mcp.md`: serving tools to MCP clients in process or with `bowline mcp`.
+- `guides/agents.md`: the Go, TypeScript, and Python agent SDKs.
+- `guides/evals.md`: recording and replaying agent runs in CI.
 - `adoption-test.md`: the ten-minute adoption protocol run before each minor release.
 - `../spec/contract.md`: the contract document format that every generator reads.
 - `../spec/mapping-table.md`: the normative Go to contract to TypeScript mapping.
 - `../spec/diff.md`: the semantic diff rules.
+- `../spec/eval.md`: the recording format `bowline eval` writes and replays.

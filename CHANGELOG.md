@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Runtime: `bowline.Tool`, `bowline.Scope`, and `bowline.Destructive` mark procedures as LLM tools; the fields are readable from `bowline.CallFrom(ctx).Procedure`.
+- Contract: format 1.1 adds `tool` and optional embedded JSON Schemas per procedure; `"schemas": true` in `bowline.json` fills them.
+- CLI: `export tools` in Anthropic, OpenAI, and JSON Schema shapes with scope and read-only filters, a `tools` generator target, `mcp` serving tools over stdio or HTTP through a running API, and `eval record` and `eval replay` for deterministic agent runs.
+- MCP: the `mcp` module serves protocol revision 2025-06-18 in process with header forwarding, scoping, and rate limits.
+- Agents: `github.com/bowlinedev/bowline/agent`, `@bowline/agent`, and `bowline-agent` on PyPI emit tool definitions and dispatch typed calls, with recording tracers for `eval record --agent`.
+- Examples: the ledger exposes four tools, guards invoices with `LEDGER_TOKEN`, runs on a fixed clock with `LEDGER_FIXED_TIME`, mounts `/mcp`, and ships a recorded run replayed in CI.
+
 ## 0.2.0
 
 - Contract: document format frozen at 1.0 with error variants, subscription and upload kinds, and the idempotent flag; `bowline migrate-contract` converts 0.x documents.
