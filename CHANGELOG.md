@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0
 
 - Contract: format 1.2 adds `example` on fields from the `example` struct tag, checked by the analyzer and emitted into JSON Schemas.
 - CLI: `mock` serves generated or recorded responses from the contract alone, with a state model, `--record` and `--replay --strict`, and the playground at `/_playground/`; `verify-consumers` checks recorded consumer files against the contract; `diff` and `check --against` name the consumers a breaking change affects; `eval` gains `--backend mock|replay|url`; `dev --playground` serves the playground for the live contract.
