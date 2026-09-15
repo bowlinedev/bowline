@@ -39,7 +39,11 @@ func shouldRetry(method, kind string, attempt, retries, status int, err error) b
 }
 
 func (g *Gateway) proxy(w http.ResponseWriter, req *http.Request, rt route) {
-	streaming := rt.kind == "upload" || rt.kind == "subscription"
+	if rt.kind == "subscription" {
+		g.stream(w, req, rt)
+		return
+	}
+	streaming := rt.kind == "upload"
 	ctx := req.Context()
 	var cancel context.CancelFunc
 	if !streaming && g.cfg.Timeout > 0 {
