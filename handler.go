@@ -39,8 +39,6 @@ type handler struct {
 	log        *slog.Logger
 	production bool
 	strict     bool
-	validate   func(p *Procedure, in any) []Issue
-	normalize  func(p *Procedure, out any) (any, error)
 }
 
 func (r *Router) Handler(opts ...HandlerOption) http.Handler {
@@ -81,13 +79,14 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	in := proc.deref(ptr)
-	if h.validate != nil {
-		if issues := h.validate(proc, in); len(issues) > 0 {
-			e := Errorf(InvalidArgument, "invalid input")
-			e.Issues = issues
-			h.writeError(w, 0, e)
-			return
+	if issues := proc.checker.Check(in); len(issues) > 0 {
+		e := Errorf(InvalidArgument, "invalid input")
+		e.Issues = make([]Issue, len(issues))
+		for i, issue := range issues {
+			e.Issues[i] = Issue{Path: issue.Path, Rule: issue.Rule, Message: issue.Message}
 		}
+		h.writeError(w, 0, e)
+		return
 	}
 	call := &Call{Procedure: *proc, Request: req}
 	call.Procedure.Path = rt.path
@@ -100,13 +99,11 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.writeError(w, 0, err)
 		return
 	}
-	if h.normalize != nil {
-		out, err = h.normalize(proc, out)
-		if err != nil {
-			h.log.ErrorContext(ctx, "bowline: output normalization failed", "procedure", rt.path, "error", err)
-			h.writeError(w, 0, Errorf(Internal, "output normalization failed: %w", err))
-			return
-		}
+	out, err = proc.plan.Normalize(out)
+	if err != nil {
+		h.log.ErrorContext(ctx, "bowline: output normalization failed", "procedure", rt.path, "error", err)
+		h.writeError(w, 0, Errorf(Internal, "output normalization failed: %w", err))
+		return
 	}
 	body, err := json.Marshal(out)
 	if err != nil {

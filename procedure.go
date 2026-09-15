@@ -3,6 +3,9 @@ package bowline
 import (
 	"context"
 	"reflect"
+
+	"github.com/bowlinedev/bowline/internal/codec"
+	"github.com/bowlinedev/bowline/internal/validate"
 )
 
 type ProcedureKind string
@@ -27,6 +30,8 @@ type Procedure struct {
 	call       func(ctx context.Context, in any) (any, error)
 	newIn      func() any
 	deref      func(ptr any) any
+	plan       *codec.Plan
+	checker    *validate.Checker
 }
 
 func (p Procedure) Method() string {

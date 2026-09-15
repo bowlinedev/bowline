@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+
+	"github.com/bowlinedev/bowline/internal/codec"
+	"github.com/bowlinedev/bowline/internal/validate"
 )
 
 type Item interface {
@@ -64,6 +67,12 @@ func newProcedure[In, Out any](kind ProcedureKind, name string, fn func(context.
 			panic(fmt.Sprintf("bowline: %s %q: %s must be a named type or struct{}", kind, name, t))
 		}
 	}
+	checker, err := validate.Compile(p.In)
+	if err != nil {
+		panic(fmt.Sprintf("bowline: %s %q: %v", kind, name, err))
+	}
+	p.checker = checker
+	p.plan = codec.Compile(p.Out)
 	p.newIn = func() any { return new(In) }
 	p.deref = func(ptr any) any { return *ptr.(*In) }
 	p.call = func(ctx context.Context, in any) (any, error) {
