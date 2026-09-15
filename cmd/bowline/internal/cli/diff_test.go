@@ -68,3 +68,28 @@ func TestDiffCommandUsage(t *testing.T) {
 		t.Fatalf("exit %d stderr %q", code, errOut.String())
 	}
 }
+
+func TestDiffCommandNamesAffectedConsumers(t *testing.T) {
+	dir := writeContracts(t)
+	os.MkdirAll(filepath.Join(dir, "contracts", "consumers"), 0o755)
+	os.WriteFile(filepath.Join(dir, "contracts", "consumers", "web.json"), []byte(`{"bowline":"1.2","consumer":"web","interactions":[
+  {"procedure":"get","method":"GET","input":{},"response":{"status":200,"body":{"total":"USD 1.00"}}},
+  {"procedure":"get","method":"GET","input":{"id":2},"response":{"status":200,"body":{"total":"USD 2.00"}}}
+]}`), 0o644)
+	opts, out, _ := testOptions(dir)
+	if code := DiffCommand(opts, []string{"old.json", "new.json"}); code != 1 {
+		t.Fatalf("exit %d", code)
+	}
+	if !strings.Contains(out.String(), "field removed; breaks web (2 interactions)") {
+		t.Fatalf("text %q", out.String())
+	}
+	opts, out, _ = testOptions(dir)
+	DiffCommand(opts, []string{"old.json", "new.json", "--format", "markdown", "--consumers", "contracts/consumers"})
+	if !strings.Contains(out.String(), "| Category | Path | Change | Consumers |") || !strings.Contains(out.String(), "breaks `web` (2 interactions)") {
+		t.Fatalf("markdown %q", out.String())
+	}
+	opts, _, errOut := testOptions(dir)
+	if code := DiffCommand(opts, []string{"old.json", "new.json", "--consumers", "missing"}); code != 1 || !strings.Contains(errOut.String(), "missing") {
+		t.Fatalf("exit %d stderr %q", code, errOut.String())
+	}
+}

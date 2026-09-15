@@ -20,7 +20,8 @@ commands:
              regenerate on every save; optionally serve the playground for the live contract
   check      verify the committed contract and targets are up to date
              --against <git-ref> diffs the contract against that ref instead
-             and fails on breaking changes unless --allow-breaking is set
+             and fails on breaking changes unless --allow-breaking is set;
+             consumer contracts under contracts/consumers annotate the report
   export openapi [-o path]
              write an OpenAPI 3.1 document derived from the contract
   export tools [--format anthropic|openai|json-schema] [--scope S] [--read-only] [--out path]
@@ -37,8 +38,8 @@ commands:
              re-run a recording and fail on any changed result
   migrate-contract [path]
              rewrite a contract document from an older format version
-  diff <old> <new> [--format text|markdown|json]
-             list semantic changes between two contract documents
+  diff <old> <new> [--format text|markdown|json] [--consumers dir]
+             list semantic changes between two contract documents, naming affected consumers
   version    print the bowline version
 `
 
