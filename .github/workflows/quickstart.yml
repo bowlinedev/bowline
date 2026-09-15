@@ -1,0 +1,22 @@
+name: quickstart
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  five-minutes:
+    runs-on: ubuntu-latest
+    container: node:22-bookworm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - run: corepack enable && corepack prepare pnpm@10.33.2 --activate
+      - run: pnpm install --frozen-lockfile && pnpm build
+      - run: bash scripts/quickstart.sh

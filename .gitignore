@@ -5,3 +5,5 @@ node_modules/
 coverage.*
 .DS_Store
 /cmd/bowline/bowline
+test-results/
+playwright-report/

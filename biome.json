@@ -1,7 +1,15 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.2.4/schema.json",
   "files": {
-    "includes": ["packages/**", "examples/**", "*.json", "!**/dist", "!**/src/bowline.ts"],
+    "includes": [
+      "packages/**",
+      "examples/**",
+      "*.json",
+      "!**/dist",
+      "!**/src/bowline.ts",
+      "!**/bowline.contract.json",
+      "!**/test-results"
+    ],
     "ignoreUnknown": true
   },
   "formatter": {
