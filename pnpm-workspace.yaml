@@ -2,3 +2,4 @@ packages:
   - packages/*
   - examples/*/web
   - examples/sveltekit
+  - examples/astro
