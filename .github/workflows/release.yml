@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   id-token: write
+  attestations: write
 
 jobs:
   cli:
@@ -48,6 +49,12 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/checksums.txt
 
   npm:
     if: github.event_name == 'workflow_dispatch'
@@ -68,6 +75,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
 
   pypi:
     if: github.event_name == 'workflow_dispatch'
