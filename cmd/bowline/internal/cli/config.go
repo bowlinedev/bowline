@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const configFile = "bowline.json"
@@ -36,6 +37,7 @@ type Target struct {
 	Zod     bool   `json:"zod,omitempty"`
 	Format  string `json:"format,omitempty"`
 	Package string `json:"package,omitempty"`
+	Command string `json:"command,omitempty"`
 }
 
 func LoadConfig(dir string) (*Config, error) {
@@ -58,6 +60,15 @@ func LoadConfig(dir string) (*Config, error) {
 	for name, target := range cfg.Targets {
 		if target.Out == "" {
 			return nil, fmt.Errorf("%s: target %q needs an \"out\" path", configFile, name)
+		}
+		if target.Command == "" {
+			continue
+		}
+		if _, builtin := Generators[name]; builtin || name == "tools" {
+			return nil, fmt.Errorf("%s: target %q sets a \"command\" but %q is built in; rename the target or drop the command", configFile, name, name)
+		}
+		if strings.ContainsAny(target.Command, `/\`) {
+			return nil, fmt.Errorf("%s: target %q: %q must be a command name resolved on PATH, not a path", configFile, name, target.Command)
 		}
 	}
 	return &cfg, nil

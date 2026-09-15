@@ -45,10 +45,15 @@ func ProduceFrom(opts Options, from string) (map[string][]byte, []analyzer.Diagn
 	if err != nil {
 		return nil, nil, err
 	}
-	for name := range cfg.Targets {
-		if _, ok := Generators[name]; !ok && name != "tools" {
-			return nil, nil, fmt.Errorf("unknown target %q; available: %s", name, availableTargets())
+	for name, target := range cfg.Targets {
+		if _, ok := Generators[name]; ok || name == "tools" || target.Command != "" {
+			continue
 		}
+		return nil, nil, fmt.Errorf("unknown target %q; available: %s, or set \"command\" to run an external generator", name, availableTargets())
+	}
+	env := opts.Env
+	if env == nil {
+		env = os.Environ()
 	}
 	if from != "" {
 		data, err := os.ReadFile(filepath.Join(opts.Dir, filepath.FromSlash(from)))
@@ -59,16 +64,12 @@ func ProduceFrom(opts Options, from string) (map[string][]byte, []analyzer.Diagn
 		if err != nil {
 			return nil, nil, fmt.Errorf("parsing %s: %w", from, err)
 		}
-		files, err := render(doc, cfg)
-		if err != nil {
-			return nil, nil, err
+		files, diags, err := render(doc, cfg, env)
+		if err != nil || len(diags) > 0 {
+			return nil, diags, err
 		}
 		delete(files, cfg.Contract)
 		return files, nil, nil
-	}
-	env := opts.Env
-	if env == nil {
-		env = os.Environ()
 	}
 	prog, err := analyzer.Load(opts.Dir, env)
 	if err != nil {
@@ -78,14 +79,10 @@ func ProduceFrom(opts Options, from string) (map[string][]byte, []analyzer.Diagn
 	if len(diags) > 0 {
 		return nil, diags, nil
 	}
-	files, err := render(doc, cfg)
-	if err != nil {
-		return nil, nil, err
-	}
-	return files, nil, nil
+	return render(doc, cfg, env)
 }
 
-func render(doc *contract.Document, cfg *Config) (map[string][]byte, error) {
+func render(doc *contract.Document, cfg *Config, env []string) (map[string][]byte, []analyzer.Diagnostic, error) {
 	files := map[string][]byte{}
 	if cfg.Schemas {
 		for _, p := range doc.Procedures {
@@ -94,17 +91,17 @@ func render(doc *contract.Document, cfg *Config) (map[string][]byte, error) {
 			}
 			input, output, err := jsonschema.Procedure(doc, p)
 			if err != nil {
-				return nil, fmt.Errorf("schemas: %w", err)
+				return nil, nil, fmt.Errorf("schemas: %w", err)
 			}
 			p.Schemas = &contract.Schemas{Input: input, Output: output}
 		}
 		if err := doc.SetHash(); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
 	data, err := doc.Marshal()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	files[cfg.Contract] = data
 	if cfg.OpenAPI != nil {
@@ -114,11 +111,13 @@ func render(doc *contract.Document, cfg *Config) (map[string][]byte, error) {
 		}
 		spec, err := openapi.Export(doc, openapi.Info{Title: cfg.OpenAPI.Title, Version: cfg.OpenAPI.Version, ServerURL: cfg.OpenAPI.ServerURL})
 		if err != nil {
-			return nil, fmt.Errorf("openapi: %w", err)
+			return nil, nil, fmt.Errorf("openapi: %w", err)
 		}
 		files[out] = spec
 	}
-	for name, target := range cfg.Targets {
+	var diags []analyzer.Diagnostic
+	for _, name := range sortedTargets(cfg) {
+		target := cfg.Targets[name]
 		if name == "tools" {
 			format := target.Format
 			if format == "" {
@@ -126,13 +125,27 @@ func render(doc *contract.Document, cfg *Config) (map[string][]byte, error) {
 			}
 			list, err := tools.FromContract(doc, tools.Filter{})
 			if err != nil {
-				return nil, fmt.Errorf("target tools: %w", err)
+				return nil, nil, fmt.Errorf("target tools: %w", err)
 			}
 			content, err := tools.Encode(list, format)
 			if err != nil {
-				return nil, fmt.Errorf("target tools: %w", err)
+				return nil, nil, fmt.Errorf("target tools: %w", err)
 			}
 			files[target.Out] = content
+			continue
+		}
+		if target.Command != "" {
+			produced, targetDiags, err := externalGenerator{name: name, command: target.Command, env: env}.GenerateFiles(doc, target.Out)
+			if err != nil {
+				return nil, nil, err
+			}
+			if len(targetDiags) > 0 {
+				diags = append(diags, targetDiags...)
+				continue
+			}
+			for rel, content := range produced {
+				files[rel] = content
+			}
 			continue
 		}
 		generator := Generators[name]
@@ -143,18 +156,30 @@ func render(doc *contract.Document, cfg *Config) (map[string][]byte, error) {
 		}
 		content, err := generator.Generate(doc, target.Out)
 		if err != nil {
-			return nil, fmt.Errorf("target %s: %w", name, err)
+			return nil, nil, fmt.Errorf("target %s: %w", name, err)
 		}
 		files[target.Out] = content
 		if target.Zod {
 			zodOut, zod, err := zodOutput(doc, name, target.Out)
 			if err != nil {
-				return nil, fmt.Errorf("target %s: %w", name, err)
+				return nil, nil, fmt.Errorf("target %s: %w", name, err)
 			}
 			files[zodOut] = zod
 		}
 	}
-	return files, nil
+	if len(diags) > 0 {
+		return nil, diags, nil
+	}
+	return files, nil, nil
+}
+
+func sortedTargets(cfg *Config) []string {
+	names := make([]string, 0, len(cfg.Targets))
+	for name := range cfg.Targets {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
 func zodOutput(doc *contract.Document, name, out string) (string, []byte, error) {
