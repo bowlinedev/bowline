@@ -1,3 +1,5 @@
+import type { BowlineError, Result } from "./error.js";
+
 export type Base64 = string & { readonly __bowline: "base64" };
 
 export type DurationNs = number & { readonly __bowline: "duration-ns" };
@@ -24,15 +26,20 @@ export interface ProcedureTypes<I, O> {
   readonly output: O;
 }
 
-export type Query<I, O> = Callable<I, O> & {
-  readonly kind: "query";
+interface Procedure<I, O, E> {
   readonly types?: ProcedureTypes<I, O>;
-};
+  readonly safe: Callable<I, Result<O, E>>;
+}
 
-export type Mutation<I, O> = Callable<I, O> & {
-  readonly kind: "mutation";
-  readonly types?: ProcedureTypes<I, O>;
-};
+export type Query<I, O, E = BowlineError> = Callable<I, O> &
+  Procedure<I, O, E> & {
+    readonly kind: "query";
+  };
+
+export type Mutation<I, O, E = BowlineError> = Callable<I, O> &
+  Procedure<I, O, E> & {
+    readonly kind: "mutation";
+  };
 
 export type HydrateKind = "timestamp" | "bigint" | { ref: string };
 
@@ -45,6 +52,7 @@ export interface ProcedureRuntime {
   kind: "query" | "mutation";
   method: "GET" | "POST";
   output?: string;
+  errors?: string[];
 }
 
 export interface ContractRuntime {

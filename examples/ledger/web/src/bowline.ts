@@ -1,4 +1,4 @@
-import { createClient as create, type ClientOptions, type ContractRuntime, type Mutation, type Query } from "@bowline/client";
+import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type Mutation, type Query } from "@bowline/client";
 
 export interface CreateInvoiceInput {
   customerId: number;
@@ -64,6 +64,18 @@ export type Status = "draft" | "sent" | "paid" | "void";
 export interface VoidInvoiceInput {
   id: number;
 }
+
+export interface Errors {
+  "customers.get": BowlineError;
+  "customers.search": BowlineError;
+  "health": BowlineError;
+  "invoices.create": BowlineError;
+  "invoices.get": BowlineError;
+  "invoices.list": BowlineError;
+  "invoices.void": BowlineError;
+}
+
+export type ProcedureError<P extends keyof Errors> = Errors[P];
 
 export interface Client {
   customers: {

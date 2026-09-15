@@ -12,6 +12,9 @@ func assignNames(doc *contract.Document) map[string]string {
 	for id, decl := range doc.Types {
 		byName[decl.Name] = append(byName[decl.Name], id)
 	}
+	for id, decl := range doc.Errors {
+		byName[decl.Name] = append(byName[decl.Name], id)
+	}
 	names := map[string]string{}
 	for name, ids := range byName {
 		if len(ids) == 1 {

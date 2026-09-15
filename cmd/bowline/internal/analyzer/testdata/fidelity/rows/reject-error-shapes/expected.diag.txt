@@ -1,0 +1,3 @@
+rows/reject-error-shapes/api.go:9:6: do: the Code method of Computed must be a single return of a bowline.Code constant. return one constant such as bowline.NotFound; branch in the handler instead
+rows/reject-error-shapes/api.go:43:81: do: error variant Hidden has no exported fields, so its details would be empty. export the fields the client needs, or return bowline.Errorf instead
+rows/reject-error-shapes/api.go:43:91: do: error variant Plain must be a struct type. wrap the value in a struct

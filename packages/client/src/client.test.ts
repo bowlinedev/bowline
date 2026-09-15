@@ -1,5 +1,6 @@
-import { expect, test, vi } from "vitest";
+import { expect, expectTypeOf, test, vi } from "vitest";
 import { createClient } from "./client.js";
+import type { TypedError, UntypedError } from "./error.js";
 import { BowlineError } from "./error.js";
 import type { ContractRuntime, Mutation, Query } from "./types.js";
 
@@ -162,4 +163,54 @@ test("abort rejects with CANCELED", async () => {
     .get({ id: 1 }, { signal: controller.signal })
     .catch((e: unknown) => e)) as BowlineError;
   expect(err.code).toBe("CANCELED");
+});
+
+test("safe returns a discriminated result and hydrates typed details", async () => {
+  const typedContract: ContractRuntime = {
+    version: "1.0",
+    hydrators: { InvoiceLocked: [{ path: ["since"], kind: "timestamp" }] },
+    procedures: {
+      "invoices.void": { kind: "mutation", method: "POST", errors: ["InvoiceLocked"] },
+    },
+  };
+  interface Typed {
+    invoices: {
+      void: Mutation<
+        { id: number },
+        { id: number },
+        TypedError<"InvoiceLocked", { id: number; since: Date }> | UntypedError
+      >;
+    };
+  }
+  const client = createClient(typedContract, {
+    url: "http://api.test",
+    fetch: fakeFetch(() =>
+      json(
+        {
+          error: {
+            code: "FAILED_PRECONDITION",
+            message: "locked",
+            type: "InvoiceLocked",
+            details: { id: 4, since: "2026-09-15T00:00:00Z" },
+          },
+        },
+        412,
+      ),
+    ),
+  }) as Typed;
+  const result = await client.invoices.void.safe({ id: 4 });
+  expect(result.ok).toBe(false);
+  if (!result.ok) {
+    expect(result.error.type).toBe("InvoiceLocked");
+    if (result.error.type === "InvoiceLocked") {
+      expect(result.error.details.since).toBeInstanceOf(Date);
+      expectTypeOf(result.error.details.id).toEqualTypeOf<number>();
+    }
+  }
+  const okClient = createClient(typedContract, {
+    url: "http://api.test",
+    fetch: fakeFetch(() => json({ id: 4 })),
+  }) as Typed;
+  const ok = await okClient.invoices.void.safe({ id: 4 });
+  expect(ok).toEqual({ ok: true, value: { id: 4 } });
 });

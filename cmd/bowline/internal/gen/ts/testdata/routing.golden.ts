@@ -1,4 +1,4 @@
-import { createClient as create, type ClientOptions, type ContractRuntime, type Mutation, type Query } from "@bowline/client";
+import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type Mutation, type Query } from "@bowline/client";
 
 export interface Item {
   name: string;
@@ -11,6 +11,15 @@ export interface Routing_ID {
 export interface Sub_ID {
   id: number;
 }
+
+export interface Errors {
+  "admin.purge": BowlineError;
+  "get": BowlineError;
+  "search": BowlineError;
+  "sub.remove": BowlineError;
+}
+
+export type ProcedureError<P extends keyof Errors> = Errors[P];
 
 export interface Client {
   admin: {

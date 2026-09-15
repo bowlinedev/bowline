@@ -1,4 +1,4 @@
-import { createClient as create, type ClientOptions, type ContractRuntime, type Query } from "@bowline/client";
+import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type Query } from "@bowline/client";
 
 /** Page is one page of results. */
 export interface Page<T> {
@@ -44,6 +44,12 @@ export interface Tree<T> {
 export interface User {
   name: string;
 }
+
+export interface Errors {
+  "get": BowlineError;
+}
+
+export type ProcedureError<P extends keyof Errors> = Errors[P];
 
 export interface Client {
   get: Query<Page<User>, Report>;

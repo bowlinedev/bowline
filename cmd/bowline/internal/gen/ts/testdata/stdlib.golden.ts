@@ -1,4 +1,4 @@
-import { createClient as create, type ClientOptions, type ContractRuntime, type DurationNs, type Query } from "@bowline/client";
+import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type DurationNs, type Query } from "@bowline/client";
 
 export interface Event {
   at: Date;
@@ -8,6 +8,12 @@ export interface Event {
   big: bigint;
   unsigned: bigint;
 }
+
+export interface Errors {
+  "get": BowlineError;
+}
+
+export type ProcedureError<P extends keyof Errors> = Errors[P];
 
 export interface Client {
   get: Query<Record<string, never>, Event>;

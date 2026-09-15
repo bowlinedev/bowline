@@ -12,11 +12,13 @@ type Generator struct{}
 func (Generator) Generate(doc *contract.Document, out string) ([]byte, error) {
 	g := newGenerator(doc)
 	declarations := g.declarations()
+	errs := g.errorsInterface()
 	client := g.clientInterface()
 	table := g.runtimeTable()
 	var b strings.Builder
 	b.WriteString(g.imports())
 	b.WriteString(declarations)
+	b.WriteString(errs)
 	b.WriteString(client)
 	b.WriteString(table)
 	b.WriteString("export function createClient(options: ClientOptions): Client {\n")

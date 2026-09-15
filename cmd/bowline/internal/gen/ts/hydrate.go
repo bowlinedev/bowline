@@ -14,6 +14,20 @@ type hydrateEntry struct {
 	ref  string
 }
 
+func (g *generator) errorHydrator(id string) string {
+	key := g.names[id]
+	if _, seen := g.hydrators[key]; seen {
+		return key
+	}
+	g.hydrators[key] = nil
+	var entries []hydrateEntry
+	for _, f := range g.doc.Errors[id].Fields {
+		g.collect(f.Type, nil, []string{f.Name}, &entries)
+	}
+	g.hydrators[key] = entries
+	return key
+}
+
 func (g *generator) hydrator(t *contract.Type) string {
 	if t.Kind != contract.Ref {
 		return ""
@@ -145,6 +159,9 @@ func (g *generator) pruneHydrators() map[string][]hydrateEntry {
 func (g *generator) runtimeTable() string {
 	for _, p := range g.doc.Procedures {
 		g.hydrator(p.Output)
+		for _, id := range p.Errors {
+			g.errorHydrator(id)
+		}
 	}
 	hydrators := g.pruneHydrators()
 	keys := make([]string, 0, len(hydrators))
@@ -183,6 +200,13 @@ func (g *generator) runtimeTable() string {
 		line := "    " + strconv.Quote(p.Path) + ": { kind: " + strconv.Quote(p.Kind) + ", method: " + strconv.Quote(p.Method)
 		if key := g.tsType(p.Output, false); p.Output.Kind == contract.Ref && len(hydrators[key]) > 0 {
 			line += ", output: " + strconv.Quote(key)
+		}
+		if len(p.Errors) > 0 {
+			names := make([]string, len(p.Errors))
+			for i, id := range p.Errors {
+				names[i] = strconv.Quote(g.names[id])
+			}
+			line += ", errors: [" + strings.Join(names, ", ") + "]"
 		}
 		b.WriteString(line + " },\n")
 	}

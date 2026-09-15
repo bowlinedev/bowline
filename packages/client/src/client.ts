@@ -1,4 +1,10 @@
-import { BowlineError, type BowlineErrorOptions, type Code, type Issue } from "./error.js";
+import {
+  BowlineError,
+  type BowlineErrorOptions,
+  type Code,
+  type Issue,
+  type Result,
+} from "./error.js";
 import { hydrate, serialize } from "./hydrate.js";
 import type {
   CallOptions,
@@ -10,6 +16,7 @@ import type {
 
 type Leaf = ((input?: unknown, options?: CallOptions) => Promise<unknown>) & {
   kind: "query" | "mutation";
+  safe: (input?: unknown, options?: CallOptions) => Promise<Result<unknown, BowlineError>>;
 };
 
 export function createClient(contract: ContractRuntime, options: ClientOptions): unknown {
@@ -32,6 +39,16 @@ export function createClient(contract: ContractRuntime, options: ClientOptions):
     const leaf = ((input?: unknown, callOptions?: CallOptions) =>
       call(fetchFn, base, path, proc, contract, options.headers, input, callOptions)) as Leaf;
     leaf.kind = proc.kind;
+    leaf.safe = async (input?: unknown, callOptions?: CallOptions) => {
+      try {
+        return { ok: true, value: await leaf(input, callOptions) };
+      } catch (error) {
+        if (error instanceof BowlineError) {
+          return { ok: false, error };
+        }
+        throw error;
+      }
+    };
     node[segments[segments.length - 1] as string] = leaf;
   }
   return root;
@@ -76,22 +93,37 @@ async function call(
   }
   const text = await response.text();
   if (!response.ok) {
-    throw toError(response.status, text, path);
+    throw toError(response.status, text, path, contract);
   }
   const data: unknown = text === "" ? undefined : JSON.parse(text);
   return proc.output === undefined ? data : hydrate(data, proc.output, contract.hydrators);
 }
 
-function toError(status: number, text: string, path: string): BowlineError {
+function toError(
+  status: number,
+  text: string,
+  path: string,
+  contract: ContractRuntime,
+): BowlineError {
   try {
     const parsed = JSON.parse(text) as {
-      error?: { code?: string; message?: string; details?: unknown; issues?: Issue[] };
+      error?: {
+        code?: string;
+        message?: string;
+        type?: string;
+        details?: unknown;
+        issues?: Issue[];
+      };
     };
     const e = parsed.error;
     if (e && typeof e.code === "string" && typeof e.message === "string") {
       const options: BowlineErrorOptions = {};
+      if (typeof e.type === "string") {
+        options.type = e.type;
+      }
       if (e.details !== undefined) {
-        options.details = e.details;
+        options.details =
+          typeof e.type === "string" ? hydrate(e.details, e.type, contract.hydrators) : e.details;
       }
       if (e.issues !== undefined) {
         options.issues = e.issues;

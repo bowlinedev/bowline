@@ -25,6 +25,7 @@ type procedureSpec struct {
 	Deprecated  string
 	Sensitive   bool
 	Meta        map[string]string
+	Errors      []errorRef
 }
 
 func (p *Program) resolveEntry(entry string) (*types.Func, *packages.Package, *Diagnostic) {
@@ -295,9 +296,18 @@ func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedure
 		if ok1 && ok2 {
 			spec.Meta[k] = v
 		}
+	case "Errors":
+		for _, arg := range call.Args {
+			tv, ok := pkg.TypesInfo.Types[arg]
+			if !ok || tv.Type == nil {
+				e.fail(arg.Pos(), spec.Path, "could not determine the error variant type", "pass a value of the variant type, such as InvoiceLocked{}")
+				continue
+			}
+			spec.Errors = append(spec.Errors, errorRef{Type: tv.Type, Pos: arg.Pos()})
+		}
 	case "Use":
 	default:
-		e.fail(call.Pos(), spec.Path, "unsupported procedure option", "use bowline.Description, Deprecated, Sensitive, Meta, or Use")
+		e.fail(call.Pos(), spec.Path, "unsupported procedure option", "use bowline.Description, Deprecated, Sensitive, Meta, Errors, or Use")
 	}
 }
 

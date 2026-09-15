@@ -23,6 +23,7 @@ export interface Issue {
 }
 
 export interface BowlineErrorOptions {
+  type?: string;
   details?: unknown;
   issues?: Issue[];
   cause?: unknown;
@@ -31,6 +32,7 @@ export interface BowlineErrorOptions {
 export class BowlineError extends Error {
   readonly code: Code;
   readonly status: number;
+  readonly type: string | undefined;
   readonly details: unknown;
   readonly issues: Issue[];
 
@@ -39,7 +41,17 @@ export class BowlineError extends Error {
     this.name = "BowlineError";
     this.code = code;
     this.status = status;
+    this.type = options.type;
     this.details = options.details;
     this.issues = options.issues ?? [];
   }
 }
+
+export type TypedError<T extends string, D> = BowlineError & {
+  readonly type: T;
+  readonly details: D;
+};
+
+export type Result<O, E> = { ok: true; value: O } | { ok: false; error: E };
+
+export type UntypedError = BowlineError & { readonly type: undefined };

@@ -1,4 +1,11 @@
-export type { BowlineErrorOptions, Code, Issue } from "./error.js";
+export type {
+  BowlineErrorOptions,
+  Code,
+  Issue,
+  Result,
+  TypedError,
+  UntypedError,
+} from "./error.js";
 export { BowlineError } from "./error.js";
 export type {
   Base64,

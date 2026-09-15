@@ -17,3 +17,20 @@ expectTypeOf(routing.get.kind).toEqualTypeOf<"query">();
 const stdlib = createClient({ url: "http://localhost" });
 expectTypeOf(stdlib.get).returns.resolves.toHaveProperty("at").toEqualTypeOf<Date>();
 expectTypeOf(stdlib.get).returns.resolves.toHaveProperty("big").toEqualTypeOf<bigint>();
+
+import type {
+  Client as ErrorsClient,
+  ProcedureError,
+} from "../../../cmd/bowline/internal/gen/ts/testdata/errors.golden.js";
+
+declare const errorsClient: ErrorsClient;
+declare const voidError: ProcedureError<"void">;
+
+if (voidError.type === "InvoiceLocked") {
+  expectTypeOf(voidError.details.since).toEqualTypeOf<Date>();
+} else if (voidError.type === "QuotaExceeded") {
+  expectTypeOf(voidError.details.limit).toEqualTypeOf<number>();
+} else {
+  expectTypeOf(voidError.type).toEqualTypeOf<undefined>();
+}
+expectTypeOf(errorsClient.void.safe).returns.resolves.toMatchTypeOf<{ ok: boolean }>();
