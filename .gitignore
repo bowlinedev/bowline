@@ -16,3 +16,13 @@ playground/ui/dist/*
 .react-router/
 *.tsbuildinfo
 next-env.d.ts
+.dart_tool/
+target/
+
+_build/
+deps/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

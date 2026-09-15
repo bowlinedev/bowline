@@ -22,7 +22,7 @@ type Generator interface {
 }
 
 type PackageAware interface {
-	WithPackage(pkg string) Generator
+	WithPackage(pkg string) any
 }
 
 var Generators = map[string]Generator{}
@@ -117,7 +117,9 @@ func render(doc *contract.Document, cfg *Config) (map[string][]byte, error) {
 		}
 		generator := Generators[name]
 		if aware, ok := generator.(PackageAware); ok && target.Package != "" {
-			generator = aware.WithPackage(target.Package)
+			if configured, ok := aware.WithPackage(target.Package).(Generator); ok {
+				generator = configured
+			}
 		}
 		content, err := generator.Generate(doc, target.Out)
 		if err != nil {

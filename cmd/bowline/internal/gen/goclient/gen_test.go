@@ -118,7 +118,7 @@ func TestPackageName(t *testing.T) {
 			t.Fatalf("%s: package %q not found in\n%s", out, want, got)
 		}
 	}
-	got, _ := Generator{}.WithPackage("custom").Generate(doc, "x/y.go")
+	got, _ := Generator{}.WithPackage("custom").(Generator).Generate(doc, "x/y.go")
 	if !bytes.Contains(got, []byte("package custom\n")) {
 		t.Fatalf("explicit package ignored:\n%s", got)
 	}

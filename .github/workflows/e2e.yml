@@ -167,3 +167,75 @@ jobs:
       - run: pnpm --filter ledger-expo check:gen
       - run: pnpm --filter ledger-expo typecheck
       - run: pnpm --filter ledger-expo test
+
+  dart:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.9.4
+      - name: dart ledger client against the Go server
+        working-directory: examples/ledger/dart
+        run: dart pub get && dart analyze --fatal-infos && dart test
+
+  python:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples/ledger/python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache-dependency-path: examples/ledger/go.sum
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run python -m mypy --strict ledger_cli.py test_ledger.py
+      - run: uv run pytest
+
+  rust:
+    runs-on: ubuntu-latest
+    env:
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache-dependency-path: |
+            go.sum
+            examples/ledger/go.sum
+      - uses: dtolnay/rust-toolchain@1.88.0
+        with:
+          components: clippy, rustfmt
+      - name: Rust ledger client against the Go server
+        working-directory: examples/ledger/rust
+        run: cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test
+
+  elixir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.3"
+          elixir-version: "1.18.4"
+      - run: mix deps.get
+        working-directory: examples/ledger/elixir
+      - run: mix format --check-formatted
+        working-directory: examples/ledger/elixir
+      - run: mix compile --warnings-as-errors
+        working-directory: examples/ledger/elixir
+      - run: mix test
+        working-directory: examples/ledger/elixir

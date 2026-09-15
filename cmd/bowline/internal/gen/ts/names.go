@@ -1,9 +1,9 @@
 package ts
 
 import (
-	"sort"
 	"strings"
 
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
 	"github.com/bowlinedev/bowline/contract"
 )
 
@@ -12,54 +12,11 @@ func AssignNames(doc *contract.Document) map[string]string {
 }
 
 func assignNames(doc *contract.Document) map[string]string {
-	byName := map[string][]string{}
-	for id, decl := range doc.Types {
-		byName[decl.Name] = append(byName[decl.Name], id)
-	}
-	for id, decl := range doc.Errors {
-		byName[decl.Name] = append(byName[decl.Name], id)
-	}
-	names := map[string]string{}
-	for name, ids := range byName {
-		if len(ids) == 1 {
-			names[ids[0]] = identifier(name)
-			continue
-		}
-		sort.Strings(ids)
-		for _, id := range ids {
-			names[id] = identifier(packageName(id) + "_" + name)
-		}
-	}
-	return names
-}
-
-func packageName(id string) string {
-	pkg := id
-	if i := strings.LastIndex(id, "."); i >= 0 {
-		pkg = id[:i]
-	}
-	if i := strings.LastIndex(pkg, "/"); i >= 0 {
-		pkg = pkg[i+1:]
-	}
-	if pkg == "" {
-		return "Pkg"
-	}
-	return strings.ToUpper(pkg[:1]) + pkg[1:]
+	return naming.Assign(doc, nil)
 }
 
 func identifier(s string) string {
-	var b strings.Builder
-	for i, r := range s {
-		switch {
-		case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r == '_', r == '$':
-			b.WriteRune(r)
-		case r >= '0' && r <= '9' && i > 0:
-			b.WriteRune(r)
-		default:
-			b.WriteRune('_')
-		}
-	}
-	return b.String()
+	return naming.Identifier(s)
 }
 
 var reserved = map[string]bool{

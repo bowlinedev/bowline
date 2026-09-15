@@ -5,7 +5,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/ts"
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
 	"github.com/bowlinedev/bowline/contract"
 )
 
@@ -22,7 +22,7 @@ var keywords = map[string]bool{
 }
 
 func assignNames(doc *contract.Document) map[string]string {
-	base := ts.AssignNames(doc)
+	base := naming.Assign(doc, nil)
 	ids := make([]string, 0, len(base))
 	for id := range base {
 		ids = append(ids, id)

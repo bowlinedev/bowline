@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0
+
+- CLI: `dart`, `python`, `rust`, and `elixir` generator targets with goldens compiled by each language's toolchain in CI; naming rules shared across every generator.
+- Runtimes: `bowline` on pub.dev, `bowline-client` on PyPI and crates.io, and `bowline_client` on Hex, each with transport, error envelope, validation rules, server-sent events, and uploads.
+- Examples: Dart, Python, Rust, and Elixir ledger clients that list, create, validate, void, and subscribe against the real server in CI; the ledger commits every generated client under the drift gate.
+- Docs: guides per language with verified snippets, a certification page, and the mapping table extended to every target.
+
 ## 0.5.0
 
 - Conformance: the `conformance` package drives any mount through the fixed wire rules; router examples for the standard mux, Chi, Gin, Echo, and Connect run it in CI.

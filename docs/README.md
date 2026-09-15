@@ -17,6 +17,8 @@
 - `guides/playground.md`: the embeddable playground and its same-origin proxy.
 - `guides/consumer-contracts.md`: recording what a client uses and verifying it statically, dynamically, and in the gate.
 - `guides/frameworks/README.md`: one page per Go router and frontend framework, with snippets verified against the examples.
+- `guides/dart.md`, `guides/python.md`, `guides/rust.md`, `guides/elixir.md`: the generated clients for each language and their runtime packages.
+- `certification.md`: what makes a client target official.
 - `adoption-test.md`: the ten-minute adoption protocol run before each minor release.
 - `../spec/contract.md`: the contract document format that every generator reads.
 - `../spec/mapping-table.md`: the normative Go to contract to TypeScript mapping.
