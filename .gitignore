@@ -34,3 +34,4 @@ examples/federation/registry-data/
 /examples/routers/fiber/fiber
 /examples/ledger/tmp/
 /examples/federation/gateway/dev/
+/examples/federation/gateway/tmp/
