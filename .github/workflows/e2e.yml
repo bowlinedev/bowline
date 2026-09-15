@@ -239,3 +239,35 @@ jobs:
         working-directory: examples/ledger/elixir
       - run: mix test
         working-directory: examples/ledger/elixir
+
+  federation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache-dependency-path: |
+            go.sum
+            examples/ledger/go.sum
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @bowline/client build && pnpm --filter @bowline/react-query build
+      - name: the billing service and its signed ledger client
+        working-directory: examples/federation/billing
+        run: go vet ./... && go test -race ./...
+      - name: the composed contract is current
+        working-directory: examples/federation/gateway
+        run: |
+          go run ../../../cmd/bowline gateway compose -o composed-check.json
+          diff composed.contract.json composed-check.json
+          rm composed-check.json
+      - run: pnpm --filter federation-web build
+      - run: pnpm --filter federation-web exec playwright install --with-deps chromium
+      - run: pnpm --filter federation-web test:e2e
+        env:
+          CI: "1"
