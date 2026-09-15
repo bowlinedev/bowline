@@ -164,3 +164,13 @@ func TestInlineStructsAreSynthesized(t *testing.T) {
 		t.Fatalf("field must reference the synthesized model:\n%s", out)
 	}
 }
+
+func TestRejectsAnUnrepresentableContract(t *testing.T) {
+	doc := &contract.Document{Bowline: contract.Version, Types: map[string]*contract.TypeDecl{
+		"example.com/app.Money": {Kind: contract.Kind("union"), Name: "Money"},
+	}, Errors: map[string]*contract.ErrorDecl{}}
+	_, err := Generator{}.Generate(doc, "bowline.out")
+	if err == nil || !strings.Contains(err.Error(), "python") || !strings.Contains(err.Error(), "example.com/app.Money") {
+		t.Fatalf("got %v", err)
+	}
+}

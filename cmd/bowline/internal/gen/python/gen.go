@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/support"
 	"github.com/bowlinedev/bowline/contract"
 )
 
@@ -65,6 +66,9 @@ func newGenerator(doc *contract.Document) *generator {
 }
 
 func (g Generator) Generate(doc *contract.Document, out string) ([]byte, error) {
+	if err := support.Reject(doc, "python"); err != nil {
+		return nil, err
+	}
 	gen := newGenerator(doc)
 	clients, err := gen.clients()
 	if err != nil {

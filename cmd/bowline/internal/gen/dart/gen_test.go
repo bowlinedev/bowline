@@ -110,3 +110,13 @@ func TestReservedAndCollidingNames(t *testing.T) {
 		}
 	}
 }
+
+func TestRejectsAnUnrepresentableContract(t *testing.T) {
+	doc := &contract.Document{Bowline: contract.Version, Types: map[string]*contract.TypeDecl{
+		"example.com/app.Money": {Kind: contract.Kind("union"), Name: "Money"},
+	}, Errors: map[string]*contract.ErrorDecl{}}
+	_, err := Generator{}.Generate(doc, "bowline.out")
+	if err == nil || !strings.Contains(err.Error(), "dart") || !strings.Contains(err.Error(), "example.com/app.Money") {
+		t.Fatalf("got %v", err)
+	}
+}
