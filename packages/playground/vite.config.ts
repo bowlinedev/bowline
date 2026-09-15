@@ -6,6 +6,13 @@ export default defineConfig({
   base: "./",
   build: {
     outDir: "../../playground/ui/dist",
-    emptyOutDir: true,
+    emptyOutDir: false,
+    rollupOptions: {
+      output: {
+        entryFileNames: "assets/[name].js",
+        chunkFileNames: "assets/[name].js",
+        assetFileNames: "assets/[name][extname]",
+      },
+    },
   },
 });

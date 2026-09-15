@@ -2,12 +2,29 @@ package playground
 
 import (
 	"io"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"sync"
 	"testing"
+	"testing/fstest"
 )
+
+func TestBundleIndexWinsOverPlaceholder(t *testing.T) {
+	assets := fstest.MapFS{
+		"placeholder.html": &fstest.MapFile{Data: []byte("<title>__BOWLINE_TITLE__</title>placeholder")},
+		"index.html":       &fstest.MapFile{Data: []byte("<title>__BOWLINE_TITLE__</title><div id=\"app\"></div>")},
+		"assets/index.js":  &fstest.MapFile{Data: []byte("console.log(1)")},
+	}
+	h := New([]byte(`{}`), WithTitle("App"), withAssets(assets))
+	if rec := get(h, "/"); !strings.Contains(rec.Body.String(), `<div id="app">`) || !strings.Contains(rec.Body.String(), "<title>App</title>") {
+		t.Fatalf("index: %s", rec.Body.String())
+	}
+	if rec := get(h, "/assets/index.js"); rec.Code != 200 || rec.Body.String() != "console.log(1)" {
+		t.Fatalf("asset: %d %s", rec.Code, rec.Body.String())
+	}
+}
 
 func get(h http.Handler, target string) *httptest.ResponseRecorder {
 	rec := httptest.NewRecorder()
@@ -15,8 +32,18 @@ func get(h http.Handler, target string) *httptest.ResponseRecorder {
 	return rec
 }
 
+var placeholderOnly = fstest.MapFS{"placeholder.html": &fstest.MapFile{Data: mustRead("ui/dist/placeholder.html")}}
+
+func mustRead(name string) []byte {
+	data, err := fs.ReadFile(bundle, name)
+	if err != nil {
+		panic(err)
+	}
+	return data
+}
+
 func TestPlaceholderWhenBundleAbsent(t *testing.T) {
-	h := New([]byte(`{}`))
+	h := New([]byte(`{}`), withAssets(placeholderOnly))
 	for _, target := range []string{"/", "/index.html", "/some/client/route"} {
 		rec := get(h, target)
 		if rec.Code != 200 || !strings.Contains(rec.Body.String(), "pnpm --filter @bowline/playground build") {
@@ -32,7 +59,7 @@ func TestPlaceholderWhenBundleAbsent(t *testing.T) {
 }
 
 func TestTitleReplacesToken(t *testing.T) {
-	rec := get(New([]byte(`{}`), WithTitle("Ledger API")), "/")
+	rec := get(New([]byte(`{}`), WithTitle("Ledger API"), withAssets(placeholderOnly)), "/")
 	if !strings.Contains(rec.Body.String(), "<title>Ledger API</title>") || strings.Contains(rec.Body.String(), titleToken) {
 		t.Fatalf("body %s", rec.Body.String())
 	}
