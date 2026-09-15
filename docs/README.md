@@ -22,6 +22,7 @@
 - `guides/federation.md`: composing several services into one client behind a gateway.
 - `guides/registry.md`: the contract registry and the "who breaks" query.
 - `guides/signing.md`: signed service-to-service calls.
+- `lts.md`: release cadence, support windows, and what gets backported.
 - `adoption-test.md`: the ten-minute adoption protocol run before each minor release.
 - `../spec/contract.md`: the contract document format that every generator reads.
 - `../spec/mapping-table.md`: the normative Go to contract to TypeScript mapping.
