@@ -200,15 +200,6 @@ jobs:
       - run: uv run ruff check .
       - run: uv run python -m mypy --strict ledger_cli.py test_ledger.py
       - run: uv run pytest
-          cache-dependency-path: |
-            go.sum
-            examples/ledger/go.sum
-      - uses: dtolnay/rust-toolchain@1.88.0
-        with:
-          components: clippy, rustfmt
-      - name: Rust ledger client against the Go server
-        working-directory: examples/ledger/rust
-        run: cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test
 
   rust:
     runs-on: ubuntu-latest
