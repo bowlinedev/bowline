@@ -11,11 +11,11 @@ import (
 )
 
 type Stream[Out any] struct {
-	sink *eventSink
+	emit func(v any) error
 }
 
 func (s *Stream[Out]) Send(v Out) error {
-	return s.sink.send(v)
+	return s.emit(v)
 }
 
 type eventSink struct {
@@ -30,18 +30,22 @@ type eventSink struct {
 var errStreamClosed = errors.New("bowline: stream closed")
 
 func (s *eventSink) send(v any) error {
-	if err := s.ctx.Err(); err != nil {
-		return context.Canceled
-	}
-	normalized, err := s.plan.Normalize(v)
-	if err != nil {
-		return err
-	}
-	data, err := json.Marshal(normalized)
+	data, err := encodeMessage(s.ctx, s.plan, v)
 	if err != nil {
 		return err
 	}
 	return s.write("message", data)
+}
+
+func encodeMessage(ctx context.Context, plan *codec.Plan, v any) ([]byte, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, context.Canceled
+	}
+	normalized, err := plan.Normalize(v)
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(normalized)
 }
 
 func (s *eventSink) write(event string, data []byte) error {

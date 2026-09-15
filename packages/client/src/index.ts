@@ -23,7 +23,11 @@ export type {
   Query,
   Subscription,
   SubscriptionHandlers,
+  SubscriptionTransport,
+  TransportEvent,
 } from "./types.js";
+export type { WebSocketTransportOptions } from "./ws.js";
+export { websocketTransport } from "./ws.js";
 
 export const version = "0.1.0";
 export { createClient } from "./client.js";

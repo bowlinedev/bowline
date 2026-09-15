@@ -56,8 +56,8 @@ func Subscription[In, Out any](name string, fn func(context.Context, In, *Stream
 		panic(fmt.Sprintf("bowline: subscription %q: nil handler", name))
 	}
 	p := prepare[In, Out](KindSubscription, name)
-	p.attach = func(in any, sink *eventSink) any {
-		return &subscriptionInput[In, Out]{in: in.(*In), stream: &Stream[Out]{sink: sink}}
+	p.attach = func(in any, emit func(any) error) any {
+		return &subscriptionInput[In, Out]{in: in.(*In), stream: &Stream[Out]{emit: emit}}
 	}
 	p.call = func(ctx context.Context, in any) (any, error) {
 		bound := in.(*subscriptionInput[In, Out])

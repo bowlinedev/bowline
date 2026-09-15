@@ -45,3 +45,23 @@ data: {"error":{"code":"NOT_FOUND","message":"gone"}}
 `bowline.Heartbeat(15 * time.Second)` on the handler writes a `: ping` comment at that interval so idle proxies keep the connection open. Reverse proxies that buffer responses must be told not to; the handler sets `X-Accel-Buffering: no` for nginx.
 
 The tests in `sse_test.go` show every case: three messages then `done`, an `error` after two messages, the missing `Accept` header, validation before the stream opens, and `Send` observing a disconnect.
+
+## Many subscriptions over one connection
+
+Browsers limit connections per origin, so an app that holds many subscriptions can multiplex them over one WebSocket. Mount the transport module next to the API handler:
+
+```go
+import bowlinews "github.com/bowlinedev/bowline/transport/websocket"
+
+mux.Handle("/ws", bowlinews.Handler(routes, bowlinews.Options{OriginPatterns: []string{"app.example.com"}}))
+```
+
+and hand the client a transport; queries and mutations keep using `fetch` while subscriptions use the socket:
+
+```ts
+import { websocketTransport } from "@bowline/client";
+
+const client = createClient({ url: "/api", transport: websocketTransport("wss://api.example.com/ws") });
+```
+
+Frames are JSON objects with an integer `id` chosen by the client: `subscribe` with `path` and `input`, `stop`, and from the server `data`, `error`, and `done`. When the socket closes, every active subscription fails with `UNAVAILABLE`; reconnecting is the application's decision. The transport module tests in `transport/websocket/handler_test.go` run two subscriptions on one socket and stop one of them.

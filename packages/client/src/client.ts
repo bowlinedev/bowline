@@ -14,6 +14,7 @@ import type {
   HeadersSource,
   ProcedureRuntime,
   SubscriptionHandlers,
+  SubscriptionTransport,
 } from "./types.js";
 
 type Leaf = ((input?: unknown, options?: CallOptions) => Promise<unknown>) & {
@@ -49,7 +50,15 @@ export function createClient(contract: ContractRuntime, options: ClientOptions):
     }
     const key = segments[segments.length - 1] as string;
     if (proc.kind === "subscription") {
-      node[key] = streamLeaf(fetchFn, base, path, proc, contract, options.headers);
+      node[key] = streamLeaf(
+        fetchFn,
+        base,
+        path,
+        proc,
+        contract,
+        options.headers,
+        options.transport,
+      );
       continue;
     }
     const leaf = ((input?: unknown, callOptions?: CallOptions) =>
@@ -152,18 +161,21 @@ function streamLeaf(
   proc: ProcedureRuntime,
   contract: ContractRuntime,
   headersSource: HeadersSource | undefined,
+  transport: SubscriptionTransport | undefined,
 ): StreamLeaf {
   const iterate = ((input?: unknown, callOptions?: CallOptions) =>
-    streamEvents(
-      fetchFn,
-      base,
-      path,
-      proc,
-      contract,
-      headersSource,
-      input,
-      callOptions,
-    )) as StreamLeaf;
+    transport
+      ? transportEvents(transport, path, proc, contract, input, callOptions)
+      : streamEvents(
+          fetchFn,
+          base,
+          path,
+          proc,
+          contract,
+          headersSource,
+          input,
+          callOptions,
+        )) as StreamLeaf;
   iterate.kind = "subscription";
   iterate.subscribe = (input, handlers, callOptions) => {
     const controller = new AbortController();
@@ -190,6 +202,27 @@ function streamLeaf(
     return () => controller.abort();
   };
   return iterate;
+}
+
+async function* transportEvents(
+  transport: SubscriptionTransport,
+  path: string,
+  proc: ProcedureRuntime,
+  contract: ContractRuntime,
+  input: unknown,
+  callOptions: CallOptions | undefined,
+): AsyncIterable<unknown> {
+  for await (const event of transport.subscribe(path, input, callOptions?.signal)) {
+    if (event.event === "data") {
+      yield proc.output === undefined
+        ? event.payload
+        : hydrate(event.payload, proc.output, contract.hydrators);
+    } else if (event.event === "error") {
+      throw errorFromEnvelope(0, event.payload, path, contract);
+    } else {
+      return;
+    }
+  }
 }
 
 async function* streamEvents(
@@ -244,30 +277,34 @@ function toError(
   contract: ContractRuntime,
 ): BowlineError {
   try {
-    const parsed = JSON.parse(text) as {
-      error?: {
-        code?: string;
-        message?: string;
-        type?: string;
-        details?: unknown;
-        issues?: Issue[];
-      };
-    };
-    const e = parsed.error;
-    if (e && typeof e.code === "string" && typeof e.message === "string") {
-      const options: BowlineErrorOptions = {};
-      if (typeof e.type === "string") {
-        options.type = e.type;
-      }
-      if (e.details !== undefined) {
-        options.details =
-          typeof e.type === "string" ? hydrate(e.details, e.type, contract.hydrators) : e.details;
-      }
-      if (e.issues !== undefined) {
-        options.issues = e.issues;
-      }
-      return new BowlineError(e.code as Code, e.message, status, options);
-    }
+    const parsed = JSON.parse(text) as { error?: unknown };
+    return errorFromEnvelope(status, parsed.error, path, contract);
   } catch {}
   return new BowlineError("UNKNOWN", `HTTP ${status} from ${path}`, status);
+}
+
+function errorFromEnvelope(
+  status: number,
+  raw: unknown,
+  path: string,
+  contract: ContractRuntime,
+): BowlineError {
+  const e = raw as
+    | { code?: string; message?: string; type?: string; details?: unknown; issues?: Issue[] }
+    | undefined;
+  if (e && typeof e.code === "string" && typeof e.message === "string") {
+    const options: BowlineErrorOptions = {};
+    if (typeof e.type === "string") {
+      options.type = e.type;
+    }
+    if (e.details !== undefined) {
+      options.details =
+        typeof e.type === "string" ? hydrate(e.details, e.type, contract.hydrators) : e.details;
+    }
+    if (e.issues !== undefined) {
+      options.issues = e.issues;
+    }
+    return new BowlineError(e.code as Code, e.message, status, options);
+  }
+  return new BowlineError("UNKNOWN", `malformed error from ${path}`, status);
 }

@@ -54,7 +54,7 @@ func (h *handler) serveSubscription(w http.ResponseWriter, req *http.Request, rt
 			}
 		}()
 	}
-	_, err := h.invoke(ctx, rt, rt.proc.attach(in, sink))
+	_, err := h.invoke(ctx, rt, rt.proc.attach(in, sink.send))
 	if err != nil {
 		status, env, undeclared := classify(err, h.production, rt.proc.variants)
 		if status >= 500 {

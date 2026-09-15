@@ -11,10 +11,24 @@ export interface CallOptions {
 
 export type HeadersSource = HeadersInit | (() => HeadersInit | Promise<HeadersInit>);
 
+export interface TransportEvent {
+  event: "data" | "error" | "done";
+  payload: unknown;
+}
+
+export interface SubscriptionTransport {
+  subscribe(
+    path: string,
+    input: unknown,
+    signal: AbortSignal | undefined,
+  ): AsyncIterable<TransportEvent>;
+}
+
 export interface ClientOptions {
   url: string;
   fetch?: typeof fetch;
   headers?: HeadersSource;
+  transport?: SubscriptionTransport;
 }
 
 type Callable<I, O> = Record<string, never> extends I

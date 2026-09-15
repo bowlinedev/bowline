@@ -33,7 +33,7 @@ type Procedure struct {
 	plan       *codec.Plan
 	checker    *validate.Checker
 	variants   []variant
-	attach     func(in any, sink *eventSink) any
+	attach     func(in any, emit func(any) error) any
 }
 
 func (p Procedure) Method() string {
