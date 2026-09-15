@@ -78,6 +78,9 @@ jobs:
         run: |
           (cd examples/ledger && go run github.com/bowlinedev/bowline/cmd/bowline check)
           (cd examples/nethttp-minimal && go run github.com/bowlinedev/bowline/cmd/bowline check)
+      - name: consumer contracts still hold
+        if: matrix.go == 'stable'
+        run: (cd examples/ledger && go run github.com/bowlinedev/bowline/cmd/bowline verify-consumers)
       - name: staticcheck
         if: matrix.os == 'ubuntu-latest' && matrix.go == 'stable'
         run: |

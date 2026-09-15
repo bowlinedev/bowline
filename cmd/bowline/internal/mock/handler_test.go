@@ -206,3 +206,27 @@ func TestConcurrentCreates(t *testing.T) {
 		t.Fatalf("expected 50 stored invoices, got %d", len(items))
 	}
 }
+
+func TestMutationWithIDUpdatesTheStoredObject(t *testing.T) {
+	h := New(ledger(t), Options{Seed: 1})
+	before := decode(t, call(h, http.MethodGet, "invoices.get", `{"id":3}`))
+	voided := decode(t, call(h, http.MethodPost, "invoices.void", `{"id":3}`))
+	if voided["id"] != float64(3) || voided["customerId"] != before["customerId"] {
+		t.Fatalf("void must return the stored invoice 3: %v vs %v", voided, before)
+	}
+	after := decode(t, call(h, http.MethodGet, "invoices.get", `{"id":3}`))
+	if after["updatedAt"] != voided["updatedAt"] {
+		t.Fatalf("stored object not updated: %v vs %v", after, voided)
+	}
+	list := decode(t, call(h, http.MethodPost, "invoices.list", `{"limit":10}`))
+	items, _ := list["items"].([]any)
+	count := 0
+	for _, item := range items {
+		if item.(map[string]any)["id"] == float64(3) {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Fatalf("invoice 3 appears %d times after void", count)
+	}
+}

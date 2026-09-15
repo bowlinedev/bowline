@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --port 4173 --strictPort",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:mock": "playwright test -c playwright.mock.config.ts"
   },
   "dependencies": {
     "@bowline/client": "workspace:*",
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.55.0",
+    "@types/node": "24.7.0",
     "@types/react": "19.1.12",
     "@types/react-dom": "19.1.9",
     "@vitejs/plugin-react": "5.0.2",

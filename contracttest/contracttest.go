@@ -111,7 +111,11 @@ func verify(t testing.TB, handler http.Handler, procs map[string]*contract.Proce
 	if len(bytes.TrimSpace(input)) == 0 {
 		input = json.RawMessage("{}")
 	}
-	if doc != nil && proc != nil {
+	if proc != nil && proc.Kind == "upload" {
+		t.Logf("%s: upload interactions are verified statically only", label)
+		return true
+	}
+	if doc != nil && proc != nil && in.Response.Status < 400 {
 		if decoded, err := decode(input); err == nil {
 			rejected := false
 			for _, issue := range validateInput(doc, proc.Input, decoded) {
