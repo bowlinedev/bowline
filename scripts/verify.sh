@@ -18,7 +18,7 @@ step() {
 
 go_modules() {
   local m
-  for m in . cmd/bowline transport/websocket mcp agent playground contracttest conformance gateway registry adapters/fiber examples/ledger examples/nethttp-minimal examples/go-client examples/routers/*; do
+  for m in . cmd/bowline transport/websocket mcp agent playground contracttest conformance gateway registry adapters/fiber examples/ledger examples/nethttp-minimal examples/go-client examples/federation/billing examples/routers/*; do
     [ -f "$m/go.mod" ] || continue
     printf -- '-- %s\n' "$m"
     (cd "$m" && go vet ./... && go test -race ./...) || return 1
@@ -28,7 +28,7 @@ go_modules() {
 staticcheck_modules() {
   command -v staticcheck >/dev/null || { echo "staticcheck not installed; skipping"; return 0; }
   local m
-  for m in . cmd/bowline transport/websocket mcp agent playground contracttest conformance gateway registry adapters/fiber; do
+  for m in . cmd/bowline transport/websocket mcp agent playground contracttest conformance gateway registry adapters/fiber examples/ledger examples/federation/billing; do
     [ -f "$m/go.mod" ] || continue
     (cd "$m" && staticcheck ./...) || return 1
   done

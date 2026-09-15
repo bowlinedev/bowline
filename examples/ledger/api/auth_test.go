@@ -47,7 +47,7 @@ func TestClockUsesFixedTime(t *testing.T) {
 		t.Fatalf("got %s", got)
 	}
 	t.Setenv("LEDGER_FIXED_TIME", "")
-	if Clock()().Sub(time.Now()) > time.Second {
+	if time.Until(Clock()()) > time.Second {
 		t.Fatal("expected wall clock")
 	}
 }
