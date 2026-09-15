@@ -21,6 +21,8 @@ export type {
   UntypedError,
 } from "./error.js";
 export { BowlineError } from "./error.js";
+export type { InputOf, OutputOf, ProcedureBrand, ProcedureFn, ProcedureKey } from "./key.js";
+export { procedureKey, walkProcedures } from "./key.js";
 export type { Interaction, RecordSink } from "./record.js";
 export { canonicalInput } from "./record.js";
 export type { ServerEvent } from "./sse.js";
