@@ -56,3 +56,25 @@ func TestCheckAgainstMissingRef(t *testing.T) {
 		t.Fatalf("exit %d err %q", code, errOut.String())
 	}
 }
+
+func TestCheckAgainstFromASubdirectory(t *testing.T) {
+	root := t.TempDir()
+	dir := filepath.Join(root, "services", "billing")
+	os.MkdirAll(filepath.Dir(dir), 0o755)
+	os.Rename(fixtureCopy(t), dir)
+	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/routing.Routes"}`), 0o644)
+	if code := Gen(testOptionsOnly(dir)); code != 0 {
+		t.Fatal("gen failed")
+	}
+	for _, args := range [][]string{{"init", "-q", "-b", "main"}, {"config", "user.email", "t@example.com"}, {"config", "user.name", "t"}, {"add", "services/billing/bowline.contract.json"}, {"commit", "-q", "-m", "base"}} {
+		cmd := exec.Command("git", args...)
+		cmd.Dir = root
+		if out, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v %s", args, err, out)
+		}
+	}
+	opts, out, errOut := testOptions(dir)
+	if code := Check(opts, []string{"--against", "HEAD"}); code != 0 || !strings.Contains(out.String(), "no contract changes") {
+		t.Fatalf("exit %d out %q err %q", code, out.String(), errOut.String())
+	}
+}

@@ -33,7 +33,7 @@ func checkAgainst(opts Options, ref string, allowBreaking bool, consumersDir str
 		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
 		return 1
 	}
-	cmd := exec.Command("git", "show", ref+":"+cfg.Contract)
+	cmd := exec.Command("git", "show", ref+":./"+cfg.Contract)
 	cmd.Dir = opts.Dir
 	oldRaw, err := cmd.Output()
 	if err != nil {
