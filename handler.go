@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/bowlinedev/bowline/internal/codec"
+	"github.com/bowlinedev/bowline/signing"
 )
 
 type HandlerOption func(*handler)
@@ -43,8 +44,10 @@ type handler struct {
 	heartbeat  time.Duration
 	maxUpload  int64
 
-	contract []byte
-	reserved *reserved
+	contract   []byte
+	reserved   *reserved
+	signatures signing.SecretProvider
+	signedBody int64
 
 	idempotency    IdempotencyStore
 	idempotencyTTL time.Duration
@@ -62,10 +65,14 @@ func (r *Router) Handler(opts ...HandlerOption) http.Handler {
 	for _, rt := range r.routes() {
 		h.routes[rt.path] = &rt
 	}
+	h.signedBody = signingLimit(h)
 	return h
 }
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	if h.signatures != nil && !h.verifySignature(w, req) {
+		return
+	}
 	if name := reservedPath(req.URL.Path); name != "" {
 		h.serveReserved(w, req, name)
 		return
