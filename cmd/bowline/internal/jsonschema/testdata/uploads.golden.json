@@ -1,0 +1,48 @@
+{
+  "attach": {
+    "input": {
+      "$defs": {
+        "AttachInput": {
+          "additionalProperties": false,
+          "properties": {
+            "invoiceId": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "invoiceId"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/AttachInput",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Attachment": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "size": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "name",
+            "size"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Attachment",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

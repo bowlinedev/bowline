@@ -1,0 +1,86 @@
+{
+  "send": {
+    "input": {
+      "$defs": {
+        "ID": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/ID",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Invoice": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Invoice",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  },
+  "void": {
+    "input": {
+      "$defs": {
+        "ID": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/ID",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Invoice": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Invoice",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "get": {
+    "input": {
+      "$defs": {
+        "Address": {
+          "additionalProperties": false,
+          "description": "Address is where mail goes.",
+          "properties": {
+            "city": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "street": {
+              "description": "Street line.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "city",
+            "street"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Address",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Address": {
+          "additionalProperties": false,
+          "description": "Address is where mail goes.",
+          "properties": {
+            "city": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "street": {
+              "description": "Street line.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "city",
+            "street"
+          ],
+          "type": "object"
+        },
+        "Person": {
+          "additionalProperties": false,
+          "properties": {
+            "NoTag": {
+              "type": "string"
+            },
+            "age": {
+              "maximum": 150,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "email": {
+              "format": "email",
+              "type": "string"
+            },
+            "home": {
+              "$ref": "#/$defs/Address"
+            },
+            "inline": {
+              "additionalProperties": false,
+              "properties": {
+                "x": {
+                  "maximum": 2147483647,
+                  "minimum": -2147483648,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "x"
+              ],
+              "type": "object"
+            },
+            "name": {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "NoTag",
+            "age",
+            "email",
+            "home",
+            "inline",
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Person",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

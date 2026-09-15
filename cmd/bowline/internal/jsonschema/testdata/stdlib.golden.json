@@ -1,0 +1,50 @@
+{
+  "get": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "output": {
+      "$defs": {
+        "Event": {
+          "additionalProperties": false,
+          "properties": {
+            "addr": {
+              "type": "string"
+            },
+            "at": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "big": {
+              "pattern": "^-?[0-9]+$",
+              "type": "string"
+            },
+            "payload": {},
+            "took": {
+              "description": "duration in nanoseconds",
+              "type": "integer"
+            },
+            "unsigned": {
+              "pattern": "^[0-9]+$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "addr",
+            "at",
+            "big",
+            "payload",
+            "took",
+            "unsigned"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Event",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

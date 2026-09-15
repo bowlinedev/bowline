@@ -1,0 +1,85 @@
+{
+  "get": {
+    "input": {
+      "$defs": {
+        "Audit": {
+          "additionalProperties": false,
+          "properties": {
+            "createdBy": {
+              "type": "string"
+            },
+            "version": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "createdBy",
+            "version"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Audit",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Named": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "type": "object"
+        },
+        "Record": {
+          "additionalProperties": false,
+          "properties": {
+            "createdBy": {
+              "type": "string"
+            },
+            "extra": {
+              "type": "string"
+            },
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            },
+            "named": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Named"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "version": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "createdBy",
+            "extra",
+            "id",
+            "named",
+            "version"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Record",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

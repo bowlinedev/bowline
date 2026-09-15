@@ -7,6 +7,10 @@ import (
 	"github.com/bowlinedev/bowline/contract"
 )
 
+func AssignNames(doc *contract.Document) map[string]string {
+	return assignNames(doc)
+}
+
 func assignNames(doc *contract.Document) map[string]string {
 	byName := map[string][]string{}
 	for id, decl := range doc.Types {

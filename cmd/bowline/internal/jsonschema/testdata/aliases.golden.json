@@ -1,0 +1,63 @@
+{
+  "get": {
+    "input": {
+      "$defs": {
+        "Real": {
+          "additionalProperties": false,
+          "properties": {
+            "n": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "n"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Real",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Holder": {
+          "additionalProperties": false,
+          "properties": {
+            "a": {
+              "$ref": "#/$defs/Real"
+            },
+            "b": {
+              "items": {
+                "$ref": "#/$defs/Real"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "a",
+            "b"
+          ],
+          "type": "object"
+        },
+        "Real": {
+          "additionalProperties": false,
+          "properties": {
+            "n": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "n"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Holder",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

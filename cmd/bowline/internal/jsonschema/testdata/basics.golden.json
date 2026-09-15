@@ -1,0 +1,66 @@
+{
+  "echo": {
+    "input": {
+      "$defs": {
+        "Input": {
+          "additionalProperties": false,
+          "properties": {
+            "big": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "count": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "on": {
+              "type": "boolean"
+            },
+            "ratio": {
+              "type": "number"
+            },
+            "small": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "big",
+            "count",
+            "name",
+            "on",
+            "ratio",
+            "small"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Input",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Output": {
+          "additionalProperties": false,
+          "properties": {
+            "echo": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "echo"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Output",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}
