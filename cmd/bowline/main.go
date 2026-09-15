@@ -32,9 +32,9 @@ commands:
              check recorded consumer interactions against the current contract
   mock [--addr :8090] [--seed N] [--record URL] [--replay] [--strict] [--fixtures dir] [--no-playground]
              serve generated or recorded responses from the contract alone
-  eval record --url <base> --script <path> --out <path> [--volatile key] [--header "K: v"] [--agent]
-             run scripted tool calls and write a recording
-  eval replay <recording> --url <base> [--strict-messages] [--header "K: v"]
+  eval record --script <path> --out <path> [--backend mock|replay|url] [--url <base>] [--volatile key] [--header "K: v"] [--agent]
+             run scripted tool calls and write a recording; the default backend is the in-process mock
+  eval replay <recording> [--backend mock|replay|url] [--url <base>] [--strict-messages] [--header "K: v"]
              re-run a recording and fail on any changed result
   migrate-contract [path]
              rewrite a contract document from an older format version

@@ -27,10 +27,10 @@ curl -fsS "http://127.0.0.1:18080/api/health" >/dev/null
 cd "$repo/examples/ledger"
 case "$mode" in
   record)
-    "$work/bowline" eval record --url http://127.0.0.1:18080/api --script evals/script.json --out "$recording" --header "Authorization: Bearer dev"
+    "$work/bowline" eval record --backend url --url http://127.0.0.1:18080/api --script evals/script.json --out "$recording" --header "Authorization: Bearer dev"
     ;;
   replay)
-    "$work/bowline" eval replay "$recording" --url http://127.0.0.1:18080/api --header "Authorization: Bearer dev"
+    "$work/bowline" eval replay "$recording" --backend url --url http://127.0.0.1:18080/api --header "Authorization: Bearer dev"
     ;;
   *)
     echo "usage: $0 [record|replay]" >&2
