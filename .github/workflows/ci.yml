@@ -64,6 +64,10 @@ jobs:
         if: matrix.go == 'stable'
         working-directory: agent
         run: go vet ./... && go test -race ./...
+      - name: vet and test playground
+        if: matrix.go == 'stable'
+        working-directory: playground
+        run: go vet ./... && go test -race ./...
       - name: contracts are current
         if: matrix.go == 'stable'
         run: |
@@ -78,6 +82,7 @@ jobs:
           (cd transport/websocket && staticcheck ./...)
           (cd mcp && staticcheck ./...)
           (cd agent && staticcheck ./...)
+          (cd playground && staticcheck ./...)
       - name: runtime module has no dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
