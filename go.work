@@ -12,4 +12,9 @@ use (
 	./examples/routers/fiber
 	./examples/ledger
 	./examples/nethttp-minimal
+	./examples/routers/stdlib
+	./examples/routers/chi
+	./examples/routers/gin
+	./examples/routers/echo
+	./examples/routers/connect
 )
