@@ -24,6 +24,8 @@ commands:
              write LLM tool definitions for every exposed procedure
   mcp --url <base> [--listen addr] [--scope S] [--read-only] [--rate N --burst B] [--header "K: v"]
              serve the exposed procedures to MCP clients over stdio or HTTP
+  mock [--addr :8090] [--seed N] [--record URL] [--replay] [--strict] [--fixtures dir] [--no-playground]
+             serve generated or recorded responses from the contract alone
   eval record --url <base> --script <path> --out <path> [--volatile key] [--header "K: v"] [--agent]
              run scripted tool calls and write a recording
   eval replay <recording> --url <base> [--strict-messages] [--header "K: v"]
@@ -61,6 +63,11 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cli.Migrate(opts, args[1:])
 	case "diff":
 		return cli.DiffCommand(opts, args[1:])
+	case "mock":
+		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+		defer cancel()
+		opts.Stop = ctx.Done()
+		return cli.MockCommand(opts, args[1:])
 	case "eval":
 		opts.Stdin = os.Stdin
 		return cli.Eval(opts, args[1:])
