@@ -114,7 +114,7 @@ func (s *Server) logging(next http.Handler) http.Handler {
 
 func (s *Server) index() http.Handler {
 	if s.ui != nil {
-		return http.FileServerFS(s.ui)
+		return s.assets()
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
@@ -123,6 +123,26 @@ func (s *Server) index() http.Handler {
 		}
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		w.Write([]byte("bowline registry\n\nThe API is under /v1; start at /v1/services.\n"))
+	})
+}
+
+func (s *Server) assets() http.Handler {
+	files := http.FileServerFS(s.ui)
+	if _, err := fs.Stat(s.ui, "index.html"); err == nil {
+		return files
+	}
+	placeholder, err := fs.ReadFile(s.ui, "placeholder.html")
+	if err != nil {
+		return files
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			files.ServeHTTP(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-store")
+		w.Write(placeholder)
 	})
 }
 

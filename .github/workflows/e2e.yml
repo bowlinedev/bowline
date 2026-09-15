@@ -91,6 +91,29 @@ jobs:
         env:
           CI: "1"
 
+  registry-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache-dependency-path: |
+            go.sum
+            examples/ledger/go.sum
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @bowline/client build
+      - run: pnpm --filter @bowline/registry-ui build
+      - run: pnpm --filter @bowline/registry-ui exec playwright install --with-deps chromium
+      - run: pnpm --filter @bowline/registry-ui test:e2e
+        env:
+          CI: "1"
+
   astro:
     runs-on: ubuntu-latest
     steps:

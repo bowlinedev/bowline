@@ -10,6 +10,9 @@ playwright-report/
 !playground/ui/dist/
 playground/ui/dist/*
 !playground/ui/dist/placeholder.html
+!registry/ui/dist/
+registry/ui/dist/*
+!registry/ui/dist/placeholder.html
 .astro/
 .next/
 /examples/remix/build/

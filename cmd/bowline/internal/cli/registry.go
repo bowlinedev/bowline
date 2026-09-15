@@ -13,13 +13,14 @@ import (
 	"github.com/bowlinedev/bowline/registry"
 )
 
-const registryUsage = "usage: bowline registry serve --store <dir> [--listen :8095] [--token T]..."
+const registryUsage = "usage: bowline registry serve --store <dir> [--listen :8095] [--token T]... [--ui=false]"
 
 type RegistryOptions struct {
 	Options
 	Store  string
 	Listen string
 	Tokens []string
+	UI     bool
 	Ready  chan<- string
 }
 
@@ -33,6 +34,7 @@ func Registry(opts Options, args []string) int {
 	r := &RegistryOptions{Options: opts}
 	flags.StringVar(&r.Store, "store", "", "directory holding the registry records")
 	flags.StringVar(&r.Listen, "listen", ":8095", "address to listen on")
+	flags.BoolVar(&r.UI, "ui", true, "serve the browser UI at /")
 	var tokens scopeList
 	flags.Var(&tokens, "token", "bearer token accepted for writes; repeatable")
 	if err := flags.Parse(args[1:]); err != nil {
@@ -73,7 +75,11 @@ func RegistryServe(opts RegistryOptions) int {
 		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
 		return 1
 	}
-	server := registry.NewServer(store, registry.Options{Tokens: opts.Tokens})
+	settings := registry.Options{Tokens: opts.Tokens}
+	if opts.UI {
+		settings.UI = registry.UI()
+	}
+	server := registry.NewServer(store, settings)
 	listener, err := net.Listen("tcp", opts.Listen)
 	if err != nil {
 		fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
