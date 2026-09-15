@@ -132,6 +132,11 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           if grep -q '^require' go.mod; then echo "root go.mod must not require anything"; exit 1; fi
+      - name: dependencies are on the allowlist
+        if: matrix.os == 'ubuntu-latest' && matrix.go == 'stable'
+        run: |
+          scripts/deps-allowlist.sh
+          scripts/deps-allowlist.sh self-test
 
   node:
     runs-on: ubuntu-latest
@@ -146,6 +151,7 @@ jobs:
       - run: pnpm build
       - run: pnpm check
       - run: pnpm test
+      - run: scripts/audit-packages.sh
 
   python:
     runs-on: ubuntu-latest
@@ -294,6 +300,23 @@ jobs:
 
   ci:
     runs-on: ubuntu-latest
-    needs: [go, node, python, goldens-dart, docs-check, devloop-windows, goldens-python, goldens-rust, goldens-elixir]
+    needs: [go, node, python, goldens-dart, docs-check, devloop-windows, goldens-python, goldens-rust, goldens-elixir, govulncheck]
     steps:
       - run: echo ok
+
+  govulncheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - run: go install golang.org/x/vuln/cmd/govulncheck@latest
+      - name: scan every module
+        env:
+          GOWORK: "off"
+        run: |
+          for m in . cmd/bowline transport/websocket mcp agent playground contracttest gateway registry adapters/fiber; do
+            echo "== $m"
+            (cd "$m" && govulncheck ./...)
+          done
