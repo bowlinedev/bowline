@@ -36,6 +36,7 @@ jobs:
             transport/websocket/go.sum
             mcp/go.sum
             agent/go.sum
+            contracttest/go.sum
       - name: gofmt
         run: |
           out="$(gofmt -l .)"
@@ -68,6 +69,10 @@ jobs:
         if: matrix.go == 'stable'
         working-directory: playground
         run: go vet ./... && go test -race ./...
+      - name: vet and test contracttest
+        if: matrix.go == 'stable'
+        working-directory: contracttest
+        run: go vet ./... && go test -race ./...
       - name: contracts are current
         if: matrix.go == 'stable'
         run: |
@@ -82,6 +87,7 @@ jobs:
           (cd transport/websocket && staticcheck ./...)
           (cd mcp && staticcheck ./...)
           (cd agent && staticcheck ./...)
+          (cd contracttest && staticcheck ./...)
           (cd playground && staticcheck ./...)
       - name: runtime module has no dependencies
         if: matrix.os == 'ubuntu-latest'
