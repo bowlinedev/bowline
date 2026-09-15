@@ -1,0 +1,79 @@
+import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type Mutation, type Query, type TypedError, type UntypedError } from "@bowline/client";
+
+/** UnknownInvoice is returned when the ledger has no invoice with the given ID. */
+export interface UnknownInvoice {
+  invoiceId: number;
+}
+
+export interface Charge {
+  id: number;
+  invoiceId: number;
+  amount: string;
+  status: Status;
+  createdAt: Date;
+}
+
+export interface CreateChargeInput {
+  invoiceId: number;
+}
+
+export interface HealthOutput {
+  ok: boolean;
+  version: string;
+}
+
+export interface ListChargesInput {
+  limit: number;
+}
+
+export interface Page<T> {
+  items: T[];
+}
+
+export interface SettleChargeInput {
+  id: number;
+}
+
+export type Status = "open" | "settled" | "refunded";
+
+export interface Errors {
+  "charges.create": TypedError<"UnknownInvoice", UnknownInvoice> | UntypedError;
+  "charges.list": BowlineError;
+  "charges.settle": BowlineError;
+  "health": BowlineError;
+}
+
+export type ProcedureError<P extends keyof Errors> = Errors[P];
+
+export interface Client {
+  charges: {
+    /** Create charges an invoice read from the ledger. */
+    create: Mutation<CreateChargeInput, Charge, Errors["charges.create"]>;
+    /** List returns every charge, newest last. */
+    list: Query<ListChargesInput, Page<Charge>>;
+    settle: Mutation<SettleChargeInput, Charge>;
+  };
+  health: Query<Record<string, never>, HealthOutput>;
+}
+
+export const contract = {
+  version: "1.2",
+  hydrators: {
+    "Charge": [
+      { path: ["createdAt"], kind: "timestamp" },
+    ],
+    "Page<Charge>": [
+      { path: ["items", "*"], kind: { ref: "Charge" } },
+    ],
+  },
+  procedures: {
+    "charges.create": { kind: "mutation", method: "POST", output: "Charge", errors: ["UnknownInvoice"] },
+    "charges.list": { kind: "query", method: "GET", output: "Page<Charge>" },
+    "charges.settle": { kind: "mutation", method: "POST", output: "Charge" },
+    "health": { kind: "query", method: "GET" },
+  },
+} satisfies ContractRuntime;
+
+export function createClient(options: ClientOptions): Client {
+  return create(contract, options) as Client;
+}
