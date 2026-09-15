@@ -1,0 +1,4 @@
+{
+  "entry": "./api.Routes",
+  "contract": "api/bowline.contract.json"
+}

@@ -41,3 +41,9 @@ func TestVoidPaidInvoiceFails(t *testing.T) {
 		t.Fatalf("status %d body %s", rec.Code, rec.Body.String())
 	}
 }
+
+func TestContractMatchesRouter(t *testing.T) {
+	if err := Routes().Verify(Contract); err != nil {
+		t.Fatal(err)
+	}
+}

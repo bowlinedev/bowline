@@ -41,6 +41,9 @@ jobs:
       - name: vet and test ledger example
         working-directory: examples/ledger
         run: go vet ./... && go test -race ./...
+      - name: ledger contract is current
+        working-directory: examples/ledger
+        run: go run github.com/bowlinedev/bowline/cmd/bowline check
       - name: staticcheck
         if: matrix.os == 'ubuntu-latest' && matrix.go == 'stable'
         run: |
