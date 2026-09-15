@@ -35,9 +35,11 @@ func (h *handler) serveSubscription(w http.ResponseWriter, req *http.Request, rt
 		w.Header().Set("Deprecation", "true")
 	}
 	w.WriteHeader(http.StatusOK)
-	flusher.Flush()
 	sink := &eventSink{w: w, flusher: flusher, ctx: ctx, plan: rt.proc.plan}
 	defer sink.close()
+	if err := sink.comment("open"); err != nil {
+		return
+	}
 	if h.heartbeat > 0 {
 		go func() {
 			ticker := time.NewTicker(h.heartbeat)

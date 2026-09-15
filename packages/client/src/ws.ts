@@ -133,6 +133,7 @@ export function websocketTransport(
       };
       signal?.addEventListener("abort", stop, { once: true });
       send(ws, { id, type: "subscribe", path, input: input ?? {} });
+      yield { event: "open", payload: undefined };
       try {
         while (true) {
           const { value, done } = await queue.next();

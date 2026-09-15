@@ -13,7 +13,7 @@ export interface CallOptions {
 export type HeadersSource = HeadersInit | (() => HeadersInit | Promise<HeadersInit>);
 
 export interface TransportEvent {
-  event: "data" | "error" | "done";
+  event: "open" | "data" | "error" | "done";
   payload: unknown;
 }
 
@@ -68,6 +68,7 @@ export type Upload<I, O, E = BowlineError> = ((
 
 export interface SubscriptionHandlers<O> {
   onData(value: O): void;
+  onOpen?(): void;
   onError?(error: BowlineError): void;
   onDone?(): void;
 }

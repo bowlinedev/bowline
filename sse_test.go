@@ -55,7 +55,7 @@ func TestSubscriptionStreamsEvents(t *testing.T) {
 		t.Fatalf("status %d headers %v", rec.Code, rec.Header())
 	}
 	body := rec.Body.String()
-	if strings.Count(body, "event: message\n") != 3 || !strings.HasSuffix(body, "event: done\ndata: {}\n\n") {
+	if !strings.HasPrefix(body, ": open\n\n") || strings.Count(body, "event: message\n") != 3 || !strings.HasSuffix(body, "event: done\ndata: {}\n\n") {
 		t.Fatalf("body %q", body)
 	}
 	if !strings.Contains(body, `data: {"n":1,"at":"2026-09-15T00:00:00Z","tags":[]}`) {

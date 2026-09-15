@@ -22,7 +22,11 @@ type Leaf = ((input?: unknown, options?: CallOptions) => Promise<unknown>) & {
   safe: (input?: unknown, options?: CallOptions) => Promise<Result<unknown, BowlineError>>;
 };
 
-type StreamLeaf = ((input?: unknown, options?: CallOptions) => AsyncIterable<unknown>) & {
+type StreamLeaf = ((
+  input?: unknown,
+  options?: CallOptions,
+  onOpen?: () => void,
+) => AsyncIterable<unknown>) & {
   kind: "subscription";
   subscribe: (
     input: unknown,
@@ -227,9 +231,9 @@ function streamLeaf(
   headersSource: HeadersSource | undefined,
   transport: SubscriptionTransport | undefined,
 ): StreamLeaf {
-  const iterate = ((input?: unknown, callOptions?: CallOptions) =>
+  const iterate = ((input?: unknown, callOptions?: CallOptions, onOpen?: () => void) =>
     transport
-      ? transportEvents(transport, path, proc, contract, input, callOptions)
+      ? transportEvents(transport, path, proc, contract, input, callOptions, onOpen)
       : streamEvents(
           fetchFn,
           base,
@@ -239,6 +243,7 @@ function streamLeaf(
           headersSource,
           input,
           callOptions,
+          onOpen,
         )) as StreamLeaf;
   iterate.kind = "subscription";
   iterate.subscribe = (input, handlers, callOptions) => {
@@ -246,7 +251,11 @@ function streamLeaf(
     callOptions?.signal?.addEventListener("abort", () => controller.abort(), { once: true });
     void (async () => {
       try {
-        for await (const value of iterate(input, { ...callOptions, signal: controller.signal })) {
+        for await (const value of iterate(
+          input,
+          { ...callOptions, signal: controller.signal },
+          handlers.onOpen,
+        )) {
           handlers.onData(value);
         }
         if (!controller.signal.aborted) {
@@ -275,8 +284,13 @@ async function* transportEvents(
   contract: ContractRuntime,
   input: unknown,
   callOptions: CallOptions | undefined,
+  onOpen: (() => void) | undefined,
 ): AsyncIterable<unknown> {
   for await (const event of transport.subscribe(path, input, callOptions?.signal)) {
+    if (event.event === "open") {
+      onOpen?.();
+      continue;
+    }
     if (event.event === "data") {
       yield proc.output === undefined
         ? event.payload
@@ -298,6 +312,7 @@ async function* streamEvents(
   headersSource: HeadersSource | undefined,
   input: unknown,
   callOptions: CallOptions | undefined,
+  onOpen: (() => void) | undefined,
 ): AsyncIterable<unknown> {
   const { url, init } = await prepare(
     base,
@@ -308,6 +323,7 @@ async function* streamEvents(
     callOptions,
     "text/event-stream",
   );
+  init.cache = "no-store";
   const response = await send(fetchFn, url, init, path, callOptions?.signal);
   if (!response.ok) {
     throw toError(response.status, await response.text(), path, contract);
@@ -315,6 +331,7 @@ async function* streamEvents(
   if (!response.body) {
     throw new BowlineError("UNKNOWN", `empty stream from ${path}`, response.status);
   }
+  onOpen?.();
   try {
     for await (const event of parseEventStream(response.body)) {
       if (event.event === "message") {

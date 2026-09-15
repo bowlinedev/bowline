@@ -25,7 +25,7 @@ bowline.Subscription("watch", a.watchInvoices)
 
 ## The wire
 
-A subscription is a `GET` with the input in the `input` query parameter, or a `POST` when marked `Sensitive()`, and it requires `Accept: text/event-stream`; a request without it gets `INVALID_ARGUMENT` explaining the transport. The response is `text/event-stream` with `Cache-Control: no-store`:
+A subscription is a `GET` with the input in the `input` query parameter, or a `POST` when marked `Sensitive()`, and it requires `Accept: text/event-stream`; a request without it gets `INVALID_ARGUMENT` explaining the transport. The response is `text/event-stream` with `Cache-Control: no-store`. The first bytes are a `: open` comment, sent right after the headers so that proxies forward the headers immediately and the client learns the stream is live before the first message:
 
 ```
 event: message

@@ -332,3 +332,21 @@ test("idempotencyKey sets the header", async () => {
   await client.users.create({ name: "ada", big: 1n }, { idempotencyKey: "abc" });
   expect(seen?.get("idempotency-key")).toBe("abc");
 });
+
+test("subscribe reports when the stream is open", async () => {
+  const client = createClient(sseContract, {
+    url: "http://api.test",
+    fetch: fakeFetch(() => sseResponse("event: done\ndata: {}\n\n")),
+  }) as WatchClient;
+  const events: string[] = [];
+  client.invoices.watch.subscribe(
+    { limit: 1 },
+    {
+      onOpen: () => events.push("open"),
+      onData: () => events.push("data"),
+      onDone: () => events.push("done"),
+    },
+  );
+  await new Promise((r) => setTimeout(r, 20));
+  expect(events).toEqual(["open", "done"]);
+});
