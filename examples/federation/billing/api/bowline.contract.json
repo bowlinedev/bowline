@@ -1,0 +1,311 @@
+{
+  "bowline": "1.2",
+  "hash": "sha256:3cc015a9c234932fadd909019c94570725a37177c8b80eeaa5767a0d2f7b637f",
+  "types": {
+    "github.com/bowlinedev/bowline/examples/federation/billing/api.CreateChargeInput": {
+      "kind": "struct",
+      "name": "CreateChargeInput",
+      "fields": [
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ],
+          "example": 3
+        }
+      ]
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/api.HealthOutput": {
+      "kind": "struct",
+      "name": "HealthOutput",
+      "fields": [
+        {
+          "name": "ok",
+          "type": {
+            "kind": "primitive",
+            "name": "bool"
+          }
+        },
+        {
+          "name": "version",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "example": "0.6.0"
+        }
+      ]
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/api.ListChargesInput": {
+      "kind": "struct",
+      "name": "ListChargesInput",
+      "fields": [
+        {
+          "name": "limit",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          },
+          "rules": [
+            {
+              "rule": "min",
+              "param": "1"
+            },
+            {
+              "rule": "max",
+              "param": "100"
+            }
+          ],
+          "example": 20
+        }
+      ]
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/api.SettleChargeInput": {
+      "kind": "struct",
+      "name": "SettleChargeInput",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge": {
+      "kind": "struct",
+      "name": "Charge",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "amount",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "example": "USD 1500.00"
+        },
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "github.com/bowlinedev/bowline/examples/federation/billing/billing.Status"
+          },
+          "example": "open"
+        },
+        {
+          "name": "createdAt",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        }
+      ]
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/billing.Page": {
+      "kind": "generic",
+      "name": "Page",
+      "params": [
+        "T"
+      ],
+      "body": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "items",
+            "type": {
+              "kind": "array",
+              "elem": {
+                "kind": "param",
+                "name": "T"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/billing.Status": {
+      "kind": "enum",
+      "name": "Status",
+      "base": "string",
+      "values": [
+        {
+          "name": "StatusOpen",
+          "value": "open"
+        },
+        {
+          "name": "StatusSettled",
+          "value": "settled"
+        },
+        {
+          "name": "StatusRefunded",
+          "value": "refunded"
+        }
+      ]
+    }
+  },
+  "errors": {
+    "github.com/bowlinedev/bowline/examples/federation/billing/api.UnknownInvoice": {
+      "name": "UnknownInvoice",
+      "code": "FAILED_PRECONDITION",
+      "doc": "UnknownInvoice is returned when the ledger has no invoice with the given ID.",
+      "fields": [
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "charges.create",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/federation/billing/api.CreateChargeInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/federation/billing/api.CreateChargeInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge",
+      "errors": [
+        "github.com/bowlinedev/bowline/examples/federation/billing/api.UnknownInvoice"
+      ],
+      "idempotent": true,
+      "doc": "Create charges an invoice read from the ledger."
+    },
+    {
+      "path": "charges.list",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/federation/billing/api.ListChargesInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/federation/billing/billing.Page",
+        "args": [
+          {
+            "kind": "ref",
+            "id": "github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge"
+          }
+        ]
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/federation/billing/api.ListChargesInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/federation/billing/billing.Page[github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge]",
+      "doc": "List returns every charge, newest last."
+    },
+    {
+      "path": "charges.settle",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/federation/billing/api.SettleChargeInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/federation/billing/api.SettleChargeInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge"
+    },
+    {
+      "path": "health",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "struct"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/federation/billing/api.HealthOutput"
+      },
+      "goInput": "struct{}",
+      "goOutput": "github.com/bowlinedev/bowline/examples/federation/billing/api.HealthOutput"
+    }
+  ],
+  "positions": {
+    "charges.create": {
+      "file": "api/routes.go",
+      "line": 67
+    },
+    "charges.list": {
+      "file": "api/routes.go",
+      "line": 66
+    },
+    "charges.settle": {
+      "file": "api/routes.go",
+      "line": 68
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/api.CreateChargeInput": {
+      "file": "api/routes.go",
+      "line": 25
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/api.HealthOutput": {
+      "file": "api/routes.go",
+      "line": 37
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/api.ListChargesInput": {
+      "file": "api/routes.go",
+      "line": 29
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/api.SettleChargeInput": {
+      "file": "api/routes.go",
+      "line": 33
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/api.UnknownInvoice": {
+      "file": "api/errors.go",
+      "line": 10
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge": {
+      "file": "billing/types.go",
+      "line": 13
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/billing.Page": {
+      "file": "billing/types.go",
+      "line": 21
+    },
+    "github.com/bowlinedev/bowline/examples/federation/billing/billing.Status": {
+      "file": "billing/types.go",
+      "line": 5
+    },
+    "health": {
+      "file": "api/routes.go",
+      "line": 64
+    }
+  }
+}

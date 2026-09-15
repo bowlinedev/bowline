@@ -13,6 +13,7 @@ use (
 	./adapters/fiber
 	./examples/routers/fiber
 	./examples/ledger
+	./examples/federation/billing
 	./examples/go-client
 	./examples/nethttp-minimal
 	./examples/routers/stdlib
