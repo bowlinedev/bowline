@@ -1,0 +1,111 @@
+{
+  "bowline": "1.1",
+  "eval": 1,
+  "contract": "sha256:ca334acb3b4d5a9e4e32bd761dfb1ae5f7bfd4a3161ebb37be9a454ba70bd1ae",
+  "recordedAt": "2026-09-15T20:01:37Z",
+  "volatile": [],
+  "steps": [
+    {
+      "id": "1",
+      "tool": "invoices_list",
+      "input": {
+        "limit": 2
+      },
+      "output": {
+        "items": [
+          {
+            "createdAt": "2026-09-15T12:00:00Z",
+            "customerId": 1,
+            "id": 3,
+            "lines": [
+              {
+                "description": "Consulting",
+                "quantity": 10,
+                "unitPrice": "USD 150.00"
+              }
+            ],
+            "note": "net 30",
+            "status": "sent",
+            "total": "USD 1500.00",
+            "updatedAt": "2026-09-15T12:00:00Z"
+          },
+          {
+            "createdAt": "2026-09-15T12:00:00Z",
+            "customerId": 2,
+            "id": 4,
+            "lines": [
+              {
+                "description": "Compiler",
+                "quantity": 1,
+                "unitPrice": "USD 9999.00"
+              }
+            ],
+            "status": "paid",
+            "total": "USD 9999.00",
+            "updatedAt": "2026-09-15T12:00:00Z"
+          }
+        ]
+      },
+      "isError": false,
+      "durationMs": 2
+    },
+    {
+      "id": "2",
+      "tool": "invoices_get",
+      "input": {
+        "id": 3
+      },
+      "output": {
+        "createdAt": "2026-09-15T12:00:00Z",
+        "customerId": 1,
+        "id": 3,
+        "lines": [
+          {
+            "description": "Consulting",
+            "quantity": 10,
+            "unitPrice": "USD 150.00"
+          }
+        ],
+        "note": "net 30",
+        "status": "sent",
+        "total": "USD 1500.00",
+        "updatedAt": "2026-09-15T12:00:00Z"
+      },
+      "isError": false,
+      "durationMs": 0
+    },
+    {
+      "id": "3",
+      "tool": "invoices_get",
+      "input": {
+        "id": 999
+      },
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "invoice 999 not found"
+      },
+      "isError": true,
+      "durationMs": 0
+    },
+    {
+      "id": "4",
+      "tool": "customers_search",
+      "input": {
+        "query": "ada"
+      },
+      "output": {
+        "items": [
+          {
+            "createdAt": "2026-09-15T12:00:00Z",
+            "email": "ada@example.com",
+            "id": 1,
+            "name": "Ada Lovelace",
+            "updatedAt": "2026-09-15T12:00:00Z"
+          }
+        ]
+      },
+      "isError": false,
+      "durationMs": 0
+    }
+  ]
+}

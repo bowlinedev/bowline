@@ -1,0 +1,28 @@
+name: eval
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    env:
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache-dependency-path: |
+            go.sum
+            cmd/bowline/go.sum
+            examples/ledger/go.sum
+      - name: replay the recorded ledger run
+        run: scripts/eval-ledger.sh
+      - name: replay again to prove determinism
+        run: scripts/eval-ledger.sh
