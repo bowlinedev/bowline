@@ -18,6 +18,8 @@ commands:
   check      verify the committed contract and targets are up to date
   migrate-contract [path]
              rewrite a contract document from an older format version
+  diff <old> <new> [--format text|markdown|json]
+             list semantic changes between two contract documents
   version    print the bowline version
 `
 
@@ -43,6 +45,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cli.Check(opts)
 	case "migrate-contract":
 		return cli.Migrate(opts, args[1:])
+	case "diff":
+		return cli.DiffCommand(opts, args[1:])
 	case "dev":
 		stop := make(chan struct{})
 		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
