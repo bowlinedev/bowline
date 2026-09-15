@@ -56,6 +56,9 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 	if limit <= 0 {
 		limit = 32 << 20
 	}
+	if proc.MaxBody > 0 {
+		limit = proc.MaxBody
+	}
 	reader := multipart.NewReader(http.MaxBytesReader(w, req.Body, limit), params["boundary"])
 	inputPart, err := reader.NextPart()
 	if err != nil || inputPart.FormName() != "input" {

@@ -35,6 +35,9 @@ func TestEvaluateRoutingFixture(t *testing.T) {
 	if s := byPath["admin.purge"]; s.Kind != "mutation" || s.Meta["auth"] != "admin" || s.Deprecated != "use sub.remove" {
 		t.Errorf("admin.purge: %+v", s)
 	}
+	if s := byPath["admin.purge"]; s.Meta["maxBody"] != "1048576" {
+		t.Errorf("admin.purge maxBody: %q", s.Meta["maxBody"])
+	}
 	if s := byPath["sub.remove"]; s.In.String() != "fidelity.test/rows/routing/sub.ID" {
 		t.Errorf("sub.remove: %+v", s)
 	}

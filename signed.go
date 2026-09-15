@@ -16,6 +16,9 @@ func Signed(provider signing.SecretProvider) HandlerOption {
 func signingLimit(h *handler) int64 {
 	limit := h.maxBody
 	for _, rt := range h.routes {
+		if rt.proc.MaxBody > limit {
+			limit = rt.proc.MaxBody
+		}
 		if rt.proc.Kind != KindUpload {
 			continue
 		}
@@ -26,7 +29,6 @@ func signingLimit(h *handler) int64 {
 		if upload > limit {
 			limit = upload
 		}
-		break
 	}
 	return limit
 }

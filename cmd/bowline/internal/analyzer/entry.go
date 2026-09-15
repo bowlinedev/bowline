@@ -8,6 +8,7 @@ import (
 	"go/types"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -284,7 +285,7 @@ func (e *evaluator) procedure(pkg *packages.Package, call *ast.CallExpr, prefix 
 func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedureSpec) {
 	call, ok := ast.Unparen(expr).(*ast.CallExpr)
 	if !ok {
-		e.fail(expr.Pos(), spec.Path, "procedure options must be literal bowline option calls", "use bowline.Description, Deprecated, Sensitive, Meta, or Use")
+		e.fail(expr.Pos(), spec.Path, "procedure options must be literal bowline option calls", "use bowline.Description, Deprecated, Sensitive, MaxBody, Meta, or Use")
 		return
 	}
 	switch bowlineFunc(pkg, call) {
@@ -306,6 +307,17 @@ func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedure
 			e.toolOption(pkg, arg, spec, tool)
 		}
 		spec.Tool = tool
+	case "MaxBody":
+		if len(call.Args) != 1 {
+			e.fail(call.Pos(), spec.Path, "MaxBody takes one argument", "use a literal such as 1<<20")
+			return
+		}
+		n, ok := constInt(pkg, call.Args[0])
+		if !ok || n <= 0 {
+			e.fail(call.Args[0].Pos(), spec.Path, "MaxBody needs a positive integer constant", "use a literal such as 1<<20")
+			return
+		}
+		spec.Meta["maxBody"] = strconv.FormatInt(n, 10)
 	case "Meta":
 		k, ok1 := e.constArg(pkg, call, 0, spec.Path)
 		v, ok2 := e.constArg(pkg, call, 1, spec.Path)
@@ -323,7 +335,7 @@ func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedure
 		}
 	case "Use":
 	default:
-		e.fail(call.Pos(), spec.Path, "unsupported procedure option", "use bowline.Description, Deprecated, Sensitive, Idempotent, Tool, Meta, Errors, or Use")
+		e.fail(call.Pos(), spec.Path, "unsupported procedure option", "use bowline.Description, Deprecated, Sensitive, Idempotent, MaxBody, Tool, Meta, Errors, or Use")
 	}
 }
 
@@ -365,6 +377,18 @@ func (e *evaluator) constArg(pkg *packages.Package, call *ast.CallExpr, i int, p
 		e.fail(call.Args[i].Pos(), path, "option arguments must be string constants", "use a string literal or a const")
 	}
 	return s, ok
+}
+
+func constInt(pkg *packages.Package, expr ast.Expr) (int64, bool) {
+	tv, ok := pkg.TypesInfo.Types[expr]
+	if !ok || tv.Value == nil {
+		return 0, false
+	}
+	value := constant.ToInt(tv.Value)
+	if value.Kind() != constant.Int {
+		return 0, false
+	}
+	return constant.Int64Val(value)
 }
 
 func constString(pkg *packages.Package, expr ast.Expr) (string, bool) {

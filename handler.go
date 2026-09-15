@@ -116,7 +116,7 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route) {
 		h.serveUpload(w, req, rt)
 		return
 	}
-	raw, status, err := h.readInput(w, req)
+	raw, status, err := h.readInput(w, req, h.bodyLimit(proc))
 	if err != nil {
 		h.writeError(w, nil, status, err)
 		return
@@ -194,7 +194,14 @@ func (h *handler) invalidInput(err error) *Error {
 	return Errorf(InvalidArgument, "invalid input: %v", err)
 }
 
-func (h *handler) readInput(w http.ResponseWriter, req *http.Request) ([]byte, int, error) {
+func (h *handler) bodyLimit(p *Procedure) int64 {
+	if p != nil && p.MaxBody > 0 {
+		return p.MaxBody
+	}
+	return h.maxBody
+}
+
+func (h *handler) readInput(w http.ResponseWriter, req *http.Request, limit int64) ([]byte, int, error) {
 	if req.Method == http.MethodGet {
 		return []byte(req.URL.Query().Get("input")), 0, nil
 	}
@@ -204,11 +211,11 @@ func (h *handler) readInput(w http.ResponseWriter, req *http.Request) ([]byte, i
 			return nil, http.StatusUnsupportedMediaType, Errorf(InvalidArgument, "content type must be application/json")
 		}
 	}
-	body, err := io.ReadAll(http.MaxBytesReader(w, req.Body, h.maxBody))
+	body, err := io.ReadAll(http.MaxBytesReader(w, req.Body, limit))
 	if err != nil {
 		var tooLarge *http.MaxBytesError
 		if errors.As(err, &tooLarge) {
-			return nil, http.StatusRequestEntityTooLarge, Errorf(InvalidArgument, "request body exceeds %d bytes", h.maxBody)
+			return nil, http.StatusRequestEntityTooLarge, Errorf(InvalidArgument, "request body exceeds %d bytes", limit)
 		}
 		return nil, 0, h.invalidInput(fmt.Errorf("reading request body: %w", err))
 	}

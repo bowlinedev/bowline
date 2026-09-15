@@ -142,3 +142,15 @@ Also strip any inbound `X-Forwarded-*` header the client set before your proxy a
 The handler reads at most `MaxBodySize` bytes, 1 MiB by default, and `MaxUploadSize` for the file part of an upload, 32 MiB by default. Both wrap the body before the first read, so an oversized request is refused without being buffered.
 
 `MaxBodySize(0)` means zero bytes, not "unlimited" — the default applies only when the option is absent.
+
+A single procedure can raise or lower its own ceiling:
+
+source: item.go:30-32
+
+```go
+func MaxBody(n int64) ProcOption {
+	return func(p *Procedure) { p.MaxBody = n }
+}
+```
+
+Zero inherits the handler's limit. On an upload the value caps the whole multipart body rather than the JSON input part, so `MaxBody(4 << 20)` on an avatar upload and `MaxBody(500 << 20)` on a video upload can sit behind one handler. The analyzer records the value in the contract as `meta.maxBody`, so a client or the mock server can refuse an oversized request before it is sent.
