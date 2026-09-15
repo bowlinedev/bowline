@@ -17,9 +17,10 @@ type entry struct {
 }
 
 type route struct {
-	path string
-	proc *Procedure
-	next Next
+	path      string
+	proc      *Procedure
+	procedure Procedure
+	next      Next
 }
 
 func NewRouter(items ...Item) *Router {
@@ -103,6 +104,8 @@ func (r *Router) walk(prefix string, inherited []Middleware, out *[]route) {
 		for i := len(full) - 1; i >= 0; i-- {
 			next = full[i](next)
 		}
-		*out = append(*out, route{path: path, proc: e.proc, next: next})
+		procedure := *e.proc
+		procedure.Path = path
+		*out = append(*out, route{path: path, proc: e.proc, procedure: procedure, next: next})
 	}
 }

@@ -16,8 +16,20 @@ type Call struct {
 
 type callKey struct{}
 
-func withCall(ctx context.Context, c *Call) context.Context {
-	return context.WithValue(ctx, callKey{}, c)
+type callContext struct {
+	context.Context
+	call Call
+}
+
+func (c *callContext) Value(key any) any {
+	if key == (callKey{}) {
+		return &c.call
+	}
+	return c.Context.Value(key)
+}
+
+func withCall(ctx context.Context, c Call) context.Context {
+	return &callContext{Context: ctx, call: c}
 }
 
 func CallFrom(ctx context.Context) *Call {

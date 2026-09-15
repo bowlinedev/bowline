@@ -78,7 +78,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.writeError(w, 0, Errorf(InvalidArgument, "invalid input: %v", err))
 		return
 	}
-	in := proc.deref(ptr)
+	in := ptr
 	if issues := proc.checker.Check(in); len(issues) > 0 {
 		e := Errorf(InvalidArgument, "invalid input")
 		e.Issues = make([]Issue, len(issues))
@@ -88,9 +88,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.writeError(w, 0, e)
 		return
 	}
-	call := &Call{Procedure: *proc, Request: req}
-	call.Procedure.Path = rt.path
-	ctx := withCall(req.Context(), call)
+	ctx := withCall(req.Context(), Call{Procedure: rt.procedure, Request: req})
 	out, err := h.invoke(ctx, rt, in)
 	if err != nil {
 		if status, _ := classify(err, h.production); status >= 500 {

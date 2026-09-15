@@ -74,9 +74,8 @@ func newProcedure[In, Out any](kind ProcedureKind, name string, fn func(context.
 	p.checker = checker
 	p.plan = codec.Compile(p.Out)
 	p.newIn = func() any { return new(In) }
-	p.deref = func(ptr any) any { return *ptr.(*In) }
 	p.call = func(ctx context.Context, in any) (any, error) {
-		return fn(ctx, in.(In))
+		return fn(ctx, *in.(*In))
 	}
 	for _, opt := range opts {
 		opt(p)

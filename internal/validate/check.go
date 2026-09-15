@@ -158,50 +158,89 @@ func (c *Checker) Check(v any) []Issue {
 	if !c.root.active {
 		return nil
 	}
+	rv := reflect.ValueOf(v)
+	if check(c.root, rv, nil, nil) {
+		return nil
+	}
 	var issues []Issue
-	check(c.root, reflect.ValueOf(v), nil, &issues)
+	check(c.root, rv, nil, &issues)
 	return issues
 }
 
-func check(n *cnode, v reflect.Value, path []string, issues *[]Issue) {
+func check(n *cnode, v reflect.Value, path []string, issues *[]Issue) bool {
 	if !n.active {
-		return
+		return true
 	}
+	ok := true
 	for v.Kind() == reflect.Pointer {
 		if v.IsNil() {
 			for _, r := range n.rules {
 				if r.rule.Name == "required" {
+					if issues == nil {
+						return false
+					}
 					add(issues, path, "required", "is required")
+					ok = false
 				}
 			}
-			return
+			return ok
 		}
 		v = v.Elem()
 	}
 	for _, r := range n.rules {
 		if msg := apply(r, n.class, v); msg != "" {
+			if issues == nil {
+				return false
+			}
 			add(issues, path, r.rule.Name, msg)
+			ok = false
 		}
+	}
+	child := func(cn *cnode, cv reflect.Value, name string) bool {
+		var p []string
+		if issues != nil {
+			p = append(path[:len(path):len(path)], name)
+		}
+		return check(cn, cv, p, issues)
 	}
 	switch v.Kind() {
 	case reflect.Slice, reflect.Array:
-		if n.elem != nil {
+		if n.elem != nil && n.elem.active {
 			for i := 0; i < v.Len(); i++ {
-				check(n.elem, v.Index(i), append(path[:len(path):len(path)], strconv.Itoa(i)), issues)
+				if !child(n.elem, v.Index(i), strconv.Itoa(i)) {
+					if issues == nil {
+						return false
+					}
+					ok = false
+				}
 			}
 		}
 	case reflect.Map:
-		if n.elem != nil {
+		if n.elem != nil && n.elem.active {
 			iter := v.MapRange()
 			for iter.Next() {
-				check(n.elem, iter.Value(), append(path[:len(path):len(path)], fmt.Sprint(iter.Key().Interface())), issues)
+				if !child(n.elem, iter.Value(), fmt.Sprint(iter.Key().Interface())) {
+					if issues == nil {
+						return false
+					}
+					ok = false
+				}
 			}
 		}
 	case reflect.Struct:
 		for _, f := range n.fields {
-			check(f.node, v.Field(f.index), append(path[:len(path):len(path)], f.name), issues)
+			if !f.node.active {
+				continue
+			}
+			if !child(f.node, v.Field(f.index), f.name) {
+				if issues == nil {
+					return false
+				}
+				ok = false
+			}
 		}
 	}
+	return ok
 }
 
 func add(issues *[]Issue, path []string, rule, message string) {

@@ -29,7 +29,6 @@ type Procedure struct {
 	middleware []Middleware
 	call       func(ctx context.Context, in any) (any, error)
 	newIn      func() any
-	deref      func(ptr any) any
 	plan       *codec.Plan
 	checker    *validate.Checker
 }

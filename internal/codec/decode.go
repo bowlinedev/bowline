@@ -11,10 +11,11 @@ func Decode(data []byte, dst any, strict bool) error {
 	if len(bytes.TrimSpace(data)) == 0 {
 		data = []byte("{}")
 	}
-	dec := json.NewDecoder(bytes.NewReader(data))
-	if strict {
-		dec.DisallowUnknownFields()
+	if !strict {
+		return json.Unmarshal(data, dst)
 	}
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
 	if err := dec.Decode(dst); err != nil {
 		return err
 	}

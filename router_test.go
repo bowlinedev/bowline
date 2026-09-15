@@ -79,7 +79,7 @@ func TestMiddlewareOrderIsParentChildProcedure(t *testing.T) {
 	child := NewRouter(Query("get", getUser, Use(tag("proc")))).Use(tag("child"))
 	root := NewRouter(Mount("users", child)).Use(tag("parent"))
 	rt := root.routes()[0]
-	if _, err := rt.next(context.Background(), getInput{ID: 1}); err != nil {
+	if _, err := rt.next(context.Background(), &getInput{ID: 1}); err != nil {
 		t.Fatal(err)
 	}
 	if strings.Join(order, ",") != "parent,child,proc" {
@@ -87,7 +87,7 @@ func TestMiddlewareOrderIsParentChildProcedure(t *testing.T) {
 	}
 }
 
-func TestMiddlewareSeesInputByValue(t *testing.T) {
+func TestMiddlewareSeesInputPointer(t *testing.T) {
 	var seen any
 	capture := func(next Next) Next {
 		return func(ctx context.Context, in any) (any, error) {
@@ -96,11 +96,11 @@ func TestMiddlewareSeesInputByValue(t *testing.T) {
 		}
 	}
 	r := NewRouter(Query("get", getUser, Use(capture)))
-	if _, err := r.routes()[0].next(context.Background(), getInput{ID: 9}); err != nil {
+	if _, err := r.routes()[0].next(context.Background(), &getInput{ID: 9}); err != nil {
 		t.Fatal(err)
 	}
-	if _, ok := seen.(getInput); !ok {
-		t.Fatalf("middleware saw %T, want getInput", seen)
+	if in, ok := seen.(*getInput); !ok || in.ID != 9 {
+		t.Fatalf("middleware saw %T, want *getInput", seen)
 	}
 }
 
@@ -136,7 +136,7 @@ func TestCallFromContext(t *testing.T) {
 	if CallFrom(context.Background()) != nil {
 		t.Fatal("expected nil without a call")
 	}
-	ctx := withCall(context.Background(), &Call{Procedure: Procedure{Path: "x"}})
+	ctx := withCall(context.Background(), Call{Procedure: Procedure{Path: "x"}})
 	if CallFrom(ctx).Procedure.Path != "x" {
 		t.Fatal("call not stored")
 	}
