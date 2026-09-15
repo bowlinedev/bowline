@@ -1327,31 +1327,31 @@
     },
     "invoices.attach": {
       "file": "api/invoices.go",
-      "line": 42
+      "line": 51
     },
     "invoices.attachments": {
       "file": "api/invoices.go",
-      "line": 43
+      "line": 52
     },
     "invoices.create": {
       "file": "api/invoices.go",
-      "line": 39
+      "line": 48
     },
     "invoices.get": {
       "file": "api/invoices.go",
-      "line": 37
+      "line": 46
     },
     "invoices.list": {
       "file": "api/invoices.go",
-      "line": 38
+      "line": 47
     },
     "invoices.void": {
       "file": "api/invoices.go",
-      "line": 40
+      "line": 49
     },
     "invoices.watch": {
       "file": "api/invoices.go",
-      "line": 41
+      "line": 50
     }
   }
 }

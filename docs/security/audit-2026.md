@@ -64,3 +64,14 @@ Paths that quote the request URL do so with `%q`, which escapes the value, and t
 
 - `MaxBodySize(0)` is taken literally and rejects every body. The default of 1 MiB is applied only when the option is absent. This is a footgun rather than a leak; it is left as is so that a zero limit stays meaningful, and is called out in `docs/guides/security.md`.
 - Redaction is keyed on the HTTP status, so an application that declares an error variant mapping to a 5xx code opts that variant out of redaction. That is the intended escape hatch: a declared variant is contract-visible by definition.
+
+## Middleware overhead
+
+`RateLimit` adds one mutex acquisition, one map lookup, and one list splice per call. Measured on an Apple M1 Pro with `go test -run XXX -bench RateLimit -benchmem .`:
+
+| Benchmark | ns/op | B/op | allocs/op |
+|---|---|---|---|
+| `BenchmarkRateLimitAllow` | 72.85 | 0 | 0 |
+| `BenchmarkRateLimitMiddleware` | 73.42 | 0 | 0 |
+
+The limiter allocates only when it first sees a key, so a steady-state workload with a bounded key set runs allocation-free. `MaxKeys` caps the map, and the least recently used bucket is evicted when a new key arrives at the cap, so key churn cannot grow memory without bound.

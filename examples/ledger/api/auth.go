@@ -3,10 +3,23 @@ package api
 import (
 	"context"
 	"crypto/subtle"
+	"net"
 	"strings"
 
 	"github.com/bowlinedev/bowline"
 )
+
+func CallerAddress(ctx context.Context) string {
+	call := bowline.CallFrom(ctx)
+	if call == nil || call.Request == nil {
+		return ""
+	}
+	host, _, err := net.SplitHostPort(call.Request.RemoteAddr)
+	if err != nil {
+		return call.Request.RemoteAddr
+	}
+	return host
+}
 
 func RequireToken(token string) bowline.Middleware {
 	return func(next bowline.Next) bowline.Next {
