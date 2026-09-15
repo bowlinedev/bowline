@@ -64,7 +64,7 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 	}
 	raw, err := io.ReadAll(io.LimitReader(inputPart, h.maxBody+1))
 	if err != nil {
-		h.writeError(w, nil, 0, Errorf(InvalidArgument, "reading input part: %v", err))
+		h.writeError(w, nil, 0, h.invalidInput(fmt.Errorf("reading input part: %w", err)))
 		return
 	}
 	if int64(len(raw)) > h.maxBody {
@@ -73,7 +73,7 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 	}
 	ctx, ptr := proc.newFrame(req.Context(), Call{Procedure: &rt.procedure, Request: req})
 	if err := codec.Decode(raw, ptr, h.strict); err != nil {
-		h.writeError(w, nil, 0, Errorf(InvalidArgument, "invalid input: %v", err))
+		h.writeError(w, nil, 0, h.invalidInput(err))
 		return
 	}
 	if issues := proc.checker.Check(ptr); len(issues) > 0 {
