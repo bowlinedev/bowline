@@ -1,0 +1,76 @@
+{
+  "bowline": "0.1",
+  "hash": "sha256:5c521a6c1ef4fc19005ffc78c444807f75f51b956d52e8315cc02494ff80e33d",
+  "types": {
+    "github.com/bowlinedev/bowline/examples/nethttp-minimal.GreetInput": {
+      "kind": "struct",
+      "name": "GreetInput",
+      "fields": [
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            },
+            {
+              "rule": "min",
+              "param": "1"
+            },
+            {
+              "rule": "max",
+              "param": "40"
+            }
+          ]
+        }
+      ]
+    },
+    "github.com/bowlinedev/bowline/examples/nethttp-minimal.Greeting": {
+      "kind": "struct",
+      "name": "Greeting",
+      "fields": [
+        {
+          "name": "message",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "greet",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/nethttp-minimal.GreetInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "github.com/bowlinedev/bowline/examples/nethttp-minimal.Greeting"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/nethttp-minimal.GreetInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/nethttp-minimal.Greeting"
+    }
+  ],
+  "positions": {
+    "github.com/bowlinedev/bowline/examples/nethttp-minimal.GreetInput": {
+      "file": "main.go",
+      "line": 11
+    },
+    "github.com/bowlinedev/bowline/examples/nethttp-minimal.Greeting": {
+      "file": "main.go",
+      "line": 15
+    },
+    "greet": {
+      "file": "main.go",
+      "line": 24
+    }
+  }
+}

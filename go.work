@@ -4,4 +4,5 @@ use (
 	.
 	./cmd/bowline
 	./examples/ledger
+	./examples/nethttp-minimal
 )
