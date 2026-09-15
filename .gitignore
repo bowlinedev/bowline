@@ -1,0 +1,6 @@
+dist/
+node_modules/
+*.test
+*.out
+coverage.*
+.DS_Store
