@@ -204,6 +204,27 @@ jobs:
       - name: guide snippets match their sources
         run: scripts/check-snippets.sh
 
+  goldens-rust:
+    runs-on: ubuntu-latest
+    env:
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache-dependency-path: |
+            go.sum
+            cmd/bowline/go.sum
+      - uses: dtolnay/rust-toolchain@1.88.0
+        with:
+          components: clippy, rustfmt
+      - name: runtime crate
+        working-directory: packages/rust/bowline-client
+        run: cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test
+      - name: generated goldens compile
+        run: scripts/check-goldens.sh rust
+
   devloop-windows:
     runs-on: windows-latest
     defaults:
@@ -237,6 +258,6 @@ jobs:
 
   ci:
     runs-on: ubuntu-latest
-    needs: [go, node, python, goldens-dart, docs-check, devloop-windows, goldens-python]
+    needs: [go, node, python, goldens-dart, docs-check, devloop-windows, goldens-python, goldens-rust]
     steps:
       - run: echo ok

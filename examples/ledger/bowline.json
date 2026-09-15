@@ -7,7 +7,8 @@
     "ts": { "out": "web/src/bowline.ts", "zod": true },
     "go": { "out": "ledgerclient/client.go", "package": "ledgerclient" },
     "dart": { "out": "dart/lib/bowline.dart" },
-    "python": { "out": "python/bowline.py" }
+    "python": { "out": "python/bowline.py" },
+    "rust": { "out": "rust/src/bowline.rs" }
   },
   "openapi": {
     "out": "api/openapi.json",
