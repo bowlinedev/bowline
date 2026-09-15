@@ -3,7 +3,7 @@ module github.com/bowlinedev/bowline/examples/go-client
 go 1.24
 
 require (
-	github.com/bowlinedev/bowline v0.3.1-0.20260915204325-ba2c558170f5
+	github.com/bowlinedev/bowline v0.3.1-0.20260915213025-04f36e789796
 	github.com/bowlinedev/bowline/examples/ledger v0.0.0
 )
 
