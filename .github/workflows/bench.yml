@@ -26,3 +26,14 @@ jobs:
           echo '```' >> "$GITHUB_STEP_SUMMARY"
       - name: overhead gate
         run: BOWLINE_BENCH=1 go test -run TestOverheadBudget -v .
+
+  devloop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: regeneration budget
+        working-directory: cmd/bowline
+        run: go test ./internal/analyzer -run TestDevLoopBudget -v
