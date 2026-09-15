@@ -6,7 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "check": "biome check . && pnpm -r exec tsc --noEmit",
+    "check": "biome check . && pnpm -r exec tsc --noEmit && pnpm --filter @bowline/client exec tsc -p tsconfig.golden.json",
     "test": "pnpm -r test",
     "build": "pnpm -r build",
     "release": "changeset publish"

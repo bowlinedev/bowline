@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": { "@bowline/client": ["src/index.ts"] },
+    "rootDir": "../.."
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "../../cmd/bowline/internal/gen/ts/testdata/*.golden.ts"
+  ]
+}
