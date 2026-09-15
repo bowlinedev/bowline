@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -15,6 +16,8 @@ const usage = `usage: bowline <command>
 
 commands:
   gen        analyze the module and write the contract and every target
+  dev [--playground addr]
+             regenerate on every save; optionally serve the playground for the live contract
   check      verify the committed contract and targets are up to date
              --against <git-ref> diffs the contract against that ref instead
              and fails on breaking changes unless --allow-breaking is set
@@ -86,7 +89,13 @@ func run(args []string, stdout, stderr io.Writer) int {
 			close(stop)
 		}()
 		color := os.Getenv("NO_COLOR") == "" && isTerminal(os.Stderr)
-		return cli.Dev(cli.DevOptions{Options: opts, Stop: stop, Color: color})
+		devFlags := flag.NewFlagSet("dev", flag.ContinueOnError)
+		devFlags.SetOutput(stderr)
+		playgroundAddr := devFlags.String("playground", "", "serve the playground on this address, for example 127.0.0.1:8091")
+		if err := devFlags.Parse(args[1:]); err != nil {
+			return 2
+		}
+		return cli.Dev(cli.DevOptions{Options: opts, Stop: stop, Color: color, Playground: *playgroundAddr})
 	case "version":
 		fmt.Fprintf(stdout, "bowline %s\n", bowline.Version)
 		return 0
