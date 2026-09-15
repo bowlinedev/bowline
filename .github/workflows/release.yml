@@ -22,7 +22,7 @@ jobs:
           go-version: stable
       - name: ensure module tags exist
         run: |
-          for tag in "cmd/bowline/${GITHUB_REF_NAME}" "transport/websocket/${GITHUB_REF_NAME}"; do
+          for tag in "cmd/bowline/${GITHUB_REF_NAME}" "transport/websocket/${GITHUB_REF_NAME}" "mcp/${GITHUB_REF_NAME}" "agent/${GITHUB_REF_NAME}"; do
             if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
               git tag "$tag" "$GITHUB_SHA"
               git push origin "$tag"
@@ -54,3 +54,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  pypi:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: python/bowline-agent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+      - run: uv build
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: python/bowline-agent/dist

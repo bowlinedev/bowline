@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0
 
 - Runtime: `bowline.Tool`, `bowline.Scope`, and `bowline.Destructive` mark procedures as LLM tools; the fields are readable from `bowline.CallFrom(ctx).Procedure`.
 - Contract: format 1.1 adds `tool` and optional embedded JSON Schemas per procedure; `"schemas": true` in `bowline.json` fills them.

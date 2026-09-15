@@ -6,7 +6,7 @@
   "openapi": {
     "out": "api/openapi.json",
     "title": "Ledger",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "serverUrl": "http://localhost:8080/api"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@bowline/agent",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Tool definitions and a dispatcher for LLM agents over Bowline contracts",
   "license": "Apache-2.0",
   "repository": {
