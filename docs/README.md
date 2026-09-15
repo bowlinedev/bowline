@@ -23,6 +23,7 @@
 - `guides/registry.md`: the contract registry and the "who breaks" query.
 - `guides/signing.md`: signed service-to-service calls.
 - `lts.md`: release cadence, support windows, and what gets backported.
+- `security/audit-2026.md`: every error path in the runtime, what it says in production, and the test that pins it.
 - `adoption-test.md`: the ten-minute adoption protocol run before each minor release.
 - `../spec/contract.md`: the contract document format that every generator reads.
 - `../spec/mapping-table.md`: the normative Go to contract to TypeScript mapping.

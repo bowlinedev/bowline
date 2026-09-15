@@ -44,7 +44,7 @@ func (r *Router) Subscribe(ctx context.Context, path string, input []byte, send 
 	}
 	frameCtx, ptr := proc.newFrame(ctx, Call{Procedure: &rt.procedure})
 	if err := codec.Decode(input, ptr, h.strict); err != nil {
-		return failure(Errorf(InvalidArgument, "invalid input: %v", err), h, nil)
+		return failure(h.invalidInput(err), h, nil)
 	}
 	if issues := proc.checker.Check(ptr); len(issues) > 0 {
 		e := Errorf(InvalidArgument, "invalid input")

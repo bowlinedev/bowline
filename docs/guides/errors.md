@@ -70,7 +70,7 @@ Details pass through the same normalizer as outputs, so nil slices are `[]` and 
 
 ## Redaction
 
-In development every `INTERNAL` error carries the underlying message. With `bowline.Production(true)` on the handler the message is replaced by `internal error` and the original is written to the logger. The ledger server switches on the `ENV` variable in `examples/ledger/cmd/server/main.go`.
+In development every error carries the underlying message. With `bowline.Production(true)` on the handler, any error that maps to a 5xx status — `INTERNAL`, `UNKNOWN`, `UNAVAILABLE`, `DATA_LOSS`, and a panic — is replaced by `internal error`, its `details` and `issues` are dropped, and the original is written to the logger. A 4xx message is written for the caller and is kept as is, except for a decoding failure, which becomes plain `invalid input` so the response never quotes the request body. A declared error variant is part of the contract and is never redacted, whatever its status. The ledger server switches on the `ENV` variable in `examples/ledger/cmd/server/main.go`.
 
 ## The wire envelope
 

@@ -116,7 +116,7 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route) {
 	}
 	ctx, ptr := proc.newFrame(req.Context(), Call{Procedure: &rt.procedure, Request: req})
 	if err := codec.Decode(raw, ptr, h.strict); err != nil {
-		h.writeError(w, nil, 0, Errorf(InvalidArgument, "invalid input: %v", err))
+		h.writeError(w, nil, 0, h.invalidInput(err))
 		return
 	}
 	in := ptr
@@ -179,6 +179,13 @@ func methodAllowed(p *Procedure, method string) bool {
 	return false
 }
 
+func (h *handler) invalidInput(err error) *Error {
+	if h.production {
+		return Errorf(InvalidArgument, "invalid input")
+	}
+	return Errorf(InvalidArgument, "invalid input: %v", err)
+}
+
 func (h *handler) readInput(w http.ResponseWriter, req *http.Request) ([]byte, int, error) {
 	if req.Method == http.MethodGet {
 		return []byte(req.URL.Query().Get("input")), 0, nil
@@ -195,7 +202,7 @@ func (h *handler) readInput(w http.ResponseWriter, req *http.Request) ([]byte, i
 		if errors.As(err, &tooLarge) {
 			return nil, http.StatusRequestEntityTooLarge, Errorf(InvalidArgument, "request body exceeds %d bytes", h.maxBody)
 		}
-		return nil, 0, Errorf(InvalidArgument, "reading request body: %v", err)
+		return nil, 0, h.invalidInput(fmt.Errorf("reading request body: %w", err))
 	}
 	return body, 0, nil
 }
