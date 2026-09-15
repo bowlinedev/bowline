@@ -170,11 +170,6 @@ jobs:
 
   dart:
     runs-on: ubuntu-latest
-  python:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: examples/ledger/python
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -186,6 +181,17 @@ jobs:
       - name: dart ledger client against the Go server
         working-directory: examples/ledger/dart
         run: dart pub get && dart analyze --fatal-infos && dart test
+
+  python:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples/ledger/python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
           cache-dependency-path: examples/ledger/go.sum
       - uses: astral-sh/setup-uv@v6
         with:
