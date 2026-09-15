@@ -10,7 +10,6 @@
       "!**/src/bowline.zod.ts",
       "!**/bowline.contract.json",
       "!**/test-results",
-      "!.claude",
       "!**/openapi.json",
       "!**/bowline.json"
     ],
