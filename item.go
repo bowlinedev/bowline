@@ -51,10 +51,44 @@ func Mutation[In, Out any](name string, fn func(context.Context, In) (Out, error
 	return procItem{newProcedure(KindMutation, name, fn, opts)}
 }
 
+func Subscription[In, Out any](name string, fn func(context.Context, In, *Stream[Out]) error, opts ...ProcOption) Item {
+	if fn == nil {
+		panic(fmt.Sprintf("bowline: subscription %q: nil handler", name))
+	}
+	p := prepare[In, Out](KindSubscription, name)
+	p.attach = func(in any, sink *eventSink) any {
+		return &subscriptionInput[In, Out]{in: in.(*In), stream: &Stream[Out]{sink: sink}}
+	}
+	p.call = func(ctx context.Context, in any) (any, error) {
+		bound := in.(*subscriptionInput[In, Out])
+		return nil, fn(ctx, *bound.in, bound.stream)
+	}
+	for _, opt := range opts {
+		opt(p)
+	}
+	return procItem{p}
+}
+
+type subscriptionInput[In, Out any] struct {
+	in     *In
+	stream *Stream[Out]
+}
+
 func newProcedure[In, Out any](kind ProcedureKind, name string, fn func(context.Context, In) (Out, error), opts []ProcOption) *Procedure {
 	if fn == nil {
 		panic(fmt.Sprintf("bowline: %s %q: nil handler", kind, name))
 	}
+	p := prepare[In, Out](kind, name)
+	p.call = func(ctx context.Context, in any) (any, error) {
+		return fn(ctx, *in.(*In))
+	}
+	for _, opt := range opts {
+		opt(p)
+	}
+	return p
+}
+
+func prepare[In, Out any](kind ProcedureKind, name string) *Procedure {
 	p := &Procedure{
 		Name: name,
 		Kind: kind,
@@ -78,12 +112,6 @@ func newProcedure[In, Out any](kind ProcedureKind, name string, fn func(context.
 		f.ctx.Context = parent
 		f.ctx.call = call
 		return &f.ctx, &f.in
-	}
-	p.call = func(ctx context.Context, in any) (any, error) {
-		return fn(ctx, *in.(*In))
-	}
-	for _, opt := range opts {
-		opt(p)
 	}
 	return p
 }

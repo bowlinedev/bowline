@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"runtime/debug"
 	"strings"
+	"time"
 
 	"github.com/bowlinedev/bowline/internal/codec"
 )
@@ -39,6 +40,7 @@ type handler struct {
 	log        *slog.Logger
 	production bool
 	strict     bool
+	heartbeat  time.Duration
 }
 
 func (r *Router) Handler(opts ...HandlerOption) http.Handler {
@@ -63,6 +65,10 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	proc := rt.proc
+	if proc.Kind == KindSubscription && !acceptsEventStream(req) {
+		h.writeError(w, nil, 0, Errorf(InvalidArgument, "subscriptions are served as text/event-stream; send Accept: text/event-stream"))
+		return
+	}
 	if !methodAllowed(proc, req.Method) {
 		w.Header().Set("Allow", proc.Method())
 		h.writeError(w, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, rt.path, proc.Method()))
@@ -86,6 +92,10 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			e.Issues[i] = Issue{Path: issue.Path, Rule: issue.Rule, Message: issue.Message}
 		}
 		h.writeError(w, nil, 0, e)
+		return
+	}
+	if proc.Kind == KindSubscription {
+		h.serveSubscription(w, req, rt, ctx, in)
 		return
 	}
 	out, err := h.invoke(ctx, rt, in)
@@ -125,7 +135,7 @@ func methodAllowed(p *Procedure, method string) bool {
 	case http.MethodPost:
 		return true
 	case http.MethodGet:
-		return p.Kind == KindQuery && !p.Sensitive
+		return (p.Kind == KindQuery || p.Kind == KindSubscription) && !p.Sensitive
 	}
 	return false
 }

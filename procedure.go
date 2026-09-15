@@ -11,8 +11,9 @@ import (
 type ProcedureKind string
 
 const (
-	KindQuery    ProcedureKind = "query"
-	KindMutation ProcedureKind = "mutation"
+	KindQuery        ProcedureKind = "query"
+	KindMutation     ProcedureKind = "mutation"
+	KindSubscription ProcedureKind = "subscription"
 )
 
 type Procedure struct {
@@ -32,10 +33,11 @@ type Procedure struct {
 	plan       *codec.Plan
 	checker    *validate.Checker
 	variants   []variant
+	attach     func(in any, sink *eventSink) any
 }
 
 func (p Procedure) Method() string {
-	if p.Kind == KindQuery && !p.Sensitive {
+	if (p.Kind == KindQuery || p.Kind == KindSubscription) && !p.Sensitive {
 		return "GET"
 	}
 	return "POST"
