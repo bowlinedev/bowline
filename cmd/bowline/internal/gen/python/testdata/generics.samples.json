@@ -1,0 +1,233 @@
+{
+  "get": {
+    "input": "Page[User]",
+    "model": "Report",
+    "output": {
+      "floats": {
+        "high": 757.86,
+        "low": 735.87
+      },
+      "ints": {
+        "high": 378,
+        "low": 230
+      },
+      "nested": {
+        "items": [
+          {
+            "items": [
+              {
+                "name": "zephyr hazel"
+              },
+              {
+                "name": "aurora amber velvet"
+              }
+            ],
+            "next": "breeze anchor falcon"
+          },
+          {
+            "items": [
+              {
+                "name": "maple orchid dune"
+              },
+              {
+                "name": "slate"
+              },
+              {
+                "name": "heron"
+              },
+              {
+                "name": "lantern mist lantern"
+              }
+            ]
+          },
+          {
+            "items": [
+              {
+                "name": "birch"
+              },
+              {
+                "name": "nectar tide"
+              }
+            ]
+          },
+          {
+            "items": [
+              {
+                "name": "crest sparrow hazel"
+              },
+              {
+                "name": "linen"
+              }
+            ],
+            "next": "pine"
+          }
+        ],
+        "next": "velvet reed slate"
+      },
+      "pairs": [
+        {
+          "key": "lotus birch delta",
+          "value": {
+            "name": "linen"
+          }
+        },
+        {
+          "key": "linen falcon velvet",
+          "value": {
+            "name": "atlas topaz"
+          }
+        },
+        {
+          "key": "ember anchor tide",
+          "value": {
+            "name": "wren flint lark"
+          }
+        },
+        {
+          "key": "amber glade beacon",
+          "value": {
+            "name": "topaz"
+          }
+        }
+      ],
+      "scores": {
+        "items": [
+          {
+            "high": 978,
+            "low": 37
+          },
+          {
+            "high": 881,
+            "low": 341
+          }
+        ]
+      },
+      "tree": {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "value": {
+                  "name": "wren anchor"
+                }
+              },
+              {
+                "children": [],
+                "value": {
+                  "name": "wren"
+                }
+              },
+              {
+                "children": [],
+                "value": {
+                  "name": "summit"
+                }
+              }
+            ],
+            "value": {
+              "name": "mist zephyr clover"
+            }
+          },
+          {
+            "children": [
+              {
+                "children": [],
+                "value": {
+                  "name": "sierra willow"
+                }
+              },
+              {
+                "children": [],
+                "value": {
+                  "name": "sierra"
+                }
+              },
+              {
+                "children": [],
+                "value": {
+                  "name": "birch"
+                }
+              },
+              {
+                "children": [],
+                "value": {
+                  "name": "nectar cinder beacon"
+                }
+              }
+            ],
+            "value": {
+              "name": "fern cinder"
+            }
+          },
+          {
+            "children": [
+              {
+                "children": [],
+                "value": {
+                  "name": "maple forest umber"
+                }
+              },
+              {
+                "children": [],
+                "value": {
+                  "name": "zephyr apple river"
+                }
+              },
+              {
+                "children": [],
+                "value": {
+                  "name": "apple"
+                }
+              }
+            ],
+            "value": {
+              "name": "aurora tide"
+            }
+          },
+          {
+            "children": [
+              {
+                "children": [],
+                "value": {
+                  "name": "pebble"
+                }
+              },
+              {
+                "children": [],
+                "value": {
+                  "name": "tide pebble ridge"
+                }
+              },
+              {
+                "children": [],
+                "value": {
+                  "name": "oak mesa"
+                }
+              }
+            ],
+            "value": {
+              "name": "lark"
+            }
+          }
+        ],
+        "value": {
+          "name": "arrow heron"
+        }
+      },
+      "users": {
+        "items": [
+          {
+            "name": "spruce"
+          },
+          {
+            "name": "canyon"
+          },
+          {
+            "name": "prairie maple"
+          }
+        ]
+      }
+    }
+  }
+}

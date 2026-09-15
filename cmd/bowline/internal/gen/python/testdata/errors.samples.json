@@ -1,0 +1,16 @@
+{
+  "send": {
+    "input": "ID",
+    "model": "Invoice",
+    "output": {
+      "id": 1
+    }
+  },
+  "void": {
+    "input": "ID",
+    "model": "Invoice",
+    "output": {
+      "id": 2
+    }
+  }
+}

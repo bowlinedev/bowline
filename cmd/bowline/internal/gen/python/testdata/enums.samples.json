@@ -1,0 +1,22 @@
+{
+  "get": {
+    "input": "Empty",
+    "model": "Order",
+    "output": {
+      "history": {
+        "cinder": 400,
+        "coral": 398,
+        "marble": 456
+      },
+      "level": 1,
+      "levels": [
+        1,
+        10,
+        10,
+        10
+      ],
+      "slug": "maple",
+      "status": "sent"
+    }
+  }
+}

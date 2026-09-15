@@ -168,6 +168,23 @@ jobs:
       - name: ledger client analyzes
         working-directory: examples/ledger/dart
         run: dart pub get && dart analyze --fatal-infos
+  goldens-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+      - name: runtime package
+        working-directory: packages/python/bowline-client
+        run: |
+          uv sync --frozen
+          uv run ruff check .
+          uv run ruff format --check .
+          uv run python -m mypy --strict src tests
+          uv run pytest
+      - name: generated goldens type-check and round-trip
+        run: scripts/check-goldens.sh python
 
   docs-check:
     runs-on: ubuntu-latest
@@ -220,6 +237,6 @@ jobs:
 
   ci:
     runs-on: ubuntu-latest
-    needs: [go, node, python, goldens-dart, docs-check, devloop-windows]
+    needs: [go, node, python, goldens-dart, docs-check, devloop-windows, goldens-python]
     steps:
       - run: echo ok

@@ -1,0 +1,9 @@
+{
+  "create": {
+    "input": "CreateInput",
+    "model": "Created",
+    "output": {
+      "id": 1
+    }
+  }
+}

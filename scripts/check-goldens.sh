@@ -32,7 +32,14 @@ PUB
     (cd "$work/goldens" && dart pub get >/dev/null && dart analyze --fatal-infos lib)
     ;;
   python)
-    (cd "$repo/python/bowline-client" && uv run --frozen python -m mypy --strict "$testdata")
+    project="$repo/packages/python/bowline-client"
+    work="$(mktemp -d)"
+    trap 'rm -rf "$work"' EXIT
+    for f in "$testdata"/*.golden.py; do
+      cp "$f" "$work/golden_$(basename "${f%.golden.py}").py"
+    done
+    (cd "$project" && uv run --frozen python -m mypy --strict --explicit-package-bases "$work"/*.py)
+    (cd "$project" && uv run --frozen python -m pytest -q -p no:cacheprovider "$testdata/test_goldens.py")
     ;;
   rust)
     work="$(mktemp -d)"
