@@ -1,0 +1,65 @@
+name: release-clients
+
+on:
+  workflow_dispatch:
+    inputs:
+      dart:
+        description: Publish the Dart package to pub.dev
+        type: boolean
+        default: false
+      python:
+        description: Publish bowline-client to PyPI
+        type: boolean
+        default: false
+      rust:
+        description: Publish bowline-client to crates.io
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  dart:
+    if: inputs.dart
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/dart/bowline
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - run: dart pub get
+      - run: dart pub publish --dry-run
+      - run: dart pub publish --force
+
+  python:
+    if: inputs.python
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/python/bowline-client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+      - run: uv build
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: packages/python/bowline-client/dist
+
+  rust:
+    if: inputs.rust
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/rust/bowline-client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo publish --dry-run
+      - run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
