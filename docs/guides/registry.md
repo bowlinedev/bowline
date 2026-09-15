@@ -70,4 +70,15 @@ The gate is the command teams already run with one more flag, so a pull request 
     BOWLINE_REGISTRY_TOKEN: ${{ secrets.BOWLINE_REGISTRY_TOKEN }}
 ```
 
+## Seeing it work
+
+`examples/federation` carries a runnable version of all of this. `./examples/federation/registry-seed.sh` starts a registry, publishes the ledger and billing contracts, and registers what the ledger's web consumer uses. `./examples/federation/impact-check.sh` then copies the ledger, renames the JSON tag of a field that consumer reads, and runs the gate:
+
+```
+breaks    ledger-web: procedure invoices.create output field total (reads total)
+bowline: 1 consumer break(s)
+```
+
+Both scripts run in the `federation` end-to-end job, so the query is proven on every push rather than described.
+
 The registry is one more place to look when the answer is not obvious from the repository. Everything it knows came from an artifact some pipeline produced: a contract from the provider's build, a usage file from the consumer's tests, a composition from a gateway's deploy.
