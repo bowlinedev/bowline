@@ -271,3 +271,7 @@ jobs:
       - run: pnpm --filter federation-web test:e2e
         env:
           CI: "1"
+      - name: the registry names the consumer a breaking change would hit
+        run: |
+          ./examples/federation/registry-seed.sh
+          ./examples/federation/impact-check.sh
