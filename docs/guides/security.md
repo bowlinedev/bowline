@@ -93,7 +93,7 @@ If a query in your service does mutate state, that is a bug in the procedure, no
 
 ## What `Sensitive()` does and does not do
 
-source: item.go:26-28
+source: item.go:27-29
 
 ```go
 func Sensitive() ProcOption {
@@ -145,7 +145,7 @@ The handler reads at most `MaxBodySize` bytes, 1 MiB by default, and `MaxUploadS
 
 A single procedure can raise or lower its own ceiling:
 
-source: item.go:30-32
+source: item.go:31-33
 
 ```go
 func MaxBody(n int64) ProcOption {
@@ -154,3 +154,74 @@ func MaxBody(n int64) ProcOption {
 ```
 
 Zero inherits the handler's limit. On an upload the value caps the whole multipart body rather than the JSON input part, so `MaxBody(4 << 20)` on an avatar upload and `MaxBody(500 << 20)` on a video upload can sit behind one handler. The analyzer records the value in the contract as `meta.maxBody`, so a client or the mock server can refuse an oversized request before it is sent.
+
+## Rate limiting
+
+`RateLimit` is a `Middleware`, so it goes on one procedure with `Use`, on a sub-router, or on the whole router.
+
+source: ratelimit.go:13-19
+
+```go
+type RateLimitOptions struct {
+	Key     func(ctx context.Context) string
+	Rate    float64
+	Burst   int
+	MaxKeys int
+	Now     func() time.Time
+}
+```
+
+`Key` decides what is being limited — a tenant, an API key, a remote address. Returning an empty string bypasses the limiter entirely, which is how you exempt a trusted caller. `Rate` is tokens per second and `Burst` is the ceiling; `Burst` defaults to one second's worth. `MaxKeys` bounds the map, defaulting to 10000, and `Now` exists so a test can drive the clock.
+
+Each key gets one token bucket, and the least recently used bucket is evicted once the map is full, so an attacker cycling keys cannot grow memory without bound:
+
+source: ratelimit.go:87-113
+
+```go
+func (l *limiter) allow(key string) (time.Duration, bool) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	now := l.now()
+	b, ok := l.buckets[key]
+	if !ok {
+		for len(l.buckets) >= l.maxKeys {
+			if !l.evict() {
+				break
+			}
+		}
+		b = &bucket{key: key, tokens: l.burst, updated: now}
+		b.elem = l.order.PushFront(b)
+		l.buckets[key] = b
+	} else {
+		if elapsed := now.Sub(b.updated); elapsed > 0 {
+			b.tokens = math.Min(l.burst, b.tokens+elapsed.Seconds()*l.rate)
+			b.updated = now
+		}
+		l.order.MoveToFront(b.elem)
+	}
+	if b.tokens < 1 {
+		return time.Duration((1 - b.tokens) / l.rate * float64(time.Second)), false
+	}
+	b.tokens--
+	return 0, true
+}
+```
+
+A refused call is `RESOURCE_EXHAUSTED`, which maps to 429, and the middleware sets `Retry-After` through `bowline.CallFrom(ctx).ResponseHeader()`. The handler copies those headers onto the response once the chain returns, so any middleware can add a response header without holding the `http.ResponseWriter`.
+
+The ledger limits its destructive mutation per caller address:
+
+source: examples/ledger/api/invoices.go:35-42
+
+```go
+func voidLimit() bowline.Middleware {
+	return bowline.RateLimit(bowline.RateLimitOptions{
+		Key:     CallerAddress,
+		Rate:    5,
+		Burst:   10,
+		MaxKeys: 4096,
+	})
+}
+```
+
+The limiter is per process. Behind several replicas each one holds its own buckets, so the effective limit is the configured rate times the replica count; put a shared limiter in front if that matters. Measured overhead is in `../security/audit-2026.md`.

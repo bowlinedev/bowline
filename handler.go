@@ -141,6 +141,7 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route) {
 		return
 	}
 	out, err := h.invoke(ctx, rt, in)
+	applyResponseHeader(w, ctx)
 	if err != nil {
 		status, _, undeclared := classify(err, h.production, proc.variants)
 		if status >= 500 {

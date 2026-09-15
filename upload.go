@@ -95,6 +95,7 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 	}
 	file := &File{Name: filePart.FileName(), ContentType: filePart.Header.Get("Content-Type"), Reader: filePart}
 	out, err := h.invoke(ctx, rt, proc.attachFile(ptr, file))
+	applyResponseHeader(w, ctx)
 	if err != nil {
 		var tooLarge *http.MaxBytesError
 		if errors.As(err, &tooLarge) {
