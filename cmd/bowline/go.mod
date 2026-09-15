@@ -2,7 +2,7 @@ module github.com/bowlinedev/bowline/cmd/bowline
 
 go 1.26.0
 
-require github.com/bowlinedev/bowline v0.0.0-20260915193157-1fa2c17b86eb
+require github.com/bowlinedev/bowline v0.2.1-0.20260915195321-b994a91e81b1
 
 require golang.org/x/tools v0.50.0
 
