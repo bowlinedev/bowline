@@ -11,4 +11,4 @@ export type {
 } from "./stores.js";
 export { bowlineStores } from "./stores.js";
 
-export const version = "0.6.0";
+export const version = "0.7.0";

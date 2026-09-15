@@ -37,7 +37,7 @@ sub packages/client/src/index.test.ts "\"$old\"" "\"$new\""
 for changelog in packages/*/CHANGELOG.md; do
   [ -f "$changelog" ] || continue
   grep -q "^## $new" "$changelog" && continue
-  perl -0pi -e "s/^(# [^\n]+\n)/\$1\n## $new\n\n- Released with bowline $version.\n/" "$changelog"
+  perl -0pi -e "s/^(# [^\n]+\n)/\$1\n## $new\n\n- Released with bowline $new; see the root CHANGELOG for what changed.\n/" "$changelog"
   echo "noted $new in $changelog"
 done
 
@@ -65,6 +65,8 @@ next, by hand:
   (cd examples/ledger && go run ../../cmd/bowline check)
   (cd examples/federation/billing && go run ../../../cmd/bowline check)
   (cd examples/federation/gateway && go run ../../../cmd/bowline gateway compose -o composed.contract.json)
+  (cd examples/federation/gateway && go run ../../../cmd/bowline gen --from composed.contract.json)
+  scripts/eval-ledger.sh record
   scripts/verify.sh
   scripts/tag-modules.sh $version
 EOF

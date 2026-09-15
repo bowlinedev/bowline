@@ -9,7 +9,7 @@
       "!**/src/bowline.ts",
       "!**/src/lib/bowline.ts",
       "!**/src/bowline.zod.ts",
-      "!**/bowline.contract.json",
+      "!**/*.contract.json",
       "!**/test-results",
       "!**/openapi.json",
       "!**/bowline.json",

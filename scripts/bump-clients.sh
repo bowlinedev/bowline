@@ -12,7 +12,7 @@ bare="${version#v}"
 bump() {
   local file="$1" pattern="$2" replacement="$3"
   [ -f "$file" ] || return 0
-  perl -0pi -e "s/$pattern/$replacement/" "$file"
+  perl -0pi -e "s/$pattern/$replacement/m" "$file"
   echo "bumped $file"
 }
 
@@ -25,7 +25,7 @@ bump "$repo/python/bowline-agent/pyproject.toml" '^version = ".*"$' "version = \
 for changelog in "$repo/packages/dart/bowline/CHANGELOG.md" "$repo/packages/python/bowline-client/CHANGELOG.md" "$repo/packages/rust/bowline-client/CHANGELOG.md" "$repo/packages/elixir/bowline_client/CHANGELOG.md"; do
   [ -f "$changelog" ] || continue
   if ! grep -q "^## $bare" "$changelog"; then
-    perl -0pi -e "s/^(# [^\n]+\n)/\$1\n## $bare\n\n- Released with bowline $version.\n/" "$changelog"
+    perl -0pi -e "s/^(# [^\n]+\n)/\$1\n## $bare\n\n- Released with bowline $bare; see the root CHANGELOG for what changed.\n/" "$changelog"
     echo "noted $bare in $changelog"
   fi
 done

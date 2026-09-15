@@ -1,6 +1,6 @@
 {
   "bowline": "1.2",
-  "hash": "sha256:2232f833ceeff0de119681c4444a4272769c5c05518e3f1a0e270dfd37689f13",
+  "hash": "sha256:f33fe75961195866d00fb1f1a4f6df52841e6446dbbd48af45aa91ecec82e2d2",
   "types": {
     "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.CreateChargeInput": {
       "kind": "struct",
@@ -38,7 +38,7 @@
             "kind": "primitive",
             "name": "string"
           },
-          "example": "0.6.0"
+          "example": "0.7.0"
         }
       ]
     },
@@ -130,7 +130,9 @@
     "billing:github.com/bowlinedev/bowline/examples/federation/billing/billing.Page": {
       "kind": "generic",
       "name": "Billing_Page",
-      "params": ["T"],
+      "params": [
+        "T"
+      ],
       "body": {
         "kind": "struct",
         "fields": [
@@ -285,7 +287,7 @@
             "kind": "primitive",
             "name": "string"
           },
-          "example": "0.6.0"
+          "example": "0.7.0"
         }
       ]
     },
@@ -628,7 +630,9 @@
     "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Page": {
       "kind": "generic",
       "name": "Ledger_Page",
-      "params": ["T"],
+      "params": [
+        "T"
+      ],
       "body": {
         "kind": "struct",
         "fields": [
@@ -822,7 +826,9 @@
       "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.SearchCustomersInput",
       "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Page[github.com/bowlinedev/bowline/examples/ledger/ledger.Customer]",
       "tool": {
-        "scopes": ["crm"],
+        "scopes": [
+          "crm"
+        ],
         "readOnly": true
       },
       "schemas": {
@@ -836,7 +842,9 @@
                   "type": "string"
                 }
               },
-              "required": ["query"],
+              "required": [
+                "query"
+              ],
               "type": "object"
             }
           },
@@ -853,7 +861,9 @@
                   "type": "string"
                 },
                 "email": {
-                  "examples": ["ada@example.com"],
+                  "examples": [
+                    "ada@example.com"
+                  ],
                   "format": "email",
                   "minLength": 1,
                   "type": "string"
@@ -864,7 +874,9 @@
                   "type": "integer"
                 },
                 "name": {
-                  "examples": ["Ada Lovelace"],
+                  "examples": [
+                    "Ada Lovelace"
+                  ],
                   "minLength": 1,
                   "type": "string"
                 },
@@ -873,7 +885,13 @@
                   "type": "string"
                 }
               },
-              "required": ["createdAt", "email", "id", "name", "updatedAt"],
+              "required": [
+                "createdAt",
+                "email",
+                "id",
+                "name",
+                "updatedAt"
+              ],
               "type": "object"
             },
             "Page_Customer": {
@@ -889,7 +907,9 @@
                   "type": "string"
                 }
               },
-              "required": ["items"],
+              "required": [
+                "items"
+              ],
               "type": "object"
             }
           },
@@ -981,7 +1001,9 @@
       "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.GetInvoiceInput",
       "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice",
       "tool": {
-        "scopes": ["billing"],
+        "scopes": [
+          "billing"
+        ],
         "readOnly": true
       },
       "schemas": {
@@ -996,7 +1018,9 @@
                   "type": "integer"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "type": "object"
             }
           },
@@ -1029,15 +1053,21 @@
                   "type": "array"
                 },
                 "note": {
-                  "examples": ["net 30"],
+                  "examples": [
+                    "net 30"
+                  ],
                   "type": "string"
                 },
                 "status": {
                   "$ref": "#/$defs/Status",
-                  "examples": ["sent"]
+                  "examples": [
+                    "sent"
+                  ]
                 },
                 "total": {
-                  "examples": ["USD 1500.00"],
+                  "examples": [
+                    "USD 1500.00"
+                  ],
                   "type": "string"
                 },
                 "updatedAt": {
@@ -1060,27 +1090,42 @@
               "additionalProperties": false,
               "properties": {
                 "description": {
-                  "examples": ["Consulting"],
+                  "examples": [
+                    "Consulting"
+                  ],
                   "maxLength": 200,
                   "minLength": 1,
                   "type": "string"
                 },
                 "quantity": {
-                  "examples": [10],
+                  "examples": [
+                    10
+                  ],
                   "maximum": 2147483647,
                   "minimum": 1,
                   "type": "integer"
                 },
                 "unitPrice": {
-                  "examples": ["USD 150.00"],
+                  "examples": [
+                    "USD 150.00"
+                  ],
                   "type": "string"
                 }
               },
-              "required": ["description", "quantity", "unitPrice"],
+              "required": [
+                "description",
+                "quantity",
+                "unitPrice"
+              ],
               "type": "object"
             },
             "Status": {
-              "enum": ["draft", "sent", "paid", "void"],
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "void"
+              ],
               "type": "string"
             }
           },
@@ -1111,7 +1156,9 @@
       "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.ListInvoicesInput",
       "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Page[github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice]",
       "tool": {
-        "scopes": ["billing"],
+        "scopes": [
+          "billing"
+        ],
         "readOnly": true
       },
       "schemas": {
@@ -1132,11 +1179,18 @@
                   "$ref": "#/$defs/Status"
                 }
               },
-              "required": ["limit"],
+              "required": [
+                "limit"
+              ],
               "type": "object"
             },
             "Status": {
-              "enum": ["draft", "sent", "paid", "void"],
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "void"
+              ],
               "type": "string"
             }
           },
@@ -1169,15 +1223,21 @@
                   "type": "array"
                 },
                 "note": {
-                  "examples": ["net 30"],
+                  "examples": [
+                    "net 30"
+                  ],
                   "type": "string"
                 },
                 "status": {
                   "$ref": "#/$defs/Status",
-                  "examples": ["sent"]
+                  "examples": [
+                    "sent"
+                  ]
                 },
                 "total": {
-                  "examples": ["USD 1500.00"],
+                  "examples": [
+                    "USD 1500.00"
+                  ],
                   "type": "string"
                 },
                 "updatedAt": {
@@ -1200,23 +1260,33 @@
               "additionalProperties": false,
               "properties": {
                 "description": {
-                  "examples": ["Consulting"],
+                  "examples": [
+                    "Consulting"
+                  ],
                   "maxLength": 200,
                   "minLength": 1,
                   "type": "string"
                 },
                 "quantity": {
-                  "examples": [10],
+                  "examples": [
+                    10
+                  ],
                   "maximum": 2147483647,
                   "minimum": 1,
                   "type": "integer"
                 },
                 "unitPrice": {
-                  "examples": ["USD 150.00"],
+                  "examples": [
+                    "USD 150.00"
+                  ],
                   "type": "string"
                 }
               },
-              "required": ["description", "quantity", "unitPrice"],
+              "required": [
+                "description",
+                "quantity",
+                "unitPrice"
+              ],
               "type": "object"
             },
             "Page_Invoice": {
@@ -1232,11 +1302,18 @@
                   "type": "string"
                 }
               },
-              "required": ["items"],
+              "required": [
+                "items"
+              ],
               "type": "object"
             },
             "Status": {
-              "enum": ["draft", "sent", "paid", "void"],
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "void"
+              ],
               "type": "string"
             }
           },
@@ -1260,9 +1337,13 @@
       },
       "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.VoidInvoiceInput",
       "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice",
-      "errors": ["ledger:github.com/bowlinedev/bowline/examples/ledger/api.InvoiceLocked"],
+      "errors": [
+        "ledger:github.com/bowlinedev/bowline/examples/ledger/api.InvoiceLocked"
+      ],
       "tool": {
-        "scopes": ["billing"],
+        "scopes": [
+          "billing"
+        ],
         "destructive": true
       },
       "schemas": {
@@ -1277,7 +1358,9 @@
                   "type": "integer"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "type": "object"
             }
           },
@@ -1310,15 +1393,21 @@
                   "type": "array"
                 },
                 "note": {
-                  "examples": ["net 30"],
+                  "examples": [
+                    "net 30"
+                  ],
                   "type": "string"
                 },
                 "status": {
                   "$ref": "#/$defs/Status",
-                  "examples": ["sent"]
+                  "examples": [
+                    "sent"
+                  ]
                 },
                 "total": {
-                  "examples": ["USD 1500.00"],
+                  "examples": [
+                    "USD 1500.00"
+                  ],
                   "type": "string"
                 },
                 "updatedAt": {
@@ -1341,27 +1430,42 @@
               "additionalProperties": false,
               "properties": {
                 "description": {
-                  "examples": ["Consulting"],
+                  "examples": [
+                    "Consulting"
+                  ],
                   "maxLength": 200,
                   "minLength": 1,
                   "type": "string"
                 },
                 "quantity": {
-                  "examples": [10],
+                  "examples": [
+                    10
+                  ],
                   "maximum": 2147483647,
                   "minimum": 1,
                   "type": "integer"
                 },
                 "unitPrice": {
-                  "examples": ["USD 150.00"],
+                  "examples": [
+                    "USD 150.00"
+                  ],
                   "type": "string"
                 }
               },
-              "required": ["description", "quantity", "unitPrice"],
+              "required": [
+                "description",
+                "quantity",
+                "unitPrice"
+              ],
               "type": "object"
             },
             "Status": {
-              "enum": ["draft", "sent", "paid", "void"],
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "void"
+              ],
               "type": "string"
             }
           },
