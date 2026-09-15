@@ -1,0 +1,77 @@
+{
+  "bowline": "1.0",
+  "hash": "sha256:603c4dfce983c37448e7fe2c0ea852359f75c387645c256020f22aaa2d7e2b04",
+  "types": {
+    "fidelity.test/rows/uploads.AttachInput": {
+      "kind": "struct",
+      "name": "AttachInput",
+      "fields": [
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
+    "fidelity.test/rows/uploads.Attachment": {
+      "kind": "struct",
+      "name": "Attachment",
+      "fields": [
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "size",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    }
+  },
+  "errors": {},
+  "procedures": [
+    {
+      "path": "attach",
+      "kind": "upload",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/uploads.AttachInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/uploads.Attachment"
+      },
+      "goInput": "fidelity.test/rows/uploads.AttachInput",
+      "goOutput": "fidelity.test/rows/uploads.Attachment",
+      "doc": "Attach stores a file."
+    }
+  ],
+  "positions": {
+    "attach": {
+      "file": "rows/uploads/api.go",
+      "line": 24
+    },
+    "fidelity.test/rows/uploads.AttachInput": {
+      "file": "rows/uploads/api.go",
+      "line": 9
+    },
+    "fidelity.test/rows/uploads.Attachment": {
+      "file": "rows/uploads/api.go",
+      "line": 13
+    }
+  }
+}

@@ -8,7 +8,8 @@
       "!**/dist",
       "!**/src/bowline.ts",
       "!**/bowline.contract.json",
-      "!**/test-results"
+      "!**/test-results",
+      "!.claude"
     ],
     "ignoreUnknown": true
   },

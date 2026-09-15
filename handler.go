@@ -41,6 +41,7 @@ type handler struct {
 	production bool
 	strict     bool
 	heartbeat  time.Duration
+	maxUpload  int64
 }
 
 func (r *Router) Handler(opts ...HandlerOption) http.Handler {
@@ -72,6 +73,10 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if !methodAllowed(proc, req.Method) {
 		w.Header().Set("Allow", proc.Method())
 		h.writeError(w, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, rt.path, proc.Method()))
+		return
+	}
+	if proc.Kind == KindUpload {
+		h.serveUpload(w, req, rt)
 		return
 	}
 	raw, status, err := h.readInput(w, req)
@@ -110,7 +115,11 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.writeError(w, proc, 0, err)
 		return
 	}
-	out, err = proc.plan.Normalize(out)
+	h.writeOutput(w, ctx, rt, out)
+}
+
+func (h *handler) writeOutput(w http.ResponseWriter, ctx context.Context, rt *route, out any) {
+	out, err := rt.proc.plan.Normalize(out)
 	if err != nil {
 		h.log.ErrorContext(ctx, "bowline: output normalization failed", "procedure", rt.path, "error", err)
 		h.writeError(w, nil, 0, Errorf(Internal, "output normalization failed: %w", err))
@@ -122,7 +131,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.writeError(w, nil, 0, Errorf(Internal, "output encoding failed: %w", err))
 		return
 	}
-	if proc.Deprecated != "" {
+	if rt.proc.Deprecated != "" {
 		w.Header().Set("Deprecation", "true")
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

@@ -87,6 +87,8 @@ func (g *generator) writeNode(b *strings.Builder, node *clientNode, indent strin
 				kind = "Mutation"
 			case "subscription":
 				kind = "Subscription"
+			case "upload":
+				kind = "Upload"
 			}
 			g.needs[kind] = true
 			args := g.tsType(p.Input, false) + ", " + g.tsType(p.Output, false)

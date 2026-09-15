@@ -25,6 +25,7 @@ export type {
   SubscriptionHandlers,
   SubscriptionTransport,
   TransportEvent,
+  Upload,
 } from "./types.js";
 export type { WebSocketTransportOptions } from "./ws.js";
 export { websocketTransport } from "./ws.js";

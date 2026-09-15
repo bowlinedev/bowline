@@ -216,7 +216,7 @@ func (e *evaluator) item(pkg *packages.Package, expr ast.Expr, prefix string) []
 		return nil
 	}
 	switch bowlineFunc(pkg, call) {
-	case "Query", "Mutation", "Subscription":
+	case "Query", "Mutation", "Subscription", "Upload":
 		return e.procedure(pkg, call, prefix)
 	case "Mount":
 		if len(call.Args) != 2 {

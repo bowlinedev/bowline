@@ -55,6 +55,16 @@ export type Mutation<I, O, E = BowlineError> = Callable<I, O> &
     readonly kind: "mutation";
   };
 
+export type Upload<I, O, E = BowlineError> = ((
+  input: I,
+  file: Blob,
+  options?: CallOptions,
+) => Promise<O>) & {
+  readonly kind: "upload";
+  readonly types?: ProcedureTypes<I, O>;
+  readonly safe: (input: I, file: Blob, options?: CallOptions) => Promise<Result<O, E>>;
+};
+
 export interface SubscriptionHandlers<O> {
   onData(value: O): void;
   onError?(error: BowlineError): void;
@@ -80,7 +90,7 @@ export interface HydrateEntry {
 }
 
 export interface ProcedureRuntime {
-  kind: "query" | "mutation" | "subscription";
+  kind: "query" | "mutation" | "subscription" | "upload";
   method: "GET" | "POST";
   output?: string;
   errors?: string[];

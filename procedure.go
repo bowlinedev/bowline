@@ -14,6 +14,7 @@ const (
 	KindQuery        ProcedureKind = "query"
 	KindMutation     ProcedureKind = "mutation"
 	KindSubscription ProcedureKind = "subscription"
+	KindUpload       ProcedureKind = "upload"
 )
 
 type Procedure struct {
@@ -34,6 +35,7 @@ type Procedure struct {
 	checker    *validate.Checker
 	variants   []variant
 	attach     func(in any, emit func(any) error) any
+	attachFile func(in any, file *File) any
 }
 
 func (p Procedure) Method() string {

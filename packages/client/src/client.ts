@@ -49,6 +49,10 @@ export function createClient(contract: ContractRuntime, options: ClientOptions):
       }
     }
     const key = segments[segments.length - 1] as string;
+    if (proc.kind === "upload") {
+      node[key] = uploadLeaf(fetchFn, base, path, proc, contract, options.headers);
+      continue;
+    }
     if (proc.kind === "subscription") {
       node[key] = streamLeaf(
         fetchFn,
@@ -152,6 +156,63 @@ async function call(
   }
   const data: unknown = text === "" ? undefined : JSON.parse(text);
   return proc.output === undefined ? data : hydrate(data, proc.output, contract.hydrators);
+}
+
+type UploadLeaf = ((input: unknown, file: Blob, options?: CallOptions) => Promise<unknown>) & {
+  kind: "upload";
+  safe: (
+    input: unknown,
+    file: Blob,
+    options?: CallOptions,
+  ) => Promise<Result<unknown, BowlineError>>;
+};
+
+function uploadLeaf(
+  fetchFn: typeof fetch,
+  base: string,
+  path: string,
+  proc: ProcedureRuntime,
+  contract: ContractRuntime,
+  headersSource: HeadersSource | undefined,
+): UploadLeaf {
+  const leaf = (async (input: unknown, file: Blob, callOptions?: CallOptions) => {
+    const headers = new Headers(
+      typeof headersSource === "function" ? await headersSource() : headersSource,
+    );
+    for (const [k, v] of new Headers(callOptions?.headers)) {
+      headers.set(k, v);
+    }
+    headers.set("accept", "application/json");
+    headers.delete("content-type");
+    const form = new FormData();
+    form.append("input", new Blob([serialize(input ?? {})], { type: "application/json" }));
+    form.append("file", file, file instanceof File ? file.name : "upload");
+    const response = await send(
+      fetchFn,
+      `${base}/${path}`,
+      { method: "POST", headers, body: form, signal: callOptions?.signal ?? null },
+      path,
+      callOptions?.signal,
+    );
+    const text = await response.text();
+    if (!response.ok) {
+      throw toError(response.status, text, path, contract);
+    }
+    const data: unknown = text === "" ? undefined : JSON.parse(text);
+    return proc.output === undefined ? data : hydrate(data, proc.output, contract.hydrators);
+  }) as UploadLeaf;
+  leaf.kind = "upload";
+  leaf.safe = async (input, file, callOptions) => {
+    try {
+      return { ok: true, value: await leaf(input, file, callOptions) };
+    } catch (error) {
+      if (error instanceof BowlineError) {
+        return { ok: false, error };
+      }
+      throw error;
+    }
+  };
+  return leaf;
 }
 
 function streamLeaf(

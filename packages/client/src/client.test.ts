@@ -305,7 +305,12 @@ test("subscribe delivers callbacks and unsubscribe aborts the request", async ()
   let done = false;
   const stop = client.invoices.watch.subscribe(
     { limit: 1 },
-    { onData: (v) => got.push(v.id), onDone: () => (done = true) },
+    {
+      onData: (v) => got.push(v.id),
+      onDone: () => {
+        done = true;
+      },
+    },
   );
   await new Promise((r) => setTimeout(r, 20));
   expect(got).toEqual([7]);
