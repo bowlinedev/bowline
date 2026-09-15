@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -80,21 +79,18 @@ func ToolsFromContract(doc *contract.Document, source SchemaSource) ([]Tool, err
 }
 
 func describe(doc *contract.Document, p *contract.Procedure) string {
+	description := strings.TrimSpace(p.Doc)
 	if len(p.Errors) == 0 {
-		return p.Doc
+		return description
 	}
 	names := make([]string, 0, len(p.Errors))
 	for _, id := range p.Errors {
-		if decl, ok := doc.Errors[id]; ok && decl.Name != "" {
+		if decl, ok := doc.Errors[id]; ok {
 			names = append(names, decl.Name)
-		} else {
-			names = append(names, id)
 		}
 	}
-	sort.Strings(names)
-	line := "Errors: " + strings.Join(names, ", ")
-	if p.Doc == "" {
-		return line
+	if description != "" {
+		description += "\n"
 	}
-	return p.Doc + "\n" + line
+	return description + "Errors: " + strings.Join(names, ", ")
 }
