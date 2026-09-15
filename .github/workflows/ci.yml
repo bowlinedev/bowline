@@ -186,6 +186,26 @@ jobs:
       - name: generated goldens type-check and round-trip
         run: scripts/check-goldens.sh python
 
+  goldens-elixir:
+    runs-on: ubuntu-latest
+    env:
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.3"
+          elixir-version: "1.18.4"
+      - name: runtime package
+        working-directory: packages/elixir/bowline_client
+        run: |
+          mix deps.get
+          mix format --check-formatted
+          mix compile --warnings-as-errors
+          mix test
+      - name: goldens compile
+        run: scripts/check-goldens.sh elixir
+
   docs-check:
     runs-on: ubuntu-latest
     env:
@@ -258,6 +278,6 @@ jobs:
 
   ci:
     runs-on: ubuntu-latest
-    needs: [go, node, python, goldens-dart, docs-check, devloop-windows, goldens-python, goldens-rust]
+    needs: [go, node, python, goldens-dart, docs-check, devloop-windows, goldens-python, goldens-rust, goldens-elixir]
     steps:
       - run: echo ok

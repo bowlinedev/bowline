@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/dart"
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/elixir"
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/goclient"
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/python"
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/rust"
@@ -14,4 +15,5 @@ func init() {
 	Generators["dart"] = dart.Generator{}
 	Generators["python"] = python.Generator{}
 	Generators["rust"] = rust.Generator{}
+	Generators["elixir"] = elixir.Generator{}
 }

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo="$(cd "$(dirname "$0")/.." && pwd)"
-target="${1:?usage: check-goldens.sh ts|go|dart|python|rust}"
+target="${1:?usage: check-goldens.sh ts|go|dart|python|rust|elixir}"
 testdata="$repo/cmd/bowline/internal/gen/$target/testdata"
 [ -d "$testdata" ] || { echo "check-goldens: no testdata for $target" >&2; exit 2; }
 
@@ -67,6 +67,28 @@ TOML
       echo "pub mod $name;" >> "$work/goldens/src/lib.rs"
     done
     (cd "$work/goldens" && cargo check --quiet && cargo clippy --quiet -- -D warnings)
+    ;;
+  elixir)
+    work="$(mktemp -d)"
+    trap 'rm -rf "$work"' EXIT
+    mkdir -p "$work/goldens/lib"
+    cat > "$work/goldens/mix.exs" <<MIX
+defmodule Goldens.MixProject do
+  use Mix.Project
+
+  def project do
+    [app: :goldens, version: "0.0.0", elixir: "~> 1.18", deps: deps()]
+  end
+
+  defp deps do
+    [{:bowline_client, path: "$repo/packages/elixir/bowline_client"}]
+  end
+end
+MIX
+    for f in "$testdata"/*.golden.ex; do
+      cp "$f" "$work/goldens/lib/$(basename "${f%.golden.ex}").ex"
+    done
+    (cd "$work/goldens" && mix deps.get >/dev/null && mix compile --warnings-as-errors)
     ;;
   *)
     echo "check-goldens: unknown target $target" >&2
