@@ -1,0 +1,24 @@
+import { z } from "zod";
+
+const ID = z.object({
+  id: z.number().int(),
+});
+
+const Item = z.object({
+  name: z.string(),
+});
+
+export const schemas = {
+  ID,
+  Item,
+} as const;
+
+export const inputs = {
+  "get": ID,
+  "hidden": ID,
+  "remove": ID,
+  "search": Item,
+} as const;
+
+export const errors = {
+} as const;

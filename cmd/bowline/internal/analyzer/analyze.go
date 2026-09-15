@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/types"
 	"sort"
+	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
 )
@@ -25,7 +26,16 @@ func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
 	specs := ev.routerFunc(fn, "", fn.Pos())
 	diags := append([]Diagnostic{}, ev.diags...)
 	seen := map[string]bool{}
+	toolNames := map[string]string{}
 	for _, spec := range specs {
+		if spec.Tool != nil {
+			name := strings.ReplaceAll(spec.Path, ".", "_")
+			if other, dup := toolNames[name]; dup {
+				diags = append(diags, Diagnostic{Pos: prog.Position(spec.Pos), Path: spec.Path, Message: fmt.Sprintf("tool name %q collides with procedure %s", name, other), Fix: "rename one procedure so the underscore-joined names differ"})
+			} else {
+				toolNames[name] = spec.Path
+			}
+		}
 		if seen[spec.Path] {
 			diags = append(diags, Diagnostic{Pos: prog.Position(spec.Pos), Path: spec.Path, Message: "duplicate procedure path", Fix: "rename one of the procedures"})
 			continue
@@ -38,6 +48,7 @@ func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
 			GoInput:    goTypeName(spec.In),
 			GoOutput:   goTypeName(spec.Out),
 			Idempotent: spec.Idempotent,
+			Tool:       spec.Tool,
 			Deprecated: spec.Deprecated,
 		}
 		if len(spec.Meta) > 0 {
