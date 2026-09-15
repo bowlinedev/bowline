@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "Ledger",
+    "slug": "bowline-ledger",
+    "version": "0.4.0",
+    "orientation": "portrait",
+    "scheme": "bowline-ledger",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "android": {
+      "package": "dev.bowline.ledger"
+    },
+    "ios": {
+      "bundleIdentifier": "dev.bowline.ledger"
+    },
+    "plugins": ["expo-router"],
+    "extra": {
+      "apiUrl": "http://localhost:8080/api"
+    }
+  }
+}

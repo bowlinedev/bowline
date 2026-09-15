@@ -1,0 +1,64 @@
+name: expo-device
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  maestro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    continue-on-error: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @bowline/client build && pnpm --filter @bowline/react-query build
+      - name: start the ledger on the emulator's host address
+        working-directory: examples/ledger
+        run: |
+          ADDR=0.0.0.0:8080 nohup go run ./cmd/server > "$RUNNER_TEMP/ledger.log" 2>&1 &
+          for _ in $(seq 1 60); do curl -fsS http://127.0.0.1:8080/api/health >/dev/null 2>&1 && break; sleep 1; done
+      - name: point the app at the host
+        working-directory: examples/expo
+        run: |
+          node -e '
+            const fs = require("fs");
+            const app = JSON.parse(fs.readFileSync("app.json", "utf8"));
+            app.expo.extra.apiUrl = "http://10.0.2.2:8080/api";
+            fs.writeFileSync("app.json", JSON.stringify(app, null, 2) + "\n");
+          '
+      - name: build the Android debug app
+        working-directory: examples/expo
+        run: |
+          pnpm exec expo prebuild --platform android --no-install
+          cd android && ./gradlew assembleDebug --no-daemon
+      - name: install maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - name: run the flow on an emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_6
+          script: |
+            adb install examples/expo/android/app/build/outputs/apk/debug/app-debug.apk
+            adb reverse tcp:8081 tcp:8081 || true
+            maestro test examples/expo/maestro/flow.yaml

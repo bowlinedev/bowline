@@ -5,3 +5,4 @@ packages:
   - examples/astro
   - examples/nextjs
   - examples/remix
+  - examples/expo

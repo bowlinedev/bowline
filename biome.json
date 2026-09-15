@@ -23,7 +23,10 @@
       "!**/*.astro",
       "!**/.next",
       "!**/.react-router",
-      "!**/next-env.d.ts"
+      "!**/next-env.d.ts",
+      "!**/.expo",
+      "!**/android",
+      "!**/ios"
     ],
     "ignoreUnknown": true
   },

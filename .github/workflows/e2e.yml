@@ -153,3 +153,17 @@ jobs:
       - run: pnpm --filter example-remix test:e2e
         env:
           CI: "1"
+
+  expo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter ledger-expo check:gen
+      - run: pnpm --filter ledger-expo typecheck
+      - run: pnpm --filter ledger-expo test

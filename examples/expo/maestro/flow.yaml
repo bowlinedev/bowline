@@ -1,0 +1,17 @@
+appId: dev.bowline.ledger
+---
+- launchApp
+- assertVisible:
+    id: "invoice-3"
+- assertVisible:
+    id: "invoice-4"
+- tapOn:
+    id: "new-invoice"
+- tapOn:
+    id: "quantity"
+- eraseText
+- inputText: "0"
+- tapOn:
+    id: "create-invoice"
+- assertVisible: "lines.0.description: is required"
+- assertVisible: "lines.0.quantity: must be at least 1"
