@@ -170,6 +170,11 @@ jobs:
 
   dart:
     runs-on: ubuntu-latest
+  python:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples/ledger/python
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -181,3 +186,11 @@ jobs:
       - name: dart ledger client against the Go server
         working-directory: examples/ledger/dart
         run: dart pub get && dart analyze --fatal-infos && dart test
+          cache-dependency-path: examples/ledger/go.sum
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run python -m mypy --strict ledger_cli.py test_ledger.py
+      - run: uv run pytest
