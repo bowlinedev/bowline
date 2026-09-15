@@ -24,7 +24,7 @@ export interface Client {
 }
 
 export const contract = {
-  version: "1.0",
+  version: "1.1",
   hydrators: {},
   procedures: {
     "echo": { kind: "query", method: "GET" },

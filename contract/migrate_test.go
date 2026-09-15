@@ -39,3 +39,10 @@ func TestMigrateRejectsUnknownMajor(t *testing.T) {
 		t.Fatal("expected error")
 	}
 }
+
+func TestMigrateKeepsSameMajor(t *testing.T) {
+	data := []byte(`{"bowline":"1.0","types":{},"errors":{},"procedures":[]}`)
+	if out, err := Migrate(data); err != nil || string(out) != string(data) {
+		t.Fatalf("got %s %v", out, err)
+	}
+}

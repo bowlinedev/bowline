@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const schemaID = "https://bowline.dev/spec/contract/1.0/contract.schema.json"
+const schemaID = "https://bowline.dev/spec/contract/1.1/contract.schema.json"
 
 var kindValues = []string{"primitive", "ref", "array", "map", "struct", "enum", "generic", "param"}
 
@@ -78,6 +78,9 @@ func (b *schemaBuilder) node(t reflect.Type, jsonName string) schemaNode {
 	case reflect.Struct:
 		return b.ref(t)
 	case reflect.Slice:
+		if t == reflect.TypeOf(json.RawMessage{}) {
+			return schemaNode{}
+		}
 		return schemaNode{"type": "array", "items": b.node(t.Elem(), jsonName)}
 	case reflect.Map:
 		return schemaNode{"type": "object", "additionalProperties": b.node(t.Elem(), jsonName)}
@@ -92,6 +95,8 @@ func (b *schemaBuilder) node(t reflect.Type, jsonName string) schemaNode {
 			return schemaNode{"type": []string{"string", "integer"}}
 		}
 		return schemaNode{}
+	case reflect.Uint8:
+		return schemaNode{"type": "integer"}
 	default:
 		panic("contract: unsupported schema field type " + t.String())
 	}

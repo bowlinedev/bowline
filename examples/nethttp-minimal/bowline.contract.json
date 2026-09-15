@@ -1,6 +1,6 @@
 {
-  "bowline": "1.0",
-  "hash": "sha256:b40eb301ba01511da0b1243d675de2514c5933fc4322a50861ce59621d8256e0",
+  "bowline": "1.1",
+  "hash": "sha256:111c45dd6671c06a6601c248ed9762f826d57ebcfcdd7dc7626f29981b4f5262",
   "types": {
     "github.com/bowlinedev/bowline/examples/nethttp-minimal.GreetInput": {
       "kind": "struct",

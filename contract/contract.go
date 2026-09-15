@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const Version = "1.0"
+const Version = "1.1"
 
 type Kind string
 
@@ -95,9 +95,22 @@ type Procedure struct {
 	GoOutput   string            `json:"goOutput,omitempty"`
 	Errors     []string          `json:"errors,omitempty"`
 	Idempotent bool              `json:"idempotent,omitempty"`
+	Tool       *Tool             `json:"tool,omitempty"`
+	Schemas    *Schemas          `json:"schemas,omitempty"`
 	Doc        string            `json:"doc,omitempty"`
 	Deprecated string            `json:"deprecated,omitempty"`
 	Meta       map[string]string `json:"meta,omitempty"`
+}
+
+type Tool struct {
+	Scopes      []string `json:"scopes,omitempty"`
+	ReadOnly    bool     `json:"readOnly,omitempty"`
+	Destructive bool     `json:"destructive,omitempty"`
+}
+
+type Schemas struct {
+	Input  json.RawMessage `json:"input"`
+	Output json.RawMessage `json:"output"`
 }
 
 type Position struct {

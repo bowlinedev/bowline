@@ -1,6 +1,6 @@
 {
-  "bowline": "1.0",
-  "hash": "sha256:8a7430e5e8ac73db4c434b786e5b9fc92b3462cec74b8df00f3ee5f01aa71f9c",
+  "bowline": "1.1",
+  "hash": "sha256:e2f6f1d31c8763647d8cf34208567d5f8d4d7240a8179b4088a8f119589a709a",
   "types": {
     "fidelity.test/rows/subscriptions.Change": {
       "kind": "struct",

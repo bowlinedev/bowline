@@ -1,4 +1,4 @@
-# Bowline contract document, version 1.0
+# Bowline contract document, version 1.1
 
 `bowline.contract.json` is the language-neutral description of an API produced by `bowline gen`. Every generator, export, and tool reads this file and nothing else. It is a public specification; third parties may produce or consume it.
 
@@ -67,9 +67,15 @@ An entry in `errors` describes a typed error a procedure may return. `name` is t
 | `goInput`, `goOutput` | Canonical Go names of the input and output types: full import path, a dot, the type name, generic arguments in square brackets spelled the same way, and `struct{}` for the empty struct. Used by the runtime to verify the committed document against the running router. |
 | `errors` | Keys into the top-level `errors` map for the variants this procedure declares |
 | `idempotent` | `true` when the mutation honors an `Idempotency-Key` header |
+| `tool` | Present when the procedure is exposed as an agent tool. Carries `scopes`, `readOnly`, and `destructive`. Absent means never exposed. |
+| `schemas` | Optional precomputed JSON Schemas, `input` and `output`, filled by `bowline gen` when `"schemas": true` is set. Servers that expose tools read them from here so the runtime needs no schema generator. |
 | `doc` | Description |
 | `deprecated` | Reason string when the procedure is deprecated |
 | `meta` | Free-form string metadata declared in Go |
+
+## Tools
+
+A procedure with a `tool` object may be offered to language models as a callable tool. `scopes` are free-form names a deployment filters on; `readOnly` is set for queries and tells a model the call has no side effects; `destructive` marks a mutation that removes or irreversibly changes data. Subscriptions and uploads are never tools. The JSON Schemas a tool needs are derived from the procedure's input and output types by the CLI, so the runtime stays dependency-free.
 
 ## Wire encodings
 
