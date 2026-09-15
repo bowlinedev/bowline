@@ -24,11 +24,21 @@ func TestFrameworkGuideSnippetsMatchTheirSources(t *testing.T) {
 		if filepath.Base(guide) == "README.md" {
 			continue
 		}
-		checkGuide(t, guide)
+		checkGuide(t, guide, true)
 	}
 }
 
-func checkGuide(t *testing.T, guide string) {
+func TestClientGuideSnippetsMatchTheirSources(t *testing.T) {
+	for _, name := range []string{"dart.md", "python.md", "rust.md", "elixir.md"} {
+		guide := filepath.Join("guides", name)
+		if _, err := os.Stat(guide); err != nil {
+			continue
+		}
+		checkGuide(t, guide, true)
+	}
+}
+
+func checkGuide(t *testing.T, guide string, required bool) {
 	t.Helper()
 	f, err := os.Open(guide)
 	if err != nil {
@@ -65,7 +75,7 @@ func checkGuide(t *testing.T, guide string) {
 			}
 		}
 	}
-	if snippets == 0 {
+	if snippets == 0 && required {
 		t.Errorf("%s: no verified snippet; every framework guide needs at least one source: block", guide)
 	}
 }
