@@ -121,3 +121,47 @@ func TestGenWritesOpenAPIWhenConfigured(t *testing.T) {
 		t.Fatalf("check exit %d: %s", code, errOut.String())
 	}
 }
+
+func TestExportToolsToStdoutAndFile(t *testing.T) {
+	dir := fixtureCopy(t)
+	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/tools.Routes"}`), 0o644)
+	opts, out, errOut := testOptions(dir)
+	if code := Export(opts, []string{"tools", "--format", "anthropic", "--scope", "crm"}); code != 0 {
+		t.Fatalf("exit %d: %s", code, errOut.String())
+	}
+	if !strings.Contains(out.String(), `"input_schema"`) || strings.Contains(out.String(), `"name": "get"`) || !strings.Contains(out.String(), `"name": "search"`) {
+		t.Fatalf("stdout %s", out.String())
+	}
+	if _, err := os.Stat(filepath.Join(dir, "tools.json")); err == nil {
+		t.Fatal("nothing must be written without --out")
+	}
+	opts, out, _ = testOptions(dir)
+	if code := Export(opts, []string{"tools", "--out", "agent/tools.json", "--read-only"}); code != 0 || !strings.Contains(out.String(), "wrote agent/tools.json") {
+		t.Fatalf("exit %d out %q", code, out.String())
+	}
+	data, _ := os.ReadFile(filepath.Join(dir, "agent", "tools.json"))
+	if strings.Contains(string(data), `"remove"`) || !strings.Contains(string(data), `"outputSchema"`) {
+		t.Fatalf("file %s", data[:200])
+	}
+}
+
+func TestToolsTargetAndSchemas(t *testing.T) {
+	dir := fixtureCopy(t)
+	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/tools.Routes","schemas":true,"targets":{"tools":{"out":"tools.json","format":"openai"}}}`), 0o644)
+	opts, _, errOut := testOptions(dir)
+	if code := Gen(opts); code != 0 {
+		t.Fatalf("exit %d: %s", code, errOut.String())
+	}
+	data, _ := os.ReadFile(filepath.Join(dir, "tools.json"))
+	if !strings.Contains(string(data), `"type": "function"`) {
+		t.Fatalf("tools %s", data[:120])
+	}
+	contractData, _ := os.ReadFile(filepath.Join(dir, "bowline.contract.json"))
+	if !strings.Contains(string(contractData), `"schemas"`) || !strings.Contains(string(contractData), `"$defs"`) {
+		t.Fatal("contract lacks embedded schemas")
+	}
+	opts, _, errOut = testOptions(dir)
+	if code := Check(opts, nil); code != 0 {
+		t.Fatalf("check exit %d: %s", code, errOut.String())
+	}
+}

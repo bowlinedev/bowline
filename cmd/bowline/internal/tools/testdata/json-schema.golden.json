@@ -1,0 +1,133 @@
+[
+  {
+    "description": "Get returns one item.",
+    "destructive": false,
+    "inputSchema": {
+      "$defs": {
+        "ID": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/ID",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "get",
+    "outputSchema": {
+      "$defs": {
+        "Item": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Item",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "procedure": "get",
+    "readOnly": true,
+    "scopes": [
+      "billing"
+    ]
+  },
+  {
+    "description": "",
+    "destructive": true,
+    "inputSchema": {
+      "$defs": {
+        "ID": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/ID",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "remove",
+    "outputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "procedure": "remove",
+    "readOnly": false,
+    "scopes": [
+      "billing"
+    ]
+  },
+  {
+    "description": "",
+    "destructive": false,
+    "inputSchema": {
+      "$defs": {
+        "Item": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Item",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "name": "search",
+    "outputSchema": {
+      "$defs": {
+        "Item": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Item",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "procedure": "search",
+    "readOnly": true,
+    "scopes": [
+      "billing",
+      "crm"
+    ]
+  }
+]

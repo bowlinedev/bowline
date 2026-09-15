@@ -15,6 +15,7 @@ const usage = `usage: bowline <command>
 
 commands:
   gen        analyze the module and write the contract and every target
+  export     export openapi [-o path], or export tools [--format F] [--scope S] [--read-only] [--out path]
   check      verify the committed contract and targets are up to date
              --against <git-ref> diffs the contract against that ref instead
              and fails on breaking changes unless --allow-breaking is set

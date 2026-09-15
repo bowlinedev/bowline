@@ -113,6 +113,20 @@ type Schemas struct {
 	Output json.RawMessage `json:"output"`
 }
 
+func (s *Schemas) InputOrNil() json.RawMessage {
+	if s == nil {
+		return nil
+	}
+	return s.Input
+}
+
+func (s *Schemas) OutputOrNil() json.RawMessage {
+	if s == nil {
+		return nil
+	}
+	return s.Output
+}
+
 type Position struct {
 	File string `json:"file"`
 	Line int    `json:"line"`
