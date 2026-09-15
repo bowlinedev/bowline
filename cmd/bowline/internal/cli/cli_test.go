@@ -47,7 +47,7 @@ func TestGenThenCheck(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(dir, "out", "contract.json")); err != nil {
 		t.Fatal(err)
 	}
-	opts, out, errOut = testOptions(dir)
+	opts, _, errOut = testOptions(dir)
 	if code := Check(opts); code != 0 {
 		t.Fatalf("check exit %d: %s", code, errOut.String())
 	}

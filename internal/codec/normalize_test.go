@@ -73,11 +73,11 @@ func TestNilCollectionsBecomeEmpty(t *testing.T) {
 }
 
 func TestNormalizeIsPure(t *testing.T) {
-	in := outer{List: []inner{{Tags: nil}}}
+	in := outer{List: []inner{{Tags: nil}}, private: []string{"kept"}}
 	if _, err := Compile(reflect.TypeOf(in)).Normalize(in); err != nil {
 		t.Fatal(err)
 	}
-	if in.Inner.Tags != nil || in.List[0].Tags != nil {
+	if in.Inner.Tags != nil || in.List[0].Tags != nil || in.private[0] != "kept" {
 		t.Fatal("input was mutated")
 	}
 }
