@@ -33,6 +33,10 @@ jobs:
             cmd/bowline/go.sum
             examples/ledger/go.sum
             examples/nethttp-minimal/go.sum
+            examples/routers/chi/go.sum
+            examples/routers/gin/go.sum
+            examples/routers/echo/go.sum
+            examples/routers/connect/go.sum
             transport/websocket/go.sum
             mcp/go.sum
             agent/go.sum
@@ -50,6 +54,9 @@ jobs:
       - name: vet and test minimal example
         working-directory: examples/nethttp-minimal
         run: go vet ./... && go test ./...
+      - name: vet and test router examples
+        if: matrix.go == 'stable'
+        run: for d in examples/routers/*; do (cd "$d" && go vet ./... && go test -race ./...); done
       - name: vet and test cli module
         if: matrix.go == 'stable'
         working-directory: cmd/bowline
