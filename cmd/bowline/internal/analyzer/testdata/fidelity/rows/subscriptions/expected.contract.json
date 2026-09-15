@@ -1,0 +1,132 @@
+{
+  "bowline": "1.0",
+  "hash": "sha256:8a7430e5e8ac73db4c434b786e5b9fc92b3462cec74b8df00f3ee5f01aa71f9c",
+  "types": {
+    "fidelity.test/rows/subscriptions.Change": {
+      "kind": "struct",
+      "name": "Change",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "at",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        },
+        {
+          "name": "tags",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "primitive",
+              "name": "string"
+            }
+          }
+        }
+      ]
+    },
+    "fidelity.test/rows/subscriptions.WatchInput": {
+      "kind": "struct",
+      "name": "WatchInput",
+      "fields": [
+        {
+          "name": "limit",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          },
+          "rules": [
+            {
+              "rule": "min",
+              "param": "1"
+            },
+            {
+              "rule": "max",
+              "param": "100"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "errors": {
+    "fidelity.test/rows/subscriptions.Gone": {
+      "name": "Gone",
+      "code": "NOT_FOUND",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "secret",
+      "kind": "subscription",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/subscriptions.WatchInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/subscriptions.Change"
+      },
+      "goInput": "fidelity.test/rows/subscriptions.WatchInput",
+      "goOutput": "fidelity.test/rows/subscriptions.Change"
+    },
+    {
+      "path": "watch",
+      "kind": "subscription",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/subscriptions.WatchInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/subscriptions.Change"
+      },
+      "goInput": "fidelity.test/rows/subscriptions.WatchInput",
+      "goOutput": "fidelity.test/rows/subscriptions.Change",
+      "errors": [
+        "fidelity.test/rows/subscriptions.Gone"
+      ],
+      "doc": "Watch streams every change."
+    }
+  ],
+  "positions": {
+    "fidelity.test/rows/subscriptions.Change": {
+      "file": "rows/subscriptions/api.go",
+      "line": 14
+    },
+    "fidelity.test/rows/subscriptions.Gone": {
+      "file": "rows/subscriptions/api.go",
+      "line": 20
+    },
+    "fidelity.test/rows/subscriptions.WatchInput": {
+      "file": "rows/subscriptions/api.go",
+      "line": 10
+    },
+    "secret": {
+      "file": "rows/subscriptions/api.go",
+      "line": 36
+    },
+    "watch": {
+      "file": "rows/subscriptions/api.go",
+      "line": 35
+    }
+  }
+}

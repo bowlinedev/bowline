@@ -6,17 +6,28 @@ import {
   type Result,
 } from "./error.js";
 import { hydrate, serialize } from "./hydrate.js";
+import { parseEventStream } from "./sse.js";
 import type {
   CallOptions,
   ClientOptions,
   ContractRuntime,
   HeadersSource,
   ProcedureRuntime,
+  SubscriptionHandlers,
 } from "./types.js";
 
 type Leaf = ((input?: unknown, options?: CallOptions) => Promise<unknown>) & {
   kind: "query" | "mutation";
   safe: (input?: unknown, options?: CallOptions) => Promise<Result<unknown, BowlineError>>;
+};
+
+type StreamLeaf = ((input?: unknown, options?: CallOptions) => AsyncIterable<unknown>) & {
+  kind: "subscription";
+  subscribe: (
+    input: unknown,
+    handlers: SubscriptionHandlers<unknown>,
+    options?: CallOptions,
+  ) => () => void;
 };
 
 export function createClient(contract: ContractRuntime, options: ClientOptions): unknown {
@@ -36,6 +47,11 @@ export function createClient(contract: ContractRuntime, options: ClientOptions):
         node = next as Record<string, unknown>;
       }
     }
+    const key = segments[segments.length - 1] as string;
+    if (proc.kind === "subscription") {
+      node[key] = streamLeaf(fetchFn, base, path, proc, contract, options.headers);
+      continue;
+    }
     const leaf = ((input?: unknown, callOptions?: CallOptions) =>
       call(fetchFn, base, path, proc, contract, options.headers, input, callOptions)) as Leaf;
     leaf.kind = proc.kind;
@@ -49,9 +65,56 @@ export function createClient(contract: ContractRuntime, options: ClientOptions):
         throw error;
       }
     };
-    node[segments[segments.length - 1] as string] = leaf;
+    node[key] = leaf;
   }
   return root;
+}
+
+async function prepare(
+  base: string,
+  path: string,
+  proc: ProcedureRuntime,
+  headersSource: HeadersSource | undefined,
+  input: unknown,
+  callOptions: CallOptions | undefined,
+  accept: string,
+): Promise<{ url: string; init: RequestInit }> {
+  const headers = new Headers(
+    typeof headersSource === "function" ? await headersSource() : headersSource,
+  );
+  for (const [k, v] of new Headers(callOptions?.headers)) {
+    headers.set(k, v);
+  }
+  headers.set("accept", accept);
+  const body = serialize(input ?? {});
+  let url = `${base}/${path}`;
+  const init: RequestInit = { method: proc.method, headers, signal: callOptions?.signal ?? null };
+  if (proc.method === "GET") {
+    if (input !== undefined) {
+      url += `?input=${encodeURIComponent(body)}`;
+    }
+  } else {
+    headers.set("content-type", "application/json");
+    init.body = body;
+  }
+  return { url, init };
+}
+
+async function send(
+  fetchFn: typeof fetch,
+  url: string,
+  init: RequestInit,
+  path: string,
+  signal: AbortSignal | undefined,
+): Promise<Response> {
+  try {
+    return await fetchFn(url, init);
+  } catch (cause) {
+    if (signal?.aborted) {
+      throw new BowlineError("CANCELED", "request aborted", 0, { cause });
+    }
+    throw new BowlineError("UNAVAILABLE", `network error calling ${path}`, 0, { cause });
+  }
 }
 
 async function call(
@@ -64,39 +127,114 @@ async function call(
   input: unknown,
   callOptions: CallOptions | undefined,
 ): Promise<unknown> {
-  const headers = new Headers(
-    typeof headersSource === "function" ? await headersSource() : headersSource,
+  const { url, init } = await prepare(
+    base,
+    path,
+    proc,
+    headersSource,
+    input,
+    callOptions,
+    "application/json",
   );
-  for (const [k, v] of new Headers(callOptions?.headers)) {
-    headers.set(k, v);
-  }
-  headers.set("accept", "application/json");
-  const body = serialize(input ?? {});
-  let url = `${base}/${path}`;
-  const init: RequestInit = { method: proc.method, headers, signal: callOptions?.signal ?? null };
-  if (proc.method === "GET") {
-    if (input !== undefined) {
-      url += `?input=${encodeURIComponent(body)}`;
-    }
-  } else {
-    headers.set("content-type", "application/json");
-    init.body = body;
-  }
-  let response: Response;
-  try {
-    response = await fetchFn(url, init);
-  } catch (cause) {
-    if (callOptions?.signal?.aborted) {
-      throw new BowlineError("CANCELED", "request aborted", 0, { cause });
-    }
-    throw new BowlineError("UNAVAILABLE", `network error calling ${path}`, 0, { cause });
-  }
+  const response = await send(fetchFn, url, init, path, callOptions?.signal);
   const text = await response.text();
   if (!response.ok) {
     throw toError(response.status, text, path, contract);
   }
   const data: unknown = text === "" ? undefined : JSON.parse(text);
   return proc.output === undefined ? data : hydrate(data, proc.output, contract.hydrators);
+}
+
+function streamLeaf(
+  fetchFn: typeof fetch,
+  base: string,
+  path: string,
+  proc: ProcedureRuntime,
+  contract: ContractRuntime,
+  headersSource: HeadersSource | undefined,
+): StreamLeaf {
+  const iterate = ((input?: unknown, callOptions?: CallOptions) =>
+    streamEvents(
+      fetchFn,
+      base,
+      path,
+      proc,
+      contract,
+      headersSource,
+      input,
+      callOptions,
+    )) as StreamLeaf;
+  iterate.kind = "subscription";
+  iterate.subscribe = (input, handlers, callOptions) => {
+    const controller = new AbortController();
+    callOptions?.signal?.addEventListener("abort", () => controller.abort(), { once: true });
+    void (async () => {
+      try {
+        for await (const value of iterate(input, { ...callOptions, signal: controller.signal })) {
+          handlers.onData(value);
+        }
+        if (!controller.signal.aborted) {
+          handlers.onDone?.();
+        }
+      } catch (error) {
+        if (controller.signal.aborted) {
+          return;
+        }
+        handlers.onError?.(
+          error instanceof BowlineError
+            ? error
+            : new BowlineError("UNKNOWN", String(error), 0, { cause: error }),
+        );
+      }
+    })();
+    return () => controller.abort();
+  };
+  return iterate;
+}
+
+async function* streamEvents(
+  fetchFn: typeof fetch,
+  base: string,
+  path: string,
+  proc: ProcedureRuntime,
+  contract: ContractRuntime,
+  headersSource: HeadersSource | undefined,
+  input: unknown,
+  callOptions: CallOptions | undefined,
+): AsyncIterable<unknown> {
+  const { url, init } = await prepare(
+    base,
+    path,
+    proc,
+    headersSource,
+    input,
+    callOptions,
+    "text/event-stream",
+  );
+  const response = await send(fetchFn, url, init, path, callOptions?.signal);
+  if (!response.ok) {
+    throw toError(response.status, await response.text(), path, contract);
+  }
+  if (!response.body) {
+    throw new BowlineError("UNKNOWN", `empty stream from ${path}`, response.status);
+  }
+  try {
+    for await (const event of parseEventStream(response.body)) {
+      if (event.event === "message") {
+        const data: unknown = JSON.parse(event.data);
+        yield proc.output === undefined ? data : hydrate(data, proc.output, contract.hydrators);
+      } else if (event.event === "error") {
+        throw toError(response.status, event.data, path, contract);
+      } else if (event.event === "done") {
+        return;
+      }
+    }
+  } catch (cause) {
+    if (callOptions?.signal?.aborted && !(cause instanceof BowlineError)) {
+      throw new BowlineError("CANCELED", "subscription aborted", 0, { cause });
+    }
+    throw cause;
+  }
 }
 
 function toError(

@@ -2,7 +2,7 @@ import { expect, expectTypeOf, test, vi } from "vitest";
 import { createClient } from "./client.js";
 import type { TypedError, UntypedError } from "./error.js";
 import { BowlineError } from "./error.js";
-import type { ContractRuntime, Mutation, Query } from "./types.js";
+import type { ContractRuntime, Mutation, Query, Subscription } from "./types.js";
 
 const contract: ContractRuntime = {
   version: "0.1",
@@ -213,4 +213,104 @@ test("safe returns a discriminated result and hydrates typed details", async () 
   }) as Typed;
   const ok = await okClient.invoices.void.safe({ id: 4 });
   expect(ok).toEqual({ ok: true, value: { id: 4 } });
+});
+
+const sseContract: ContractRuntime = {
+  version: "1.0",
+  hydrators: { Change: [{ path: ["at"], kind: "timestamp" }] },
+  procedures: { "invoices.watch": { kind: "subscription", method: "GET", output: "Change" } },
+};
+
+interface WatchClient {
+  invoices: { watch: Subscription<{ limit: number }, { id: number; at: Date }> };
+}
+
+function sseResponse(text: string): Response {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(encoder.encode(text));
+      controller.close();
+    },
+  });
+  return new Response(stream, { status: 200, headers: { "content-type": "text/event-stream" } });
+}
+
+test("subscriptions iterate hydrated messages until done", async () => {
+  const seen: RequestInit[] = [];
+  const client = createClient(sseContract, {
+    url: "http://api.test",
+    fetch: fakeFetch((_url, init) => {
+      seen.push(init);
+      return sseResponse(
+        'event: message\ndata: {"id":1,"at":"2026-09-15T00:00:00Z"}\n\nevent: message\ndata: {"id":2,"at":"2026-09-16T00:00:00Z"}\n\nevent: done\ndata: {}\n\n',
+      );
+    }),
+  }) as WatchClient;
+  const values = [];
+  for await (const v of client.invoices.watch({ limit: 5 })) {
+    values.push(v);
+  }
+  expect(values.map((v) => v.id)).toEqual([1, 2]);
+  expect(values[0]?.at).toBeInstanceOf(Date);
+  expect(new Headers(seen[0]?.headers).get("accept")).toBe("text/event-stream");
+  expect(client.invoices.watch.kind).toBe("subscription");
+});
+
+test("subscription error events reject with BowlineError", async () => {
+  const client = createClient(sseContract, {
+    url: "http://api.test",
+    fetch: fakeFetch(() =>
+      sseResponse(
+        'event: message\ndata: {"id":1,"at":"2026-09-15T00:00:00Z"}\n\nevent: error\ndata: {"error":{"code":"NOT_FOUND","message":"gone"}}\n\n',
+      ),
+    ),
+  }) as WatchClient;
+  const values: number[] = [];
+  const err = await (async () => {
+    try {
+      for await (const v of client.invoices.watch({ limit: 1 })) {
+        values.push(v.id);
+      }
+    } catch (e) {
+      return e;
+    }
+    return undefined;
+  })();
+  expect(values).toEqual([1]);
+  expect(err).toBeInstanceOf(BowlineError);
+  expect((err as BowlineError).code).toBe("NOT_FOUND");
+});
+
+test("subscribe delivers callbacks and unsubscribe aborts the request", async () => {
+  let aborted = false;
+  const client = createClient(sseContract, {
+    url: "http://api.test",
+    fetch: fakeFetch((_url, init) => {
+      init.signal?.addEventListener("abort", () => {
+        aborted = true;
+      });
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(
+            encoder.encode('event: message\ndata: {"id":7,"at":"2026-09-15T00:00:00Z"}\n\n'),
+          );
+        },
+      });
+      return new Response(stream, { status: 200 });
+    }),
+  }) as WatchClient;
+  const got: number[] = [];
+  let done = false;
+  const stop = client.invoices.watch.subscribe(
+    { limit: 1 },
+    { onData: (v) => got.push(v.id), onDone: () => (done = true) },
+  );
+  await new Promise((r) => setTimeout(r, 20));
+  expect(got).toEqual([7]);
+  stop();
+  await new Promise((r) => setTimeout(r, 20));
+  expect(aborted).toBe(true);
+  expect(done).toBe(false);
 });

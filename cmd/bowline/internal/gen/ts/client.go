@@ -82,8 +82,11 @@ func (g *generator) writeNode(b *strings.Builder, node *clientNode, indent strin
 			}
 			b.WriteString(jsdoc(indent, p.Doc, deprecated))
 			kind := "Query"
-			if p.Kind == "mutation" {
+			switch p.Kind {
+			case "mutation":
 				kind = "Mutation"
+			case "subscription":
+				kind = "Subscription"
 			}
 			g.needs[kind] = true
 			args := g.tsType(p.Input, false) + ", " + g.tsType(p.Output, false)

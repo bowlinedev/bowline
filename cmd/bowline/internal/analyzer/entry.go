@@ -216,7 +216,7 @@ func (e *evaluator) item(pkg *packages.Package, expr ast.Expr, prefix string) []
 		return nil
 	}
 	switch bowlineFunc(pkg, call) {
-	case "Query", "Mutation":
+	case "Query", "Mutation", "Subscription":
 		return e.procedure(pkg, call, prefix)
 	case "Mount":
 		if len(call.Args) != 2 {
@@ -271,7 +271,7 @@ func (e *evaluator) procedure(pkg *packages.Package, call *ast.CallExpr, prefix 
 	for _, opt := range call.Args[2:] {
 		e.option(pkg, opt, &spec)
 	}
-	if kind == "query" && !spec.Sensitive {
+	if (kind == "query" || kind == "subscription") && !spec.Sensitive {
 		spec.Method = "GET"
 	}
 	return []procedureSpec{spec}
