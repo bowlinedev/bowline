@@ -18,8 +18,26 @@ func TestSignProducesTheDocumentedHeader(t *testing.T) {
 	if !strings.HasPrefix(header, "v1,t=1762084800,kid=billing-2026,sig=") {
 		t.Fatalf("header %q", header)
 	}
-	if strings.Count(header, ",") != 3 {
+	if strings.Count(header, ",") != 4 {
 		t.Fatalf("header %q", header)
+	}
+	if !strings.Contains(header, ",n=") {
+		t.Fatalf("header %q carries no nonce", header)
+	}
+}
+
+func TestEverySignatureCarriesAFreshNonce(t *testing.T) {
+	seen := map[string]bool{}
+	for range 64 {
+		header := Sign("POST", "/api/ping", nil, "billing-2026", secrets["billing-2026"], now)
+		_, nonce, ok := strings.Cut(header, ",n=")
+		if !ok || nonce == "" {
+			t.Fatalf("header %q carries no nonce", header)
+		}
+		if seen[nonce] {
+			t.Fatalf("nonce %q was reused", nonce)
+		}
+		seen[nonce] = true
 	}
 }
 
@@ -126,9 +144,9 @@ func TestVerifyWithoutAProviderRejects(t *testing.T) {
 }
 
 func TestAnEmptyBodyAndANilBodyHashTheSame(t *testing.T) {
-	a := Sign("POST", "/api/ping", nil, "billing-2026", secrets["billing-2026"], now)
-	b := Sign("POST", "/api/ping", []byte{}, "billing-2026", secrets["billing-2026"], now)
-	if a != b {
+	a := canonical("POST", "/api/ping", nil, now.Unix(), "fixed-nonce")
+	b := canonical("POST", "/api/ping", []byte{}, now.Unix(), "fixed-nonce")
+	if string(a) != string(b) {
 		t.Fatalf("%q != %q", a, b)
 	}
 }
