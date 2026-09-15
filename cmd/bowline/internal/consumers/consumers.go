@@ -111,8 +111,8 @@ func verifyInteraction(doc *contract.Document, procs map[string]*contract.Proced
 		return []Problem{{consumer, in.Procedure, nil, "procedure removed"}}
 	}
 	var problems []Problem
-	if p.Kind != "query" && p.Kind != "mutation" {
-		problems = append(problems, Problem{consumer, in.Procedure, nil, fmt.Sprintf("procedure is now a %s", p.Kind)})
+	if p.Kind == "subscription" {
+		problems = append(problems, Problem{consumer, in.Procedure, nil, "procedure is now a subscription"})
 		return problems
 	}
 	if in.Method != "" && in.Method != p.Method {
@@ -127,8 +127,10 @@ func verifyInteraction(doc *contract.Document, procs map[string]*contract.Proced
 		for _, m := range shape.Check(doc, p.Input, input) {
 			problems = append(problems, Problem{consumer, in.Procedure, append([]string{"input"}, m.Path...), m.Reason})
 		}
-		for _, issue := range shape.Validate(doc, p.Input, input) {
-			problems = append(problems, Problem{consumer, in.Procedure, append([]string{"input"}, issue.Path...), "input no longer accepted: " + issue.Message})
+		if in.Response.Status < 400 {
+			for _, issue := range shape.Validate(doc, p.Input, input) {
+				problems = append(problems, Problem{consumer, in.Procedure, append([]string{"input"}, issue.Path...), "input no longer accepted: " + issue.Message})
+			}
 		}
 	}
 	body, err := decode(in.Response.Body)

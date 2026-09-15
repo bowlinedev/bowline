@@ -1,0 +1,204 @@
+{
+  "bowline": "1.2",
+  "consumer": "ledger-web",
+  "provider": "ledger",
+  "interactions": [
+    {
+      "procedure": "health",
+      "method": "GET",
+      "input": {},
+      "response": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "version": "0.3.0"
+        }
+      }
+    },
+    {
+      "procedure": "invoices.attach",
+      "method": "POST",
+      "input": {
+        "invoiceId": 3
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": 6,
+          "invoiceId": 3,
+          "name": "receipt.bin",
+          "contentType": "application/octet-stream",
+          "size": 2097152,
+          "createdAt": "2026-09-16T00:35:02.9722+04:00",
+          "updatedAt": "2026-09-16T00:35:02.9722+04:00"
+        }
+      }
+    },
+    {
+      "procedure": "invoices.create",
+      "method": "POST",
+      "input": {
+        "customerId": 1,
+        "lines": [
+          {
+            "description": "",
+            "quantity": 0,
+            "unitPrice": "USD 10.00"
+          }
+        ]
+      },
+      "response": {
+        "status": 400,
+        "body": {
+          "error": {
+            "code": "INVALID_ARGUMENT",
+            "message": "invalid input",
+            "issues": [
+              {
+                "path": [
+                  "lines",
+                  "0",
+                  "description"
+                ],
+                "rule": "required",
+                "message": "is required"
+              },
+              {
+                "path": [
+                  "lines",
+                  "0",
+                  "quantity"
+                ],
+                "rule": "min",
+                "message": "must be at least 1"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "procedure": "invoices.create",
+      "method": "POST",
+      "input": {
+        "customerId": 1,
+        "lines": [
+          {
+            "description": "Widgets",
+            "quantity": 3,
+            "unitPrice": "USD 10.00"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": 5,
+          "customerId": 1,
+          "status": "draft",
+          "total": "USD 30.00",
+          "lines": [
+            {
+              "description": "Widgets",
+              "quantity": 3,
+              "unitPrice": "USD 10.00"
+            }
+          ],
+          "createdAt": "2026-09-16T00:35:02.425103+04:00",
+          "updatedAt": "2026-09-16T00:35:02.425103+04:00"
+        }
+      }
+    },
+    {
+      "procedure": "invoices.list",
+      "method": "GET",
+      "input": {
+        "limit": 20
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "items": [
+            {
+              "id": 3,
+              "customerId": 1,
+              "status": "sent",
+              "total": "USD 1500.00",
+              "lines": [
+                {
+                  "description": "Consulting",
+                  "quantity": 10,
+                  "unitPrice": "USD 150.00"
+                }
+              ],
+              "note": "net 30",
+              "createdAt": "2026-09-16T00:34:59.929977+04:00",
+              "updatedAt": "2026-09-16T00:34:59.929977+04:00"
+            },
+            {
+              "id": 4,
+              "customerId": 2,
+              "status": "paid",
+              "total": "USD 9999.00",
+              "lines": [
+                {
+                  "description": "Compiler",
+                  "quantity": 1,
+                  "unitPrice": "USD 9999.00"
+                }
+              ],
+              "createdAt": "2026-09-16T00:34:59.929978+04:00",
+              "updatedAt": "2026-09-16T00:34:59.929978+04:00"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "procedure": "invoices.void",
+      "method": "POST",
+      "input": {
+        "id": 4
+      },
+      "response": {
+        "status": 412,
+        "body": {
+          "error": {
+            "code": "FAILED_PRECONDITION",
+            "message": "invoice 4 is paid",
+            "type": "InvoiceLocked",
+            "details": {
+              "id": 4,
+              "status": "paid"
+            }
+          }
+        }
+      }
+    },
+    {
+      "procedure": "invoices.void",
+      "method": "POST",
+      "input": {
+        "id": 5
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": 5,
+          "customerId": 1,
+          "status": "void",
+          "total": "USD 30.00",
+          "lines": [
+            {
+              "description": "Widgets",
+              "quantity": 3,
+              "unitPrice": "USD 10.00"
+            }
+          ],
+          "createdAt": "2026-09-16T00:35:02.425103+04:00",
+          "updatedAt": "2026-09-16T00:35:02.56032+04:00"
+        }
+      }
+    }
+  ]
+}

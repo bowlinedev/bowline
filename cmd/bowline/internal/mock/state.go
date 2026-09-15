@@ -232,15 +232,34 @@ func (s *state) create(p *contract.Procedure, input map[string]any) (any, bool) 
 	if typeID == "" {
 		return nil, false
 	}
-	row, ok := s.gen.Value(p.Output, p.Path, []string{"create", fmt.Sprint(len(s.table(typeID).order))}).(map[string]any)
-	if !ok {
-		return nil, false
-	}
 	outFields, _ := s.fieldsOf(p.Output)
 	inFields, _ := s.fieldsOf(p.Input)
 	kinds := map[string]contract.Kind{}
 	for _, f := range inFields {
 		kinds[f.Name] = f.Type.Kind
+	}
+	if target, ok := s.updateTarget(input, idField); ok {
+		tb := s.table(typeID)
+		row, stored := tb.rows[key(target)]
+		if !stored {
+			generated, ok := s.gen.Value(p.Output, p.Path, []string{"update", key(target)}).(map[string]any)
+			if !ok {
+				return nil, false
+			}
+			row = generated
+			row[idField] = target
+		}
+		for _, f := range outFields {
+			if v, present := input[f.Name]; present && kinds[f.Name] == f.Type.Kind && f.Name != idField {
+				row[f.Name] = v
+			}
+		}
+		s.put(typeID, idField, row)
+		return row, true
+	}
+	row, ok := s.gen.Value(p.Output, p.Path, []string{"create", fmt.Sprint(len(s.table(typeID).order))}).(map[string]any)
+	if !ok {
+		return nil, false
 	}
 	for _, f := range outFields {
 		if v, present := input[f.Name]; present && kinds[f.Name] == f.Type.Kind && f.Name != idField {
@@ -253,6 +272,19 @@ func (s *state) create(p *contract.Procedure, input map[string]any) (any, bool) 
 	}
 	s.put(typeID, idField, row)
 	return row, true
+}
+
+func (s *state) updateTarget(input map[string]any, idField string) (any, bool) {
+	v, ok := input[idField]
+	if !ok {
+		return nil, false
+	}
+	for k := range input {
+		if isID(k) && k != idField {
+			return nil, false
+		}
+	}
+	return v, true
 }
 
 func isStringID(doc *contract.Document, fields []*contract.Field, name string) bool {

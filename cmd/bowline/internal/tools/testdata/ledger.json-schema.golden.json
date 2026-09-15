@@ -149,9 +149,15 @@
               "type": "string"
             },
             "status": {
-              "$ref": "#/$defs/Status"
+              "$ref": "#/$defs/Status",
+              "examples": [
+                "sent"
+              ]
             },
             "total": {
+              "examples": [
+                "USD 1500.00"
+              ],
               "type": "string"
             },
             "updatedAt": {
@@ -190,6 +196,9 @@
               "type": "integer"
             },
             "unitPrice": {
+              "examples": [
+                "USD 150.00"
+              ],
               "type": "string"
             }
           },
@@ -290,9 +299,15 @@
               "type": "string"
             },
             "status": {
-              "$ref": "#/$defs/Status"
+              "$ref": "#/$defs/Status",
+              "examples": [
+                "sent"
+              ]
             },
             "total": {
+              "examples": [
+                "USD 1500.00"
+              ],
               "type": "string"
             },
             "updatedAt": {
@@ -331,6 +346,9 @@
               "type": "integer"
             },
             "unitPrice": {
+              "examples": [
+                "USD 150.00"
+              ],
               "type": "string"
             }
           },
@@ -434,9 +452,15 @@
               "type": "string"
             },
             "status": {
-              "$ref": "#/$defs/Status"
+              "$ref": "#/$defs/Status",
+              "examples": [
+                "sent"
+              ]
             },
             "total": {
+              "examples": [
+                "USD 1500.00"
+              ],
               "type": "string"
             },
             "updatedAt": {
@@ -475,6 +499,9 @@
               "type": "integer"
             },
             "unitPrice": {
+              "examples": [
+                "USD 150.00"
+              ],
               "type": "string"
             }
           },

@@ -197,7 +197,11 @@ func (g *Generator) object(fields []*contract.Field, s scope) map[string]any {
 			continue
 		}
 		if isID(f.Name) && idKind(g.doc, f.Type) != "" {
-			id := g.nextID(s.owner)
+			owner := s.owner
+			if f.Name != "id" && f.Name != "ID" {
+				owner = "field:" + f.Name
+			}
+			id := g.nextID(owner)
 			if idKind(g.doc, f.Type) == "string" {
 				out[f.Name] = strconv.FormatInt(id, 10)
 			} else if f.Type.Encoding == "string" {
