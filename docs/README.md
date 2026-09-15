@@ -19,6 +19,10 @@
 - `guides/frameworks/README.md`: one page per Go router and frontend framework, with snippets verified against the examples.
 - `guides/dart.md`, `guides/python.md`, `guides/rust.md`, `guides/elixir.md`: the generated clients for each language and their runtime packages.
 - `certification.md`: what makes a client target official.
+- `guides/federation.md`: composing several services into one client behind a gateway.
+- `guides/registry.md`: the contract registry and the "who breaks" query.
+- `guides/signing.md`: signed service-to-service calls.
+- `lts.md`: release cadence, support windows, and what gets backported.
 - `adoption-test.md`: the ten-minute adoption protocol run before each minor release.
 - `../spec/contract.md`: the contract document format that every generator reads.
 - `../spec/mapping-table.md`: the normative Go to contract to TypeScript mapping.

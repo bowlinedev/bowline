@@ -12,7 +12,7 @@ func gitRepo(t *testing.T) string {
 	t.Helper()
 	dir := fixtureCopy(t)
 	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/routing.Routes"}`), 0o644)
-	if code := Gen(testOptionsOnly(dir)); code != 0 {
+	if code := Gen(testOptionsOnly(dir), nil); code != 0 {
 		t.Fatal("gen failed")
 	}
 	for _, args := range [][]string{{"init", "-q", "-b", "main"}, {"config", "user.email", "t@example.com"}, {"config", "user.name", "t"}, {"add", "bowline.contract.json"}, {"commit", "-q", "-m", "base"}} {
@@ -63,7 +63,7 @@ func TestCheckAgainstFromASubdirectory(t *testing.T) {
 	os.MkdirAll(filepath.Dir(dir), 0o755)
 	os.Rename(fixtureCopy(t), dir)
 	os.WriteFile(filepath.Join(dir, "bowline.json"), []byte(`{"entry":"./rows/routing.Routes"}`), 0o644)
-	if code := Gen(testOptionsOnly(dir)); code != 0 {
+	if code := Gen(testOptionsOnly(dir), nil); code != 0 {
 		t.Fatal("gen failed")
 	}
 	for _, args := range [][]string{{"init", "-q", "-b", "main"}, {"config", "user.email", "t@example.com"}, {"config", "user.name", "t"}, {"add", "services/billing/bowline.contract.json"}, {"commit", "-q", "-m", "base"}} {

@@ -68,3 +68,42 @@ Diagnostics come with `file:line:col`, the Go path such as `User.Meta`, the mess
 ## Queries and sensitive inputs
 
 Queries are `GET` requests with the input JSON in the `input` query parameter, which makes them cacheable but also puts the input in URLs and access logs. Mark a query `bowline.Sensitive()` to force `POST`; the ledger's `customers.search` in `examples/ledger/api/customers.go` does this.
+
+## Reserved paths
+
+A handler built with `bowline.WithContract(document)` serves two paths under its mount beside the procedures:
+
+| Path | Response |
+|---|---|
+| `GET .bowline/contract` | the contract document, byte for byte as it was passed in |
+| `GET .bowline/health` | `{"ok":true,"hash":"sha256:…"}` with the document's hash |
+
+Both answer `Cache-Control: no-store`, and any method other than `GET` is 405 with `Allow: GET`. Without the option both paths are `UNIMPLEMENTED`, like any unknown procedure. A document that does not parse panics when `Handler()` builds the handler, so a broken contract never reaches production silently.
+
+The gateway uses both: it pins every upstream to a contract hash and refuses to start when the live hash differs, and its readiness probe reports each upstream separately. The ledger passes `api.Contract`, the same bytes `Router.Verify` checks at startup, so the served document and the compiled router can never disagree.
+
+```go
+r.Mount("/api", routes.Handler(bowline.WithContract(api.Contract)))
+```
+
+Procedure names cannot contain a slash, so the reserved paths can never shadow a procedure.
+
+## Signed service-to-service calls
+
+`bowline.Signed(provider)` requires every request to this handler to carry a `Bowline-Signature` header, verified before the input is decoded and before any procedure runs.
+
+```go
+routes.Handler(bowline.Signed(signing.StaticSecrets{"edge": secret}))
+```
+
+The header is `v1,t=<unix seconds>,kid=<key id>,sig=<base64 HMAC-SHA256>`. The signed message is four newline-terminated lines: the method, the request target with its query string, the lowercase hex SHA-256 of the body (of the empty string for `GET`), and the timestamp. A call fails with `UNAUTHENTICATED` when the header is missing or malformed, when the timestamp is more than 300 seconds from server time, when the key ID does not resolve, or when the HMAC does not match; the response never says which, and the reason is logged instead.
+
+Callers sign with `signing.Transport`, which is an `http.RoundTripper`, so the generated Go client takes it without any generator change:
+
+```go
+client := ledgerclient.New(url, ledgerclient.WithHTTPClient(&http.Client{
+	Transport: &signing.Transport{KeyID: "edge", Secret: secret},
+}))
+```
+
+The signature covers the request target as it goes on the wire, so a handler mounted behind `http.StripPrefix` still verifies correctly. Signing applies to every path the handler serves, including the reserved ones, so a probe of a signed handler must be signed too. The 300-second window is the only replay bound: there is no nonce cache, and a signature can be replayed inside that window.

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.0
+
+- Runtime: `bowline.WithContract` serves `.bowline/contract` and `.bowline/health`; `bowline.Signed` verifies HMAC request signatures before decoding, with the `signing` package for clients.
+- Gateway: the `gateway` module composes several service contracts into one document and proxies each call to its owner, with pinned contract hashes, readiness that verifies the pins, header allowlisting, retries for idempotent queries only, and streaming for subscriptions and uploads.
+- Registry: the `registry` module stores services, versions, consumers, and compositions behind a `Store` interface with a file-backed implementation, serves them over HTTP, and answers which consumers a candidate contract would break.
+- CLI: `bowline gateway`, `bowline gateway compose`, `bowline registry serve`, `bowline publish`, `bowline check --registry`, and `bowline gen --from` to render targets from an existing document.
+- Registry UI: `bowline registry serve --ui` serves an embedded browser app listing services and versions, drawing the dependency graph, browsing a contract, and running an impact query against a pasted or uploaded document.
+- Examples: a two-service federation with a billing service that reads the ledger over a signed Go client, a gateway that composes both, and a web app on the composed client.
+- Supply chain: a per-module dependency allowlist, `govulncheck` on every module, an advisory check scoped to the published packages, Dependabot, and build provenance attestations on release artifacts.
+- Project: `GOVERNANCE.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `MAINTAINERS.md`, and `docs/lts.md` with the support windows and the backport rule.
+
 ## 0.6.0
 
 - CLI: `dart`, `python`, `rust`, and `elixir` generator targets with goldens compiled by each language's toolchain in CI; naming rules shared across every generator.

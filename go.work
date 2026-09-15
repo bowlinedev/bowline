@@ -4,13 +4,16 @@ use (
 	.
 	./cmd/bowline
 	./mcp
+	./gateway
 	./transport/websocket
 	./agent
 	./playground
 	./contracttest
+	./registry
 	./adapters/fiber
 	./examples/routers/fiber
 	./examples/ledger
+	./examples/federation/billing
 	./examples/go-client
 	./examples/nethttp-minimal
 	./examples/routers/stdlib

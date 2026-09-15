@@ -1,14 +1,40 @@
 package main
 
 import (
+	"bytes"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
+	"github.com/bowlinedev/bowline/contract"
 	"github.com/bowlinedev/bowline/examples/ledger/api"
 )
+
+func TestReservedContractAndHealthEndpoints(t *testing.T) {
+	handler, err := newHandler(api.Routes(), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/api/.bowline/contract", nil))
+	if rec.Code != http.StatusOK || !bytes.Equal(rec.Body.Bytes(), api.Contract) {
+		t.Fatalf("contract endpoint: status %d", rec.Code)
+	}
+	if cc := rec.Header().Get("Cache-Control"); cc != "no-store" {
+		t.Fatalf("cache control %q", cc)
+	}
+	doc, err := contract.Parse(api.Contract)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rec = httptest.NewRecorder()
+	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/api/.bowline/health", nil))
+	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), doc.Hash) {
+		t.Fatalf("health endpoint: status %d body %s", rec.Code, rec.Body.String())
+	}
+}
 
 func TestMCPMountHonorsTheTokenMiddleware(t *testing.T) {
 	t.Setenv("LEDGER_TOKEN", "dev")

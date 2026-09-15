@@ -42,6 +42,7 @@ func main() {
 func newHandler(routes *bowline.Router, production bool) (http.Handler, error) {
 	options := []bowline.HandlerOption{
 		bowline.Production(production),
+		bowline.WithContract(api.Contract),
 		bowline.Idempotency(bowline.MemoryIdempotencyStore(), 24*time.Hour),
 		bowline.Heartbeat(15 * time.Second),
 		bowline.MaxUploadSize(8 << 20),

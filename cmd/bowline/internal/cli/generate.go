@@ -37,6 +37,10 @@ type Options struct {
 }
 
 func Produce(opts Options) (map[string][]byte, []analyzer.Diagnostic, error) {
+	return ProduceFrom(opts, "")
+}
+
+func ProduceFrom(opts Options, from string) (map[string][]byte, []analyzer.Diagnostic, error) {
 	cfg, err := LoadConfig(opts.Dir)
 	if err != nil {
 		return nil, nil, err
@@ -45,6 +49,22 @@ func Produce(opts Options) (map[string][]byte, []analyzer.Diagnostic, error) {
 		if _, ok := Generators[name]; !ok && name != "tools" {
 			return nil, nil, fmt.Errorf("unknown target %q; available: %s", name, availableTargets())
 		}
+	}
+	if from != "" {
+		data, err := os.ReadFile(filepath.Join(opts.Dir, filepath.FromSlash(from)))
+		if err != nil {
+			return nil, nil, fmt.Errorf("reading %s: %w", from, err)
+		}
+		doc, err := contract.Parse(data)
+		if err != nil {
+			return nil, nil, fmt.Errorf("parsing %s: %w", from, err)
+		}
+		files, err := render(doc, cfg)
+		if err != nil {
+			return nil, nil, err
+		}
+		delete(files, cfg.Contract)
+		return files, nil, nil
 	}
 	env := opts.Env
 	if env == nil {

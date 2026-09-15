@@ -5,12 +5,16 @@ import (
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/support"
 	"github.com/bowlinedev/bowline/contract"
 )
 
 type Generator struct{}
 
 func (Generator) Generate(doc *contract.Document, out string) ([]byte, error) {
+	if err := support.Reject(doc, "rust"); err != nil {
+		return nil, err
+	}
 	g := newGenerator(doc)
 	declarations := g.declarations()
 	client := g.client()

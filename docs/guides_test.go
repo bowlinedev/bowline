@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-var sourceLine = regexp.MustCompile(`^source: ([^:\s]+):(\d+)-(\d+)$`)
+var sourceLine = regexp.MustCompile(`(?m)^source: ([^:\s]+):(\d+)-(\d+)$`)
 
 func TestFrameworkGuideSnippetsMatchTheirSources(t *testing.T) {
 	guides, err := filepath.Glob(filepath.Join("guides", "frameworks", "*.md"))
@@ -28,10 +28,20 @@ func TestFrameworkGuideSnippetsMatchTheirSources(t *testing.T) {
 	}
 }
 
-func TestClientGuideSnippetsMatchTheirSources(t *testing.T) {
-	for _, name := range []string{"dart.md", "python.md", "rust.md", "elixir.md"} {
-		guide := filepath.Join("guides", name)
-		if _, err := os.Stat(guide); err != nil {
+func TestEveryGuideSnippetMatchesItsSource(t *testing.T) {
+	guides, err := filepath.Glob(filepath.Join("guides", "*.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(guides) == 0 {
+		t.Fatal("no guides found")
+	}
+	for _, guide := range guides {
+		data, err := os.ReadFile(guide)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !sourceLine.MatchString(string(data)) && !strings.Contains(string(data), "\nsource: ") {
 			continue
 		}
 		checkGuide(t, guide, true)

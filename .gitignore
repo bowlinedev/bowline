@@ -10,6 +10,9 @@ playwright-report/
 !playground/ui/dist/
 playground/ui/dist/*
 !playground/ui/dist/placeholder.html
+!registry/ui/dist/
+registry/ui/dist/*
+!registry/ui/dist/placeholder.html
 .astro/
 .next/
 /examples/remix/build/
@@ -26,3 +29,8 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+examples/federation/registry-data/
+/examples/go-client/go-client
+/examples/routers/fiber/fiber
+/examples/ledger/tmp/
+/examples/federation/gateway/dev/

@@ -1,0 +1,10 @@
+. =
+cmd/bowline = golang.org/x/tools
+transport/websocket = github.com/coder/websocket
+mcp =
+agent =
+playground =
+contracttest =
+gateway =
+registry =
+adapters/fiber = github.com/gofiber/fiber/v2 github.com/valyala/fasthttp

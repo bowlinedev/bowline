@@ -4,7 +4,7 @@ defmodule BowlineClient.MixProject do
   def project do
     [
       app: :bowline_client,
-      version: "0.6.0",
+      version: "0.7.0",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -20,8 +20,7 @@ defmodule BowlineClient.MixProject do
 
   defp deps do
     [
-      {:req, "~> 0.7"},
-      {:plug, "~> 1.16", only: :test}
+      {:req, "~> 0.7"}
     ]
   end
 

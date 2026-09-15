@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   id-token: write
+  attestations: write
 
 jobs:
   cli:
@@ -34,9 +35,17 @@ jobs:
           git tag -f "playground/${GITHUB_REF_NAME}"
           git push -f origin "playground/${GITHUB_REF_NAME}"
           git checkout -q "${GITHUB_SHA}"
+      - name: embed the registry bundle in the registry module tag
+        run: |
+          pnpm --filter @bowline/registry-ui build
+          git add -f registry/ui/dist
+          git -c user.name=bowline-release -c user.email=release@bowline.dev commit -s -m "chore(registry): embed the release bundle"
+          git tag -f "registry/${GITHUB_REF_NAME}"
+          git push -f origin "registry/${GITHUB_REF_NAME}"
+          git checkout -q "${GITHUB_SHA}"
       - name: ensure module tags exist
         run: |
-          for tag in "cmd/bowline/${GITHUB_REF_NAME}" "transport/websocket/${GITHUB_REF_NAME}" "mcp/${GITHUB_REF_NAME}" "agent/${GITHUB_REF_NAME}" "contracttest/${GITHUB_REF_NAME}" "adapters/fiber/${GITHUB_REF_NAME}"; do
+          for tag in "cmd/bowline/${GITHUB_REF_NAME}" "transport/websocket/${GITHUB_REF_NAME}" "mcp/${GITHUB_REF_NAME}" "agent/${GITHUB_REF_NAME}" "contracttest/${GITHUB_REF_NAME}" "adapters/fiber/${GITHUB_REF_NAME}" "gateway/${GITHUB_REF_NAME}"; do
             if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
               git tag "$tag" "$GITHUB_SHA"
               git push origin "$tag"
@@ -48,6 +57,12 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            dist/*.tar.gz
+            dist/*.zip
+            dist/checksums.txt
 
   npm:
     if: github.event_name == 'workflow_dispatch'
@@ -68,6 +83,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
 
   pypi:
     if: github.event_name == 'workflow_dispatch'

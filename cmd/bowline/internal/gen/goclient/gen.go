@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/support"
 	"github.com/bowlinedev/bowline/contract"
 )
 
@@ -20,6 +21,9 @@ func (g Generator) WithPackage(pkg string) any {
 }
 
 func (g Generator) Generate(doc *contract.Document, out string) ([]byte, error) {
+	if err := support.Reject(doc, "go"); err != nil {
+		return nil, err
+	}
 	pkg := g.Package
 	if pkg == "" {
 		pkg = path.Base(path.Dir(out))

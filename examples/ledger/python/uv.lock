@@ -94,7 +94,7 @@ wheels = [
 
 [[package]]
 name = "bowline-client"
-version = "0.6.0"
+version = "0.7.0"
 source = { editable = "../../../packages/python/bowline-client" }
 dependencies = [
     { name = "httpx" },
@@ -190,7 +190,7 @@ wheels = [
 
 [[package]]
 name = "ledger-python"
-version = "0.6.0"
+version = "0.7.0"
 source = { virtual = "." }
 dependencies = [
     { name = "bowline-client" },

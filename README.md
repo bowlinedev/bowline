@@ -82,6 +82,9 @@ const greeting = await client.greet({ name: "ada" });
 | `docs/guides/frameworks/README.md` | every Go router and frontend framework, with verified snippets |
 | `docs/guides/dart.md`, `python.md`, `rust.md`, `elixir.md` | the generated Dart, Python, Rust, and Elixir clients |
 | `docs/certification.md` | what makes a client target official |
+| `docs/guides/federation.md` | composing services behind a gateway |
+| `docs/guides/registry.md` | the contract registry and impact queries |
+| `docs/guides/signing.md` | signed service-to-service calls |
 | `spec/contract.md` | the contract document every generator reads |
 | `spec/mapping-table.md` | the normative Go to TypeScript mapping |
 
@@ -113,6 +116,9 @@ This is the 0.5 alpha. Applications need Go 1.24 or later; building the CLI need
 - `/playground` the embeddable playground handler
 - `/contracttest` in-process consumer verification for `go test`
 - `/conformance` the wire contract suite every mount runs
+- `/gateway` contract composition and the federating proxy
+- `/registry` the self-hosted contract registry
+- `/signing` HMAC request signing, in the root module
 - `/adapters/fiber` the Fiber adapter
 - `/contract` contract document types
 - `/packages` npm packages `@bowline/client`, `@bowline/react-query`, `@bowline/swr`, `@bowline/svelte`, `@bowline/solid`, `@bowline/vue`, and `@bowline/agent`, plus the playground app

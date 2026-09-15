@@ -1,0 +1,1498 @@
+{
+  "bowline": "1.2",
+  "hash": "sha256:f33fe75961195866d00fb1f1a4f6df52841e6446dbbd48af45aa91ecec82e2d2",
+  "types": {
+    "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.CreateChargeInput": {
+      "kind": "struct",
+      "name": "CreateChargeInput",
+      "fields": [
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ],
+          "example": 3
+        }
+      ]
+    },
+    "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.HealthOutput": {
+      "kind": "struct",
+      "name": "Billing_HealthOutput",
+      "fields": [
+        {
+          "name": "ok",
+          "type": {
+            "kind": "primitive",
+            "name": "bool"
+          }
+        },
+        {
+          "name": "version",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "example": "0.7.0"
+        }
+      ]
+    },
+    "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.ListChargesInput": {
+      "kind": "struct",
+      "name": "ListChargesInput",
+      "fields": [
+        {
+          "name": "limit",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          },
+          "rules": [
+            {
+              "rule": "min",
+              "param": "1"
+            },
+            {
+              "rule": "max",
+              "param": "100"
+            }
+          ],
+          "example": 20
+        }
+      ]
+    },
+    "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.SettleChargeInput": {
+      "kind": "struct",
+      "name": "SettleChargeInput",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
+    "billing:github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge": {
+      "kind": "struct",
+      "name": "Charge",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "amount",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "example": "USD 1500.00"
+        },
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "billing:github.com/bowlinedev/bowline/examples/federation/billing/billing.Status"
+          },
+          "example": "open"
+        },
+        {
+          "name": "createdAt",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        }
+      ]
+    },
+    "billing:github.com/bowlinedev/bowline/examples/federation/billing/billing.Page": {
+      "kind": "generic",
+      "name": "Billing_Page",
+      "params": [
+        "T"
+      ],
+      "body": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "items",
+            "type": {
+              "kind": "array",
+              "elem": {
+                "kind": "param",
+                "name": "T"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "billing:github.com/bowlinedev/bowline/examples/federation/billing/billing.Status": {
+      "kind": "enum",
+      "name": "Billing_Status",
+      "base": "string",
+      "values": [
+        {
+          "name": "StatusOpen",
+          "value": "open"
+        },
+        {
+          "name": "StatusSettled",
+          "value": "settled"
+        },
+        {
+          "name": "StatusRefunded",
+          "value": "refunded"
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/api.AttachInput": {
+      "kind": "struct",
+      "name": "AttachInput",
+      "fields": [
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/api.CreateInvoiceInput": {
+      "kind": "struct",
+      "name": "CreateInvoiceInput",
+      "fields": [
+        {
+          "name": "customerId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        },
+        {
+          "name": "lines",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "ref",
+              "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Line"
+            }
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        },
+        {
+          "name": "note",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "optional": true,
+          "rules": [
+            {
+              "rule": "max",
+              "param": "500"
+            }
+          ]
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/api.GetCustomerInput": {
+      "kind": "struct",
+      "name": "GetCustomerInput",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/api.GetInvoiceInput": {
+      "kind": "struct",
+      "name": "GetInvoiceInput",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/api.HealthOutput": {
+      "kind": "struct",
+      "name": "Ledger_HealthOutput",
+      "fields": [
+        {
+          "name": "ok",
+          "type": {
+            "kind": "primitive",
+            "name": "bool"
+          },
+          "example": true
+        },
+        {
+          "name": "version",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "example": "0.7.0"
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/api.ListAttachmentsInput": {
+      "kind": "struct",
+      "name": "ListAttachmentsInput",
+      "fields": [
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/api.ListInvoicesInput": {
+      "kind": "struct",
+      "name": "ListInvoicesInput",
+      "fields": [
+        {
+          "name": "cursor",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "optional": true
+        },
+        {
+          "name": "limit",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          },
+          "rules": [
+            {
+              "rule": "min",
+              "param": "1"
+            },
+            {
+              "rule": "max",
+              "param": "100"
+            }
+          ]
+        },
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Status"
+          },
+          "optional": true
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/api.SearchCustomersInput": {
+      "kind": "struct",
+      "name": "SearchCustomersInput",
+      "fields": [
+        {
+          "name": "query",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            },
+            {
+              "rule": "min",
+              "param": "2"
+            }
+          ]
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/api.VoidInvoiceInput": {
+      "kind": "struct",
+      "name": "VoidInvoiceInput",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ]
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/api.WatchInput": {
+      "kind": "struct",
+      "name": "WatchInput",
+      "fields": [
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Status"
+          },
+          "optional": true
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Attachment": {
+      "kind": "struct",
+      "name": "Attachment",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "contentType",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          }
+        },
+        {
+          "name": "size",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Customer": {
+      "kind": "struct",
+      "name": "Customer",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "name",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            }
+          ],
+          "example": "Ada Lovelace"
+        },
+        {
+          "name": "email",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            },
+            {
+              "rule": "email"
+            }
+          ],
+          "example": "ada@example.com"
+        },
+        {
+          "name": "createdAt",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice": {
+      "kind": "struct",
+      "name": "Invoice",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "customerId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Status"
+          },
+          "example": "sent"
+        },
+        {
+          "name": "total",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "example": "USD 1500.00"
+        },
+        {
+          "name": "lines",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "ref",
+              "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Line"
+            }
+          }
+        },
+        {
+          "name": "note",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "optional": true,
+          "example": "net 30"
+        },
+        {
+          "name": "createdAt",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        },
+        {
+          "name": "updatedAt",
+          "type": {
+            "kind": "primitive",
+            "name": "timestamp"
+          }
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Line": {
+      "kind": "struct",
+      "name": "Line",
+      "fields": [
+        {
+          "name": "description",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "rules": [
+            {
+              "rule": "required"
+            },
+            {
+              "rule": "max",
+              "param": "200"
+            }
+          ],
+          "example": "Consulting"
+        },
+        {
+          "name": "quantity",
+          "type": {
+            "kind": "primitive",
+            "name": "int32"
+          },
+          "rules": [
+            {
+              "rule": "min",
+              "param": "1"
+            }
+          ],
+          "example": 10
+        },
+        {
+          "name": "unitPrice",
+          "type": {
+            "kind": "primitive",
+            "name": "string"
+          },
+          "example": "USD 150.00"
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Page": {
+      "kind": "generic",
+      "name": "Ledger_Page",
+      "params": [
+        "T"
+      ],
+      "body": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "items",
+            "type": {
+              "kind": "array",
+              "elem": {
+                "kind": "param",
+                "name": "T"
+              }
+            }
+          },
+          {
+            "name": "nextCursor",
+            "type": {
+              "kind": "primitive",
+              "name": "string"
+            },
+            "optional": true
+          }
+        ]
+      }
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Status": {
+      "kind": "enum",
+      "name": "Ledger_Status",
+      "base": "string",
+      "values": [
+        {
+          "name": "StatusDraft",
+          "value": "draft"
+        },
+        {
+          "name": "StatusSent",
+          "value": "sent"
+        },
+        {
+          "name": "StatusPaid",
+          "value": "paid"
+        },
+        {
+          "name": "StatusVoid",
+          "value": "void"
+        }
+      ]
+    }
+  },
+  "errors": {
+    "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.UnknownInvoice": {
+      "name": "UnknownInvoice",
+      "code": "FAILED_PRECONDITION",
+      "doc": "UnknownInvoice is returned when the ledger has no invoice with the given ID.",
+      "fields": [
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    },
+    "ledger:github.com/bowlinedev/bowline/examples/ledger/api.InvoiceLocked": {
+      "name": "InvoiceLocked",
+      "code": "FAILED_PRECONDITION",
+      "doc": "InvoiceLocked is returned when an invoice can no longer change.",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Status"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "billing.charges.create",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.CreateChargeInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "billing:github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/federation/billing/api.CreateChargeInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge",
+      "errors": [
+        "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.UnknownInvoice"
+      ],
+      "idempotent": true,
+      "doc": "Create charges an invoice read from the ledger."
+    },
+    {
+      "path": "billing.charges.list",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.ListChargesInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "billing:github.com/bowlinedev/bowline/examples/federation/billing/billing.Page",
+        "args": [
+          {
+            "kind": "ref",
+            "id": "billing:github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge"
+          }
+        ]
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/federation/billing/api.ListChargesInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/federation/billing/billing.Page[github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge]",
+      "doc": "List returns every charge, newest last."
+    },
+    {
+      "path": "billing.charges.settle",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.SettleChargeInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "billing:github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/federation/billing/api.SettleChargeInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/federation/billing/billing.Charge"
+    },
+    {
+      "path": "billing.health",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "struct"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.HealthOutput"
+      },
+      "goInput": "struct{}",
+      "goOutput": "github.com/bowlinedev/bowline/examples/federation/billing/api.HealthOutput"
+    },
+    {
+      "path": "ledger.customers.get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.GetCustomerInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Customer"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.GetCustomerInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Customer"
+    },
+    {
+      "path": "ledger.customers.search",
+      "kind": "query",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.SearchCustomersInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Page",
+        "args": [
+          {
+            "kind": "ref",
+            "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Customer"
+          }
+        ]
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.SearchCustomersInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Page[github.com/bowlinedev/bowline/examples/ledger/ledger.Customer]",
+      "tool": {
+        "scopes": [
+          "crm"
+        ],
+        "readOnly": true
+      },
+      "schemas": {
+        "input": {
+          "$defs": {
+            "SearchCustomersInput": {
+              "additionalProperties": false,
+              "properties": {
+                "query": {
+                  "minLength": 2,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query"
+              ],
+              "type": "object"
+            }
+          },
+          "$ref": "#/$defs/SearchCustomersInput",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        },
+        "output": {
+          "$defs": {
+            "Customer": {
+              "additionalProperties": false,
+              "properties": {
+                "createdAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "email": {
+                  "examples": [
+                    "ada@example.com"
+                  ],
+                  "format": "email",
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "id": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "name": {
+                  "examples": [
+                    "Ada Lovelace"
+                  ],
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "createdAt",
+                "email",
+                "id",
+                "name",
+                "updatedAt"
+              ],
+              "type": "object"
+            },
+            "Page_Customer": {
+              "additionalProperties": false,
+              "properties": {
+                "items": {
+                  "items": {
+                    "$ref": "#/$defs/Customer"
+                  },
+                  "type": "array"
+                },
+                "nextCursor": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "items"
+              ],
+              "type": "object"
+            }
+          },
+          "$ref": "#/$defs/Page_Customer",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        }
+      },
+      "doc": "Search finds customers whose name or email contains the query."
+    },
+    {
+      "path": "ledger.health",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "struct"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.HealthOutput"
+      },
+      "goInput": "struct{}",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/api.HealthOutput"
+    },
+    {
+      "path": "ledger.invoices.attach",
+      "kind": "upload",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.AttachInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Attachment"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.AttachInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Attachment",
+      "doc": "Attach stores a file against an invoice."
+    },
+    {
+      "path": "ledger.invoices.attachments",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.ListAttachmentsInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Page",
+        "args": [
+          {
+            "kind": "ref",
+            "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Attachment"
+          }
+        ]
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.ListAttachmentsInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Page[github.com/bowlinedev/bowline/examples/ledger/ledger.Attachment]"
+    },
+    {
+      "path": "ledger.invoices.create",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.CreateInvoiceInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.CreateInvoiceInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice",
+      "idempotent": true
+    },
+    {
+      "path": "ledger.invoices.get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.GetInvoiceInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.GetInvoiceInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice",
+      "tool": {
+        "scopes": [
+          "billing"
+        ],
+        "readOnly": true
+      },
+      "schemas": {
+        "input": {
+          "$defs": {
+            "GetInvoiceInput": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "type": "object"
+            }
+          },
+          "$ref": "#/$defs/GetInvoiceInput",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        },
+        "output": {
+          "$defs": {
+            "Invoice": {
+              "additionalProperties": false,
+              "properties": {
+                "createdAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "customerId": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "id": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "lines": {
+                  "items": {
+                    "$ref": "#/$defs/Line"
+                  },
+                  "type": "array"
+                },
+                "note": {
+                  "examples": [
+                    "net 30"
+                  ],
+                  "type": "string"
+                },
+                "status": {
+                  "$ref": "#/$defs/Status",
+                  "examples": [
+                    "sent"
+                  ]
+                },
+                "total": {
+                  "examples": [
+                    "USD 1500.00"
+                  ],
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "createdAt",
+                "customerId",
+                "id",
+                "lines",
+                "status",
+                "total",
+                "updatedAt"
+              ],
+              "type": "object"
+            },
+            "Line": {
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "examples": [
+                    "Consulting"
+                  ],
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "quantity": {
+                  "examples": [
+                    10
+                  ],
+                  "maximum": 2147483647,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "unitPrice": {
+                  "examples": [
+                    "USD 150.00"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "unitPrice"
+              ],
+              "type": "object"
+            },
+            "Status": {
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "void"
+              ],
+              "type": "string"
+            }
+          },
+          "$ref": "#/$defs/Invoice",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        }
+      },
+      "doc": "Get returns one invoice by ID."
+    },
+    {
+      "path": "ledger.invoices.list",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.ListInvoicesInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Page",
+        "args": [
+          {
+            "kind": "ref",
+            "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice"
+          }
+        ]
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.ListInvoicesInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Page[github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice]",
+      "tool": {
+        "scopes": [
+          "billing"
+        ],
+        "readOnly": true
+      },
+      "schemas": {
+        "input": {
+          "$defs": {
+            "ListInvoicesInput": {
+              "additionalProperties": false,
+              "properties": {
+                "cursor": {
+                  "type": "string"
+                },
+                "limit": {
+                  "maximum": 100,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "status": {
+                  "$ref": "#/$defs/Status"
+                }
+              },
+              "required": [
+                "limit"
+              ],
+              "type": "object"
+            },
+            "Status": {
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "void"
+              ],
+              "type": "string"
+            }
+          },
+          "$ref": "#/$defs/ListInvoicesInput",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        },
+        "output": {
+          "$defs": {
+            "Invoice": {
+              "additionalProperties": false,
+              "properties": {
+                "createdAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "customerId": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "id": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "lines": {
+                  "items": {
+                    "$ref": "#/$defs/Line"
+                  },
+                  "type": "array"
+                },
+                "note": {
+                  "examples": [
+                    "net 30"
+                  ],
+                  "type": "string"
+                },
+                "status": {
+                  "$ref": "#/$defs/Status",
+                  "examples": [
+                    "sent"
+                  ]
+                },
+                "total": {
+                  "examples": [
+                    "USD 1500.00"
+                  ],
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "createdAt",
+                "customerId",
+                "id",
+                "lines",
+                "status",
+                "total",
+                "updatedAt"
+              ],
+              "type": "object"
+            },
+            "Line": {
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "examples": [
+                    "Consulting"
+                  ],
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "quantity": {
+                  "examples": [
+                    10
+                  ],
+                  "maximum": 2147483647,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "unitPrice": {
+                  "examples": [
+                    "USD 150.00"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "unitPrice"
+              ],
+              "type": "object"
+            },
+            "Page_Invoice": {
+              "additionalProperties": false,
+              "properties": {
+                "items": {
+                  "items": {
+                    "$ref": "#/$defs/Invoice"
+                  },
+                  "type": "array"
+                },
+                "nextCursor": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "items"
+              ],
+              "type": "object"
+            },
+            "Status": {
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "void"
+              ],
+              "type": "string"
+            }
+          },
+          "$ref": "#/$defs/Page_Invoice",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        }
+      },
+      "doc": "List returns a page of invoices, optionally filtered by status."
+    },
+    {
+      "path": "ledger.invoices.void",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.VoidInvoiceInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.VoidInvoiceInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice",
+      "errors": [
+        "ledger:github.com/bowlinedev/bowline/examples/ledger/api.InvoiceLocked"
+      ],
+      "tool": {
+        "scopes": [
+          "billing"
+        ],
+        "destructive": true
+      },
+      "schemas": {
+        "input": {
+          "$defs": {
+            "VoidInvoiceInput": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "type": "object"
+            }
+          },
+          "$ref": "#/$defs/VoidInvoiceInput",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        },
+        "output": {
+          "$defs": {
+            "Invoice": {
+              "additionalProperties": false,
+              "properties": {
+                "createdAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "customerId": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "id": {
+                  "maximum": 9007199254740991,
+                  "minimum": -9007199254740991,
+                  "type": "integer"
+                },
+                "lines": {
+                  "items": {
+                    "$ref": "#/$defs/Line"
+                  },
+                  "type": "array"
+                },
+                "note": {
+                  "examples": [
+                    "net 30"
+                  ],
+                  "type": "string"
+                },
+                "status": {
+                  "$ref": "#/$defs/Status",
+                  "examples": [
+                    "sent"
+                  ]
+                },
+                "total": {
+                  "examples": [
+                    "USD 1500.00"
+                  ],
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "createdAt",
+                "customerId",
+                "id",
+                "lines",
+                "status",
+                "total",
+                "updatedAt"
+              ],
+              "type": "object"
+            },
+            "Line": {
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "examples": [
+                    "Consulting"
+                  ],
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "quantity": {
+                  "examples": [
+                    10
+                  ],
+                  "maximum": 2147483647,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "unitPrice": {
+                  "examples": [
+                    "USD 150.00"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "unitPrice"
+              ],
+              "type": "object"
+            },
+            "Status": {
+              "enum": [
+                "draft",
+                "sent",
+                "paid",
+                "void"
+              ],
+              "type": "string"
+            }
+          },
+          "$ref": "#/$defs/Invoice",
+          "$schema": "https://json-schema.org/draft/2020-12/schema"
+        }
+      },
+      "doc": "Void cancels a draft or sent invoice.",
+      "meta": {
+        "auth": "admin"
+      }
+    },
+    {
+      "path": "ledger.invoices.watch",
+      "kind": "subscription",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.WatchInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice"
+      },
+      "goInput": "github.com/bowlinedev/bowline/examples/ledger/api.WatchInput",
+      "goOutput": "github.com/bowlinedev/bowline/examples/ledger/ledger.Invoice",
+      "doc": "Watch streams every invoice change."
+    }
+  ]
+}

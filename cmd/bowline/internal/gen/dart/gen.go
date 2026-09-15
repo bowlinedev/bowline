@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/support"
 	"github.com/bowlinedev/bowline/contract"
 )
 
@@ -58,6 +59,9 @@ type inlineDecl struct {
 }
 
 func (Generator) Generate(doc *contract.Document, out string) ([]byte, error) {
+	if err := support.Reject(doc, "dart"); err != nil {
+		return nil, err
+	}
 	g := newGenerator(doc)
 	if err := g.collectInlines(); err != nil {
 		return nil, err
