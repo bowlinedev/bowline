@@ -9,7 +9,8 @@
     "build": "vite build",
     "preview": "vite preview --port 4175 --strictPort",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "prepare": "svelte-kit sync"
   },
   "dependencies": {
     "@bowline/client": "workspace:*",
