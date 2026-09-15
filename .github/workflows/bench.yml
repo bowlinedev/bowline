@@ -1,0 +1,28 @@
+name: bench
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  overhead:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: benchmarks
+        run: go test -run '^$' -bench . -benchmem -count 3 . | tee bench.txt
+      - name: summary
+        run: |
+          echo '## Benchmarks' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat bench.txt >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+      - name: overhead gate
+        run: BOWLINE_BENCH=1 go test -run TestOverheadBudget -v .
