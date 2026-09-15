@@ -1,0 +1,27 @@
+{
+  "name": "federation-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4176 --strictPort",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@bowline/client": "workspace:*",
+    "@bowline/react-query": "workspace:*",
+    "@tanstack/react-query": "5.90.2",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0",
+    "@types/node": "24.7.0",
+    "@types/react": "19.1.12",
+    "@types/react-dom": "19.1.9",
+    "@vitejs/plugin-react": "5.0.2",
+    "typescript": "5.9.2",
+    "vite": "7.1.5"
+  }
+}

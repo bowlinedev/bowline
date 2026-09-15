@@ -1,0 +1,237 @@
+import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type Mutation, type Query, type Subscription, type TypedError, type UntypedError, type Upload } from "@bowline/client";
+
+/** InvoiceLocked is returned when an invoice can no longer change. */
+export interface InvoiceLocked {
+  id: number;
+  status: Ledger_Status;
+}
+
+/** UnknownInvoice is returned when the ledger has no invoice with the given ID. */
+export interface UnknownInvoice {
+  invoiceId: number;
+}
+
+export interface AttachInput {
+  invoiceId: number;
+}
+
+export interface Attachment {
+  id: number;
+  invoiceId: number;
+  name: string;
+  contentType: string;
+  size: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Billing_HealthOutput {
+  ok: boolean;
+  version: string;
+}
+
+export interface Billing_Page<T> {
+  items: T[];
+}
+
+export type Billing_Status = "open" | "settled" | "refunded";
+
+export interface Charge {
+  id: number;
+  invoiceId: number;
+  amount: string;
+  status: Billing_Status;
+  createdAt: Date;
+}
+
+export interface CreateChargeInput {
+  invoiceId: number;
+}
+
+export interface CreateInvoiceInput {
+  customerId: number;
+  lines: Line[];
+  note?: string;
+}
+
+export interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface GetCustomerInput {
+  id: number;
+}
+
+export interface GetInvoiceInput {
+  id: number;
+}
+
+export interface Invoice {
+  id: number;
+  customerId: number;
+  status: Ledger_Status;
+  total: string;
+  lines: Line[];
+  note?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Ledger_HealthOutput {
+  ok: boolean;
+  version: string;
+}
+
+export interface Ledger_Page<T> {
+  items: T[];
+  nextCursor?: string;
+}
+
+export type Ledger_Status = "draft" | "sent" | "paid" | "void";
+
+export interface Line {
+  description: string;
+  quantity: number;
+  unitPrice: string;
+}
+
+export interface ListAttachmentsInput {
+  invoiceId: number;
+}
+
+export interface ListChargesInput {
+  limit: number;
+}
+
+export interface ListInvoicesInput {
+  cursor?: string;
+  limit: number;
+  status?: Ledger_Status;
+}
+
+export interface SearchCustomersInput {
+  query: string;
+}
+
+export interface SettleChargeInput {
+  id: number;
+}
+
+export interface VoidInvoiceInput {
+  id: number;
+}
+
+export interface WatchInput {
+  status?: Ledger_Status;
+}
+
+export interface Errors {
+  "billing.charges.create": TypedError<"UnknownInvoice", UnknownInvoice> | UntypedError;
+  "billing.charges.list": BowlineError;
+  "billing.charges.settle": BowlineError;
+  "billing.health": BowlineError;
+  "ledger.customers.get": BowlineError;
+  "ledger.customers.search": BowlineError;
+  "ledger.health": BowlineError;
+  "ledger.invoices.attach": BowlineError;
+  "ledger.invoices.attachments": BowlineError;
+  "ledger.invoices.create": BowlineError;
+  "ledger.invoices.get": BowlineError;
+  "ledger.invoices.list": BowlineError;
+  "ledger.invoices.void": TypedError<"InvoiceLocked", InvoiceLocked> | UntypedError;
+  "ledger.invoices.watch": BowlineError;
+}
+
+export type ProcedureError<P extends keyof Errors> = Errors[P];
+
+export interface Client {
+  billing: {
+    charges: {
+      /** Create charges an invoice read from the ledger. */
+      create: Mutation<CreateChargeInput, Charge, Errors["billing.charges.create"]>;
+      /** List returns every charge, newest last. */
+      list: Query<ListChargesInput, Billing_Page<Charge>>;
+      settle: Mutation<SettleChargeInput, Charge>;
+    };
+    health: Query<Record<string, never>, Billing_HealthOutput>;
+  };
+  ledger: {
+    customers: {
+      get: Query<GetCustomerInput, Customer>;
+      /** Search finds customers whose name or email contains the query. */
+      search: Query<SearchCustomersInput, Ledger_Page<Customer>>;
+    };
+    health: Query<Record<string, never>, Ledger_HealthOutput>;
+    invoices: {
+      /** Attach stores a file against an invoice. */
+      attach: Upload<AttachInput, Attachment>;
+      attachments: Query<ListAttachmentsInput, Ledger_Page<Attachment>>;
+      create: Mutation<CreateInvoiceInput, Invoice>;
+      /** Get returns one invoice by ID. */
+      get: Query<GetInvoiceInput, Invoice>;
+      /** List returns a page of invoices, optionally filtered by status. */
+      list: Query<ListInvoicesInput, Ledger_Page<Invoice>>;
+      /** Void cancels a draft or sent invoice. */
+      "void": Mutation<VoidInvoiceInput, Invoice, Errors["ledger.invoices.void"]>;
+      /** Watch streams every invoice change. */
+      watch: Subscription<WatchInput, Invoice>;
+    };
+  };
+}
+
+export const contract = {
+  version: "1.2",
+  hydrators: {
+    "Attachment": [
+      { path: ["createdAt"], kind: "timestamp" },
+      { path: ["updatedAt"], kind: "timestamp" },
+    ],
+    "Billing_Page<Charge>": [
+      { path: ["items", "*"], kind: { ref: "Charge" } },
+    ],
+    "Charge": [
+      { path: ["createdAt"], kind: "timestamp" },
+    ],
+    "Customer": [
+      { path: ["createdAt"], kind: "timestamp" },
+      { path: ["updatedAt"], kind: "timestamp" },
+    ],
+    "Invoice": [
+      { path: ["createdAt"], kind: "timestamp" },
+      { path: ["updatedAt"], kind: "timestamp" },
+    ],
+    "Ledger_Page<Attachment>": [
+      { path: ["items", "*"], kind: { ref: "Attachment" } },
+    ],
+    "Ledger_Page<Customer>": [
+      { path: ["items", "*"], kind: { ref: "Customer" } },
+    ],
+    "Ledger_Page<Invoice>": [
+      { path: ["items", "*"], kind: { ref: "Invoice" } },
+    ],
+  },
+  procedures: {
+    "billing.charges.create": { kind: "mutation", method: "POST", output: "Charge", errors: ["UnknownInvoice"] },
+    "billing.charges.list": { kind: "query", method: "GET", output: "Billing_Page<Charge>" },
+    "billing.charges.settle": { kind: "mutation", method: "POST", output: "Charge" },
+    "billing.health": { kind: "query", method: "GET" },
+    "ledger.customers.get": { kind: "query", method: "GET", output: "Customer" },
+    "ledger.customers.search": { kind: "query", method: "POST", output: "Ledger_Page<Customer>" },
+    "ledger.health": { kind: "query", method: "GET" },
+    "ledger.invoices.attach": { kind: "upload", method: "POST", output: "Attachment" },
+    "ledger.invoices.attachments": { kind: "query", method: "GET", output: "Ledger_Page<Attachment>" },
+    "ledger.invoices.create": { kind: "mutation", method: "POST", output: "Invoice" },
+    "ledger.invoices.get": { kind: "query", method: "GET", output: "Invoice" },
+    "ledger.invoices.list": { kind: "query", method: "GET", output: "Ledger_Page<Invoice>" },
+    "ledger.invoices.void": { kind: "mutation", method: "POST", output: "Invoice", errors: ["InvoiceLocked"] },
+    "ledger.invoices.watch": { kind: "subscription", method: "GET", output: "Invoice" },
+  },
+} satisfies ContractRuntime;
+
+export function createClient(options: ClientOptions): Client {
+  return create(contract, options) as Client;
+}

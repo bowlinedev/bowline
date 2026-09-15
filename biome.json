@@ -37,7 +37,9 @@
       "!**/lib/bowline.ex",
       "!**/lib/bowline.dart",
       "!**/src/bowline.rs",
-      "!**/python/bowline.py"
+      "!**/python/bowline.py",
+      "!**/federation/web/src/bowline.ts",
+      "!**/federation/billing/web"
     ],
     "ignoreUnknown": true
   },
