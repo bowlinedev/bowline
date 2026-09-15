@@ -1,0 +1,17 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "types": ["jest"],
+    "baseUrl": ".",
+    "paths": {
+      "@bowline/client": ["../../packages/client/src/index.ts"],
+      "@bowline/react-query": ["../../packages/react-query/src/index.ts"]
+    }
+  },
+  "include": ["app", "src", "__tests__", "expo-env.d.ts"]
+}
