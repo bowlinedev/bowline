@@ -3,7 +3,10 @@
   "contract": "api/bowline.contract.json",
   "schemas": true,
   "dev": { "app": "/api" },
-  "targets": { "ts": { "out": "web/src/bowline.ts", "zod": true } },
+  "targets": {
+    "ts": { "out": "web/src/bowline.ts", "zod": true },
+    "go": { "out": "ledgerclient/client.go", "package": "ledgerclient" }
+  },
   "openapi": {
     "out": "api/openapi.json",
     "title": "Ledger",
