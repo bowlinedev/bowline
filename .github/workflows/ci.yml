@@ -39,6 +39,7 @@ jobs:
             examples/routers/connect/go.sum
             transport/websocket/go.sum
             mcp/go.sum
+            gateway/go.sum
             agent/go.sum
             contracttest/go.sum
             adapters/fiber/go.sum
@@ -71,6 +72,10 @@ jobs:
       - name: vet and test mcp server
         if: matrix.go == 'stable'
         working-directory: mcp
+        run: go vet ./... && go test -race ./...
+      - name: vet and test gateway
+        if: matrix.go == 'stable'
+        working-directory: gateway
         run: go vet ./... && go test -race ./...
       - name: vet and test fiber adapter
         if: matrix.go == 'stable'
@@ -108,6 +113,7 @@ jobs:
           (cd cmd/bowline && staticcheck ./...)
           (cd transport/websocket && staticcheck ./...)
           (cd mcp && staticcheck ./...)
+          (cd gateway && staticcheck ./...)
           (cd agent && staticcheck ./...)
           (cd contracttest && staticcheck ./...)
           (cd adapters/fiber && staticcheck ./...)
