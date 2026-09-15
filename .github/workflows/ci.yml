@@ -20,6 +20,9 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         go: ["1.24", "stable"]
     runs-on: ${{ matrix.os }}
+    env:
+      GOWORK: ${{ matrix.go == 'stable' && '' || 'off' }}
+      GOTOOLCHAIN: local
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -29,31 +32,35 @@ jobs:
             go.sum
             cmd/bowline/go.sum
             examples/ledger/go.sum
+            examples/nethttp-minimal/go.sum
       - name: gofmt
         run: |
           out="$(gofmt -l .)"
           if [ -n "$out" ]; then echo "$out"; exit 1; fi
-      - name: vet and test root module
-        run: go vet ./... && go test -race ./...
-      - name: vet and test cli module
-        working-directory: cmd/bowline
+      - name: vet and test runtime module
         run: go vet ./... && go test -race ./...
       - name: vet and test ledger example
         working-directory: examples/ledger
         run: go vet ./... && go test -race ./...
-      - name: ledger contract is current
-        working-directory: examples/ledger
-        run: go run github.com/bowlinedev/bowline/cmd/bowline check
-      - name: minimal example
+      - name: vet and test minimal example
         working-directory: examples/nethttp-minimal
-        run: go test ./... && go run github.com/bowlinedev/bowline/cmd/bowline check
+        run: go vet ./... && go test ./...
+      - name: vet and test cli module
+        if: matrix.go == 'stable'
+        working-directory: cmd/bowline
+        run: go vet ./... && go test -race ./...
+      - name: contracts are current
+        if: matrix.go == 'stable'
+        run: |
+          (cd examples/ledger && go run github.com/bowlinedev/bowline/cmd/bowline check)
+          (cd examples/nethttp-minimal && go run github.com/bowlinedev/bowline/cmd/bowline check)
       - name: staticcheck
         if: matrix.os == 'ubuntu-latest' && matrix.go == 'stable'
         run: |
           go install honnef.co/go/tools/cmd/staticcheck@latest
           staticcheck ./...
           (cd cmd/bowline && staticcheck ./...)
-      - name: root module has no dependencies
+      - name: runtime module has no dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
           if grep -q '^require' go.mod; then echo "root go.mod must not require anything"; exit 1; fi
@@ -72,6 +79,20 @@ jobs:
       - run: pnpm test
       - run: pnpm build
 
+  devloop-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: session and watcher on Windows
+        working-directory: cmd/bowline
+        run: go test ./internal/analyzer -run 'TestSession|TestDevLoopBudget' -v && go test ./internal/watch -v && go test ./internal/cli -run TestDev -v
+
   dco:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
@@ -88,20 +109,6 @@ jobs:
             fi
           done
           exit $missing
-
-  devloop-windows:
-    runs-on: windows-latest
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: stable
-      - name: session and watcher on Windows
-        working-directory: cmd/bowline
-        run: go test ./internal/analyzer -run 'TestSession|TestDevLoopBudget' -v && go test ./internal/watch -v && go test ./internal/cli -run TestDev -v
 
   ci:
     runs-on: ubuntu-latest
