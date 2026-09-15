@@ -17,6 +17,11 @@ type Config struct {
 	Schemas  bool              `json:"schemas"`
 	Targets  map[string]Target `json:"targets"`
 	OpenAPI  *OpenAPIConfig    `json:"openapi"`
+	Dev      *DevConfig        `json:"dev"`
+}
+
+type DevConfig struct {
+	App string `json:"app"`
 }
 
 type OpenAPIConfig struct {

@@ -2,6 +2,7 @@
   "entry": "./api.Routes",
   "contract": "api/bowline.contract.json",
   "schemas": true,
+  "dev": { "app": "/api" },
   "targets": { "ts": { "out": "web/src/bowline.ts", "zod": true } },
   "openapi": {
     "out": "api/openapi.json",

@@ -3,20 +3,27 @@ package cli
 import (
 	"context"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/analyzer"
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/watch"
+	"github.com/bowlinedev/bowline/playground"
 )
 
 type DevOptions struct {
 	Options
-	Interval time.Duration
-	Changes  <-chan []watch.Change
-	Stop     <-chan struct{}
-	Color    bool
+	Interval   time.Duration
+	Changes    <-chan []watch.Change
+	Stop       <-chan struct{}
+	Color      bool
+	Playground string
+	Ready      chan<- string
 }
 
 func Dev(opts DevOptions) int {
@@ -42,6 +49,18 @@ func Dev(opts DevOptions) int {
 		return 1
 	}
 	fmt.Fprintf(opts.Stdout, "loaded %d packages in %s\n", len(session.Program().Pkgs), time.Since(start).Round(time.Millisecond))
+	var latest atomic.Pointer[[]byte]
+	if data, err := os.ReadFile(filepath.Join(opts.Dir, filepath.FromSlash(cfg.Contract))); err == nil {
+		latest.Store(&data)
+	}
+	if opts.Playground != "" {
+		stop, err := servePlayground(opts, cfg, &latest)
+		if err != nil {
+			fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
+			return 1
+		}
+		defer stop()
+	}
 	lastHash := ""
 	regenerate := func(stats analyzer.Stats, typeErrs []analyzer.Diagnostic) {
 		if len(typeErrs) > 0 {
@@ -70,6 +89,9 @@ func Dev(opts DevOptions) int {
 		if err != nil {
 			fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
 			return
+		}
+		if data, ok := files[cfg.Contract]; ok {
+			latest.Store(&data)
 		}
 		lastHash = doc.Hash
 		total := stats.Parse + stats.Check + analyzeDur + genDur
@@ -133,4 +155,29 @@ func printColored(opts DevOptions, diags []analyzer.Diagnostic) {
 		fmt.Fprintf(opts.Stderr, "%s%s%s\n", red, strings.TrimSpace(d.String()), reset)
 	}
 	fmt.Fprintf(opts.Stderr, "bowline: %d problem(s); waiting for changes\n", len(diags))
+}
+
+func servePlayground(opts DevOptions, cfg *Config, latest *atomic.Pointer[[]byte]) (func(), error) {
+	listener, err := net.Listen("tcp", opts.Playground)
+	if err != nil {
+		return nil, err
+	}
+	var pgOpts []playground.Option
+	if cfg.Dev != nil && cfg.Dev.App != "" {
+		pgOpts = append(pgOpts, playground.WithUpstream(cfg.Dev.App))
+	}
+	handler := playground.NewDynamic(func() []byte {
+		if data := latest.Load(); data != nil {
+			return *data
+		}
+		return nil
+	}, pgOpts...)
+	srv := &http.Server{Handler: handler}
+	go srv.Serve(listener)
+	addr := listener.Addr().String()
+	fmt.Fprintf(opts.Stdout, "playground at http://%s/\n", addr)
+	if opts.Ready != nil {
+		opts.Ready <- addr
+	}
+	return func() { srv.Close() }, nil
 }

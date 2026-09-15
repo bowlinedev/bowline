@@ -12,6 +12,7 @@ import (
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/mock"
 	"github.com/bowlinedev/bowline/contract"
+	"github.com/bowlinedev/bowline/playground"
 )
 
 type MockOptions struct {
@@ -100,8 +101,8 @@ func Mock(opts MockOptions) int {
 	mux := http.NewServeMux()
 	mux.Handle("/api/", http.StripPrefix("/api", api))
 	mux.Handle("/", api)
-	if opts.Playground && mountPlayground != nil {
-		mountPlayground(mux, data)
+	if opts.Playground {
+		mux.Handle("/_playground/", http.StripPrefix("/_playground", playground.New(data, playground.WithUpstream("/api"), playground.WithTitle("Bowline mock"))))
 	}
 	listener, err := net.Listen("tcp", opts.Addr)
 	if err != nil {
@@ -116,7 +117,7 @@ func Mock(opts MockOptions) int {
 	}
 	addr := listener.Addr().String()
 	fmt.Fprintf(opts.Stdout, "bowline mock: %d procedures at http://%s/api (%s)\n", served, addr, mode)
-	if opts.Playground && mountPlayground != nil {
+	if opts.Playground {
 		fmt.Fprintf(opts.Stdout, "bowline mock: playground at http://%s/_playground/\n", addr)
 	}
 	if opts.Ready != nil {
@@ -147,5 +148,3 @@ func MockCommand(opts Options, args []string) int {
 	m.Options = opts
 	return Mock(*m)
 }
-
-var mountPlayground func(mux *http.ServeMux, contract []byte)

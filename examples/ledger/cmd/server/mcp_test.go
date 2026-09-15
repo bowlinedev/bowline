@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -50,5 +51,37 @@ func TestMCPMountHonorsTheTokenMiddleware(t *testing.T) {
 	open := call(`{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"customers_search","arguments":{"query":"ada"}}}`, "")
 	if strings.Contains(open, `"isError":true`) || !strings.Contains(open, "Ada") {
 		t.Fatalf("customers without token: %s", open)
+	}
+}
+
+func TestPlaygroundMountOutsideProduction(t *testing.T) {
+	handler, err := newHandler(api.Routes(), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range []string{"/playground/", "/playground/contract.json"} {
+		req := httptest.NewRequest(http.MethodGet, path, nil)
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+		if rec.Code != http.StatusOK {
+			t.Fatalf("%s: %d", path, rec.Code)
+		}
+	}
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+	resp, err := http.Get(srv.URL + "/playground/proxy/health")
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, _ := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusOK || !strings.Contains(string(body), `"ok":true`) {
+		t.Fatalf("proxy: %d %s", resp.StatusCode, body)
+	}
+	production, _ := newHandler(api.Routes(), true)
+	rec := httptest.NewRecorder()
+	production.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/playground/", nil))
+	if rec.Code == http.StatusOK {
+		t.Fatal("playground must not be mounted in production")
 	}
 }
