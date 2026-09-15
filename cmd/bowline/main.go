@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 
 	"github.com/bowlinedev/bowline"
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/cli"
@@ -37,6 +39,16 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cli.Gen(opts)
 	case "check":
 		return cli.Check(opts)
+	case "dev":
+		stop := make(chan struct{})
+		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+		defer cancel()
+		go func() {
+			<-ctx.Done()
+			close(stop)
+		}()
+		color := os.Getenv("NO_COLOR") == "" && isTerminal(os.Stderr)
+		return cli.Dev(cli.DevOptions{Options: opts, Stop: stop, Color: color})
 	case "version":
 		fmt.Fprintf(stdout, "bowline %s\n", bowline.Version)
 		return 0
@@ -45,4 +57,9 @@ func run(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprint(stderr, usage)
 		return 2
 	}
+}
+
+func isTerminal(f *os.File) bool {
+	info, err := f.Stat()
+	return err == nil && info.Mode()&os.ModeCharDevice != 0
 }
