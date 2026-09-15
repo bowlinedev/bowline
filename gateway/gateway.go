@@ -121,6 +121,9 @@ func (g *Gateway) serve(w http.ResponseWriter, req *http.Request) {
 	case ".bowline/health":
 		writeJSON(w, http.StatusOK, map[string]any{"ok": true, "hash": g.hash})
 		return
+	case ".bowline/ready":
+		g.serveReady(w, req)
+		return
 	}
 	rt, ok := g.routes[path]
 	if !ok {
