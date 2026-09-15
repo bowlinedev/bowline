@@ -15,7 +15,9 @@ import (
 const usage = `usage: bowline <command>
 
 commands:
-  gen        analyze the module and write the contract and every target
+  gen [--from contract.json]
+             analyze the module and write the contract and every target, or
+             render the targets from an existing document such as a composed one
   dev [--playground addr]
              regenerate on every save; optionally serve the playground for the live contract
   check      verify the committed contract and targets are up to date
@@ -60,7 +62,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 	opts := cli.Options{Dir: dir, Stdout: stdout, Stderr: stderr}
 	switch args[0] {
 	case "gen":
-		return cli.Gen(opts)
+		return cli.Gen(opts, args[1:])
 	case "check":
 		return cli.Check(opts, args[1:])
 	case "export":
