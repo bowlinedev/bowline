@@ -1,6 +1,6 @@
 {
   "bowline": "1.2",
-  "hash": "sha256:436b3810752f7d07a0c9c97c11e9a982ca7cfc4ad30e72190c88a5ee5f6c64cc",
+  "hash": "sha256:6ae8f5af6bb2a89fc3096c55e7ccc9b2443b14edc0aaca899c21fdf767d8c816",
   "types": {
     "github.com/bowlinedev/bowline/examples/ledger/api.AttachInput": {
       "kind": "struct",
@@ -121,7 +121,7 @@
             "kind": "primitive",
             "name": "string"
           },
-          "example": "0.5.0"
+          "example": "0.6.0"
         }
       ]
     },

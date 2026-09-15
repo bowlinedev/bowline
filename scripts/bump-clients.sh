@@ -19,9 +19,10 @@ bump() {
 bump "$repo/packages/dart/bowline/pubspec.yaml" '^version: .*$' "version: $bare"
 bump "$repo/packages/python/bowline-client/pyproject.toml" '^version = ".*"$' "version = \"$bare\""
 bump "$repo/packages/rust/bowline-client/Cargo.toml" '^version = ".*"$' "version = \"$bare\""
+bump "$repo/packages/elixir/bowline_client/mix.exs" 'version: ".*"' "version: \"$bare\""
 bump "$repo/python/bowline-agent/pyproject.toml" '^version = ".*"$' "version = \"$bare\""
 
-for changelog in "$repo/packages/dart/bowline/CHANGELOG.md" "$repo/packages/python/bowline-client/CHANGELOG.md" "$repo/packages/rust/bowline-client/CHANGELOG.md"; do
+for changelog in "$repo/packages/dart/bowline/CHANGELOG.md" "$repo/packages/python/bowline-client/CHANGELOG.md" "$repo/packages/rust/bowline-client/CHANGELOG.md" "$repo/packages/elixir/bowline_client/CHANGELOG.md"; do
   [ -f "$changelog" ] || continue
   if ! grep -q "^## $bare" "$changelog"; then
     perl -0pi -e "s/^(# [^\n]+\n)/\$1\n## $bare\n\n- Released with bowline $version.\n/" "$changelog"
