@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0
+
+- Conformance: the `conformance` package drives any mount through the fixed wire rules; router examples for the standard mux, Chi, Gin, Echo, and Connect run it in CI.
+- Adapters: `adapters/fiber` mounts a router on Fiber through fasthttp's adaptor and passes the suite, streaming included.
+- Client: `procedureKey`, `walkProcedures`, `InputOf`, and `OutputOf` are shared from `@bowline/client`; `@bowline/client/server` exports `createServerClient` for server-side callers with header forwarding and `fetch` cache passthrough.
+- Bindings: `@bowline/swr`, `@bowline/svelte` with SvelteKit `serverClient`, `@bowline/solid`, and `@bowline/vue`, all on the shared key shape.
+- CLI: the `go` target generates a standard-library Go client with typed errors, generics, subscriptions as iterators, and uploads.
+- Examples: Next.js, React Router, SvelteKit, Astro, and Expo apps against the ledger with end-to-end tests, and a Go-to-Go reports service on the generated client.
+- Docs: framework guides whose snippets are verified against the examples by `docs/guides_test.go`.
+
 ## 0.4.0
 
 - Contract: format 1.2 adds `example` on fields from the `example` struct tag, checked by the analyzer and emitted into JSON Schemas.

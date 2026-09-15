@@ -4,7 +4,7 @@ test("lists, validates, creates, and voids invoices against the mock with the Go
   page,
 }) => {
   await page.goto("/");
-  await expect(page.getByTestId("health")).toHaveText("bowline 0.4.0");
+  await expect(page.getByTestId("health")).toHaveText("bowline 0.5.0");
   await expect(page.getByTestId("invoice-3")).toBeVisible();
   await expect(page.getByTestId("invoice-4")).toBeVisible();
 

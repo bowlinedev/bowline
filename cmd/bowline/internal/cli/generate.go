@@ -21,6 +21,10 @@ type Generator interface {
 	Generate(doc *contract.Document, out string) ([]byte, error)
 }
 
+type PackageAware interface {
+	WithPackage(pkg string) Generator
+}
+
 var Generators = map[string]Generator{}
 
 type Options struct {
@@ -111,7 +115,11 @@ func render(doc *contract.Document, cfg *Config) (map[string][]byte, error) {
 			files[target.Out] = content
 			continue
 		}
-		content, err := Generators[name].Generate(doc, target.Out)
+		generator := Generators[name]
+		if aware, ok := generator.(PackageAware); ok && target.Package != "" {
+			generator = aware.WithPackage(target.Package)
+		}
+		content, err := generator.Generate(doc, target.Out)
 		if err != nil {
 			return nil, fmt.Errorf("target %s: %w", name, err)
 		}

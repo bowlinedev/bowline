@@ -1,0 +1,30 @@
+{
+  "name": "bowline-sveltekit-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gen": "cp ../ledger/web/src/bowline.ts src/lib/bowline.ts",
+    "check:gen": "diff ../ledger/web/src/bowline.ts src/lib/bowline.ts",
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview --port 4175 --strictPort",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test:e2e": "playwright test",
+    "prepare": "svelte-kit sync"
+  },
+  "dependencies": {
+    "@bowline/client": "workspace:*",
+    "@bowline/svelte": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0",
+    "@sveltejs/adapter-node": "5.5.7",
+    "@sveltejs/kit": "2.70.3",
+    "@sveltejs/vite-plugin-svelte": "7.3.0",
+    "@types/node": "24.7.0",
+    "svelte": "5.57.0",
+    "svelte-check": "4.7.6",
+    "typescript": "5.9.2",
+    "vite": "7.1.5"
+  }
+}

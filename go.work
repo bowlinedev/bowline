@@ -8,6 +8,14 @@ use (
 	./agent
 	./playground
 	./contracttest
+	./adapters/fiber
+	./examples/routers/fiber
 	./examples/ledger
+	./examples/go-client
 	./examples/nethttp-minimal
+	./examples/routers/stdlib
+	./examples/routers/chi
+	./examples/routers/gin
+	./examples/routers/echo
+	./examples/routers/connect
 )

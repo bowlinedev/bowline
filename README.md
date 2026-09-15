@@ -52,6 +52,8 @@ const greeting = await client.greet({ name: "ada" });
 - A mock server derived from the contract, with deterministic data, a small state model, and record-and-replay, so a frontend team works with the Go backend stopped.
 - A playground that browses the router, renders every type as TypeScript, and calls procedures through a same-origin proxy, embeddable in your server or served by `bowline dev` and `bowline mock`.
 - Consumer contracts: the client records what it uses, `bowline verify-consumers` and `contracttest` verify it, and the gate names the consumers a breaking change would hit.
+- One `http.Handler` for every Go router, proven by a conformance suite that runs through the standard mux, Chi, Gin, Echo, Connect, and a Fiber adapter.
+- Bindings for React Query, SWR, Svelte, Solid, and Vue on one shared key shape, a server-side caller for Next.js, React Router, SvelteKit, and Astro, and a generated Go client for service-to-service calls.
 - `bowline check` fails CI when any generated file drifts from the Go code, and the server verifies the committed contract at startup.
 - `bowline dev` regenerates in well under a second after every save.
 - An `http.Handler` with no dependencies outside the standard library and an overhead under 5 percent against a hand-written handler.
@@ -76,10 +78,11 @@ const greeting = await client.greet({ name: "ada" });
 | `docs/guides/mock-server.md` | the contract-derived mock server |
 | `docs/guides/playground.md` | the embeddable playground |
 | `docs/guides/consumer-contracts.md` | recording and verifying consumer usage |
+| `docs/guides/frameworks/README.md` | every Go router and frontend framework, with verified snippets |
 | `spec/contract.md` | the contract document every generator reads |
 | `spec/mapping-table.md` | the normative Go to TypeScript mapping |
 
-Examples: `examples/ledger` is a Chi server with a React web app and an end-to-end test; `examples/nethttp-minimal` is one procedure on the standard library mux.
+Examples: `examples/ledger` is a Chi server with a React web app and an end-to-end test; `examples/nethttp-minimal` is one procedure on the standard library mux; `examples/routers/*` mount the conformance router on each Go router; `examples/{nextjs,remix,sveltekit,astro,expo}` are frontend apps on the ledger; `examples/go-client` calls the ledger through the generated Go client.
 
 ## Your API as agent tools
 
@@ -95,7 +98,7 @@ That is an MCP server for every exposed procedure, with schemas derived from you
 
 ## Status
 
-This is the 0.4 alpha. Applications need Go 1.24 or later; building the CLI needs Go 1.26 or later, and `go install` fetches that toolchain automatically. The contract document format is 1.1, an additive step from the frozen 1.0; the Go API and the generated code may still change before 1.0. Coming next: framework adapters and a generated Go client.
+This is the 0.5 alpha. Applications need Go 1.24 or later; building the CLI needs Go 1.26 or later, and `go install` fetches that toolchain automatically. The contract document format is 1.1, an additive step from the frozen 1.0; the Go API and the generated code may still change before 1.0. Coming next: Dart, Python, and Rust clients.
 
 ## Layout
 
@@ -106,8 +109,10 @@ This is the 0.4 alpha. Applications need Go 1.24 or later; building the CLI need
 - `/agent` the Go agent SDK
 - `/playground` the embeddable playground handler
 - `/contracttest` in-process consumer verification for `go test`
+- `/conformance` the wire contract suite every mount runs
+- `/adapters/fiber` the Fiber adapter
 - `/contract` contract document types
-- `/packages` npm packages `@bowline/client`, `@bowline/react-query`, and `@bowline/agent`, plus the playground app
+- `/packages` npm packages `@bowline/client`, `@bowline/react-query`, `@bowline/swr`, `@bowline/svelte`, `@bowline/solid`, `@bowline/vue`, and `@bowline/agent`, plus the playground app
 - `/python/bowline-agent` the Python agent package
 - `/spec` contract specification and JSON Schema
 - `/docs` guides and the adoption protocol

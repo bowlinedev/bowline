@@ -7,6 +7,7 @@
       "*.json",
       "!**/dist",
       "!**/src/bowline.ts",
+      "!**/src/lib/bowline.ts",
       "!**/src/bowline.zod.ts",
       "!**/bowline.contract.json",
       "!**/test-results",
@@ -14,7 +15,18 @@
       "!**/bowline.json",
       "!**/contracts/consumers",
       "!**/mocks",
-      "!**/evals"
+      "!**/evals",
+      "!**/.svelte-kit",
+      "!**/build",
+      "!**/*.svelte",
+      "!**/.astro",
+      "!**/*.astro",
+      "!**/.next",
+      "!**/.react-router",
+      "!**/next-env.d.ts",
+      "!**/.expo",
+      "!**/android",
+      "!**/ios"
     ],
     "ignoreUnknown": true
   },

@@ -1,0 +1,24 @@
+{
+  "extends": "./.svelte-kit/tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@bowline/client": ["../../packages/client/src/index.ts"],
+      "@bowline/client/node": ["../../packages/client/src/node.ts"],
+      "@bowline/client/server": ["../../packages/client/src/server.ts"],
+      "@bowline/svelte": ["../../packages/svelte/src/index.ts"],
+      "$lib": ["src/lib"],
+      "$lib/*": ["src/lib/*"]
+    }
+  }
+}

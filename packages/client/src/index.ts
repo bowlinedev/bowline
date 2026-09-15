@@ -21,6 +21,8 @@ export type {
   UntypedError,
 } from "./error.js";
 export { BowlineError } from "./error.js";
+export type { InputOf, OutputOf, ProcedureBrand, ProcedureFn, ProcedureKey } from "./key.js";
+export { procedureKey, walkProcedures } from "./key.js";
 export type { Interaction, RecordSink } from "./record.js";
 export { canonicalInput } from "./record.js";
 export type { ServerEvent } from "./sse.js";
@@ -46,5 +48,5 @@ export type {
 export type { WebSocketTransportOptions } from "./ws.js";
 export { websocketTransport } from "./ws.js";
 
-export const version = "0.4.0";
+export const version = "0.5.0";
 export { createClient } from "./client.js";

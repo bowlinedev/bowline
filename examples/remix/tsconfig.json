@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "declaration": false,
+    "types": ["node", "vite/client"],
+    "rootDirs": [".", "./.react-router/types"]
+  },
+  "include": [
+    "app",
+    "src",
+    "e2e",
+    "vite.config.ts",
+    "react-router.config.ts",
+    "playwright.config.ts",
+    ".react-router/types/**/*"
+  ]
+}

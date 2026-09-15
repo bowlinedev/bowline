@@ -33,10 +33,15 @@ jobs:
             cmd/bowline/go.sum
             examples/ledger/go.sum
             examples/nethttp-minimal/go.sum
+            examples/routers/chi/go.sum
+            examples/routers/gin/go.sum
+            examples/routers/echo/go.sum
+            examples/routers/connect/go.sum
             transport/websocket/go.sum
             mcp/go.sum
             agent/go.sum
             contracttest/go.sum
+            adapters/fiber/go.sum
       - name: gofmt
         run: |
           out="$(gofmt -l .)"
@@ -49,6 +54,12 @@ jobs:
       - name: vet and test minimal example
         working-directory: examples/nethttp-minimal
         run: go vet ./... && go test ./...
+      - name: vet and test go-client example
+        working-directory: examples/go-client
+        run: go vet ./... && go test -race ./...
+      - name: vet and test router examples
+        if: matrix.go == 'stable'
+        run: for d in examples/routers/*; do (cd "$d" && go vet ./... && go test -race ./...); done
       - name: vet and test cli module
         if: matrix.go == 'stable'
         working-directory: cmd/bowline
@@ -60,6 +71,14 @@ jobs:
       - name: vet and test mcp server
         if: matrix.go == 'stable'
         working-directory: mcp
+        run: go vet ./... && go test -race ./...
+      - name: vet and test fiber adapter
+        if: matrix.go == 'stable'
+        working-directory: adapters/fiber
+        run: go vet ./... && go test -race ./...
+      - name: vet and test fiber example
+        if: matrix.go == 'stable'
+        working-directory: examples/routers/fiber
         run: go vet ./... && go test -race ./...
       - name: vet and test agent module
         if: matrix.go == 'stable'
@@ -91,6 +110,7 @@ jobs:
           (cd mcp && staticcheck ./...)
           (cd agent && staticcheck ./...)
           (cd contracttest && staticcheck ./...)
+          (cd adapters/fiber && staticcheck ./...)
           (cd playground && staticcheck ./...)
       - name: runtime module has no dependencies
         if: matrix.os == 'ubuntu-latest'
@@ -107,9 +127,9 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm build
       - run: pnpm check
       - run: pnpm test
-      - run: pnpm build
 
   python:
     runs-on: ubuntu-latest
