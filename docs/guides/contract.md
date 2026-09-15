@@ -32,3 +32,5 @@ The rules follow variance. Inputs are contravariant: adding a required input fie
 ```
 
 Re-pushing with the change reverted edits the same comment to `no contract changes`. A deliberate break ships with `allow-breaking: "true"` and a version bump, never silently.
+
+When the repository carries recorded consumer contracts under `contracts/consumers`, the report gains a Consumers column: every breaking change names the consumers whose recorded interactions read the changed field, with their interaction counts, and a breaking change nobody uses is labeled `unused by consumers`. `bowline diff --consumers <dir>` does the same for two documents on disk; see `consumer-contracts.md`.

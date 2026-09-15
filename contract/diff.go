@@ -58,7 +58,13 @@ func Diff(old, new *Document) Changes {
 	for _, p := range new.Procedures {
 		newProcs[p.Path] = p
 	}
-	for path, op := range oldProcs {
+	oldPaths := make([]string, 0, len(oldProcs))
+	for path := range oldProcs {
+		oldPaths = append(oldPaths, path)
+	}
+	sort.Strings(oldPaths)
+	for _, path := range oldPaths {
+		op := oldProcs[path]
 		np, ok := newProcs[path]
 		if !ok {
 			d.add("procedure "+path, Breaking, "procedure removed")
@@ -66,7 +72,12 @@ func Diff(old, new *Document) Changes {
 		}
 		d.procedure(op, np)
 	}
+	newPaths := make([]string, 0, len(newProcs))
 	for path := range newProcs {
+		newPaths = append(newPaths, path)
+	}
+	sort.Strings(newPaths)
+	for _, path := range newPaths {
 		if _, ok := oldProcs[path]; !ok {
 			d.add("procedure "+path, Added, "procedure added")
 		}
