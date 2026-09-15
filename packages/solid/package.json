@@ -1,0 +1,43 @@
+{
+  "name": "@bowline/solid",
+  "version": "0.4.0",
+  "description": "Solid resource and action bindings for Bowline clients",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bowlinedev/bowline.git",
+    "directory": "packages/solid"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@bowline/client": "workspace:*",
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "@bowline/client": "workspace:*",
+    "@solidjs/testing-library": "0.8.10",
+    "jsdom": "29.1.1",
+    "solid-js": "1.9.15",
+    "tsup": "8.5.0",
+    "vite-plugin-solid": "2.11.14",
+    "vitest": "3.2.4"
+  }
+}

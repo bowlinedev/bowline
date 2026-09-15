@@ -1,0 +1,49 @@
+{
+  "name": "@bowline/vue",
+  "version": "0.4.0",
+  "description": "Vue composables and TanStack Vue Query option builders for Bowline clients",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bowlinedev/bowline.git",
+    "directory": "packages/vue"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@bowline/client": "workspace:*",
+    "@tanstack/vue-query": "^5.0.0",
+    "vue": "^3.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@tanstack/vue-query": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@bowline/client": "workspace:*",
+    "@tanstack/vue-query": "5.90.2",
+    "@vue/test-utils": "2.4.6",
+    "jsdom": "29.1.1",
+    "tsup": "8.5.0",
+    "vitest": "3.2.4",
+    "vue": "3.5.42"
+  }
+}
