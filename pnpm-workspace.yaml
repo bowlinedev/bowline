@@ -3,3 +3,5 @@ packages:
   - examples/*/web
   - examples/sveltekit
   - examples/astro
+  - examples/nextjs
+  - examples/remix

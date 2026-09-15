@@ -20,7 +20,10 @@
       "!**/build",
       "!**/*.svelte",
       "!**/.astro",
-      "!**/*.astro"
+      "!**/*.astro",
+      "!**/.next",
+      "!**/.react-router",
+      "!**/next-env.d.ts"
     ],
     "ignoreUnknown": true
   },
