@@ -38,7 +38,7 @@ func NewDispatcher(tools []Tool, caller Caller, opts ...DispatchOption) *Dispatc
 	for _, t := range tools {
 		d.tools[t.Name] = t
 		d.methods[t.Name] = http.MethodPost
-		if t.ReadOnly {
+		if t.Method == http.MethodGet {
 			d.methods[t.Name] = http.MethodGet
 		}
 	}

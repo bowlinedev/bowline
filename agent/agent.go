@@ -12,6 +12,7 @@ import (
 type Tool struct {
 	Name         string
 	Procedure    string
+	Method       string
 	Description  string
 	InputSchema  json.RawMessage
 	OutputSchema json.RawMessage
@@ -72,6 +73,7 @@ func Tools(doc *contract.Document, opts ...Option) ([]Tool, error) {
 		list = append(list, Tool{
 			Name:         name,
 			Procedure:    p.Path,
+			Method:       p.Method,
 			Description:  describe(doc, p),
 			InputSchema:  input,
 			OutputSchema: output,

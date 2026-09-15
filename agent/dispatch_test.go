@@ -45,7 +45,7 @@ func testRouter() *bowline.Router {
 
 func testTools() []Tool {
 	return []Tool{
-		{Name: "invoices_get", Procedure: "invoices.get", ReadOnly: true, InputSchema: json.RawMessage(`{}`), OutputSchema: json.RawMessage(`{}`)},
+		{Name: "invoices_get", Procedure: "invoices.get", Method: "GET", ReadOnly: true, InputSchema: json.RawMessage(`{}`), OutputSchema: json.RawMessage(`{}`)},
 		{Name: "invoices_void", Procedure: "invoices.void", Destructive: true, InputSchema: json.RawMessage(`{}`), OutputSchema: json.RawMessage(`{}`)},
 	}
 }
