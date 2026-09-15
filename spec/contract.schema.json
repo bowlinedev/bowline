@@ -1,0 +1,284 @@
+{
+  "$defs": {
+    "EnumValue": {
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "integer"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "type": "object"
+    },
+    "Field": {
+      "additionalProperties": true,
+      "properties": {
+        "doc": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "nullable": {
+          "type": "boolean"
+        },
+        "optional": {
+          "type": "boolean"
+        },
+        "rules": {
+          "items": {
+            "$ref": "#/$defs/Rule"
+          },
+          "type": "array"
+        },
+        "type": {
+          "$ref": "#/$defs/Type"
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "type": "object"
+    },
+    "Position": {
+      "additionalProperties": true,
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "file",
+        "line"
+      ],
+      "type": "object"
+    },
+    "Procedure": {
+      "additionalProperties": true,
+      "properties": {
+        "deprecated": {
+          "type": "string"
+        },
+        "doc": {
+          "type": "string"
+        },
+        "goInput": {
+          "type": "string"
+        },
+        "goOutput": {
+          "type": "string"
+        },
+        "input": {
+          "$ref": "#/$defs/Type"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "meta": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "method": {
+          "type": "string"
+        },
+        "output": {
+          "$ref": "#/$defs/Type"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "kind",
+        "method",
+        "input",
+        "output"
+      ],
+      "type": "object"
+    },
+    "Rule": {
+      "additionalProperties": true,
+      "properties": {
+        "param": {
+          "type": "string"
+        },
+        "rule": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule"
+      ],
+      "type": "object"
+    },
+    "Type": {
+      "additionalProperties": true,
+      "properties": {
+        "args": {
+          "items": {
+            "$ref": "#/$defs/Type"
+          },
+          "type": "array"
+        },
+        "elem": {
+          "$ref": "#/$defs/Type"
+        },
+        "encoding": {
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/Field"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "$ref": "#/$defs/Type"
+        },
+        "kind": {
+          "enum": [
+            "primitive",
+            "ref",
+            "array",
+            "map",
+            "struct",
+            "enum",
+            "generic",
+            "param"
+          ],
+          "type": "string"
+        },
+        "length": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "nullable": {
+          "type": "boolean"
+        },
+        "value": {
+          "$ref": "#/$defs/Type"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "TypeDecl": {
+      "additionalProperties": true,
+      "properties": {
+        "base": {
+          "type": "string"
+        },
+        "body": {
+          "$ref": "#/$defs/Type"
+        },
+        "doc": {
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/Field"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "enum": [
+            "primitive",
+            "ref",
+            "array",
+            "map",
+            "struct",
+            "enum",
+            "generic",
+            "param"
+          ],
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string"
+        },
+        "params": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "primitive": {
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "$ref": "#/$defs/EnumValue"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "name"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://bowline.dev/spec/contract/0.1/contract.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "bowline": {
+      "type": "string"
+    },
+    "hash": {
+      "type": "string"
+    },
+    "positions": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Position"
+      },
+      "type": "object"
+    },
+    "procedures": {
+      "items": {
+        "$ref": "#/$defs/Procedure"
+      },
+      "type": "array"
+    },
+    "types": {
+      "additionalProperties": {
+        "$ref": "#/$defs/TypeDecl"
+      },
+      "type": "object"
+    }
+  },
+  "required": [
+    "bowline",
+    "types",
+    "procedures"
+  ],
+  "title": "Bowline contract document",
+  "type": "object"
+}
