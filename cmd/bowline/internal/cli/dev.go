@@ -79,9 +79,13 @@ func Dev(opts DevOptions) int {
 			return
 		}
 		begin = time.Now()
-		files, err := render(doc, cfg)
+		files, targetDiags, err := render(doc, cfg, opts.Env)
 		if err != nil {
 			fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
+			return
+		}
+		if len(targetDiags) > 0 {
+			printColored(opts, targetDiags)
 			return
 		}
 		written, err := writeFiles(opts.Dir, files)
