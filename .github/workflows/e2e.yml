@@ -92,7 +92,6 @@ jobs:
           CI: "1"
 
   astro:
-  nextjs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -110,6 +109,22 @@ jobs:
       - run: pnpm --filter ledger-astro build
       - run: pnpm --filter ledger-astro exec playwright install --with-deps chromium
       - run: pnpm --filter ledger-astro test:e2e
+        env:
+          CI: "1"
+
+  nextjs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @bowline/client build && pnpm --filter @bowline/react-query build
       - run: pnpm --filter example-nextjs check:gen
       - run: pnpm --filter example-nextjs build
