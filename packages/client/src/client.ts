@@ -6,6 +6,8 @@ import {
   type Result,
 } from "./error.js";
 import { hydrate, serialize } from "./hydrate.js";
+import type { RecordSink } from "./record.js";
+import { record } from "./record.js";
 import { parseEventStream } from "./sse.js";
 import type {
   CallOptions,
@@ -54,7 +56,7 @@ export function createClient(contract: ContractRuntime, options: ClientOptions):
     }
     const key = segments[segments.length - 1] as string;
     if (proc.kind === "upload") {
-      node[key] = uploadLeaf(fetchFn, base, path, proc, contract, options.headers);
+      node[key] = uploadLeaf(fetchFn, base, path, proc, contract, options.headers, options.record);
       continue;
     }
     if (proc.kind === "subscription") {
@@ -70,7 +72,17 @@ export function createClient(contract: ContractRuntime, options: ClientOptions):
       continue;
     }
     const leaf = ((input?: unknown, callOptions?: CallOptions) =>
-      call(fetchFn, base, path, proc, contract, options.headers, input, callOptions)) as Leaf;
+      call(
+        fetchFn,
+        base,
+        path,
+        proc,
+        contract,
+        options.headers,
+        input,
+        callOptions,
+        options.record,
+      )) as Leaf;
     leaf.kind = proc.kind;
     leaf.safe = async (input?: unknown, callOptions?: CallOptions) => {
       try {
@@ -146,6 +158,7 @@ async function call(
   headersSource: HeadersSource | undefined,
   input: unknown,
   callOptions: CallOptions | undefined,
+  sink: RecordSink | undefined,
 ): Promise<unknown> {
   const { url, init } = await prepare(
     base,
@@ -158,6 +171,7 @@ async function call(
   );
   const response = await send(fetchFn, url, init, path, callOptions?.signal);
   const text = await response.text();
+  record(sink, path, input, response.status, text);
   if (!response.ok) {
     throw toError(response.status, text, path, contract);
   }
@@ -181,6 +195,7 @@ function uploadLeaf(
   proc: ProcedureRuntime,
   contract: ContractRuntime,
   headersSource: HeadersSource | undefined,
+  sink: RecordSink | undefined,
 ): UploadLeaf {
   const leaf = (async (input: unknown, file: Blob, callOptions?: CallOptions) => {
     const headers = new Headers(
@@ -202,6 +217,7 @@ function uploadLeaf(
       callOptions?.signal,
     );
     const text = await response.text();
+    record(sink, path, input, response.status, text);
     if (!response.ok) {
       throw toError(response.status, text, path, contract);
     }
