@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/fake"
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/shape"
 	"github.com/bowlinedev/bowline/contract"
 )
 
@@ -25,14 +26,13 @@ type Options struct {
 }
 
 type handler struct {
-	doc       *contract.Document
-	routes    map[string]*contract.Procedure
-	gen       *fake.Generator
-	state     *state
-	validator *validator
-	fixtures  *fixtureSet
-	strict    bool
-	log       *slog.Logger
+	doc      *contract.Document
+	routes   map[string]*contract.Procedure
+	gen      *fake.Generator
+	state    *state
+	fixtures *fixtureSet
+	strict   bool
+	log      *slog.Logger
 }
 
 func New(doc *contract.Document, opts Options) http.Handler {
@@ -40,7 +40,7 @@ func New(doc *contract.Document, opts Options) http.Handler {
 		opts.Logger = slog.Default()
 	}
 	gen := fake.New(doc, opts.Seed)
-	h := &handler{doc: doc, routes: map[string]*contract.Procedure{}, gen: gen, state: newState(doc, gen), validator: &validator{doc: doc}, strict: opts.Strict, log: opts.Logger}
+	h := &handler{doc: doc, routes: map[string]*contract.Procedure{}, gen: gen, state: newState(doc, gen), strict: opts.Strict, log: opts.Logger}
 	for _, p := range doc.Procedures {
 		h.routes[p.Path] = p
 	}
@@ -55,16 +55,16 @@ func New(doc *contract.Document, opts Options) http.Handler {
 }
 
 type errorBody struct {
-	Code    string  `json:"code"`
-	Message string  `json:"message"`
-	Issues  []issue `json:"issues,omitempty"`
+	Code    string        `json:"code"`
+	Message string        `json:"message"`
+	Issues  []shape.Issue `json:"issues,omitempty"`
 }
 
 type envelope struct {
 	Error errorBody `json:"error"`
 }
 
-func writeError(w http.ResponseWriter, status int, code, message string, issues []issue) {
+func writeError(w http.ResponseWriter, status int, code, message string, issues []shape.Issue) {
 	body, _ := json.Marshal(envelope{errorBody{Code: code, Message: message, Issues: issues}})
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
@@ -112,8 +112,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		writeError(w, http.StatusBadRequest, "INVALID_ARGUMENT", "invalid input: "+err.Error(), nil)
 		return
 	}
-	var issues []issue
-	h.validator.check(p.Input, input, nil, nil, &issues)
+	issues := shape.Validate(h.doc, p.Input, input)
 	if len(issues) > 0 {
 		writeError(w, http.StatusBadRequest, "INVALID_ARGUMENT", "invalid input", issues)
 		return

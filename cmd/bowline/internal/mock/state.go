@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/fake"
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/shape"
 	"github.com/bowlinedev/bowline/contract"
 )
 
@@ -176,7 +177,7 @@ func (s *state) list(p *contract.Procedure) (any, bool) {
 	if listField == nil {
 		return nil, false
 	}
-	elem := substitute(listField.Type.Elem, env)
+	elem := shape.Substitute(listField.Type.Elem, env)
 	typeID, idField := s.storedType(elem)
 	if typeID == "" {
 		return nil, false

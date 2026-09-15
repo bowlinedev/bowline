@@ -1,0 +1,2 @@
+broken    consumer ledger-web: customers.search → response.items.0.email: expected number (int64), recorded string
+bowline: 1 problem(s) across consumer contracts

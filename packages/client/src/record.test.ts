@@ -47,11 +47,13 @@ describe("record", () => {
     expect(seen).toEqual([
       {
         procedure: "invoices.get",
+        method: "GET",
         input: { id: 3 },
         response: { status: 200, body: { id: 3, createdAt: "2026-01-01T00:00:00Z" } },
       },
       {
         procedure: "invoices.get",
+        method: "GET",
         input: { id: 9 },
         response: { status: 404, body: { error: { code: "NOT_FOUND", message: "nope" } } },
       },
