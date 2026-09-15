@@ -1,0 +1,36 @@
+{
+  "bowline": "1.2",
+  "types": {
+    "github.com/acme/billing/api.CreateChargeInput": {
+      "kind": "struct",
+      "name": "CreateChargeInput",
+      "fields": [{ "name": "invoiceId", "type": { "kind": "primitive", "name": "int64" } }]
+    },
+    "github.com/acme/billing/billing.Charge": {
+      "kind": "struct",
+      "name": "Charge",
+      "fields": [
+        { "name": "invoiceId", "type": { "kind": "primitive", "name": "int64" } },
+        { "name": "status", "type": { "kind": "ref", "id": "github.com/acme/billing/billing.Status" } }
+      ]
+    },
+    "github.com/acme/billing/billing.Status": {
+      "kind": "enum",
+      "name": "Status",
+      "base": "string",
+      "values": [{ "name": "StatusOpen", "value": "open" }]
+    }
+  },
+  "errors": {},
+  "procedures": [
+    {
+      "path": "charges.create",
+      "kind": "mutation",
+      "method": "POST",
+      "input": { "kind": "ref", "id": "github.com/acme/billing/api.CreateChargeInput" },
+      "output": { "kind": "ref", "id": "github.com/acme/billing/billing.Charge" },
+      "goInput": "github.com/acme/billing/api.CreateChargeInput",
+      "goOutput": "github.com/acme/billing/billing.Charge"
+    }
+  ]
+}

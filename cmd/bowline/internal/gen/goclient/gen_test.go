@@ -369,3 +369,23 @@ func TestLiveClient(t *testing.T) {
 	writeModule(t, dir, map[string]string{"client/client.go": string(generated), "run/run_test.go": liveTest})
 	run(t, dir, "test", "./run/")
 }
+
+func TestGeneratesFromAComposedGatewayContract(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join(repoRoot(t), "gateway", "testdata", "compose", "two-services.golden.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := contract.Parse(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	generated, err := Generator{Package: "client"}.Generate(doc, "client/client.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"LedgerClient", "BillingClient", "Ledger_Status", "Billing_Status"} {
+		if !strings.Contains(string(generated), want) {
+			t.Fatalf("generated client lacks %q:\n%s", want, generated)
+		}
+	}
+}

@@ -1,0 +1,241 @@
+{
+  "bowline": "1.2",
+  "hash": "sha256:8e5ebcd91ea893aac7a14e9849b91869e241504cafde008c1e30eb7343face6c",
+  "types": {
+    "billing:github.com/acme/billing/api.CreateChargeInput": {
+      "kind": "struct",
+      "name": "CreateChargeInput",
+      "fields": [
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    },
+    "billing:github.com/acme/billing/billing.Charge": {
+      "kind": "struct",
+      "name": "Charge",
+      "fields": [
+        {
+          "name": "invoiceId",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "billing:github.com/acme/billing/billing.Status"
+          }
+        }
+      ]
+    },
+    "billing:github.com/acme/billing/billing.Status": {
+      "kind": "enum",
+      "name": "Billing_Status",
+      "base": "string",
+      "values": [
+        {
+          "name": "StatusOpen",
+          "value": "open"
+        }
+      ]
+    },
+    "ledger:github.com/acme/ledger/api.GetInvoiceInput": {
+      "kind": "struct",
+      "name": "GetInvoiceInput",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    },
+    "ledger:github.com/acme/ledger/ledger.Invoice": {
+      "kind": "struct",
+      "name": "Invoice",
+      "doc": "An invoice.",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "ledger:github.com/acme/ledger/ledger.Status"
+          }
+        },
+        {
+          "name": "lines",
+          "type": {
+            "kind": "array",
+            "elem": {
+              "kind": "struct",
+              "fields": [
+                {
+                  "name": "note",
+                  "type": {
+                    "kind": "ref",
+                    "id": "ledger:github.com/acme/ledger/ledger.Status"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "byTag",
+          "type": {
+            "kind": "map",
+            "key": {
+              "kind": "primitive",
+              "name": "string"
+            },
+            "value": {
+              "kind": "ref",
+              "id": "ledger:github.com/acme/ledger/ledger.Status"
+            }
+          }
+        }
+      ]
+    },
+    "ledger:github.com/acme/ledger/ledger.Page": {
+      "kind": "generic",
+      "name": "Page",
+      "params": [
+        "T"
+      ],
+      "body": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "items",
+            "type": {
+              "kind": "array",
+              "elem": {
+                "kind": "param",
+                "name": "T"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ledger:github.com/acme/ledger/ledger.Status": {
+      "kind": "enum",
+      "name": "Ledger_Status",
+      "base": "string",
+      "values": [
+        {
+          "name": "StatusDraft",
+          "value": "draft"
+        }
+      ]
+    }
+  },
+  "errors": {
+    "ledger:github.com/acme/ledger/api.InvoiceLocked": {
+      "name": "InvoiceLocked",
+      "code": "FAILED_PRECONDITION",
+      "fields": [
+        {
+          "name": "status",
+          "type": {
+            "kind": "ref",
+            "id": "ledger:github.com/acme/ledger/ledger.Status"
+          }
+        }
+      ]
+    }
+  },
+  "procedures": [
+    {
+      "path": "billing.charges.create",
+      "kind": "mutation",
+      "method": "POST",
+      "input": {
+        "kind": "ref",
+        "id": "billing:github.com/acme/billing/api.CreateChargeInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "billing:github.com/acme/billing/billing.Charge"
+      },
+      "goInput": "github.com/acme/billing/api.CreateChargeInput",
+      "goOutput": "github.com/acme/billing/billing.Charge"
+    },
+    {
+      "path": "ledger.invoices.attach",
+      "kind": "upload",
+      "method": "POST",
+      "input": {
+        "kind": "struct"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/acme/ledger/ledger.Invoice"
+      }
+    },
+    {
+      "path": "ledger.invoices.get",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "ledger:github.com/acme/ledger/api.GetInvoiceInput"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/acme/ledger/ledger.Invoice"
+      },
+      "goInput": "github.com/acme/ledger/api.GetInvoiceInput",
+      "goOutput": "github.com/acme/ledger/ledger.Invoice",
+      "errors": [
+        "ledger:github.com/acme/ledger/api.InvoiceLocked"
+      ]
+    },
+    {
+      "path": "ledger.invoices.list",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "struct"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/acme/ledger/ledger.Page",
+        "args": [
+          {
+            "kind": "ref",
+            "id": "ledger:github.com/acme/ledger/ledger.Invoice"
+          }
+        ]
+      }
+    },
+    {
+      "path": "ledger.invoices.watch",
+      "kind": "subscription",
+      "method": "GET",
+      "input": {
+        "kind": "struct"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "ledger:github.com/acme/ledger/ledger.Invoice"
+      }
+    }
+  ]
+}
