@@ -1,3 +1,4 @@
-github.com/bowlinedev/bowline v0.0.0-20260915183026-23ac62b9892f/go.mod h1:QnIKfuTN7Lm8pRibyY3h+a8K4TwPb3S+5mt5/fh5U5U=
+github.com/bowlinedev/bowline v0.0.0-20260915193157-1fa2c17b86eb h1:SKCuFIgVBgOucri3r1r4XRTwdFXPq0/LSpvRVAWKaq4=
+github.com/bowlinedev/bowline v0.0.0-20260915193157-1fa2c17b86eb/go.mod h1:QnIKfuTN7Lm8pRibyY3h+a8K4TwPb3S+5mt5/fh5U5U=
 github.com/coder/websocket v1.8.15 h1:6B2JPeOGlpff2Uz6vOEH1Vzpi0iUz20A+lPVhPHtNUA=
 github.com/coder/websocket v1.8.15/go.mod h1:NX3SzP+inril6yawo5CQXx8+fk145lPDC6pumgx0mVg=
