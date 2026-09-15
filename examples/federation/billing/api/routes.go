@@ -87,7 +87,7 @@ func (a *API) create(ctx context.Context, in CreateChargeInput) (billing.Charge,
 	if err != nil {
 		var remote *bowline.Error
 		if errors.As(err, &remote) && remote.Code == bowline.NotFound {
-			return billing.Charge{}, UnknownInvoice{InvoiceID: in.InvoiceID}
+			return billing.Charge{}, UnknownInvoice(in)
 		}
 		return billing.Charge{}, err
 	}
