@@ -16,3 +16,4 @@ playground/ui/dist/*
 .react-router/
 *.tsbuildinfo
 next-env.d.ts
+.dart_tool/
