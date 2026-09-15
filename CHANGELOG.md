@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.0
 
 - Runtime: `bowline.WithContract` serves `.bowline/contract` and `.bowline/health`; `bowline.Signed` verifies HMAC request signatures before decoding, with the `signing` package for clients.
 - Gateway: the `gateway` module composes several service contracts into one document and proxies each call to its owner, with pinned contract hashes, readiness that verifies the pins, header allowlisting, retries for idempotent queries only, and streaming for subscriptions and uploads.
