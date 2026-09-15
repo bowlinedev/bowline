@@ -6,7 +6,7 @@ A client target is official when every check below is green in this repository's
 |---|---|
 | Fidelity goldens | Every `expected.contract.json` under `cmd/bowline/internal/analyzer/testdata/fidelity/rows` produces a golden file for the target, reviewed against `spec/mapping-table.md`. |
 | Goldens compile | The language's own toolchain type-checks or compiles every golden: `tsc` for TypeScript, `go vet` for Go, `dart analyze --fatal-infos`, `mypy --strict` and `pytest`, `cargo clippy -- -D warnings` and `cargo test`. |
-| Reject rule | A contract construct the target cannot represent fails `bowline gen` with a diagnostic naming the type and the target; it never degrades to a dynamic type. |
+| Reject rule | A contract construct the target cannot represent fails `bowline gen` with a diagnostic naming the type and the target; it never degrades to a dynamic type. The shared check is `cmd/bowline/internal/gen/support`, and every generator runs it before emitting. |
 | Runtime package | The target's runtime package has tests for transport encoding, the error envelope, 64-bit string integers, base64 bytes, and RFC 3339 timestamps, and its release workflow dry-runs cleanly. |
 | Drift gate | The ledger example commits the generated client and `bowline check` fails when it drifts. |
 | End to end | An example in the language lists, creates with a validation failure, and voids ledger invoices against the real server in CI. |

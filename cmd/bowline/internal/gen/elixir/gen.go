@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
+	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/support"
 	"github.com/bowlinedev/bowline/contract"
 )
 
@@ -21,6 +22,9 @@ func (g Generator) WithPackage(pkg string) any {
 }
 
 func (g Generator) Generate(doc *contract.Document, out string) ([]byte, error) {
+	if err := support.Reject(doc, "elixir"); err != nil {
+		return nil, err
+	}
 	root := g.Package
 	if root == "" {
 		root = strings.TrimSuffix(path.Base(out), path.Ext(out))
