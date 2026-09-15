@@ -6,3 +6,4 @@ packages:
   - examples/nextjs
   - examples/remix
   - examples/expo
+  - examples/federation/web
