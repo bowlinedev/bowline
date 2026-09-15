@@ -83,6 +83,11 @@ func (fx *Fixture) serve(w http.ResponseWriter) {
 		status = http.StatusOK
 	}
 	w.WriteHeader(status)
+	var compact bytes.Buffer
+	if json.Compact(&compact, fx.Response.Body) == nil {
+		w.Write(compact.Bytes())
+		return
+	}
 	w.Write(fx.Response.Body)
 }
 
