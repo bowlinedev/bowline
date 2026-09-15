@@ -1,0 +1,30 @@
+import { createClient as create, type ClientOptions, type ContractRuntime, type Query } from "@bowline/client";
+
+export interface Input {
+  name: string;
+  count: number;
+  small: number;
+  big: number;
+  ratio: number;
+  on: boolean;
+}
+
+export interface Output {
+  echo: string;
+}
+
+export interface Client {
+  echo: Query<Input, Output>;
+}
+
+export const contract = {
+  version: "0.1",
+  hydrators: {},
+  procedures: {
+    "echo": { kind: "query", method: "GET" },
+  },
+} satisfies ContractRuntime;
+
+export function createClient(options: ClientOptions): Client {
+  return create(contract, options) as Client;
+}

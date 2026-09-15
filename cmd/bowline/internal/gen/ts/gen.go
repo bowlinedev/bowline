@@ -1,0 +1,37 @@
+package ts
+
+import (
+	"sort"
+	"strings"
+
+	"github.com/bowlinedev/bowline/contract"
+)
+
+type Generator struct{}
+
+func (Generator) Generate(doc *contract.Document, out string) ([]byte, error) {
+	g := newGenerator(doc)
+	declarations := g.declarations()
+	client := g.clientInterface()
+	table := g.runtimeTable()
+	var b strings.Builder
+	b.WriteString(g.imports())
+	b.WriteString(declarations)
+	b.WriteString(client)
+	b.WriteString(table)
+	b.WriteString("export function createClient(options: ClientOptions): Client {\n")
+	b.WriteString("  return create(contract, options) as Client;\n")
+	b.WriteString("}\n")
+	return []byte(b.String()), nil
+}
+
+func (g *generator) imports() string {
+	names := []string{"createClient as create", "type ClientOptions", "type ContractRuntime"}
+	var extra []string
+	for name := range g.needs {
+		extra = append(extra, "type "+name)
+	}
+	sort.Strings(extra)
+	names = append(names, extra...)
+	return "import { " + strings.Join(names, ", ") + " } from \"@bowline/client\";\n\n"
+}
