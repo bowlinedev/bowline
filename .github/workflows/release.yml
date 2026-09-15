@@ -20,6 +20,20 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: stable
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: embed the playground bundle in the playground module tag
+        run: |
+          pnpm --filter @bowline/playground build
+          git add -f playground/ui/dist
+          git -c user.name=bowline-release -c user.email=release@bowline.dev commit -s -m "chore(playground): embed the release bundle"
+          git tag -f "playground/${GITHUB_REF_NAME}"
+          git push -f origin "playground/${GITHUB_REF_NAME}"
+          git checkout -q "${GITHUB_SHA}"
       - name: ensure module tags exist
         run: |
           for tag in "cmd/bowline/${GITHUB_REF_NAME}" "transport/websocket/${GITHUB_REF_NAME}" "mcp/${GITHUB_REF_NAME}" "agent/${GITHUB_REF_NAME}"; do
