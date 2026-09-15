@@ -123,7 +123,7 @@ func (c *collector) named(t *types.Named, pos token.Pos, path string) *contract.
 			return primitive("timestamp")
 		case "time.Duration":
 			return primitive("duration")
-		case "encoding/json.RawMessage":
+		case "encoding/json.RawMessage", "encoding/json/jsontext.Value":
 			return primitive("raw")
 		}
 	}
