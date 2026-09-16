@@ -308,7 +308,7 @@ jobs:
             if ! printf '%s' "$subject" | grep -qE '^[a-z]+(\([a-z0-9/._-]+\))?: .+'; then
               echo "subject is not conventional: $sha: $subject"; bad=1
             fi
-            extra="$(git show -s --format=%b "$sha" | grep -v '^Signed-off-by: ' | grep -cv '^$')"
+            extra="$(git show -s --format=%b "$sha" | grep -v '^Signed-off-by: ' | grep -cv '^$' || true)"
             if [ "$extra" != "0" ]; then
               echo "message carries more than a subject and a sign-off: $sha"; bad=1
             fi

@@ -3,6 +3,7 @@ package analyzer
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -128,8 +129,9 @@ func TestDevLoopBudget(t *testing.T) {
 		}
 		durations = append(durations, time.Since(start))
 	}
-	median := durations[len(durations)/2]
 	t.Logf("update+analyze durations: %v", durations)
+	slices.Sort(durations)
+	median := durations[len(durations)/2]
 	if median > 500*time.Millisecond {
 		t.Fatalf("median %v exceeds the 500ms budget", median)
 	}
