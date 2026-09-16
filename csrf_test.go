@@ -109,11 +109,31 @@ func TestCSRFIgnoresFetchMetadataWhenNotTrusted(t *testing.T) {
 	}
 }
 
-func TestCSRFRejectsMissingHeaders(t *testing.T) {
+func TestCSRFAllowsCallersWithNoBrowserSignal(t *testing.T) {
 	h := csrfHandler(CSRFOptions{})
 	rec := post(h, "/api/create", nil)
-	if rec.Code != http.StatusForbidden {
-		t.Fatalf("status %d, want 403, body %s", rec.Code, rec.Body.String())
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status %d, want 200, body %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestCSRFRejectsABrowserThatSentNoOrigin(t *testing.T) {
+	h := csrfHandler(CSRFOptions{})
+	for _, site := range []string{"cross-site", "same-site", "same-origin", "none"} {
+		rec := post(h, "/api/create", map[string]string{"Sec-Fetch-Site": site})
+		if rec.Code != http.StatusForbidden {
+			t.Errorf("Sec-Fetch-Site %s: status %d, want 403, body %s", site, rec.Code, rec.Body.String())
+		}
+	}
+}
+
+func TestCSRFTrustsSameOriginFetchMetadataWhenAsked(t *testing.T) {
+	h := csrfHandler(CSRFOptions{TrustFetchMetadata: true})
+	for _, site := range []string{"same-origin", "none"} {
+		rec := post(h, "/api/create", map[string]string{"Sec-Fetch-Site": site})
+		if rec.Code != http.StatusOK {
+			t.Errorf("Sec-Fetch-Site %s: status %d, want 200, body %s", site, rec.Code, rec.Body.String())
+		}
 	}
 }
 
