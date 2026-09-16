@@ -48,6 +48,7 @@ contracts_current() {
 
 node_workspace() {
   pnpm build >/dev/null &&
+    pnpm -r --if-present check:gen &&
     pnpm exec biome check packages examples package.json biome.json &&
     pnpm -r exec tsc --noEmit &&
     pnpm --filter @bowlinedev/client exec tsc -p tsconfig.golden.json &&
