@@ -7,6 +7,8 @@
 - Benchmarks: `docs/benchmarks.md` reports handler overhead, regeneration latency, and generator throughput, regenerated from a run published on each `main` push with history and a five percent regression gate.
 - CLI: `check --json` and `diff --json` for machine-readable output, `docs/cli.md` documenting every command, flag, exit code and output shape with a test that keeps it honest, and `docs/stability.md` stating what does not change inside a major version.
 - Generators: an external generator protocol so a new language can be added without forking (`docs/plugins.md`), and `bowline certify`, which proves a generator against the fidelity corpus and writes `docs/certified.md`.
+- Signing: `Sign` draws a nonce into the canonical string and `bowline.Signed` rejects a replayed signature through a bounded `signing.ReplayCache`; a signature without a nonce still verifies, so 0.7.0 callers keep working.
+- Fuzzing: eleven Go fuzz targets and a client property test run nightly and for ten seconds in CI; they found and fixed a panic value reaching production clients, four generator panics on malformed documents, non-deterministic TypeScript output when two type IDs share a name, and `@bowline/client` throwing a bare `SyntaxError` on a non-JSON 2xx body.
 
 ## 0.7.0
 
