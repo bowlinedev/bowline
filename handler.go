@@ -15,6 +15,7 @@ import (
 
 	"github.com/bowlinedev/bowline/internal/codec"
 	"github.com/bowlinedev/bowline/internal/csrf"
+	"github.com/bowlinedev/bowline/internal/reserved"
 	"github.com/bowlinedev/bowline/signing"
 )
 
@@ -46,7 +47,7 @@ type handler struct {
 	maxUpload  int64
 
 	contract   []byte
-	reserved   *reserved
+	reserved   *reserved.Set
 	signatures signing.SecretProvider
 	signedBody int64
 	replay     *signing.ReplayCache
@@ -65,7 +66,7 @@ func (r *Router) Handler(opts ...HandlerOption) http.Handler {
 		opt(h)
 	}
 	if h.contract != nil {
-		h.reserved = mustReserved(h.contract)
+		h.reserved = reserved.MustNew(h.contract)
 	}
 	for _, rt := range r.routes() {
 		h.routes[rt.path] = &rt
@@ -78,7 +79,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if h.signatures != nil && !h.verifySignature(w, req) {
 		return
 	}
-	if name := reservedPath(req.URL.Path); name != "" {
+	if name := reserved.Path(req.URL.Path); name != "" {
 		h.serveReserved(w, req, name)
 		return
 	}
