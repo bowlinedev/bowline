@@ -62,6 +62,8 @@ External targets are checked like built-in ones. `bowline check` runs the genera
 
 ## A generator in Go
 
+sketch: a complete minimal generator, written out here because an external generator lives in its own repository, not this one
+
 ```go
 package main
 

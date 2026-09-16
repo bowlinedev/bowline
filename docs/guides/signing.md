@@ -39,8 +39,12 @@ func (s StaticSecrets) Secret(ctx context.Context, keyID string) ([]byte, error)
 
 Pass it with the other handler options:
 
+source: examples/federation/billing/cmd/server/main.go:27-29
+
 ```go
-routes.Handler(bowline.Signed(signing.StaticSecrets{"billing-2026": secret}))
+	if secret := os.Getenv("BILLING_INBOUND_SECRET"); secret != "" {
+		options = append(options, bowline.Signed(signing.StaticSecrets{os.Getenv("BILLING_INBOUND_KEY"): []byte(secret)}))
+	}
 ```
 
 Verification runs inside `ServeHTTP` before the input is decoded and before the route is looked up, so an unsigned caller learns nothing about which procedures exist and no procedure ever sees an unverified request. Every failure is one `UNAUTHENTICATED` response; the package's sentinel errors exist so your own logs can say which check failed without telling the caller.
@@ -58,10 +62,12 @@ type Transport struct {
 }
 ```
 
+source: examples/federation/billing/api/ledger.go:14-16
+
 ```go
-client := ledgerclient.New(url, ledgerclient.WithHTTPClient(&http.Client{
-	Transport: &signing.Transport{KeyID: "billing-2026", Secret: secret},
-}))
+	return ledgerclient.New(url, ledgerclient.WithHTTPClient(&http.Client{
+		Transport: &signing.Transport{KeyID: keyID, Secret: secret},
+	}))
 ```
 
 The transport buffers the body once to hash it, signs, and restores the body, so a redirect or a retry re-reads it intact.

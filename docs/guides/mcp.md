@@ -6,9 +6,16 @@ The `mcp` module serves the procedures you mark with `bowline.Tool()` to any Mod
 
 A procedure is a tool only when it says so. Queries become read-only tools; mutations are read-write, and `Destructive()` marks the ones a client should confirm before calling.
 
+source: examples/ledger/api/invoices.go:46-46
+
 ```go
-bowline.Query("get", a.getInvoice, bowline.Tool(bowline.Scope("invoices:read")))
-bowline.Mutation("void", a.voidInvoice, bowline.Tool(bowline.Scope("invoices:write"), bowline.Destructive()))
+		bowline.Query("get", a.getInvoice, bowline.Description("Get returns one invoice by ID."), bowline.Tool(bowline.Scope("billing"))),
+```
+
+source: examples/ledger/api/invoices.go:49-49
+
+```go
+		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive()), bowline.Use(voidLimit())),
 ```
 
 Subscriptions and uploads cannot be tools; `Tool()` on one panics at `NewRouter`. The tool name is the procedure path with dots replaced by underscores, so `invoices.get` is called `invoices_get`. The description is the procedure's doc comment followed by a final `Errors:` line naming the declared error variants, so a model knows which failures to expect.
@@ -17,19 +24,25 @@ Tool schemas come from the contract. Set `"schemas": true` in `bowline.json` so 
 
 ## Mounting the handler
 
+Build the handler from the router and the embedded contract:
+
+source: examples/ledger/cmd/server/main.go:73-76
+
 ```go
-import "github.com/bowlinedev/bowline/mcp"
+	tools, err := mcp.Handler(routes, api.Contract, mcp.Runtime(options...), mcp.RateLimit(120, 20))
+	if err != nil {
+		return nil, err
+	}
+```
 
-//go:embed bowline.contract.json
-var contractJSON []byte
+then mount it beside the API:
 
-routes := api.Routes(store)
-handler, err := mcp.Handler(routes, contractJSON, mcp.RateLimit(120, 20))
-if err != nil {
-	log.Fatal(err)
-}
-mux.Handle("/api/", http.StripPrefix("/api", routes.Handler()))
-mux.Handle("/mcp", handler)
+source: examples/ledger/cmd/server/main.go:79-81
+
+```go
+	r.Mount("/api", routes.Handler(slices.Concat(options, browserOptions())...))
+	r.Handle("/ws", bowlinews.Handler(routes, bowlinews.Options{OriginPatterns: []string{"localhost:*", "127.0.0.1:*"}, Handler: options}))
+	r.Handle("/mcp", tools)
 ```
 
 Every `tools/call` becomes an in-memory HTTP request against the router's own handler, so the call path is the one your HTTP clients use: decoding, validation, middleware, idempotency, and error mapping all run unchanged. Nothing goes through a socket.
@@ -92,18 +105,28 @@ When the procedure fails, the Bowline error envelope is the structured content a
 
 The MCP server adds no authentication of its own. The forwarded headers reach your middleware through `bowline.CallFrom(ctx).Request`, so the rule that guards the API guards the tools:
 
+source: examples/ledger/api/auth.go:24-42
+
 ```go
-func requireAuth(next bowline.Next) bowline.Next {
-	return func(ctx context.Context, in any) (any, error) {
-		token := bowline.CallFrom(ctx).Request.Header.Get("Authorization")
-		if !valid(token) {
-			return nil, bowline.Errorf(bowline.Unauthenticated, "missing or invalid token")
+func RequireToken(token string) bowline.Middleware {
+	return func(next bowline.Next) bowline.Next {
+		if token == "" {
+			return next
 		}
-		return next(ctx, in)
+		return func(ctx context.Context, in any) (any, error) {
+			call := bowline.CallFrom(ctx)
+			header := ""
+			if call.Request != nil {
+				header = call.Request.Header.Get("Authorization")
+			}
+			got, ok := strings.CutPrefix(header, "Bearer ")
+			if !ok || subtle.ConstantTimeCompare([]byte(got), []byte(token)) != 1 {
+				return nil, bowline.Errorf(bowline.Unauthenticated, "a bearer token is required")
+			}
+			return next(ctx, in)
+		}
 	}
 }
-
-routes.Use(requireAuth)
 ```
 
 A rejected call comes back as a tool result with `UNAUTHENTICATED: missing or invalid token`, which is what a model needs to ask its user for credentials. Put HTTP-level middleware that must see the raw request, such as a cookie session check, in front of the `/mcp` handler itself; it sees the JSON-RPC request before any tool is dispatched.

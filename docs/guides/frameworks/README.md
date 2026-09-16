@@ -26,6 +26,8 @@ Every snippet in these guides is copied from a file in the repository and named 
 
 ## Running the conformance suite
 
+source: examples/routers/chi/conformance_test.go:11-13
+
 ```go
 func TestConformance(t *testing.T) {
 	conformance.Run(t, Mount)

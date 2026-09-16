@@ -6,6 +6,8 @@ Three thin packages read a contract, emit provider-shaped tool definitions, and 
 
 Module `github.com/bowlinedev/bowline/agent`, standard library only.
 
+sketch: a tour of the module's API in one block; error handling is elided so the sequence stays readable
+
 ```go
 doc, err := agent.Load("api/bowline.contract.json")
 tools, err := agent.Tools(doc, agent.Scopes("billing"))
@@ -28,6 +30,8 @@ if result.Error != nil {
 ## TypeScript
 
 Package `@bowline/agent`, built on `@bowline/client`.
+
+sketch: the same tour in TypeScript; `./bowline.contract.json` is whatever path the application generates to
 
 ```ts
 import { createDispatcher, recordingTracer, toAnthropic, tools } from "@bowline/agent";

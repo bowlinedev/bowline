@@ -4,10 +4,10 @@ The playground is a browser app that reads `bowline.contract.json` and lets anyo
 
 ## In your server
 
-```go
-import "github.com/bowlinedev/bowline/playground"
+source: examples/ledger/cmd/server/main.go:83-83
 
-r.Handle("/playground/*", http.StripPrefix("/playground", playground.New(api.Contract, playground.WithUpstream("/api"))))
+```go
+		r.Handle("/playground/*", http.StripPrefix("/playground", playground.New(api.Contract, playground.WithUpstream("/api"), playground.WithTitle("Ledger playground"))))
 ```
 
 `playground.New` takes the contract bytes and returns an `http.Handler` that serves the embedded app, `contract.json`, and `/proxy/<procedure>`. `WithUpstream` names where calls go: a same-origin path such as `/api`, resolved against the incoming request's host, or an absolute URL. The proxy forwards the method, the body, the `input` query parameter, and an allowlist of headers (`Authorization`, `Content-Type`, `Accept`, `Idempotency-Key`, and any `X-` header); `WithHeaderAllowlist` widens it and `WithTitle` names the page. The ledger mounts it outside production in `examples/ledger/cmd/server/main.go`, and `examples/ledger/cmd/server/mcp_test.go` checks that production builds do not.

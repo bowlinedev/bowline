@@ -38,8 +38,12 @@ The format moved to 1.2 to carry `example` on fields, filled from the `example` 
 
 If you wrote a router by hand against a framework other than `net/http`, run the conformance suite against it once:
 
+source: examples/routers/chi/conformance_test.go:11-13
+
 ```go
-conformance.Run(t, mount)
+func TestConformance(t *testing.T) {
+	conformance.Run(t, Mount)
+}
 ```
 
 It is the same suite CI runs for the standard mux, Chi, Gin, Echo, Connect, and Fiber.
