@@ -213,7 +213,7 @@ func (h *handler) readInput(w http.ResponseWriter, req *http.Request, limit int6
 			return nil, http.StatusUnsupportedMediaType, Errorf(InvalidArgument, "content type must be application/json")
 		}
 	}
-	body, err := io.ReadAll(http.MaxBytesReader(w, req.Body, limit))
+	body, err := readBody(http.MaxBytesReader(w, req.Body, limit), req.ContentLength, limit)
 	if err != nil {
 		var tooLarge *http.MaxBytesError
 		if errors.As(err, &tooLarge) {
@@ -256,4 +256,15 @@ func (h *handler) writeError(w http.ResponseWriter, proc *Procedure, statusOverr
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	w.Write(body)
+}
+
+func readBody(r io.Reader, contentLength, limit int64) ([]byte, error) {
+	if contentLength < 0 || contentLength > limit {
+		return io.ReadAll(r)
+	}
+	body := make([]byte, contentLength)
+	if _, err := io.ReadFull(r, body); err != nil {
+		return nil, err
+	}
+	return body, nil
 }
