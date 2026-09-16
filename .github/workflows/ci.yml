@@ -114,11 +114,9 @@ jobs:
       - name: consumer contracts still hold
         if: matrix.go == 'stable'
         run: (cd examples/ledger && go run github.com/bowlinedev/bowline/cmd/bowline verify-consumers)
-      - name: golangci-lint
+      - name: versions agree across the workspace
         if: matrix.os == 'ubuntu-latest' && matrix.go == 'stable'
-        run: |
-          go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2
-          scripts/lint.sh
+        run: scripts/version-check.sh
       - name: runtime module has no dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -131,6 +129,20 @@ jobs:
       - name: fuzz smoke
         if: matrix.os == 'ubuntu-latest' && matrix.go == 'stable'
         run: scripts/fuzz-smoke.sh
+
+  lint:
+    runs-on: ubuntu-latest
+    env:
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: "1.26"
+      - name: golangci-lint
+        run: |
+          go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2
+          scripts/lint.sh
 
   node:
     runs-on: ubuntu-latest
@@ -308,7 +320,7 @@ jobs:
 
   ci:
     runs-on: ubuntu-latest
-    needs: [go, node, python, goldens-dart, docs-check, devloop-windows, goldens-python, goldens-rust, goldens-elixir, govulncheck, apidiff]
+    needs: [go, lint, node, python, goldens-dart, docs-check, devloop-windows, goldens-python, goldens-rust, goldens-elixir, govulncheck, apidiff]
     steps:
       - run: echo ok
 
