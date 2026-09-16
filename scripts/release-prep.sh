@@ -9,6 +9,13 @@ case "$version" in
   *) echo "version must look like vX.Y.Z" >&2; exit 2 ;;
 esac
 new="${version#v}"
+
+missing=""
+for tool in pnpm uv cargo go python3; do
+  command -v "$tool" >/dev/null || missing="$missing $tool"
+done
+[ -z "$missing" ] || { echo "release-prep needs:$missing" >&2; exit 1; }
+
 old="$(sed -n 's/^const Version = "\(.*\)"$/\1/p' version.go)"
 [ -n "$old" ] || { echo "cannot read the current version from version.go" >&2; exit 1; }
 if [ "$old" = "$new" ]; then
@@ -25,6 +32,7 @@ sub() {
 
 sub version.go "const Version = \"$old\"" "const Version = \"$new\""
 sub version_test.go "Version != \"$old\"" "Version != \"$new\""
+sub README.md "Version $old\." "Version $new."
 
 for pkg in packages/*/package.json; do
   sub "$pkg" "\"version\": \"$old\"" "\"version\": \"$new\""
@@ -51,22 +59,38 @@ sub examples/ledger/elixir/mix.exs "\"$old\"" "\"$new\""
 sub examples/ledger/python/pyproject.toml "\"$old\"" "\"$new\""
 sub examples/ledger/rust/Cargo.toml "\"$old\"" "\"$new\""
 
-perl -0pi -e "s/^## Unreleased$/## $new/m" CHANGELOG.md
+if grep -q "^## Unreleased$" CHANGELOG.md; then
+  perl -0pi -e "s/^## Unreleased\$/## $new/m" CHANGELOG.md
+else
+  perl -0pi -e "s/^(# [^\n]+\n)/\$1\n## $new\n/" CHANGELOG.md
+fi
+grep -q "^## $new\$" CHANGELOG.md || { echo "release-prep: could not open $new in CHANGELOG.md" >&2; exit 1; }
 echo "opened $new in CHANGELOG.md"
+
+run() {
+  printf -- '-- %s\n' "$*"
+  "$@" || { echo "release-prep: failed at: $*" >&2; exit 1; }
+}
+
+run pnpm install --lockfile-only
+run sh -c 'cd examples/ledger/python && uv lock'
+run sh -c 'cd examples/ledger/rust && cargo update -p bowline-client'
+run sh -c 'cd packages/python/bowline-client && uv lock'
+run sh -c 'cd packages/rust/bowline-client && cargo update -p bowline-client'
+run sh -c 'cd python/bowline-agent && uv lock'
+run sh -c 'cd examples/ledger && go run ../../cmd/bowline gen'
+run sh -c 'cd examples/federation/billing && go run ../../../cmd/bowline gen'
+run scripts/repin-gateway.sh examples/federation/gateway/bowline.gateway.json
+run sh -c 'cd examples/federation/gateway && go run ../../../cmd/bowline gateway compose -o composed.contract.json'
+run sh -c 'cd examples/federation/gateway && go run ../../../cmd/bowline gen --from composed.contract.json'
+run scripts/eval-ledger.sh record
+run sh -c 'cd examples/ledger && go run ../../cmd/bowline check'
+run sh -c 'cd examples/federation/billing && go run ../../../cmd/bowline check'
+run scripts/version-check.sh
 
 cat <<EOF
 
-next, by hand:
-  pnpm install --lockfile-only
-  (cd examples/ledger/python && uv lock)
-  (cd examples/ledger/rust && cargo update -p bowline-client)
-  (cd packages/python/bowline-client && uv lock)
-  (cd packages/rust/bowline-client && cargo update -p bowline-client)
-  (cd examples/ledger && go run ../../cmd/bowline check)
-  (cd examples/federation/billing && go run ../../../cmd/bowline check)
-  (cd examples/federation/gateway && go run ../../../cmd/bowline gateway compose -o composed.contract.json)
-  (cd examples/federation/gateway && go run ../../../cmd/bowline gen --from composed.contract.json)
-  scripts/eval-ledger.sh record
+prepared $new. next, by hand:
   scripts/verify.sh
   scripts/tag-modules.sh $version
 EOF
