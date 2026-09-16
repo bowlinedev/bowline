@@ -1,8 +1,10 @@
 package gateway
 
 import (
+	"cmp"
 	"fmt"
-	"sort"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -29,11 +31,7 @@ func Compose(services map[string]*contract.Document) (*contract.Document, []Diag
 	if len(services) == 0 {
 		return nil, []Diagnostic{{Message: "no services to compose", Fix: "name at least one service in the gateway configuration"}}
 	}
-	names := make([]string, 0, len(services))
-	for name := range services {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(services))
 
 	var diags []Diagnostic
 	major := ""
@@ -95,7 +93,7 @@ func Compose(services map[string]*contract.Document) (*contract.Document, []Diag
 			out.Procedures = append(out.Procedures, copyProcedure(p, name))
 		}
 	}
-	sort.SliceStable(out.Procedures, func(i, j int) bool { return out.Procedures[i].Path < out.Procedures[j].Path })
+	slices.SortStableFunc(out.Procedures, func(a, b *contract.Procedure) int { return cmp.Compare(a.Path, b.Path) })
 	if err := out.SetHash(); err != nil {
 		return nil, []Diagnostic{{Message: "hashing the composed document: " + err.Error()}}
 	}
@@ -180,9 +178,7 @@ func copyProcedure(p *contract.Procedure, service string) *contract.Procedure {
 	}
 	if p.Meta != nil {
 		meta := make(map[string]string, len(p.Meta))
-		for k, v := range p.Meta {
-			meta[k] = v
-		}
+		maps.Copy(meta, p.Meta)
 		copied.Meta = meta
 	}
 	return &copied

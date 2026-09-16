@@ -1,7 +1,7 @@
 package naming
 
 import (
-	"sort"
+	"slices"
 	"strings"
 	"unicode"
 
@@ -22,7 +22,7 @@ func Assign(doc *contract.Document, reserved map[string]bool) map[string]string 
 			names[ids[0]] = escape(Identifier(name), reserved)
 			continue
 		}
-		sort.Strings(ids)
+		slices.Sort(ids)
 		for _, id := range ids {
 			names[id] = escape(Identifier(PackageName(id)+"_"+name), reserved)
 		}
@@ -106,7 +106,8 @@ func LowerCamel(json string) string {
 			b.WriteString(p)
 			continue
 		}
-		b.WriteString(strings.ToUpper(p[:1]) + p[1:])
+		b.WriteString(strings.ToUpper(p[:1]))
+		b.WriteString(p[1:])
 	}
 	return leadingDigit(b.String())
 }
@@ -118,7 +119,8 @@ func UpperCamel(json string) string {
 	}
 	var b strings.Builder
 	for _, p := range parts {
-		b.WriteString(strings.ToUpper(p[:1]) + p[1:])
+		b.WriteString(strings.ToUpper(p[:1]))
+		b.WriteString(p[1:])
 	}
 	return leadingDigit(b.String())
 }

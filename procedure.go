@@ -29,6 +29,7 @@ type Procedure struct {
 	ReadOnly    bool
 	Destructive bool
 	Scopes      []string
+	MaxBody     int64
 	Meta        map[string]string
 	In          reflect.Type
 	Out         reflect.Type

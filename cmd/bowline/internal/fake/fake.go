@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"hash/fnv"
+	"maps"
 	"math"
 	"math/rand/v2"
 	"strconv"
@@ -135,9 +136,7 @@ func (g *Generator) ref(t *contract.Type, f *contract.Field, s scope) any {
 			return nil
 		}
 		depth := map[string]int{}
-		for k, v := range s.depth {
-			depth[k] = v
-		}
+		maps.Copy(depth, s.depth)
 		depth[t.ID]++
 		env := map[string]*contract.Type{}
 		fields := decl.Fields
@@ -301,7 +300,7 @@ func (g *Generator) mapValue(t *contract.Type, s scope) any {
 	r := g.stream(s)
 	count := 1 + r.IntN(3)
 	out := map[string]any{}
-	for i := 0; i < count; i++ {
+	for range count {
 		key := g.mapKey(t.Key, r)
 		if _, dup := out[key]; dup {
 			continue

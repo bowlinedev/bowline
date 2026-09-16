@@ -1,7 +1,6 @@
 package watch
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -14,8 +13,7 @@ func TestDetectsWritesAddsAndRemoves(t *testing.T) {
 	os.WriteFile(a, []byte("package x\n"), 0o644)
 	os.MkdirAll(filepath.Join(dir, "node_modules", "m"), 0o755)
 	os.WriteFile(filepath.Join(dir, "node_modules", "m", "ignored.go"), []byte("package m\n"), 0o644)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := t.Context()
 	events := make(chan []Change, 10)
 	go Run(ctx, dir, 20*time.Millisecond, func(c []Change) { events <- c })
 	time.Sleep(60 * time.Millisecond)

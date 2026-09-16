@@ -175,7 +175,7 @@ async function call(
   if (!response.ok) {
     throw toError(response.status, text, path, contract);
   }
-  const data: unknown = text === "" ? undefined : JSON.parse(text);
+  const data = parseBody(text, response.status, path);
   return proc.output === undefined ? data : hydrate(data, proc.output, contract.hydrators);
 }
 
@@ -221,7 +221,7 @@ function uploadLeaf(
     if (!response.ok) {
       throw toError(response.status, text, path, contract);
     }
-    const data: unknown = text === "" ? undefined : JSON.parse(text);
+    const data = parseBody(text, response.status, path);
     return proc.output === undefined ? data : hydrate(data, proc.output, contract.hydrators);
   }) as UploadLeaf;
   leaf.kind = "upload";
@@ -351,7 +351,7 @@ async function* streamEvents(
   try {
     for await (const event of parseEventStream(response.body)) {
       if (event.event === "message") {
-        const data: unknown = JSON.parse(event.data);
+        const data = parseBody(event.data, 200, path);
         yield proc.output === undefined ? data : hydrate(data, proc.output, contract.hydrators);
       } else if (event.event === "error") {
         throw toError(response.status, event.data, path, contract);
@@ -364,6 +364,17 @@ async function* streamEvents(
       throw new BowlineError("CANCELED", "subscription aborted", 0, { cause });
     }
     throw cause;
+  }
+}
+
+function parseBody(text: string, status: number, path: string): unknown {
+  if (text === "") {
+    return undefined;
+  }
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    throw new BowlineError("UNKNOWN", `HTTP ${status} from ${path} is not valid JSON`, status);
   }
 }
 

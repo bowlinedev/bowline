@@ -1,7 +1,8 @@
 package elixir
 
 import (
-	"sort"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -32,11 +33,7 @@ func buildTree(procs []*contract.Procedure) *node {
 }
 
 func sortedKeys(n *node) []string {
-	keys := make([]string, 0, len(n.children))
-	for k := range n.children {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
+	keys := slices.Sorted(maps.Keys(n.children))
 	return keys
 }
 
@@ -68,7 +65,9 @@ func (g *generator) writeClients(b *strings.Builder) {
 	if len(mounts) > 0 {
 		doc.WriteString("\n  Mounted modules:\n")
 		for _, mount := range mounts {
-			doc.WriteString("  - `" + segmentsModule(g.root, mount.segments) + "`\n")
+			doc.WriteString("  - `")
+			doc.WriteString(segmentsModule(g.root, mount.segments))
+			doc.WriteString("`\n")
 		}
 	}
 	doc.WriteString("  \"\"\"\n\n")
@@ -84,9 +83,13 @@ func (g *generator) writeClients(b *strings.Builder) {
 		body.WriteString("  @spec error_details(BowlineClient.Error.t()) :: struct() | nil\n")
 		for _, id := range g.errorOrder {
 			decl := g.doc.Errors[id]
-			body.WriteString("  def error_details(%BowlineClient.Error{type: " + quote(decl.Name) + ", details: details})\n")
+			body.WriteString("  def error_details(%BowlineClient.Error{type: ")
+			body.WriteString(quote(decl.Name))
+			body.WriteString(", details: details})\n")
 			body.WriteString("      when is_map(details) do\n")
-			body.WriteString("    Types." + g.names[id] + ".from_map(details)\n")
+			body.WriteString("    Types.")
+			body.WriteString(g.names[id])
+			body.WriteString(".from_map(details)\n")
 			body.WriteString("  end\n\n")
 		}
 		body.WriteString("  def error_details(%BowlineClient.Error{}), do: nil\n")
@@ -97,7 +100,8 @@ func (g *generator) writeClients(b *strings.Builder) {
 
 func (g *generator) appendHelpers(body *strings.Builder) {
 	for _, def := range g.helpers.defs {
-		body.WriteString("\n" + def)
+		body.WriteString("\n")
+		body.WriteString(def)
 	}
 }
 
@@ -167,33 +171,52 @@ func writeSpec(b *strings.Builder, name string, args []string, result string) {
 	head := name + "(" + strings.Join(args, ", ") + ")"
 	line := "  @spec " + head + " :: " + result
 	if len(line) <= lineWidth {
-		b.WriteString(line + "\n")
+		b.WriteString(line)
+		b.WriteString("\n")
 		return
 	}
 	if len("  @spec "+head+" ::") <= lineWidth {
-		b.WriteString("  @spec " + head + " ::\n          " + result + "\n")
+		b.WriteString("  @spec ")
+		b.WriteString(head)
+		b.WriteString(" ::\n          ")
+		b.WriteString(result)
+		b.WriteString("\n")
 		return
 	}
-	b.WriteString("  @spec " + name + "(\n")
+	b.WriteString("  @spec ")
+	b.WriteString(name)
+	b.WriteString("(\n")
 	for _, a := range args {
-		b.WriteString("          " + a + ",\n")
+		b.WriteString("          ")
+		b.WriteString(a)
+		b.WriteString(",\n")
 	}
 	trimComma(b)
-	b.WriteString("\n        ) ::\n          " + result + "\n")
+	b.WriteString("\n        ) ::\n          ")
+	b.WriteString(result)
+	b.WriteString("\n")
 }
 
 func writeArgs(b *strings.Builder, indent, call string, args []string) {
 	line := indent + call + "(" + strings.Join(args, ", ") + ")"
 	if len(line) <= lineWidth {
-		b.WriteString(line + "\n")
+		b.WriteString(line)
+		b.WriteString("\n")
 		return
 	}
-	b.WriteString(indent + call + "(\n")
+	b.WriteString(indent)
+	b.WriteString(call)
+	b.WriteString("(\n")
 	for _, a := range args {
-		b.WriteString(indent + "  " + a + ",\n")
+		b.WriteString(indent)
+		b.WriteString("  ")
+		b.WriteString(a)
+		b.WriteString(",\n")
 	}
 	trimComma(b)
-	b.WriteString("\n" + indent + ")\n")
+	b.WriteString("\n")
+	b.WriteString(indent)
+	b.WriteString(")\n")
 }
 
 func (g *generator) writeCall(b *strings.Builder, name string, p *contract.Procedure) {
@@ -204,22 +227,36 @@ func (g *generator) writeCall(b *strings.Builder, name string, p *contract.Proce
 	result := "{:ok, " + g.outputSpec(p) + "} | {:error, BowlineClient.Error.t()}"
 	if isEmptyStruct(p.Input) {
 		writeSpec(b, name, []string{"Transport.t()", "Transport.call_opts()"}, result)
-		b.WriteString("  def " + name + "(transport, opts \\\\ []) do\n")
+		b.WriteString("  def ")
+		b.WriteString(name)
+		b.WriteString("(transport, opts \\\\ []) do\n")
 		writeArgs(b, "    ", "Transport.call", []string{"transport", quote(p.Path), method, "%{}", g.outputDecoder(p), "opts"})
 		b.WriteString("  end\n\n")
 		writeSpec(b, name+"!", []string{"Transport.t()", "Transport.call_opts()"}, g.outputSpec(p))
-		b.WriteString("  def " + name + "!(transport, opts \\\\ []) do\n")
-		b.WriteString("    case " + name + "(transport, opts) do\n")
+		b.WriteString("  def ")
+		b.WriteString(name)
+		b.WriteString("!(transport, opts \\\\ []) do\n")
+		b.WriteString("    case ")
+		b.WriteString(name)
+		b.WriteString("(transport, opts) do\n")
 		b.WriteString("      {:ok, value} -> value\n      {:error, error} -> raise error\n    end\n  end\n")
 		return
 	}
 	writeSpec(b, name, []string{"Transport.t()", g.inputSpec(p), "Transport.call_opts()"}, result)
-	b.WriteString("  def " + name + "(transport, " + g.inputPattern(p) + ", opts \\\\ []) do\n")
+	b.WriteString("  def ")
+	b.WriteString(name)
+	b.WriteString("(transport, ")
+	b.WriteString(g.inputPattern(p))
+	b.WriteString(", opts \\\\ []) do\n")
 	writeArgs(b, "    ", "Transport.call", []string{"transport", quote(p.Path), method, g.inputEncode(p), g.outputDecoder(p), "opts"})
 	b.WriteString("  end\n\n")
 	writeSpec(b, name+"!", []string{"Transport.t()", g.inputSpec(p), "Transport.call_opts()"}, g.outputSpec(p))
-	b.WriteString("  def " + name + "!(transport, input, opts \\\\ []) do\n")
-	b.WriteString("    case " + name + "(transport, input, opts) do\n")
+	b.WriteString("  def ")
+	b.WriteString(name)
+	b.WriteString("!(transport, input, opts \\\\ []) do\n")
+	b.WriteString("    case ")
+	b.WriteString(name)
+	b.WriteString("(transport, input, opts) do\n")
 	b.WriteString("      {:ok, value} -> value\n      {:error, error} -> raise error\n    end\n  end\n")
 }
 
@@ -227,13 +264,19 @@ func (g *generator) writeSubscription(b *strings.Builder, name string, p *contra
 	result := "{:ok, Enumerable.t()} | {:error, BowlineClient.Error.t()}"
 	if isEmptyStruct(p.Input) {
 		writeSpec(b, name, []string{"Transport.t()", "Transport.call_opts()"}, result)
-		b.WriteString("  def " + name + "(transport, opts \\\\ []) do\n")
+		b.WriteString("  def ")
+		b.WriteString(name)
+		b.WriteString("(transport, opts \\\\ []) do\n")
 		writeArgs(b, "    ", "Transport.subscribe", []string{"transport", quote(p.Path), "%{}", g.outputDecoder(p), "opts"})
 		b.WriteString("  end\n")
 		return
 	}
 	writeSpec(b, name, []string{"Transport.t()", g.inputSpec(p), "Transport.call_opts()"}, result)
-	b.WriteString("  def " + name + "(transport, " + g.inputPattern(p) + ", opts \\\\ []) do\n")
+	b.WriteString("  def ")
+	b.WriteString(name)
+	b.WriteString("(transport, ")
+	b.WriteString(g.inputPattern(p))
+	b.WriteString(", opts \\\\ []) do\n")
 	writeArgs(b, "    ", "Transport.subscribe", []string{"transport", quote(p.Path), g.inputEncode(p), g.outputDecoder(p), "opts"})
 	b.WriteString("  end\n")
 }
@@ -245,7 +288,11 @@ func (g *generator) writeUpload(b *strings.Builder, name string, p *contract.Pro
 		input = "BowlineClient.Empty.t()"
 	}
 	writeSpec(b, name, []string{"Transport.t()", input, "Enumerable.t() | binary()", "String.t()", "Transport.call_opts()"}, result)
-	b.WriteString("  def " + name + "(transport, " + g.inputPattern(p) + ", file, filename, opts \\\\ []) do\n")
+	b.WriteString("  def ")
+	b.WriteString(name)
+	b.WriteString("(transport, ")
+	b.WriteString(g.inputPattern(p))
+	b.WriteString(", file, filename, opts \\\\ []) do\n")
 	writeArgs(b, "    ", "Transport.upload", []string{"transport", quote(p.Path), g.inputEncode(p), "file", "filename", g.outputDecoder(p), "opts"})
 	b.WriteString("  end\n")
 }

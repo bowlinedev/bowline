@@ -48,6 +48,10 @@ type handler struct {
 	reserved   *reserved
 	signatures signing.SecretProvider
 	signedBody int64
+	replay     *signing.ReplayCache
+
+	csrf            *csrf
+	securityHeaders bool
 
 	idempotency    IdempotencyStore
 	idempotencyTTL time.Duration
@@ -96,6 +100,10 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.writeError(w, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, rt.path, proc.Method()))
 		return
 	}
+	if h.csrf != nil && !h.csrf.allows(req) {
+		h.writeError(w, nil, 0, Errorf(PermissionDenied, "cross-origin request rejected"))
+		return
+	}
 	if proc.Kind == KindMutation && proc.Idempotent && h.idempotency != nil {
 		h.serveIdempotent(w, req, rt)
 		return
@@ -109,14 +117,14 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route) {
 		h.serveUpload(w, req, rt)
 		return
 	}
-	raw, status, err := h.readInput(w, req)
+	raw, status, err := h.readInput(w, req, h.bodyLimit(proc))
 	if err != nil {
 		h.writeError(w, nil, status, err)
 		return
 	}
 	ctx, ptr := proc.newFrame(req.Context(), Call{Procedure: &rt.procedure, Request: req})
 	if err := codec.Decode(raw, ptr, h.strict); err != nil {
-		h.writeError(w, nil, 0, Errorf(InvalidArgument, "invalid input: %v", err))
+		h.writeError(w, nil, 0, h.invalidInput(err))
 		return
 	}
 	in := ptr
@@ -134,6 +142,7 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route) {
 		return
 	}
 	out, err := h.invoke(ctx, rt, in)
+	applyResponseHeader(w, ctx)
 	if err != nil {
 		status, _, undeclared := classify(err, h.production, proc.variants)
 		if status >= 500 {
@@ -164,6 +173,7 @@ func (h *handler) writeOutput(w http.ResponseWriter, ctx context.Context, rt *ro
 	if rt.proc.Deprecated != "" {
 		w.Header().Set("Deprecation", "true")
 	}
+	h.secure(w, methodOf(ctx))
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
@@ -179,9 +189,23 @@ func methodAllowed(p *Procedure, method string) bool {
 	return false
 }
 
-func (h *handler) readInput(w http.ResponseWriter, req *http.Request) ([]byte, int, error) {
+func (h *handler) invalidInput(err error) *Error {
+	if h.production {
+		return Errorf(InvalidArgument, "invalid input")
+	}
+	return Errorf(InvalidArgument, "invalid input: %v", err)
+}
+
+func (h *handler) bodyLimit(p *Procedure) int64 {
+	if p != nil && p.MaxBody > 0 {
+		return p.MaxBody
+	}
+	return h.maxBody
+}
+
+func (h *handler) readInput(w http.ResponseWriter, req *http.Request, limit int64) ([]byte, int, error) {
 	if req.Method == http.MethodGet {
-		return []byte(req.URL.Query().Get("input")), 0, nil
+		return []byte(queryInput(req.URL.RawQuery)), 0, nil
 	}
 	if ct := req.Header.Get("Content-Type"); ct != "" {
 		mediaType, _, err := mime.ParseMediaType(ct)
@@ -189,13 +213,13 @@ func (h *handler) readInput(w http.ResponseWriter, req *http.Request) ([]byte, i
 			return nil, http.StatusUnsupportedMediaType, Errorf(InvalidArgument, "content type must be application/json")
 		}
 	}
-	body, err := io.ReadAll(http.MaxBytesReader(w, req.Body, h.maxBody))
+	body, err := readBody(http.MaxBytesReader(w, req.Body, limit), req.ContentLength, limit)
 	if err != nil {
 		var tooLarge *http.MaxBytesError
 		if errors.As(err, &tooLarge) {
-			return nil, http.StatusRequestEntityTooLarge, Errorf(InvalidArgument, "request body exceeds %d bytes", h.maxBody)
+			return nil, http.StatusRequestEntityTooLarge, Errorf(InvalidArgument, "request body exceeds %d bytes", limit)
 		}
-		return nil, 0, Errorf(InvalidArgument, "reading request body: %v", err)
+		return nil, 0, h.invalidInput(fmt.Errorf("reading request body: %w", err))
 	}
 	return body, 0, nil
 }
@@ -204,6 +228,10 @@ func (h *handler) invoke(ctx context.Context, rt *route, in any) (out any, err e
 	defer func() {
 		if rec := recover(); rec != nil {
 			h.log.ErrorContext(ctx, "bowline: procedure panicked", "procedure", rt.path, "panic", rec, "stack", string(debug.Stack()))
+			if h.production {
+				err = Errorf(Internal, "internal error")
+				return
+			}
 			err = Errorf(Internal, "panic: %v", rec)
 		}
 	}()
@@ -221,10 +249,22 @@ func (h *handler) writeError(w http.ResponseWriter, proc *Procedure, statusOverr
 	}
 	body, marshalErr := json.Marshal(env)
 	if marshalErr != nil {
-		body = []byte(fmt.Sprintf(`{"error":{"code":"INTERNAL","message":%q}}`, "error encoding failed"))
+		body = fmt.Appendf(nil, `{"error":{"code":"INTERNAL","message":%q}}`, "error encoding failed")
 		status = http.StatusInternalServerError
 	}
+	h.secure(w, http.MethodPost)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	w.Write(body)
+}
+
+func readBody(r io.Reader, contentLength, limit int64) ([]byte, error) {
+	if contentLength < 0 || contentLength > limit {
+		return io.ReadAll(r)
+	}
+	body := make([]byte, contentLength)
+	if _, err := io.ReadFull(r, body); err != nil {
+		return nil, err
+	}
+	return body, nil
 }

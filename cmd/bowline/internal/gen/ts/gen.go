@@ -1,7 +1,7 @@
 package ts
 
 import (
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/support"
@@ -37,7 +37,7 @@ func (g *generator) imports() string {
 	for name := range g.needs {
 		extra = append(extra, "type "+name)
 	}
-	sort.Strings(extra)
+	slices.Sort(extra)
 	names = append(names, extra...)
 	return "import { " + strings.Join(names, ", ") + " } from \"@bowline/client\";\n\n"
 }

@@ -12,6 +12,15 @@ type Middleware func(next Next) Next
 type Call struct {
 	Procedure *Procedure
 	Request   *http.Request
+
+	header http.Header
+}
+
+func (c *Call) ResponseHeader() http.Header {
+	if c.header == nil {
+		c.header = http.Header{}
+	}
+	return c.header
 }
 
 type callKey struct{}

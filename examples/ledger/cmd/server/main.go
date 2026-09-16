@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/bowlinedev/bowline"
@@ -39,6 +41,26 @@ func main() {
 	}
 }
 
+func browserOptions() []bowline.HandlerOption {
+	if os.Getenv("CSRF") != "on" {
+		return nil
+	}
+	return []bowline.HandlerOption{bowline.CSRF(bowline.CSRFOptions{
+		TrustFetchMetadata: true,
+		AllowedOrigins:     allowedOrigins(),
+	})}
+}
+
+func allowedOrigins() []string {
+	var origins []string
+	for _, origin := range strings.Split(os.Getenv("CSRF_ORIGINS"), ",") {
+		if trimmed := strings.TrimSpace(origin); trimmed != "" {
+			origins = append(origins, trimmed)
+		}
+	}
+	return origins
+}
+
 func newHandler(routes *bowline.Router, production bool) (http.Handler, error) {
 	options := []bowline.HandlerOption{
 		bowline.Production(production),
@@ -46,6 +68,7 @@ func newHandler(routes *bowline.Router, production bool) (http.Handler, error) {
 		bowline.Idempotency(bowline.MemoryIdempotencyStore(), 24*time.Hour),
 		bowline.Heartbeat(15 * time.Second),
 		bowline.MaxUploadSize(8 << 20),
+		bowline.SecurityHeaders(),
 	}
 	tools, err := mcp.Handler(routes, api.Contract, mcp.Runtime(options...), mcp.RateLimit(120, 20))
 	if err != nil {
@@ -53,7 +76,7 @@ func newHandler(routes *bowline.Router, production bool) (http.Handler, error) {
 	}
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID, middleware.Recoverer)
-	r.Mount("/api", routes.Handler(options...))
+	r.Mount("/api", routes.Handler(slices.Concat(options, browserOptions())...))
 	r.Handle("/ws", bowlinews.Handler(routes, bowlinews.Options{OriginPatterns: []string{"localhost:*", "127.0.0.1:*"}, Handler: options}))
 	r.Handle("/mcp", tools)
 	if !production {

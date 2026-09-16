@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"sort"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/ts"
@@ -160,9 +161,7 @@ func primitive(t *contract.Type) node {
 func nullable(n node) node {
 	if typ, ok := n["type"].(string); ok && len(n) <= 6 && n["$ref"] == nil && n["anyOf"] == nil && n["properties"] == nil && n["items"] == nil && n["additionalProperties"] == nil && n["enum"] == nil {
 		copied := node{}
-		for k, v := range n {
-			copied[k] = v
-		}
+		maps.Copy(copied, n)
 		copied["type"] = []string{typ, "null"}
 		return copied
 	}
@@ -307,7 +306,7 @@ func (b *builder) object(fields []*contract.Field, doc string, env map[string]*c
 	}
 	out := node{"type": "object", "properties": props, "additionalProperties": false}
 	if len(required) > 0 {
-		sort.Strings(required)
+		slices.Sort(required)
 		out["required"] = required
 	}
 	if doc != "" {
@@ -318,18 +317,14 @@ func (b *builder) object(fields []*contract.Field, doc string, env map[string]*c
 
 func withDescription(n node, doc string) node {
 	copied := node{}
-	for k, v := range n {
-		copied[k] = v
-	}
+	maps.Copy(copied, n)
 	copied["description"] = doc
 	return copied
 }
 
 func withExample(n node, example any) node {
 	copied := node{}
-	for k, v := range n {
-		copied[k] = v
-	}
+	maps.Copy(copied, n)
 	copied["examples"] = []any{example}
 	return copied
 }

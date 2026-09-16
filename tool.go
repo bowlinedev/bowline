@@ -1,6 +1,9 @@
 package bowline
 
-import "fmt"
+import (
+	"fmt"
+	"slices"
+)
 
 type ToolOption func(*Procedure)
 
@@ -23,13 +26,7 @@ func Scope(names ...string) ToolOption {
 			if name == "" {
 				panic(fmt.Sprintf("bowline: %s %q: empty scope name", p.Kind, p.Name))
 			}
-			known := false
-			for _, existing := range p.Scopes {
-				if existing == name {
-					known = true
-					break
-				}
-			}
+			known := slices.Contains(p.Scopes, name)
 			if !known {
 				p.Scopes = append(p.Scopes, name)
 			}

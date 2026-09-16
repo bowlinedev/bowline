@@ -202,7 +202,7 @@ func checkRules(t *testing.T, f *contract.Field, v any, path string) {
 			}
 		case "oneof":
 			found := false
-			for _, option := range strings.Fields(r.Param) {
+			for option := range strings.FieldsSeq(r.Param) {
 				if fmt.Sprint(v) == option {
 					found = true
 				}

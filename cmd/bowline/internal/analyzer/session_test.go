@@ -3,6 +3,7 @@ package analyzer
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -113,7 +114,7 @@ func TestDevLoopBudget(t *testing.T) {
 	file := filepath.Join(dir, "p10", "p10.go")
 	src, _ := os.ReadFile(file)
 	var durations []time.Duration
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		tag := "name"
 		if i%2 == 0 {
 			tag = "label"
@@ -128,8 +129,9 @@ func TestDevLoopBudget(t *testing.T) {
 		}
 		durations = append(durations, time.Since(start))
 	}
-	median := durations[len(durations)/2]
 	t.Logf("update+analyze durations: %v", durations)
+	slices.Sort(durations)
+	median := durations[len(durations)/2]
 	if median > 500*time.Millisecond {
 		t.Fatalf("median %v exceeds the 500ms budget", median)
 	}

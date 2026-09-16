@@ -1,10 +1,11 @@
 package analyzer
 
 import (
+	"cmp"
 	"fmt"
 	"go/token"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 )
 
@@ -29,17 +30,12 @@ func (d Diagnostic) String() string {
 }
 
 func sortDiagnostics(diags []Diagnostic) {
-	sort.SliceStable(diags, func(i, j int) bool {
-		a, b := diags[i], diags[j]
-		if a.Pos.Filename != b.Pos.Filename {
-			return a.Pos.Filename < b.Pos.Filename
-		}
-		if a.Pos.Line != b.Pos.Line {
-			return a.Pos.Line < b.Pos.Line
-		}
-		if a.Pos.Column != b.Pos.Column {
-			return a.Pos.Column < b.Pos.Column
-		}
-		return a.Message < b.Message
+	slices.SortStableFunc(diags, func(a, b Diagnostic) int {
+		return cmp.Or(
+			cmp.Compare(a.Pos.Filename, b.Pos.Filename),
+			cmp.Compare(a.Pos.Line, b.Pos.Line),
+			cmp.Compare(a.Pos.Column, b.Pos.Column),
+			cmp.Compare(a.Message, b.Message),
+		)
 	})
 }

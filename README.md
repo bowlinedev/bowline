@@ -82,9 +82,15 @@ const greeting = await client.greet({ name: "ada" });
 | `docs/guides/frameworks/README.md` | every Go router and frontend framework, with verified snippets |
 | `docs/guides/dart.md`, `python.md`, `rust.md`, `elixir.md` | the generated Dart, Python, Rust, and Elixir clients |
 | `docs/certification.md` | what makes a client target official |
+| `docs/plugins.md` | the external generator protocol for a new language |
+| `docs/certified.md` | every generator that has passed `bowline certify` |
 | `docs/guides/federation.md` | composing services behind a gateway |
 | `docs/guides/registry.md` | the contract registry and impact queries |
 | `docs/guides/signing.md` | signed service-to-service calls |
+| `docs/guides/security.md` | CSRF, security headers, and the reverse proxy checklist |
+| `docs/benchmarks.md` | handler overhead, regeneration latency, and generator throughput |
+| `docs/cli.md` | every command, flag, exit code, and JSON output |
+| `docs/stability.md` | what does not change inside a major version |
 | `spec/contract.md` | the contract document every generator reads |
 | `spec/mapping-table.md` | the normative Go to TypeScript mapping |
 

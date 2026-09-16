@@ -229,7 +229,10 @@ func (g *generator) writeStruct(b *strings.Builder, name, doc string, fields []*
 	g.uses["serde"] = true
 	writeDoc(b, "", doc)
 	b.WriteString(derives + "\n")
-	b.WriteString("pub struct " + name + generics(params, g.mapKeyParams(fields)) + " {\n")
+	b.WriteString("pub struct ")
+	b.WriteString(name)
+	b.WriteString(generics(params, g.mapKeyParams(fields)))
+	b.WriteString(" {\n")
 	used := map[string]bool{}
 	var infos []fieldInfo
 	for _, f := range fields {
@@ -241,9 +244,15 @@ func (g *generator) writeStruct(b *strings.Builder, name, doc string, fields []*
 		infos = append(infos, info)
 		writeDoc(b, "    ", f.Doc)
 		if len(info.attrs) > 0 {
-			b.WriteString("    #[serde(" + strings.Join(info.attrs, ", ") + ")]\n")
+			b.WriteString("    #[serde(")
+			b.WriteString(strings.Join(info.attrs, ", "))
+			b.WriteString(")]\n")
 		}
-		b.WriteString("    pub " + info.name + ": " + info.typ + ",\n")
+		b.WriteString("    pub ")
+		b.WriteString(info.name)
+		b.WriteString(": ")
+		b.WriteString(info.typ)
+		b.WriteString(",\n")
 	}
 	b.WriteString("}\n\n")
 	g.writeValidate(b, name, fields, infos, params, s)
@@ -324,7 +333,11 @@ func (g *generator) declarations() string {
 			g.writeEnum(&b, name, decl)
 		case contract.Primitive:
 			writeDoc(&b, "", decl.Doc)
-			b.WriteString("pub type " + name + " = " + g.primitive(decl.Primitive, "", true) + ";\n\n")
+			b.WriteString("pub type ")
+			b.WriteString(name)
+			b.WriteString(" = ")
+			b.WriteString(g.primitive(decl.Primitive, "", true))
+			b.WriteString(";\n\n")
 		}
 	}
 	for _, name := range g.synthetic {
@@ -342,7 +355,9 @@ func (g *generator) writeEnum(b *strings.Builder, name string, decl *contract.Ty
 	} else {
 		b.WriteString("#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]\n")
 	}
-	b.WriteString("pub enum " + name + " {\n")
+	b.WriteString("pub enum ")
+	b.WriteString(name)
+	b.WriteString(" {\n")
 	variants := make([]string, len(decl.Values))
 	used := map[string]bool{}
 	for i, v := range decl.Values {
@@ -356,40 +371,74 @@ func (g *generator) writeEnum(b *strings.Builder, name string, decl *contract.Ty
 		used[variant] = true
 		variants[i] = variant
 		if isString {
-			b.WriteString("    #[serde(rename = " + literal(v.Value) + ")]\n")
+			b.WriteString("    #[serde(rename = ")
+			b.WriteString(literal(v.Value))
+			b.WriteString(")]\n")
 		}
-		b.WriteString("    " + variant + ",\n")
+		b.WriteString("    ")
+		b.WriteString(variant)
+		b.WriteString(",\n")
 	}
 	b.WriteString("}\n\n")
-	b.WriteString("impl " + name + " {\n")
+	b.WriteString("impl ")
+	b.WriteString(name)
+	b.WriteString(" {\n")
 	if isString {
 		b.WriteString("    pub fn as_str(&self) -> &'static str {\n        match self {\n")
 		for i, v := range decl.Values {
-			b.WriteString("            " + name + "::" + variants[i] + " => " + literal(v.Value) + ",\n")
+			b.WriteString("            ")
+			b.WriteString(name)
+			b.WriteString("::")
+			b.WriteString(variants[i])
+			b.WriteString(" => ")
+			b.WriteString(literal(v.Value))
+			b.WriteString(",\n")
 		}
 		b.WriteString("        }\n    }\n}\n\n")
-		b.WriteString("impl Validate for " + name + " {\n    fn validate(&self, _path: &mut Vec<String>, _issues: &mut Vec<Issue>) {}\n}\n\n")
+		b.WriteString("impl Validate for ")
+		b.WriteString(name)
+		b.WriteString(" {\n    fn validate(&self, _path: &mut Vec<String>, _issues: &mut Vec<Issue>) {}\n}\n\n")
 		g.uses["Validate"] = true
 		g.uses["Issue"] = true
 		return
 	}
 	b.WriteString("    pub fn value(&self) -> i64 {\n        match self {\n")
 	for i, v := range decl.Values {
-		b.WriteString("            " + name + "::" + variants[i] + " => " + literal(v.Value) + ",\n")
+		b.WriteString("            ")
+		b.WriteString(name)
+		b.WriteString("::")
+		b.WriteString(variants[i])
+		b.WriteString(" => ")
+		b.WriteString(literal(v.Value))
+		b.WriteString(",\n")
 	}
 	b.WriteString("        }\n    }\n}\n\n")
-	b.WriteString("impl Serialize for " + name + " {\n")
+	b.WriteString("impl Serialize for ")
+	b.WriteString(name)
+	b.WriteString(" {\n")
 	b.WriteString("    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {\n")
 	b.WriteString("        serializer.serialize_i64(self.value())\n    }\n}\n\n")
-	b.WriteString("impl<'de> Deserialize<'de> for " + name + " {\n")
+	b.WriteString("impl<'de> Deserialize<'de> for ")
+	b.WriteString(name)
+	b.WriteString(" {\n")
 	b.WriteString("    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {\n")
 	b.WriteString("        match i64::deserialize(deserializer)? {\n")
 	for i, v := range decl.Values {
-		b.WriteString("            " + literal(v.Value) + " => Ok(" + name + "::" + variants[i] + "),\n")
+		b.WriteString("            ")
+		b.WriteString(literal(v.Value))
+		b.WriteString(" => Ok(")
+		b.WriteString(name)
+		b.WriteString("::")
+		b.WriteString(variants[i])
+		b.WriteString("),\n")
 	}
-	b.WriteString("            other => Err(serde::de::Error::custom(format!(\"unknown " + name + " value {other}\"))),\n")
+	b.WriteString("            other => Err(serde::de::Error::custom(format!(\"unknown ")
+	b.WriteString(name)
+	b.WriteString(" value {other}\"))),\n")
 	b.WriteString("        }\n    }\n}\n\n")
-	b.WriteString("impl Validate for " + name + " {\n    fn validate(&self, _path: &mut Vec<String>, _issues: &mut Vec<Issue>) {}\n}\n\n")
+	b.WriteString("impl Validate for ")
+	b.WriteString(name)
+	b.WriteString(" {\n    fn validate(&self, _path: &mut Vec<String>, _issues: &mut Vec<Issue>) {}\n}\n\n")
 	g.uses["Validate"] = true
 	g.uses["Issue"] = true
 }

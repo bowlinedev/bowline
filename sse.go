@@ -13,7 +13,7 @@ func Heartbeat(d time.Duration) HandlerOption {
 }
 
 func acceptsEventStream(req *http.Request) bool {
-	for _, part := range strings.Split(req.Header.Get("Accept"), ",") {
+	for part := range strings.SplitSeq(req.Header.Get("Accept"), ",") {
 		mediaType := strings.TrimSpace(strings.SplitN(part, ";", 2)[0])
 		if mediaType == "text/event-stream" || mediaType == "*/*" {
 			return true
@@ -28,6 +28,7 @@ func (h *handler) serveSubscription(w http.ResponseWriter, req *http.Request, rt
 		h.writeError(w, nil, 0, Errorf(Internal, "response writer does not support streaming"))
 		return
 	}
+	h.secure(w, http.MethodGet)
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("X-Accel-Buffering", "no")

@@ -5,11 +5,12 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"maps"
 	"net"
 	"net/http"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -145,11 +146,7 @@ func GatewayServe(opts GatewayOptions) int {
 }
 
 func readinessLines(probes map[string]error) []string {
-	names := make([]string, 0, len(probes))
-	for name := range probes {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(probes))
 	lines := make([]string, 0, len(names))
 	for _, name := range names {
 		if err := probes[name]; err != nil {

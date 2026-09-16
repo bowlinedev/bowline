@@ -1,8 +1,10 @@
 package dart
 
 import (
+	"cmp"
 	"fmt"
-	"sort"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
@@ -86,18 +88,14 @@ func (Generator) Generate(doc *contract.Document, out string) ([]byte, error) {
 func newGenerator(doc *contract.Document) *generator {
 	base := naming.Assign(doc, nil)
 	g := &generator{doc: doc, names: map[string]string{}, usedNames: map[string]bool{}, inline: map[*contract.Type]*inlineDecl{}, uses: map[string]bool{}}
-	ids := make([]string, 0, len(base))
-	for id := range base {
-		ids = append(ids, id)
-	}
-	sort.Strings(ids)
+	ids := slices.Sorted(maps.Keys(base))
 	for _, id := range ids {
 		g.names[id] = g.uniqueType(naming.UpperCamel(base[id]))
 	}
 	for id := range doc.Types {
 		g.order = append(g.order, id)
 	}
-	sort.Slice(g.order, func(i, j int) bool { return g.names[g.order[i]] < g.names[g.order[j]] })
+	slices.SortFunc(g.order, func(a, b string) int { return cmp.Compare(g.names[a], g.names[b]) })
 	return g
 }
 
@@ -155,7 +153,7 @@ func (g *generator) collectInlines() error {
 		g.walkFields(g.doc.Errors[id].Fields, g.names[id], nil)
 	}
 	procs := append([]*contract.Procedure(nil), g.doc.Procedures...)
-	sort.Slice(procs, func(i, j int) bool { return procs[i].Path < procs[j].Path })
+	slices.SortFunc(procs, func(a, b *contract.Procedure) int { return cmp.Compare(a.Path, b.Path) })
 	for _, p := range procs {
 		base := procTypeName(p.Path)
 		g.walkNode(p.Input, base+"Input", nil)
@@ -166,7 +164,7 @@ func (g *generator) collectInlines() error {
 
 func procTypeName(path string) string {
 	var b strings.Builder
-	for _, s := range strings.Split(path, ".") {
+	for s := range strings.SplitSeq(path, ".") {
 		b.WriteString(naming.UpperCamel(s))
 	}
 	return b.String()
@@ -243,7 +241,7 @@ func (g *generator) errorOrder() []string {
 	for id := range g.doc.Errors {
 		ids = append(ids, id)
 	}
-	sort.Slice(ids, func(i, j int) bool { return g.names[ids[i]] < g.names[ids[j]] })
+	slices.SortFunc(ids, func(a, b string) int { return cmp.Compare(g.names[a], g.names[b]) })
 	return ids
 }
 
@@ -252,8 +250,11 @@ func writeDoc(b *strings.Builder, indent, doc string) {
 	if doc == "" {
 		return
 	}
-	for _, line := range strings.Split(doc, "\n") {
-		b.WriteString(indent + "/// " + strings.TrimSpace(line) + "\n")
+	for line := range strings.SplitSeq(doc, "\n") {
+		b.WriteString(indent)
+		b.WriteString("/// ")
+		b.WriteString(strings.TrimSpace(line))
+		b.WriteString("\n")
 	}
 }
 

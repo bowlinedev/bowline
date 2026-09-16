@@ -1,7 +1,8 @@
 package ts
 
 import (
-	"sort"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -43,7 +44,11 @@ func (g *generator) errorsInterface() string {
 	var b strings.Builder
 	b.WriteString("export interface Errors {\n")
 	for _, p := range g.doc.Procedures {
-		b.WriteString("  " + strconv.Quote(p.Path) + ": " + g.errorUnion(p) + ";\n")
+		b.WriteString("  ")
+		b.WriteString(strconv.Quote(p.Path))
+		b.WriteString(": ")
+		b.WriteString(g.errorUnion(p))
+		b.WriteString(";\n")
 	}
 	b.WriteString("}\n\n")
 	b.WriteString("export type ProcedureError<P extends keyof Errors> = Errors[P];\n\n")
@@ -67,11 +72,7 @@ func (g *generator) errorUnion(p *contract.Procedure) string {
 }
 
 func (g *generator) writeNode(b *strings.Builder, node *clientNode, indent string) {
-	keys := make([]string, 0, len(node.children))
-	for k := range node.children {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
+	keys := slices.Sorted(maps.Keys(node.children))
 	for _, k := range keys {
 		child := node.children[k]
 		if child.proc != nil {
@@ -95,11 +96,20 @@ func (g *generator) writeNode(b *strings.Builder, node *clientNode, indent strin
 			if len(p.Errors) > 0 {
 				args += ", Errors[" + strconv.Quote(p.Path) + "]"
 			}
-			b.WriteString(indent + propertyKey(k) + ": " + kind + "<" + args + ">;\n")
+			b.WriteString(indent)
+			b.WriteString(propertyKey(k))
+			b.WriteString(": ")
+			b.WriteString(kind)
+			b.WriteString("<")
+			b.WriteString(args)
+			b.WriteString(">;\n")
 			continue
 		}
-		b.WriteString(indent + propertyKey(k) + ": {\n")
+		b.WriteString(indent)
+		b.WriteString(propertyKey(k))
+		b.WriteString(": {\n")
 		g.writeNode(b, child, indent+"  ")
-		b.WriteString(indent + "};\n")
+		b.WriteString(indent)
+		b.WriteString("};\n")
 	}
 }

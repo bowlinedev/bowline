@@ -3,7 +3,8 @@ package registry_test
 import (
 	"context"
 	"encoding/json"
-	"sort"
+	"maps"
+	"slices"
 	"strings"
 	"testing"
 
@@ -272,11 +273,7 @@ func prefixCompose(services map[string]*contract.Document) (*contract.Document, 
 		Types:   map[string]*contract.TypeDecl{},
 		Errors:  map[string]*contract.ErrorDecl{},
 	}
-	names := make([]string, 0, len(services))
-	for name := range services {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(services))
 	for _, name := range names {
 		doc := services[name]
 		for id, decl := range doc.Types {

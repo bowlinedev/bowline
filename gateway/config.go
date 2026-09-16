@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
+	"strings"
 	"time"
 )
 
@@ -127,11 +129,7 @@ func ParseConfig(data []byte, path string) (*Config, error) {
 	if len(file.Services) == 0 {
 		return nil, fmt.Errorf("%s: %q is required with at least one service", path, "services")
 	}
-	names := make([]string, 0, len(file.Services))
-	for name := range file.Services {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(file.Services))
 	for _, name := range names {
 		up := file.Services[name]
 		if up.URL == "" {
@@ -163,21 +161,24 @@ func ParseConfig(data []byte, path string) (*Config, error) {
 }
 
 func (c *Config) ServiceNames() []string {
-	names := make([]string, 0, len(c.Services))
-	for name := range c.Services {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(c.Services))
 	return names
 }
 
 func relativeTo(configPath, contract string) string {
-	if contract == "" || filepath.IsAbs(contract) {
+	if contract == "" {
 		return contract
+	}
+	if rooted(contract) {
+		return filepath.FromSlash(contract)
 	}
 	dir := filepath.Dir(configPath)
 	if dir == "" || dir == "." {
-		return contract
+		return filepath.FromSlash(contract)
 	}
 	return filepath.Join(dir, filepath.FromSlash(contract))
+}
+
+func rooted(contract string) bool {
+	return strings.HasPrefix(contract, "/") || strings.HasPrefix(contract, `\`) || filepath.IsAbs(contract)
 }

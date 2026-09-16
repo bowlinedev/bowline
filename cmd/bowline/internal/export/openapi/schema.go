@@ -3,7 +3,8 @@ package openapi
 import (
 	"encoding/json"
 	"fmt"
-	"sort"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -37,7 +38,7 @@ func assignNames(doc *contract.Document) map[string]string {
 			names[ids[0]] = identifier(name)
 			continue
 		}
-		sort.Strings(ids)
+		slices.Sort(ids)
 		for _, id := range ids {
 			names[id] = identifier(packageName(id) + "_" + name)
 		}
@@ -129,9 +130,7 @@ func nullable(in schema) schema {
 		return schema{"oneOf": []schema{in, {"type": "null"}}}
 	}
 	out := schema{}
-	for k, v := range in {
-		out[k] = v
-	}
+	maps.Copy(out, in)
 	switch typ := in["type"].(type) {
 	case string:
 		out["type"] = []string{typ, "null"}
@@ -204,9 +203,7 @@ func applyRules(prop schema, f *contract.Field) schema {
 		prop = schema{"allOf": []schema{prop}}
 	}
 	out := schema{}
-	for k, v := range prop {
-		out[k] = v
-	}
+	maps.Copy(out, prop)
 	if f.Doc != "" {
 		out["description"] = f.Doc
 	}
@@ -222,7 +219,7 @@ func applyRules(prop schema, f *contract.Field) schema {
 			out[boundKey(class, "max")] = number(r.Param)
 		case "oneof":
 			var values []any
-			for _, v := range strings.Fields(r.Param) {
+			for v := range strings.FieldsSeq(r.Param) {
 				if class == "number" {
 					values = append(values, number(v))
 				} else {

@@ -1,13 +1,15 @@
 package registry
 
 import (
+	"cmp"
 	"encoding/json"
 	"errors"
 	"io"
 	"io/fs"
 	"log/slog"
+	"maps"
 	"net/http"
-	"sort"
+	"slices"
 	"time"
 
 	"github.com/bowlinedev/bowline"
@@ -446,11 +448,7 @@ func (s *Server) graph(w http.ResponseWriter, r *http.Request) {
 	for _, c := range compositions {
 		kinds[c.Gateway] = "gateway"
 		providers = append(providers, c.Gateway)
-		names := make([]string, 0, len(c.Services))
-		for name := range c.Services {
-			names = append(names, name)
-		}
-		sort.Strings(names)
+		names := slices.Sorted(maps.Keys(c.Services))
 		for _, name := range names {
 			if _, ok := kinds[name]; !ok {
 				kinds[name] = "service"
@@ -458,7 +456,7 @@ func (s *Server) graph(w http.ResponseWriter, r *http.Request) {
 			edges = append(edges, Edge{From: c.Gateway, To: name, Kind: "composes"})
 		}
 	}
-	sort.Strings(providers)
+	slices.Sort(providers)
 	seen := map[Edge]bool{}
 	var consumerEdges []Edge
 	for _, provider := range providers {
@@ -479,23 +477,13 @@ func (s *Server) graph(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	edges = append(edges, consumerEdges...)
-	names := make([]string, 0, len(kinds))
-	for name := range kinds {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(kinds))
 	nodes := make([]Node, 0, len(names))
 	for _, name := range names {
 		nodes = append(nodes, Node{Name: name, Kind: kinds[name]})
 	}
-	sort.Slice(edges, func(i, j int) bool {
-		if edges[i].Kind != edges[j].Kind {
-			return edges[i].Kind < edges[j].Kind
-		}
-		if edges[i].From != edges[j].From {
-			return edges[i].From < edges[j].From
-		}
-		return edges[i].To < edges[j].To
+	slices.SortFunc(edges, func(a, b Edge) int {
+		return cmp.Or(cmp.Compare(a.Kind, b.Kind), cmp.Compare(a.From, b.From), cmp.Compare(a.To, b.To))
 	})
 	if edges == nil {
 		edges = []Edge{}

@@ -44,7 +44,7 @@ func (r *Router) Subscribe(ctx context.Context, path string, input []byte, send 
 	}
 	frameCtx, ptr := proc.newFrame(ctx, Call{Procedure: &rt.procedure})
 	if err := codec.Decode(input, ptr, h.strict); err != nil {
-		return failure(Errorf(InvalidArgument, "invalid input: %v", err), h, nil)
+		return failure(h.invalidInput(err), h, nil)
 	}
 	if issues := proc.checker.Check(ptr); len(issues) > 0 {
 		e := Errorf(InvalidArgument, "invalid input")
@@ -82,7 +82,7 @@ func failure(err error, h *handler, proc *Procedure) error {
 	status, env, _ := classify(err, h.production, variants)
 	body, marshalErr := json.Marshal(env)
 	if marshalErr != nil {
-		body = []byte(fmt.Sprintf(`{"error":{"code":"INTERNAL","message":%q}}`, "error encoding failed"))
+		body = fmt.Appendf(nil, `{"error":{"code":"INTERNAL","message":%q}}`, "error encoding failed")
 	}
 	return &StreamFailure{Status: status, Body: body, Err: err}
 }

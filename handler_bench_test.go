@@ -1,12 +1,14 @@
 package bowline
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"strconv"
 	"testing"
 )
 
@@ -77,7 +79,7 @@ func TestOverheadBudget(t *testing.T) {
 		t.Skip("set BOWLINE_BENCH=1 to run")
 	}
 	raw, bl := 0.0, 0.0
-	for i := 0; i < 7; i++ {
+	for range 7 {
 		raw = best(raw, testing.Benchmark(BenchmarkRawNetHTTP))
 		bl = best(bl, testing.Benchmark(BenchmarkBowline))
 	}
@@ -94,4 +96,45 @@ func best(current float64, r testing.BenchmarkResult) float64 {
 		return ns
 	}
 	return current
+}
+
+var benchBody = []byte(`{"id":7,"names":["a","b","c"]}`)
+
+func BenchmarkBowlinePost(b *testing.B) {
+	h := NewRouter(Mutation("bench", benchProc)).Handler()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for range b.N {
+		req := httptest.NewRequest(http.MethodPost, "/bench", bytes.NewReader(benchBody))
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		if rec.Code != 200 {
+			b.Fatalf("status %d", rec.Code)
+		}
+	}
+}
+
+func BenchmarkBowlinePostLargeBody(b *testing.B) {
+	names := make([]string, 2000)
+	for i := range names {
+		names[i] = "name-value-" + strconv.Itoa(i)
+	}
+	body, err := json.Marshal(benchInput{ID: 7, Names: names})
+	if err != nil {
+		b.Fatal(err)
+	}
+	h := NewRouter(Mutation("bench", benchProc)).Handler(MaxBodySize(8 << 20))
+	b.ReportAllocs()
+	b.SetBytes(int64(len(body)))
+	b.ResetTimer()
+	for range b.N {
+		req := httptest.NewRequest(http.MethodPost, "/bench", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		if rec.Code != 200 {
+			b.Fatalf("status %d", rec.Code)
+		}
+	}
 }

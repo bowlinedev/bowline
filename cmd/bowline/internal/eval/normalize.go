@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"math/big"
-	"sort"
+	"slices"
 	"strconv"
 )
 
@@ -99,11 +100,7 @@ func compare(step, path string, want, got any, out *[]Mismatch) {
 		for k := range g {
 			keys[k] = true
 		}
-		sorted := make([]string, 0, len(keys))
-		for k := range keys {
-			sorted = append(sorted, k)
-		}
-		sort.Strings(sorted)
+		sorted := slices.Sorted(maps.Keys(keys))
 		for _, k := range sorted {
 			wv, inWant := w[k]
 			gv, inGot := g[k]

@@ -4,15 +4,20 @@ A procedure becomes an LLM tool only when its declaration says so. Nothing is ex
 
 ## Exposing
 
+A read-only query, scoped:
+
+source: examples/ledger/api/invoices.go:46-46
+
 ```go
-bowline.Query("get", a.getInvoice,
-	bowline.Description("Get returns one invoice by ID."),
-	bowline.Tool(bowline.Scope("billing")),
-)
-bowline.Mutation("void", a.voidInvoice,
-	bowline.Errors(InvoiceLocked{}),
-	bowline.Tool(bowline.Scope("billing"), bowline.Destructive()),
-)
+		bowline.Query("get", a.getInvoice, bowline.Description("Get returns one invoice by ID."), bowline.Tool(bowline.Scope("billing"))),
+```
+
+A mutation that a client should confirm before calling:
+
+source: examples/ledger/api/invoices.go:49-49
+
+```go
+		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive()), bowline.Use(voidLimit())),
 ```
 
 `bowline.Tool(...)` marks exposure. `bowline.Scope(names...)` attaches scope names that consumers filter on, and `bowline.Destructive()` sets the hint that a client should confirm before calling. Queries carry a read-only hint automatically; mutations do not. `Tool()` on a subscription or an upload panics at `NewRouter`, and `bowline gen` reports it as a diagnostic, because neither has a request and response shape a tool call can carry.
@@ -48,6 +53,8 @@ The goldens under `cmd/bowline/internal/tools/testdata` are the reference output
 ## Reading exposure at runtime
 
 `bowline.CallFrom(ctx).Procedure` carries `Exposed`, `ReadOnly`, `Destructive`, and `Scopes`, so middleware can, for example, refuse destructive tools for a service account:
+
+sketch: an application-supplied middleware; `isAgent` is whatever the deployment uses to recognise a service account
 
 ```go
 func noDestructiveTools(next bowline.Next) bowline.Next {

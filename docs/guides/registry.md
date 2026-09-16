@@ -40,7 +40,7 @@ broken    consumer web: procedure invoices.list output field items elem field to
 
 The command exits 1 when any consumer is affected. A breaking change that touches no known consumer is reported under `unattributed` and exits 0, because the registry cannot know every consumer; `--strict` makes those fail too.
 
-source: registry/impact.go:14-28
+source: registry/impact.go:16-30
 
 ```go
 type ImpactReport struct {

@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   overhead:
     runs-on: ubuntu-latest
@@ -17,13 +21,11 @@ jobs:
         with:
           go-version: stable
       - name: benchmarks
-        run: go test -run '^$' -bench . -benchmem -count 3 . | tee bench.txt
-      - name: summary
-        run: |
-          echo '## Benchmarks' >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          cat bench.txt >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
+        run: go test -run '^$' -bench . -benchmem -count 10 . | tee bench.txt
+      - name: generator throughput
+        run: (cd cmd/bowline && go test -run '^$' -bench BenchmarkGenerators -benchmem ./internal/cli) | tee -a bench.txt
+      - name: render the report
+        run: go run ./scripts -in bench.txt -report-out bench.md && cat bench.md >> "$GITHUB_STEP_SUMMARY"
       - name: overhead gate
         run: BOWLINE_BENCH=1 go test -run TestOverheadBudget -v .
 
@@ -37,3 +39,6 @@ jobs:
       - name: regeneration budget
         working-directory: cmd/bowline
         run: go test ./internal/analyzer -run TestDevLoopBudget -v
+      - name: regeneration benchmark
+        working-directory: cmd/bowline
+        run: go test -run '^$' -bench BenchmarkDevLoopUpdate -benchmem -benchtime 5x ./internal/analyzer

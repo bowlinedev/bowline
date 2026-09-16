@@ -85,7 +85,7 @@ func TestStreamIsExemptFromTheCallTimeout(t *testing.T) {
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/event-stream")
 		controller := http.NewResponseController(w)
-		for i := 0; i < 4; i++ {
+		for i := range 4 {
 			fmt.Fprintf(w, "event: message\ndata: {\"n\":%d}\n\n", i)
 			controller.Flush()
 			time.Sleep(90 * time.Millisecond)

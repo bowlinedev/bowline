@@ -4,14 +4,18 @@ A client that retries a mutation after a timeout cannot know whether the first a
 
 ## Declaring
 
+source: examples/ledger/api/invoices.go:48-48
+
 ```go
-bowline.Mutation("create", a.createInvoice, bowline.Idempotent())
+		bowline.Mutation("create", a.createInvoice, bowline.Idempotent()),
 ```
 
 `Idempotent()` on anything but a mutation panics at `NewRouter`. The handler needs a store:
 
+source: examples/ledger/cmd/server/main.go:68-68
+
 ```go
-routes.Handler(bowline.Idempotency(bowline.MemoryIdempotencyStore(), 24*time.Hour))
+		bowline.Idempotency(bowline.MemoryIdempotencyStore(), 24*time.Hour),
 ```
 
 The in-memory store is for single-process deployments and tests. Anything else implements `IdempotencyStore`, three methods: `Begin` claims a key or reports it in flight or stored, `Complete` stores a response with a TTL, and `Abort` releases a claim after a failure.
@@ -25,8 +29,11 @@ The in-memory store is for single-process deployments and tests. Anything else i
 
 ## On the client
 
+source: packages/client/src/client.test.ts:332-333
+
 ```ts
-await client.invoices.create(input, { idempotencyKey: crypto.randomUUID() });
+  await client.users.create({ name: "ada", big: 1n }, { idempotencyKey: "abc" });
+  expect(seen?.get("idempotency-key")).toBe("abc");
 ```
 
 Generate the key once per user action and reuse it for every retry of that action.

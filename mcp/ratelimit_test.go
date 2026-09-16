@@ -9,7 +9,7 @@ func TestLimiterBurstAndRefill(t *testing.T) {
 	now := time.Unix(0, 0)
 	l := newLimiter(60, 3)
 	l.now = func() time.Time { return now }
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		if !l.allow("a") {
 			t.Fatalf("call %d within burst denied", i)
 		}
@@ -29,7 +29,7 @@ func TestLimiterBurstAndRefill(t *testing.T) {
 		t.Fatal("refilled token denied")
 	}
 	now = now.Add(time.Hour)
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		if !l.allow("a") {
 			t.Fatalf("call %d after long idle denied", i)
 		}

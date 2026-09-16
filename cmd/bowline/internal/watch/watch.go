@@ -1,10 +1,11 @@
 package watch
 
 import (
+	"cmp"
 	"context"
 	"io/fs"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 	"time"
 )
@@ -83,6 +84,6 @@ func diff(previous, current map[string]stamp) []Change {
 			changes = append(changes, Change{Path: path, Removed: true})
 		}
 	}
-	sort.Slice(changes, func(i, j int) bool { return changes[i].Path < changes[j].Path })
+	slices.SortFunc(changes, func(a, b Change) int { return cmp.Compare(a.Path, b.Path) })
 	return changes
 }

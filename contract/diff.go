@@ -1,9 +1,11 @@
 package contract
 
 import (
+	"cmp"
 	"encoding/json"
 	"fmt"
-	"sort"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -58,11 +60,7 @@ func Diff(old, new *Document) Changes {
 	for _, p := range new.Procedures {
 		newProcs[p.Path] = p
 	}
-	oldPaths := make([]string, 0, len(oldProcs))
-	for path := range oldProcs {
-		oldPaths = append(oldPaths, path)
-	}
-	sort.Strings(oldPaths)
+	oldPaths := slices.Sorted(maps.Keys(oldProcs))
 	for _, path := range oldPaths {
 		op := oldProcs[path]
 		np, ok := newProcs[path]
@@ -72,21 +70,14 @@ func Diff(old, new *Document) Changes {
 		}
 		d.procedure(op, np)
 	}
-	newPaths := make([]string, 0, len(newProcs))
-	for path := range newProcs {
-		newPaths = append(newPaths, path)
-	}
-	sort.Strings(newPaths)
+	newPaths := slices.Sorted(maps.Keys(newProcs))
 	for _, path := range newPaths {
 		if _, ok := oldProcs[path]; !ok {
 			d.add("procedure "+path, Added, "procedure added")
 		}
 	}
-	sort.SliceStable(d.changes, func(i, j int) bool {
-		if d.changes[i].Path != d.changes[j].Path {
-			return d.changes[i].Path < d.changes[j].Path
-		}
-		return d.changes[i].Category < d.changes[j].Category
+	slices.SortStableFunc(d.changes, func(a, b Change) int {
+		return cmp.Or(cmp.Compare(a.Path, b.Path), cmp.Compare(a.Category, b.Category))
 	})
 	return d.changes
 }
@@ -446,11 +437,11 @@ func (d *differ) rules(path string, oldRules, newRules []Rule, v variance) {
 
 func (d *differ) oneof(path, oldParam, newParam string, v variance) {
 	oldSet := map[string]bool{}
-	for _, s := range strings.Fields(oldParam) {
+	for s := range strings.FieldsSeq(oldParam) {
 		oldSet[s] = true
 	}
 	newSet := map[string]bool{}
-	for _, s := range strings.Fields(newParam) {
+	for s := range strings.FieldsSeq(newParam) {
 		newSet[s] = true
 	}
 	removed, added := false, false

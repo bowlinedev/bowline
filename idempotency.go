@@ -112,6 +112,7 @@ func (h *handler) serveIdempotent(w http.ResponseWriter, req *http.Request, rt *
 	}
 	switch state {
 	case IdempotencyStored:
+		h.secure(w, http.MethodPost)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.Header().Set("Idempotent-Replayed", "true")
 		w.WriteHeader(status)

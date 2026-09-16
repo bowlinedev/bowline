@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"sort"
+	"maps"
+	"slices"
 	"strconv"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -70,11 +71,7 @@ func Export(doc *contract.Document, info Info) ([]byte, error) {
 	for _, c := range codes {
 		out.Components.Responses[c.code] = errorResponse(c.code, "", "")
 	}
-	errorIDs := make([]string, 0, len(doc.Errors))
-	for id := range doc.Errors {
-		errorIDs = append(errorIDs, id)
-	}
-	sort.Strings(errorIDs)
+	errorIDs := slices.Sorted(maps.Keys(doc.Errors))
 	for _, id := range errorIDs {
 		name, err := s.errorDetails(id)
 		if err != nil {
@@ -95,9 +92,7 @@ func Export(doc *contract.Document, info Info) ([]byte, error) {
 		}
 		out.Paths["/"+p.Path] = schema{method: op}
 	}
-	for name, sch := range s.defined {
-		out.Components.Schemas[name] = sch
-	}
+	maps.Copy(out.Components.Schemas, s.defined)
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)
@@ -177,11 +172,7 @@ func (s *schemas) operation(p *contract.Procedure) (schema, error) {
 			byStatus[status] = append(byStatus[status], schema{"$ref": "#/components/responses/" + c})
 		}
 	}
-	statuses := make([]int, 0, len(byStatus))
-	for status := range byStatus {
-		statuses = append(statuses, status)
-	}
-	sort.Ints(statuses)
+	statuses := slices.Sorted(maps.Keys(byStatus))
 	for _, status := range statuses {
 		refs := byStatus[status]
 		key := strconv.Itoa(status)

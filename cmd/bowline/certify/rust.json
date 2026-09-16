@@ -1,0 +1,8 @@
+{
+  "target": "rust",
+  "generator": "rust",
+  "repository": "built in",
+  "compile": ["scripts/check-goldens.sh", "rust"],
+  "test": ["bash", "-c", "cd packages/rust/bowline-client && cargo test --quiet"],
+  "conformance": "examples/ledger/rust/src/main.rs"
+}

@@ -1,9 +1,10 @@
 package python
 
 import (
+	"cmp"
 	"encoding/json"
 	"fmt"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -375,7 +376,11 @@ func (g *generator) writeModel(b *strings.Builder, name, doc string, fields []*c
 		g.uses["Generic"] = true
 		base = "BaseModel, Generic[" + strings.Join(generic, ", ") + "]"
 	}
-	b.WriteString("class " + name + "(" + base + "):\n")
+	b.WriteString("class ")
+	b.WriteString(name)
+	b.WriteString("(")
+	b.WriteString(base)
+	b.WriteString("):\n")
 	docstring(b, "    ", doc, "")
 	if doc != "" {
 		b.WriteString("\n")
@@ -394,12 +399,17 @@ func (g *generator) writeModel(b *strings.Builder, name, doc string, fields []*c
 	if aliased {
 		config += ", populate_by_name=True"
 	}
-	b.WriteString("    model_config = ConfigDict(" + config + ")\n")
+	b.WriteString("    model_config = ConfigDict(")
+	b.WriteString(config)
+	b.WriteString(")\n")
 	if len(specs) > 0 {
 		b.WriteString("\n")
 	}
 	for _, spec := range specs {
-		b.WriteString("    " + spec.name + ": " + spec.typ)
+		b.WriteString("    ")
+		b.WriteString(spec.name)
+		b.WriteString(": ")
+		b.WriteString(spec.typ)
 		switch {
 		case len(spec.kwargs) > 0:
 			g.uses["Field"] = true
@@ -407,7 +417,9 @@ func (g *generator) writeModel(b *strings.Builder, name, doc string, fields []*c
 			if spec.default_ {
 				args = append([]string{"default=None"}, args...)
 			}
-			b.WriteString(" = Field(" + strings.Join(args, ", ") + ")")
+			b.WriteString(" = Field(")
+			b.WriteString(strings.Join(args, ", "))
+			b.WriteString(")")
 		case spec.default_:
 			b.WriteString(" = None")
 		}
@@ -432,7 +444,6 @@ func (g *generator) declarations() (string, error) {
 		byName[d.name] = d
 	}
 	for id, decl := range g.doc.Types {
-		id, decl := id, decl
 		name := g.names[id]
 		switch decl.Kind {
 		case contract.Struct:
@@ -460,7 +471,11 @@ func (g *generator) declarations() (string, error) {
 				} else {
 					g.uses["Enum"] = true
 				}
-				b.WriteString("class " + name + "(" + base + "):\n")
+				b.WriteString("class ")
+				b.WriteString(name)
+				b.WriteString("(")
+				b.WriteString(base)
+				b.WriteString("):\n")
 				docstring(b, "    ", decl.Doc, "")
 				if strings.TrimSpace(decl.Doc) != "" && len(decl.Values) > 0 {
 					b.WriteString("\n")
@@ -469,19 +484,27 @@ func (g *generator) declarations() (string, error) {
 					b.WriteString("    pass\n")
 				}
 				for _, v := range decl.Values {
-					b.WriteString("    " + memberName(v.Name) + " = " + literalValue(v.Value) + "\n")
+					b.WriteString("    ")
+					b.WriteString(memberName(v.Name))
+					b.WriteString(" = ")
+					b.WriteString(literalValue(v.Value))
+					b.WriteString("\n")
 				}
 				b.WriteString("\n\n")
 			}})
 		case contract.Primitive:
 			add(&declaration{id: id, name: name, kind: decl.Kind, emit: func(b *strings.Builder) {
 				g.uses["NewType"] = true
-				b.WriteString(name + " = NewType(\"" + name + "\", " + g.primitive(decl.Primitive, "") + ")\n\n\n")
+				b.WriteString(name)
+				b.WriteString(" = NewType(\"")
+				b.WriteString(name)
+				b.WriteString("\", ")
+				b.WriteString(g.primitive(decl.Primitive, ""))
+				b.WriteString(")\n\n\n")
 			}})
 		}
 	}
 	for id, decl := range g.doc.Errors {
-		id, decl := id, decl
 		name := g.names[id]
 		doc := decl.Doc
 		if strings.TrimSpace(doc) == "" {
@@ -516,7 +539,8 @@ func (g *generator) declarations() (string, error) {
 	}
 	if len(cyclic) > 0 {
 		for _, d := range cyclic {
-			b.WriteString(d.name + ".model_rebuild()\n")
+			b.WriteString(d.name)
+			b.WriteString(".model_rebuild()\n")
 		}
 		b.WriteString("\n\n")
 	}
@@ -569,7 +593,7 @@ func (g *generator) depsOf(id string) []string {
 	} else if fields, ok := g.inline[id]; ok {
 		walkFields(fields, id)
 	}
-	sort.Strings(out)
+	slices.Sort(out)
 	return out
 }
 
@@ -599,7 +623,7 @@ func topo(decls []*declaration) (order []*declaration, cyclic []*declaration) {
 			ready = append(ready, name)
 		}
 	}
-	sort.Strings(ready)
+	slices.Sort(ready)
 	done := map[string]bool{}
 	for len(ready) > 0 {
 		name := ready[0]
@@ -610,7 +634,7 @@ func topo(decls []*declaration) (order []*declaration, cyclic []*declaration) {
 			indegree[dep]--
 			if indegree[dep] == 0 {
 				ready = append(ready, dep)
-				sort.Strings(ready)
+				slices.Sort(ready)
 			}
 		}
 	}
@@ -620,21 +644,18 @@ func topo(decls []*declaration) (order []*declaration, cyclic []*declaration) {
 			rest = append(rest, d.name)
 		}
 	}
-	sort.Strings(rest)
+	slices.Sort(rest)
 	for _, name := range rest {
 		order = append(order, byName[name])
 		cyclic = append(cyclic, byName[name])
 	}
 	for _, d := range decls {
 		if done[d.name] {
-			for _, dep := range d.deps {
-				if dep == d.name {
-					cyclic = append(cyclic, d)
-					break
-				}
+			if slices.Contains(d.deps, d.name) {
+				cyclic = append(cyclic, d)
 			}
 		}
 	}
-	sort.Slice(cyclic, func(i, j int) bool { return cyclic[i].name < cyclic[j].name })
+	slices.SortFunc(cyclic, func(a, b *declaration) int { return cmp.Compare(a.name, b.name) })
 	return order, cyclic
 }

@@ -335,7 +335,10 @@ func (g *generator) writeClass(b *strings.Builder, name string, params []string,
 	if len(params) > 0 {
 		typeParams = "<" + strings.Join(params, ", ") + ">"
 	}
-	b.WriteString("class " + name + typeParams + " {\n")
+	b.WriteString("class ")
+	b.WriteString(name)
+	b.WriteString(typeParams)
+	b.WriteString(" {\n")
 	var ctor []string
 	for _, f := range fields {
 		m := members[f.Name]
@@ -346,23 +349,46 @@ func (g *generator) writeClass(b *strings.Builder, name string, params []string,
 		}
 	}
 	if len(fields) == 0 {
-		b.WriteString("  const " + name + "();\n")
+		b.WriteString("  const ")
+		b.WriteString(name)
+		b.WriteString("();\n")
 	} else {
-		b.WriteString("  " + name + "({" + strings.Join(ctor, ", ") + "});\n")
+		b.WriteString("  ")
+		b.WriteString(name)
+		b.WriteString("({")
+		b.WriteString(strings.Join(ctor, ", "))
+		b.WriteString("});\n")
 	}
-	fromArgs := ""
-	toArgs := ""
-	validateArgs := ""
+	var fromArgs, toArgs, validateArgs strings.Builder
 	for _, p := range params {
-		fromArgs += ", " + p + " Function(Object?) fromJson" + p
-		toArgs += ", Object? Function(" + p + ") toJson" + p
-		validateArgs += ", List<Issue> Function(" + p + ") validate" + p
+		fromArgs.WriteString(", ")
+		fromArgs.WriteString(p)
+		fromArgs.WriteString(" Function(Object?) fromJson")
+		fromArgs.WriteString(p)
+		toArgs.WriteString(", Object? Function(")
+		toArgs.WriteString(p)
+		toArgs.WriteString(") toJson")
+		toArgs.WriteString(p)
+		validateArgs.WriteString(", List<Issue> Function(")
+		validateArgs.WriteString(p)
+		validateArgs.WriteString(") validate")
+		validateArgs.WriteString(p)
 	}
-	b.WriteString("\n  factory " + name + ".fromJson(Map<String, Object?> json" + fromArgs + ") => " + name + "(")
+	b.WriteString("\n  factory ")
+	b.WriteString(name)
+	b.WriteString(".fromJson(Map<String, Object?> json")
+	b.WriteString(fromArgs.String())
+	b.WriteString(") => ")
+	b.WriteString(name)
+	b.WriteString("(")
 	if len(fields) > 0 {
 		b.WriteString("\n")
 		for _, f := range fields {
-			b.WriteString("        " + members[f.Name] + ": " + g.fieldDecode(f) + ",\n")
+			b.WriteString("        ")
+			b.WriteString(members[f.Name])
+			b.WriteString(": ")
+			b.WriteString(g.fieldDecode(f))
+			b.WriteString(",\n")
 		}
 		b.WriteString("      ")
 	}
@@ -370,31 +396,53 @@ func (g *generator) writeClass(b *strings.Builder, name string, params []string,
 	for _, f := range fields {
 		b.WriteString("\n")
 		writeDoc(b, "  ", f.Doc)
-		b.WriteString("  final " + g.fieldType(f) + " " + members[f.Name] + ";\n")
+		b.WriteString("  final ")
+		b.WriteString(g.fieldType(f))
+		b.WriteString(" ")
+		b.WriteString(members[f.Name])
+		b.WriteString(";\n")
 	}
-	entries := ""
+	var entries strings.Builder
 	var jsonLocals []string
 	for _, f := range fields {
 		m := members[f.Name]
 		enc := g.fieldEncode(f, m)
 		if f.Optional {
-			entries += "        if (" + m + " != null) " + quote(f.Name) + ": " + enc + ",\n"
+			entries.WriteString("        if (")
+			entries.WriteString(m)
+			entries.WriteString(" != null) ")
+			entries.WriteString(quote(f.Name))
+			entries.WriteString(": ")
+			entries.WriteString(enc)
+			entries.WriteString(",\n")
 		} else {
-			entries += "        " + quote(f.Name) + ": " + enc + ",\n"
+			entries.WriteString("        ")
+			entries.WriteString(quote(f.Name))
+			entries.WriteString(": ")
+			entries.WriteString(enc)
+			entries.WriteString(",\n")
 		}
 		if g.isOptionalMember(f) && enc != m {
 			jsonLocals = append(jsonLocals, m)
 		}
 	}
-	b.WriteString("\n  Map<String, Object?> toJson(" + strings.TrimPrefix(toArgs, ", ") + ")")
+	b.WriteString("\n  Map<String, Object?> toJson(")
+	b.WriteString(strings.TrimPrefix(toArgs.String(), ", "))
+	b.WriteString(")")
 	if len(jsonLocals) == 0 {
 		if len(fields) == 0 {
 			b.WriteString(" => {};\n")
 		} else {
-			b.WriteString(" => {\n" + entries + "      };\n")
+			b.WriteString(" => {\n")
+			b.WriteString(entries.String())
+			b.WriteString("      };\n")
 		}
 	} else {
-		b.WriteString(" {\n" + locals(jsonLocals) + "    return {\n" + entries + "    };\n  }\n")
+		b.WriteString(" {\n")
+		b.WriteString(locals(jsonLocals))
+		b.WriteString("    return {\n")
+		b.WriteString(entries.String())
+		b.WriteString("    };\n  }\n")
 	}
 	checks := g.validations(fields, members)
 	var checkLocals []string
@@ -410,19 +458,27 @@ func (g *generator) writeClass(b *strings.Builder, name string, params []string,
 			}
 		}
 	}
-	b.WriteString("\n  List<Issue> validate(" + strings.TrimPrefix(validateArgs, ", ") + ")")
+	b.WriteString("\n  List<Issue> validate(")
+	b.WriteString(strings.TrimPrefix(validateArgs.String(), ", "))
+	b.WriteString(")")
 	if len(checks) == 0 {
 		b.WriteString(" => const [];\n")
 	} else if len(checkLocals) == 0 {
 		b.WriteString(" => [\n")
 		for _, c := range checks {
-			b.WriteString("        " + c + ",\n")
+			b.WriteString("        ")
+			b.WriteString(c)
+			b.WriteString(",\n")
 		}
 		b.WriteString("      ];\n")
 	} else {
-		b.WriteString(" {\n" + locals(checkLocals) + "    return [\n")
+		b.WriteString(" {\n")
+		b.WriteString(locals(checkLocals))
+		b.WriteString("    return [\n")
 		for _, c := range checks {
-			b.WriteString("      " + c + ",\n")
+			b.WriteString("      ")
+			b.WriteString(c)
+			b.WriteString(",\n")
 		}
 		b.WriteString("    ];\n  }\n")
 	}
@@ -439,7 +495,9 @@ func (g *generator) writeEnum(b *strings.Builder, name string, decl *contract.Ty
 	if decl.Base != "" && decl.Base != "string" {
 		base = "int"
 	}
-	b.WriteString("enum " + name + " {\n")
+	b.WriteString("enum ")
+	b.WriteString(name)
+	b.WriteString(" {\n")
 	used := map[string]bool{}
 	for i, v := range decl.Values {
 		member := enumMember(v.Name, decl.Name)
@@ -451,13 +509,27 @@ func (g *generator) writeEnum(b *strings.Builder, name string, decl *contract.Ty
 		if i == len(decl.Values)-1 {
 			sep = ";"
 		}
-		b.WriteString("  " + member + "(" + literal(v.Value) + ")" + sep + "\n")
+		b.WriteString("  ")
+		b.WriteString(member)
+		b.WriteString("(")
+		b.WriteString(literal(v.Value))
+		b.WriteString(")")
+		b.WriteString(sep)
+		b.WriteString("\n")
 	}
-	b.WriteString("\n  const " + name + "(this.value);\n\n")
-	b.WriteString("  final " + base + " value;\n\n")
-	b.WriteString("  static " + name + " fromValue(Object? value) => values.firstWhere(\n")
+	b.WriteString("\n  const ")
+	b.WriteString(name)
+	b.WriteString("(this.value);\n\n")
+	b.WriteString("  final ")
+	b.WriteString(base)
+	b.WriteString(" value;\n\n")
+	b.WriteString("  static ")
+	b.WriteString(name)
+	b.WriteString(" fromValue(Object? value) => values.firstWhere(\n")
 	b.WriteString("        (v) => v.value == value,\n")
-	b.WriteString("        orElse: () => throw FormatException('" + name + ": unknown value $value'),\n")
+	b.WriteString("        orElse: () => throw FormatException('")
+	b.WriteString(name)
+	b.WriteString(": unknown value $value'),\n")
 	b.WriteString("      );\n}\n\n")
 }
 
@@ -508,7 +580,11 @@ func (g *generator) declarations(b *strings.Builder) error {
 			g.writeEnum(b, name, decl)
 		case contract.Primitive:
 			writeDoc(b, "", decl.Doc)
-			b.WriteString("typedef " + name + " = " + g.primitiveType(decl.Primitive, "") + ";\n\n")
+			b.WriteString("typedef ")
+			b.WriteString(name)
+			b.WriteString(" = ")
+			b.WriteString(g.primitiveType(decl.Primitive, ""))
+			b.WriteString(";\n\n")
 		default:
 			return fmt.Errorf("dart: unsupported declaration kind %q for %s", decl.Kind, id)
 		}
@@ -530,7 +606,11 @@ func (g *generator) declarations(b *strings.Builder) error {
 func locals(names []string) string {
 	var b strings.Builder
 	for _, n := range names {
-		b.WriteString("    final " + n + " = this." + n + ";\n")
+		b.WriteString("    final ")
+		b.WriteString(n)
+		b.WriteString(" = this.")
+		b.WriteString(n)
+		b.WriteString(";\n")
 	}
 	return b.String()
 }

@@ -1,10 +1,12 @@
 package registry
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
-	"sort"
+	"maps"
+	"slices"
 	"sync"
 )
 
@@ -54,7 +56,7 @@ func (m *MemStore) Services(ctx context.Context) ([]Service, error) {
 	for _, s := range m.services {
 		out = append(out, s)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+	slices.SortFunc(out, func(a, b Service) int { return cmp.Compare(a.Name, b.Name) })
 	if len(out) == 0 {
 		return nil, nil
 	}
@@ -125,7 +127,7 @@ func (m *MemStore) tagsFor(service string) map[string][]string {
 		out[hash] = append(out[hash], tag)
 	}
 	for hash := range out {
-		sort.Strings(out[hash])
+		slices.Sort(out[hash])
 	}
 	return out
 }
@@ -223,7 +225,7 @@ func (m *MemStore) Consumers(ctx context.Context, provider string) ([]Consumer, 
 		c.Usage = cloneRaw(c.Usage)
 		out = append(out, c)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Consumer < out[j].Consumer })
+	slices.SortFunc(out, func(a, b Consumer) int { return cmp.Compare(a.Consumer, b.Consumer) })
 	return out, nil
 }
 
@@ -242,9 +244,7 @@ func (m *MemStore) PutComposition(ctx context.Context, c Composition) error {
 		m.compositions[c.Gateway] = byHash
 	}
 	services := map[string]string{}
-	for k, v := range c.Services {
-		services[k] = v
-	}
+	maps.Copy(services, c.Services)
 	c.Services = services
 	byHash[c.Hash] = c
 	return nil
@@ -262,9 +262,7 @@ func (m *MemStore) Compositions(ctx context.Context, service string) ([]Composit
 				}
 			}
 			services := map[string]string{}
-			for k, v := range c.Services {
-				services[k] = v
-			}
+			maps.Copy(services, c.Services)
 			c.Services = services
 			out = append(out, c)
 		}

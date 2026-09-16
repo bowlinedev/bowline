@@ -3,6 +3,7 @@ package bowline
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"reflect"
 
 	"github.com/bowlinedev/bowline/internal/codec"
@@ -25,6 +26,10 @@ func Deprecated(reason string) ProcOption {
 
 func Sensitive() ProcOption {
 	return func(p *Procedure) { p.Sensitive = true }
+}
+
+func MaxBody(n int64) ProcOption {
+	return func(p *Procedure) { p.MaxBody = n }
 }
 
 func Meta(key, value string) ProcOption {
@@ -108,6 +113,7 @@ func prepare[In, Out any](kind ProcedureKind, name string) *Procedure {
 	p.checker = checker
 	p.plan = codec.Compile(p.Out)
 	p.newFrame = func(parent context.Context, call Call) (context.Context, any) {
+		call.header = http.Header{}
 		f := &frame[In]{}
 		f.ctx.Context = parent
 		f.ctx.call = call

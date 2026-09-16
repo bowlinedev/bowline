@@ -60,9 +60,11 @@ func classify(err error, production bool, variants []variant) (int, wireEnvelope
 	var coded Coded
 	switch {
 	case errors.As(err, &be):
-		return be.Code.HTTPStatus(), wireEnvelope{wireError{Code: be.Code, Message: be.Message, Details: be.Details, Issues: be.Issues}}, false
+		status, env := redact(be.Code.HTTPStatus(), wireEnvelope{wireError{Code: be.Code, Message: be.Message, Details: be.Details, Issues: be.Issues}}, production)
+		return status, env, false
 	case errors.As(err, &coded):
-		return coded.Code().HTTPStatus(), wireEnvelope{wireError{Code: coded.Code(), Message: coded.Error()}}, true
+		status, env := redact(coded.Code().HTTPStatus(), wireEnvelope{wireError{Code: coded.Code(), Message: coded.Error()}}, production)
+		return status, env, true
 	case errors.Is(err, context.Canceled):
 		return Canceled.HTTPStatus(), wireEnvelope{wireError{Code: Canceled, Message: "request canceled"}}, false
 	case errors.Is(err, context.DeadlineExceeded):
@@ -73,4 +75,14 @@ func classify(err error, production bool, variants []variant) (int, wireEnvelope
 		message = err.Error()
 	}
 	return Internal.HTTPStatus(), wireEnvelope{wireError{Code: Internal, Message: message}}, false
+}
+
+func redact(status int, env wireEnvelope, production bool) (int, wireEnvelope) {
+	if !production || status < 500 {
+		return status, env
+	}
+	env.Error.Message = "internal error"
+	env.Error.Details = nil
+	env.Error.Issues = nil
+	return status, env
 }

@@ -1,8 +1,9 @@
 package elixir
 
 import (
+	"cmp"
 	"path"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
@@ -65,12 +66,12 @@ func newGenerator(doc *contract.Document, root string) *generator {
 		}
 		g.order = append(g.order, id)
 	}
-	sort.Slice(g.order, func(i, j int) bool { return g.names[g.order[i]] < g.names[g.order[j]] })
-	sort.Slice(g.nominals, func(i, j int) bool { return g.names[g.nominals[i]] < g.names[g.nominals[j]] })
+	slices.SortFunc(g.order, func(a, b string) int { return cmp.Compare(g.names[a], g.names[b]) })
+	slices.SortFunc(g.nominals, func(a, b string) int { return cmp.Compare(g.names[a], g.names[b]) })
 	for id := range doc.Errors {
 		g.errorOrder = append(g.errorOrder, id)
 	}
-	sort.Slice(g.errorOrder, func(i, j int) bool { return g.names[g.errorOrder[i]] < g.names[g.errorOrder[j]] })
+	slices.SortFunc(g.errorOrder, func(a, b string) int { return cmp.Compare(g.names[a], g.names[b]) })
 	return g
 }
 
@@ -93,19 +94,25 @@ func writeModuleDoc(b *strings.Builder, indent, attr, doc string) {
 	doc = strings.TrimSpace(doc)
 	if doc == "" {
 		if attr == "@moduledoc" {
-			b.WriteString(indent + "@moduledoc false\n")
+			b.WriteString(indent)
+			b.WriteString("@moduledoc false\n")
 		}
 		return
 	}
-	b.WriteString(indent + attr + " \"\"\"\n")
-	for _, line := range strings.Split(doc, "\n") {
+	b.WriteString(indent)
+	b.WriteString(attr)
+	b.WriteString(" \"\"\"\n")
+	for line := range strings.SplitSeq(doc, "\n") {
 		if strings.TrimSpace(line) == "" {
 			b.WriteString("\n")
 			continue
 		}
-		b.WriteString(indent + escapeDoc(line) + "\n")
+		b.WriteString(indent)
+		b.WriteString(escapeDoc(line))
+		b.WriteString("\n")
 	}
-	b.WriteString(indent + "\"\"\"\n")
+	b.WriteString(indent)
+	b.WriteString("\"\"\"\n")
 }
 
 func escapeDoc(line string) string {

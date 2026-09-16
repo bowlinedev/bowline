@@ -117,3 +117,16 @@ func TestContractPathsResolveAgainstTheConfigFile(t *testing.T) {
 		t.Fatalf("absolute path rewritten to %q", got)
 	}
 }
+
+func TestRootedContractPathsAreTheSameOnEveryPlatform(t *testing.T) {
+	for _, contract := range []string{"/etc/bowline/ledger.json", "/srv/contracts/a.json"} {
+		cfg, err := ParseConfig([]byte(`{"services":{"ledger":{"url":"http://x/api","contract":"`+contract+`","version":"sha256:a"}}}`), "deploy/edge/bowline.gateway.json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := filepath.FromSlash(contract)
+		if got := cfg.Services["ledger"].Contract; got != want {
+			t.Errorf("%s resolved to %q, want %q", contract, got, want)
+		}
+	}
+}

@@ -1,12 +1,13 @@
 package registry
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 	"sync"
 )
@@ -109,7 +110,7 @@ func (f *FileStore) Services(ctx context.Context) ([]Service, error) {
 		}
 		out = append(out, s)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+	slices.SortFunc(out, func(a, b Service) int { return cmp.Compare(a.Name, b.Name) })
 	return out, nil
 }
 
@@ -193,7 +194,7 @@ func (f *FileStore) tagsFor(service string) (map[string][]string, error) {
 		out[record["hash"]] = append(out[record["hash"]], tag)
 	}
 	for hash := range out {
-		sort.Strings(out[hash])
+		slices.Sort(out[hash])
 	}
 	return out, nil
 }
@@ -332,7 +333,7 @@ func (f *FileStore) Consumers(ctx context.Context, provider string) ([]Consumer,
 		}
 		out = append(out, c)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Consumer < out[j].Consumer })
+	slices.SortFunc(out, func(a, b Consumer) int { return cmp.Compare(a.Consumer, b.Consumer) })
 	return out, nil
 }
 
@@ -391,22 +392,13 @@ func (f *FileStore) Compositions(ctx context.Context, service string) ([]Composi
 }
 
 func sortVersions(v []Version) {
-	sort.Slice(v, func(i, j int) bool {
-		if !v[i].PublishedAt.Equal(v[j].PublishedAt) {
-			return v[i].PublishedAt.After(v[j].PublishedAt)
-		}
-		return v[i].Hash < v[j].Hash
+	slices.SortFunc(v, func(a, b Version) int {
+		return cmp.Or(b.PublishedAt.Compare(a.PublishedAt), cmp.Compare(a.Hash, b.Hash))
 	})
 }
 
 func sortCompositions(c []Composition) {
-	sort.Slice(c, func(i, j int) bool {
-		if c[i].Gateway != c[j].Gateway {
-			return c[i].Gateway < c[j].Gateway
-		}
-		if !c[i].PublishedAt.Equal(c[j].PublishedAt) {
-			return c[i].PublishedAt.After(c[j].PublishedAt)
-		}
-		return c[i].Hash < c[j].Hash
+	slices.SortFunc(c, func(a, b Composition) int {
+		return cmp.Or(cmp.Compare(a.Gateway, b.Gateway), b.PublishedAt.Compare(a.PublishedAt), cmp.Compare(a.Hash, b.Hash))
 	})
 }

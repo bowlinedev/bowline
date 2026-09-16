@@ -1,7 +1,8 @@
 package python
 
 import (
-	"sort"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
@@ -105,7 +106,11 @@ func (g *generator) imports() string {
 		if len(imp.names) == 0 {
 			continue
 		}
-		b.WriteString("from " + imp.module + " import " + strings.Join(imp.names, ", ") + "\n")
+		b.WriteString("from ")
+		b.WriteString(imp.module)
+		b.WriteString(" import ")
+		b.WriteString(strings.Join(imp.names, ", "))
+		b.WriteString("\n")
 		wrote = true
 	}
 	if wrote {
@@ -113,12 +118,16 @@ func (g *generator) imports() string {
 	}
 	runtime := []string{"CallOptions", "Method", "SyncTransport", "Transport"}
 	runtime = append(runtime, g.pick("BigInt", "DurationNs", "Empty")...)
-	sort.Strings(runtime)
-	b.WriteString("from bowline_client import " + strings.Join(runtime, ", ") + "\n")
+	slices.Sort(runtime)
+	b.WriteString("from bowline_client import ")
+	b.WriteString(strings.Join(runtime, ", "))
+	b.WriteString("\n")
 	pyd := []string{"BaseModel", "ConfigDict"}
 	pyd = append(pyd, g.pick("AnyUrl", "Base64Bytes", "Field", "JsonValue")...)
-	sort.Strings(pyd)
-	b.WriteString("from pydantic import " + strings.Join(pyd, ", ") + "\n\n\n")
+	slices.Sort(pyd)
+	b.WriteString("from pydantic import ")
+	b.WriteString(strings.Join(pyd, ", "))
+	b.WriteString("\n\n\n")
 	return b.String()
 }
 
@@ -136,14 +145,13 @@ func (g *generator) typeVars() string {
 	if len(g.params) == 0 {
 		return ""
 	}
-	names := make([]string, 0, len(g.params))
-	for p := range g.params {
-		names = append(names, p)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(g.params))
 	var b strings.Builder
 	for _, p := range names {
-		b.WriteString(p + " = TypeVar(\"" + p + "\")\n")
+		b.WriteString(p)
+		b.WriteString(" = TypeVar(\"")
+		b.WriteString(p)
+		b.WriteString("\")\n")
 	}
 	b.WriteString("\n\n")
 	return b.String()
@@ -186,17 +194,28 @@ func docstring(b *strings.Builder, indent, doc, deprecated string) {
 	doc = strings.ReplaceAll(doc, `"""`, `\"\"\"`)
 	lines := strings.Split(doc, "\n")
 	if len(lines) == 1 {
-		b.WriteString(indent + `"""` + lines[0] + `"""` + "\n")
+		b.WriteString(indent)
+		b.WriteString(`"""`)
+		b.WriteString(lines[0])
+		b.WriteString(`"""`)
+		b.WriteString("\n")
 		return
 	}
-	b.WriteString(indent + `"""` + strings.TrimSpace(lines[0]) + "\n")
+	b.WriteString(indent)
+	b.WriteString(`"""`)
+	b.WriteString(strings.TrimSpace(lines[0]))
+	b.WriteString("\n")
 	for _, line := range lines[1:] {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			b.WriteString("\n")
 			continue
 		}
-		b.WriteString(indent + line + "\n")
+		b.WriteString(indent)
+		b.WriteString(line)
+		b.WriteString("\n")
 	}
-	b.WriteString(indent + `"""` + "\n")
+	b.WriteString(indent)
+	b.WriteString(`"""`)
+	b.WriteString("\n")
 }

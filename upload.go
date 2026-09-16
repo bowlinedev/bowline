@@ -56,6 +56,9 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 	if limit <= 0 {
 		limit = 32 << 20
 	}
+	if proc.MaxBody > 0 {
+		limit = proc.MaxBody
+	}
 	reader := multipart.NewReader(http.MaxBytesReader(w, req.Body, limit), params["boundary"])
 	inputPart, err := reader.NextPart()
 	if err != nil || inputPart.FormName() != "input" {
@@ -64,7 +67,7 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 	}
 	raw, err := io.ReadAll(io.LimitReader(inputPart, h.maxBody+1))
 	if err != nil {
-		h.writeError(w, nil, 0, Errorf(InvalidArgument, "reading input part: %v", err))
+		h.writeError(w, nil, 0, h.invalidInput(fmt.Errorf("reading input part: %w", err)))
 		return
 	}
 	if int64(len(raw)) > h.maxBody {
@@ -73,7 +76,7 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 	}
 	ctx, ptr := proc.newFrame(req.Context(), Call{Procedure: &rt.procedure, Request: req})
 	if err := codec.Decode(raw, ptr, h.strict); err != nil {
-		h.writeError(w, nil, 0, Errorf(InvalidArgument, "invalid input: %v", err))
+		h.writeError(w, nil, 0, h.invalidInput(err))
 		return
 	}
 	if issues := proc.checker.Check(ptr); len(issues) > 0 {
@@ -92,6 +95,7 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 	}
 	file := &File{Name: filePart.FileName(), ContentType: filePart.Header.Get("Content-Type"), Reader: filePart}
 	out, err := h.invoke(ctx, rt, proc.attachFile(ptr, file))
+	applyResponseHeader(w, ctx)
 	if err != nil {
 		var tooLarge *http.MaxBytesError
 		if errors.As(err, &tooLarge) {

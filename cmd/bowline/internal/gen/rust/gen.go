@@ -1,7 +1,9 @@
 package rust
 
 import (
-	"sort"
+	"cmp"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
@@ -41,11 +43,11 @@ func newGenerator(doc *contract.Document) *generator {
 	for id := range doc.Types {
 		g.order = append(g.order, id)
 	}
-	sort.Slice(g.order, func(i, j int) bool { return g.names[g.order[i]] < g.names[g.order[j]] })
+	slices.SortFunc(g.order, func(a, b string) int { return cmp.Compare(g.names[a], g.names[b]) })
 	for id := range doc.Errors {
 		g.errorOrder = append(g.errorOrder, id)
 	}
-	sort.Slice(g.errorOrder, func(i, j int) bool { return g.names[g.errorOrder[i]] < g.names[g.errorOrder[j]] })
+	slices.SortFunc(g.errorOrder, func(a, b string) int { return cmp.Compare(g.names[a], g.names[b]) })
 	return g
 }
 
@@ -69,11 +71,7 @@ var rawForbidden = map[string]bool{"self": true, "Self": true, "super": true, "c
 
 func assignNames(doc *contract.Document) map[string]string {
 	base := naming.Assign(doc, nil)
-	ids := make([]string, 0, len(base))
-	for id := range base {
-		ids = append(ids, id)
-	}
-	sort.Strings(ids)
+	ids := slices.Sorted(maps.Keys(base))
 	names := map[string]string{}
 	used := map[string]bool{}
 	for _, id := range ids {
@@ -122,7 +120,9 @@ func (g *generator) imports() string {
 	}
 	var b strings.Builder
 	if len(items) > 0 {
-		b.WriteString("use bowline_client::{" + strings.Join(items, ", ") + "};\n")
+		b.WriteString("use bowline_client::{")
+		b.WriteString(strings.Join(items, ", "))
+		b.WriteString("};\n")
 	}
 	if g.uses["serde"] {
 		b.WriteString("use serde::{Deserialize, Serialize};\n")
@@ -138,7 +138,10 @@ func writeDoc(b *strings.Builder, indent, doc string) {
 	if doc == "" {
 		return
 	}
-	for _, line := range strings.Split(doc, "\n") {
-		b.WriteString(indent + "/// " + strings.TrimSpace(line) + "\n")
+	for line := range strings.SplitSeq(doc, "\n") {
+		b.WriteString(indent)
+		b.WriteString("/// ")
+		b.WriteString(strings.TrimSpace(line))
+		b.WriteString("\n")
 	}
 }

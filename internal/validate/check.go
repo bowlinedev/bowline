@@ -84,7 +84,7 @@ func (b *builder) build(t reflect.Type, rules []Rule) (*cnode, error) {
 			c.number, _ = strconv.ParseFloat(r.Param, 64)
 		case "oneof":
 			c.set = map[string]bool{}
-			for _, v := range strings.Fields(r.Param) {
+			for v := range strings.FieldsSeq(r.Param) {
 				c.set[v] = true
 			}
 		}

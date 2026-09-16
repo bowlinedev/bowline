@@ -1,0 +1,8 @@
+{
+  "target": "go",
+  "generator": "go",
+  "repository": "built in",
+  "compile": ["scripts/check-goldens.sh", "go"],
+  "test": ["go", "test", "./conformance/..."],
+  "conformance": "conformance/run.go"
+}

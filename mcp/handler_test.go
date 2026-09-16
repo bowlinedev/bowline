@@ -193,7 +193,7 @@ func TestHandlerRateLimit(t *testing.T) {
 	now := time.Unix(1_700_000_000, 0)
 	h := testHandler(t, RateLimit(60, 2), withClock(func() time.Time { return now }))
 	auth := map[string]string{"Authorization": "Bearer a"}
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		out := decodeCall(t, decodeOne(t, post(h, callBody(i, "invoices_get", `{"id":1}`), auth)))
 		if out.IsError {
 			t.Fatalf("call %d within burst failed: %s", i, out.Content[0].Text)

@@ -32,12 +32,21 @@ type WatchInput struct {
 	Status *ledger.Status `json:"status,omitempty"`
 }
 
+func voidLimit() bowline.Middleware {
+	return bowline.RateLimit(bowline.RateLimitOptions{
+		Key:     CallerAddress,
+		Rate:    5,
+		Burst:   10,
+		MaxKeys: 4096,
+	})
+}
+
 func (a *API) invoices() *bowline.Router {
 	return bowline.NewRouter(
 		bowline.Query("get", a.getInvoice, bowline.Description("Get returns one invoice by ID."), bowline.Tool(bowline.Scope("billing"))),
 		bowline.Query("list", a.listInvoices, bowline.Description("List returns a page of invoices, optionally filtered by status."), bowline.Tool(bowline.Scope("billing"))),
 		bowline.Mutation("create", a.createInvoice, bowline.Idempotent()),
-		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive())),
+		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive()), bowline.Use(voidLimit())),
 		bowline.Subscription("watch", a.watchInvoices, bowline.Description("Watch streams every invoice change.")),
 		bowline.Upload("attach", a.attach, bowline.Description("Attach stores a file against an invoice.")),
 		bowline.Query("attachments", a.listAttachments),

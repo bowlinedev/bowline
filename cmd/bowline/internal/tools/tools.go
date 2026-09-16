@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/jsonschema"
@@ -88,10 +88,8 @@ func Describe(doc *contract.Document, p *contract.Procedure) string {
 
 func intersects(a, b []string) bool {
 	for _, x := range a {
-		for _, y := range b {
-			if x == y {
-				return true
-			}
+		if slices.Contains(b, x) {
+			return true
 		}
 	}
 	return false
@@ -152,7 +150,7 @@ func Encode(list []Tool, format string) ([]byte, error) {
 
 func sortedCopy(s []string) []string {
 	out := append([]string{}, s...)
-	sort.Strings(out)
+	slices.Sort(out)
 	if out == nil {
 		out = []string{}
 	}

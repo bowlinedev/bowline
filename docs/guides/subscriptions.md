@@ -4,21 +4,37 @@ A subscription is a procedure that pushes a sequence of values to the client. On
 
 ## Declaring one
 
+source: examples/ledger/api/invoices.go:56-75
+
 ```go
 func (a *API) watchInvoices(ctx context.Context, in WatchInput, stream *bowline.Stream[ledger.Invoice]) error {
+	changes, stop := a.store.Watch()
+	defer stop()
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
-		case inv := <-a.store.Changes():
+			return nil
+		case inv, ok := <-changes:
+			if !ok {
+				return nil
+			}
+			if in.Status != nil && inv.Status != *in.Status {
+				continue
+			}
 			if err := stream.Send(inv); err != nil {
 				return err
 			}
 		}
 	}
 }
+```
 
-bowline.Subscription("watch", a.watchInvoices)
+It is mounted with `bowline.Subscription`:
+
+source: examples/ledger/api/invoices.go:50-50
+
+```go
+		bowline.Subscription("watch", a.watchInvoices, bowline.Description("Watch streams every invoice change.")),
 ```
 
 `Send` returns `context.Canceled` once the client has gone away, and returning from the function ends the stream. Every sent value passes through the same normalizer as a query output, so nil slices are `[]` and times are RFC 3339. Returning an error ends the stream with an `error` event carrying the usual envelope, including declared variants.
@@ -50,18 +66,21 @@ The tests in `sse_test.go` show every case: three messages then `done`, an `erro
 
 Browsers limit connections per origin, so an app that holds many subscriptions can multiplex them over one WebSocket. Mount the transport module next to the API handler:
 
-```go
-import bowlinews "github.com/bowlinedev/bowline/transport/websocket"
+source: examples/ledger/cmd/server/main.go:80-80
 
-mux.Handle("/ws", bowlinews.Handler(routes, bowlinews.Options{OriginPatterns: []string{"app.example.com"}}))
+```go
+	r.Handle("/ws", bowlinews.Handler(routes, bowlinews.Options{OriginPatterns: []string{"localhost:*", "127.0.0.1:*"}, Handler: options}))
 ```
 
 and hand the client a transport; queries and mutations keep using `fetch` while subscriptions use the socket:
 
-```ts
-import { websocketTransport } from "@bowline/client";
+source: examples/ledger/web/src/api.ts:45-48
 
-const client = createClient({ url: "/api", transport: websocketTransport("wss://api.example.com/ws") });
+```ts
+const options: ClientOptions = { url: "/api" };
+if (transportName === "ws") {
+  options.transport = websocketTransport(socketUrl());
+}
 ```
 
 Frames are JSON objects with an integer `id` chosen by the client: `subscribe` with `path` and `input`, `stop`, and from the server `data`, `error`, and `done`. When the socket closes, every active subscription fails with `UNAVAILABLE`; reconnecting is the application's decision. The transport module tests in `transport/websocket/handler_test.go` run two subscriptions on one socket and stop one of them.

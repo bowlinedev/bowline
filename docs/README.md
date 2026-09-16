@@ -19,10 +19,21 @@
 - `guides/frameworks/README.md`: one page per Go router and frontend framework, with snippets verified against the examples.
 - `guides/dart.md`, `guides/python.md`, `guides/rust.md`, `guides/elixir.md`: the generated clients for each language and their runtime packages.
 - `certification.md`: what makes a client target official.
+- `plugins.md`: the external generator protocol for adding a language.
+- `certified.md`: every generator that has passed `bowline certify`.
 - `guides/federation.md`: composing several services into one client behind a gateway.
 - `guides/registry.md`: the contract registry and the "who breaks" query.
 - `guides/signing.md`: signed service-to-service calls.
+- `guides/security.md`: CSRF, security headers, what `Sensitive()` does, and the reverse proxy checklist.
+- `cli.md`: every command, flag, exit code, and machine-readable output.
+- `stability.md`: what does not change inside a major version.
+- `migration-0.x.md`: what each 0.x release asks of an existing user.
 - `lts.md`: release cadence, support windows, and what gets backported.
+- `api-freeze.md`: every exported identifier the major version guarantees.
+- `security/audit-2026.md`: every error path in the runtime, what it says in production, and the test that pins it.
+- `security/api-audit.md`: why each exported identifier is public, and what was unexported before the freeze.
+- `security/signing.md`: the signature canonicalization, the replay cache, and the skew window.
+- `benchmarks.md`: handler overhead, regeneration latency, and generator throughput, with history.
 - `adoption-test.md`: the ten-minute adoption protocol run before each minor release.
 - `../spec/contract.md`: the contract document format that every generator reads.
 - `../spec/mapping-table.md`: the normative Go to contract to TypeScript mapping.
