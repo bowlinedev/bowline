@@ -122,9 +122,27 @@ bowline mcp --url http://localhost:8080/api --header "Authorization: Bearer dev"
 
 That is an MCP server for every exposed procedure, with schemas derived from your Go types and validation tags, and every call passing through the same middleware a browser request does. `bowline export tools --format anthropic` prints the same tools for a direct integration, and the agent packages dispatch calls from Go, TypeScript, or Python.
 
+## Install
+
+The CLI, and the runtime your Go server imports:
+
+```bash
+go install github.com/bowlinedev/bowline/cmd/bowline@latest
+go get github.com/bowlinedev/bowline
+```
+
+The client runtime for whichever language you generate into:
+
+```bash
+npm  install @bowlinedev/client     # plus @bowlinedev/react-query, swr, solid, svelte, vue
+cargo add bowline-client
+pip  install bowline-client
+dart pub add bowline
+```
+
 ## Status
 
-This is the 0.5 alpha. Applications need Go 1.24 or later; building the CLI needs Go 1.26 or later, and `go install` fetches that toolchain automatically. The contract document format is 1.1, an additive step from the frozen 1.0; the Go API and the generated code may still change before 1.0. Coming next: Dart, Python, and Rust clients.
+Version 1.0.0. The exported Go API is frozen for 1.x and enforced by `scripts/apidiff.sh`; `docs/stability.md` states exactly what will not change, and `docs/migration-0.x.md` covers upgrading from 0.x. Applications need Go 1.24 or later; building the CLI needs a newer toolchain, which `go install` fetches automatically. The contract document format is 1.2, an additive step from the frozen 1.0.
 
 ## Layout
 
