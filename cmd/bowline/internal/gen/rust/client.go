@@ -69,9 +69,17 @@ func (g *generator) client() string {
 	var subs []*node
 	collectMounts(root, &subs)
 	for _, sub := range subs {
-		b.WriteString("/// " + sub.typeName() + " groups the procedures under " + strconv.Quote(strings.Join(sub.segments, ".")) + ".\n")
-		b.WriteString("pub struct " + sub.typeName() + "<'a> {\n    transport: &'a Transport,\n}\n\n")
-		b.WriteString("impl<'a> " + sub.typeName() + "<'a> {")
+		b.WriteString("/// ")
+		b.WriteString(sub.typeName())
+		b.WriteString(" groups the procedures under ")
+		b.WriteString(strconv.Quote(strings.Join(sub.segments, ".")))
+		b.WriteString(".\n")
+		b.WriteString("pub struct ")
+		b.WriteString(sub.typeName())
+		b.WriteString("<'a> {\n    transport: &'a Transport,\n}\n\n")
+		b.WriteString("impl<'a> ")
+		b.WriteString(sub.typeName())
+		b.WriteString("<'a> {")
 		g.writeAccessors(&b, sub, "'a")
 		g.writeMethods(&b, sub)
 		b.WriteString("}\n\n")
@@ -95,11 +103,21 @@ func (g *generator) writeAccessors(b *strings.Builder, n *node, lifetime string)
 		if child.proc != nil {
 			continue
 		}
-		b.WriteString("\n    pub fn " + methodName(k) + "(&self) -> " + child.typeName() + "<" + lifetime + "> {\n")
+		b.WriteString("\n    pub fn ")
+		b.WriteString(methodName(k))
+		b.WriteString("(&self) -> ")
+		b.WriteString(child.typeName())
+		b.WriteString("<")
+		b.WriteString(lifetime)
+		b.WriteString("> {\n")
 		if lifetime == "'_" {
-			b.WriteString("        " + child.typeName() + " {\n            transport: &self.transport,\n        }\n    }\n")
+			b.WriteString("        ")
+			b.WriteString(child.typeName())
+			b.WriteString(" {\n            transport: &self.transport,\n        }\n    }\n")
 		} else {
-			b.WriteString("        " + child.typeName() + " {\n            transport: self.transport,\n        }\n    }\n")
+			b.WriteString("        ")
+			b.WriteString(child.typeName())
+			b.WriteString(" {\n            transport: self.transport,\n        }\n    }\n")
 		}
 	}
 }
@@ -114,7 +132,9 @@ func (g *generator) writeMethods(b *strings.Builder, n *node) {
 		b.WriteString("\n")
 		writeDoc(b, "    ", p.Doc)
 		if p.Deprecated != "" {
-			b.WriteString("    #[deprecated(note = " + strconv.Quote(p.Deprecated) + ")]\n")
+			b.WriteString("    #[deprecated(note = ")
+			b.WriteString(strconv.Quote(p.Deprecated))
+			b.WriteString(")]\n")
 		}
 		switch p.Kind {
 		case "subscription":
@@ -154,22 +174,60 @@ func (g *generator) output(p *contract.Procedure) (typ, mapping string) {
 func (g *generator) writeCall(b *strings.Builder, name string, p *contract.Procedure) {
 	param, arg := g.inputParam(p)
 	out, mapping := g.output(p)
-	b.WriteString("    pub async fn " + methodName(name) + "(&self, " + param + "options: Option<&CallOptions>) -> Result<" + out + ", Error> {\n")
-	b.WriteString("        self.transport\n            .call(" + strconv.Quote(p.Path) + ", " + g.method(p) + ", " + arg + ", options)\n            .await" + mapping + "\n    }\n")
+	b.WriteString("    pub async fn ")
+	b.WriteString(methodName(name))
+	b.WriteString("(&self, ")
+	b.WriteString(param)
+	b.WriteString("options: Option<&CallOptions>) -> Result<")
+	b.WriteString(out)
+	b.WriteString(", Error> {\n")
+	b.WriteString("        self.transport\n            .call(")
+	b.WriteString(strconv.Quote(p.Path))
+	b.WriteString(", ")
+	b.WriteString(g.method(p))
+	b.WriteString(", ")
+	b.WriteString(arg)
+	b.WriteString(", options)\n            .await")
+	b.WriteString(mapping)
+	b.WriteString("\n    }\n")
 }
 
 func (g *generator) writeSubscription(b *strings.Builder, name string, p *contract.Procedure) {
 	g.uses["Stream"] = true
 	param, arg := g.inputParam(p)
 	out := g.rustType(p.Output, scope{}, false)
-	b.WriteString("    pub fn " + methodName(name) + "(&self, " + param + "options: Option<&CallOptions>) -> impl Stream<Item = Result<" + out + ", Error>> + Send + 'static {\n")
-	b.WriteString("        self.transport\n            .subscribe(" + strconv.Quote(p.Path) + ", " + g.method(p) + ", " + arg + ", options)\n    }\n")
+	b.WriteString("    pub fn ")
+	b.WriteString(methodName(name))
+	b.WriteString("(&self, ")
+	b.WriteString(param)
+	b.WriteString("options: Option<&CallOptions>) -> impl Stream<Item = Result<")
+	b.WriteString(out)
+	b.WriteString(", Error>> + Send + 'static {\n")
+	b.WriteString("        self.transport\n            .subscribe(")
+	b.WriteString(strconv.Quote(p.Path))
+	b.WriteString(", ")
+	b.WriteString(g.method(p))
+	b.WriteString(", ")
+	b.WriteString(arg)
+	b.WriteString(", options)\n    }\n")
 }
 
 func (g *generator) writeUpload(b *strings.Builder, name string, p *contract.Procedure) {
 	g.uses["Body"] = true
 	param, arg := g.inputParam(p)
 	out, mapping := g.output(p)
-	b.WriteString("    pub async fn " + methodName(name) + "(&self, " + param + "file: Body, filename: &str, options: Option<&CallOptions>) -> Result<" + out + ", Error> {\n")
-	b.WriteString("        self.transport\n            .upload(" + strconv.Quote(p.Path) + ", " + arg + ", file, filename, options)\n            .await" + mapping + "\n    }\n")
+	b.WriteString("    pub async fn ")
+	b.WriteString(methodName(name))
+	b.WriteString("(&self, ")
+	b.WriteString(param)
+	b.WriteString("file: Body, filename: &str, options: Option<&CallOptions>) -> Result<")
+	b.WriteString(out)
+	b.WriteString(", Error> {\n")
+	b.WriteString("        self.transport\n            .upload(")
+	b.WriteString(strconv.Quote(p.Path))
+	b.WriteString(", ")
+	b.WriteString(arg)
+	b.WriteString(", file, filename, options)\n            .await")
+	b.WriteString(mapping)
+	b.WriteString("\n    }\n")
 }

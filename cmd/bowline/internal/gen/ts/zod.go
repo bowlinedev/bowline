@@ -166,12 +166,27 @@ func (z *zodGenerator) objectWith(fields []*contract.Field, env map[string]strin
 	b.WriteString("z.object({\n")
 	for _, f := range fields {
 		if recursive && hasRef(f.Type) {
-			b.WriteString(base + "  get " + propertyKey(f.Name) + "() {\n" + base + "    return " + z.field(f, env) + ";\n" + base + "  },\n")
+			b.WriteString(base)
+			b.WriteString("  get ")
+			b.WriteString(propertyKey(f.Name))
+			b.WriteString("() {\n")
+			b.WriteString(base)
+			b.WriteString("    return ")
+			b.WriteString(z.field(f, env))
+			b.WriteString(";\n")
+			b.WriteString(base)
+			b.WriteString("  },\n")
 			continue
 		}
-		b.WriteString(base + "  " + propertyKey(f.Name) + ": " + z.field(f, env) + ",\n")
+		b.WriteString(base)
+		b.WriteString("  ")
+		b.WriteString(propertyKey(f.Name))
+		b.WriteString(": ")
+		b.WriteString(z.field(f, env))
+		b.WriteString(",\n")
 	}
-	b.WriteString(base + "})")
+	b.WriteString(base)
+	b.WriteString("})")
 	return b.String()
 }
 
@@ -221,14 +236,24 @@ func (z *zodGenerator) schemaWithRules(t *contract.Type, rules []contract.Rule, 
 				b.WriteString(".min(1)")
 			}
 		case "min":
-			b.WriteString(".min(" + r.Param + ")")
+			b.WriteString(".min(")
+			b.WriteString(r.Param)
+			b.WriteString(")")
 		case "max":
-			b.WriteString(".max(" + r.Param + ")")
+			b.WriteString(".max(")
+			b.WriteString(r.Param)
+			b.WriteString(")")
 		case "len":
 			if class == "number" {
-				b.WriteString(".min(" + r.Param + ").max(" + r.Param + ")")
+				b.WriteString(".min(")
+				b.WriteString(r.Param)
+				b.WriteString(").max(")
+				b.WriteString(r.Param)
+				b.WriteString(")")
 			} else {
-				b.WriteString(".length(" + r.Param + ")")
+				b.WriteString(".length(")
+				b.WriteString(r.Param)
+				b.WriteString(")")
 			}
 		case "email":
 			b.WriteString(".email()")
@@ -349,7 +374,9 @@ func (z *zodGenerator) schemasObject() string {
 	var b strings.Builder
 	b.WriteString("export const schemas = {\n")
 	for _, id := range z.generator.order {
-		b.WriteString("  " + z.names[id] + ",\n")
+		b.WriteString("  ")
+		b.WriteString(z.names[id])
+		b.WriteString(",\n")
 	}
 	b.WriteString("} as const;\n\n")
 	return b.String()
@@ -359,7 +386,11 @@ func (z *zodGenerator) inputsObject() string {
 	var b strings.Builder
 	b.WriteString("export const inputs = {\n")
 	for _, p := range z.doc.Procedures {
-		b.WriteString("  " + strconv.Quote(p.Path) + ": " + z.schema(p.Input, nil) + ",\n")
+		b.WriteString("  ")
+		b.WriteString(strconv.Quote(p.Path))
+		b.WriteString(": ")
+		b.WriteString(z.schema(p.Input, nil))
+		b.WriteString(",\n")
 	}
 	b.WriteString("} as const;\n\n")
 	return b.String()
@@ -369,7 +400,11 @@ func (z *zodGenerator) errorsObject() string {
 	var b strings.Builder
 	b.WriteString("export const errors = {\n")
 	for _, id := range z.errorOrder {
-		b.WriteString("  " + z.names[id] + ": " + z.object(z.doc.Errors[id].Fields, nil, "  ") + ",\n")
+		b.WriteString("  ")
+		b.WriteString(z.names[id])
+		b.WriteString(": ")
+		b.WriteString(z.object(z.doc.Errors[id].Fields, nil, "  "))
+		b.WriteString(",\n")
 	}
 	b.WriteString("} as const;\n")
 	return b.String()

@@ -93,19 +93,25 @@ func writeModuleDoc(b *strings.Builder, indent, attr, doc string) {
 	doc = strings.TrimSpace(doc)
 	if doc == "" {
 		if attr == "@moduledoc" {
-			b.WriteString(indent + "@moduledoc false\n")
+			b.WriteString(indent)
+			b.WriteString("@moduledoc false\n")
 		}
 		return
 	}
-	b.WriteString(indent + attr + " \"\"\"\n")
+	b.WriteString(indent)
+	b.WriteString(attr)
+	b.WriteString(" \"\"\"\n")
 	for line := range strings.SplitSeq(doc, "\n") {
 		if strings.TrimSpace(line) == "" {
 			b.WriteString("\n")
 			continue
 		}
-		b.WriteString(indent + escapeDoc(line) + "\n")
+		b.WriteString(indent)
+		b.WriteString(escapeDoc(line))
+		b.WriteString("\n")
 	}
-	b.WriteString(indent + "\"\"\"\n")
+	b.WriteString(indent)
+	b.WriteString("\"\"\"\n")
 }
 
 func escapeDoc(line string) string {

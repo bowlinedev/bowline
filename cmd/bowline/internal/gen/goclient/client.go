@@ -80,8 +80,14 @@ func (g *generator) client() string {
 	var subs []*node
 	collectMounts(root, &subs)
 	for _, sub := range subs {
-		b.WriteString("// " + sub.typeName() + " groups the procedures under " + strconv.Quote(strings.Join(sub.segments, ".")) + ".\n")
-		b.WriteString("type " + sub.typeName() + " struct {\n")
+		b.WriteString("// ")
+		b.WriteString(sub.typeName())
+		b.WriteString(" groups the procedures under ")
+		b.WriteString(strconv.Quote(strings.Join(sub.segments, ".")))
+		b.WriteString(".\n")
+		b.WriteString("type ")
+		b.WriteString(sub.typeName())
+		b.WriteString(" struct {\n")
 		g.writeMountFields(&b, sub)
 		b.WriteString("\n\tc *Client\n}\n\n")
 		g.writeMethods(&b, sub)
@@ -103,7 +109,11 @@ func (g *generator) writeMountFields(b *strings.Builder, n *node) {
 	for _, k := range sortedKeys(n) {
 		child := n.children[k]
 		if child.proc == nil {
-			b.WriteString("\t" + exported(k) + " " + child.typeName() + "\n")
+			b.WriteString("\t")
+			b.WriteString(exported(k))
+			b.WriteString(" ")
+			b.WriteString(child.typeName())
+			b.WriteString("\n")
 		}
 	}
 }
@@ -113,7 +123,11 @@ func (g *generator) writeMountInit(b *strings.Builder, n *node, expr string) {
 		child := n.children[k]
 		if child.proc == nil {
 			field := expr + "." + exported(k)
-			b.WriteString("\t" + field + " = " + child.typeName() + "{c: c}\n")
+			b.WriteString("\t")
+			b.WriteString(field)
+			b.WriteString(" = ")
+			b.WriteString(child.typeName())
+			b.WriteString("{c: c}\n")
 			g.writeMountInit(b, child, field)
 		}
 	}
@@ -153,14 +167,46 @@ func (g *generator) writeCall(b *strings.Builder, n *node, name string, p *contr
 		method = "http.MethodGet"
 	}
 	if isEmptyStruct(p.Output) {
-		b.WriteString("func (" + n.receiver() + ") " + name + "(ctx context.Context" + param + ") error {\n")
-		b.WriteString("\treturn " + n.client() + ".call(ctx, " + strconv.Quote(p.Path) + ", " + method + ", " + arg + ", nil)\n}\n\n")
+		b.WriteString("func (")
+		b.WriteString(n.receiver())
+		b.WriteString(") ")
+		b.WriteString(name)
+		b.WriteString("(ctx context.Context")
+		b.WriteString(param)
+		b.WriteString(") error {\n")
+		b.WriteString("\treturn ")
+		b.WriteString(n.client())
+		b.WriteString(".call(ctx, ")
+		b.WriteString(strconv.Quote(p.Path))
+		b.WriteString(", ")
+		b.WriteString(method)
+		b.WriteString(", ")
+		b.WriteString(arg)
+		b.WriteString(", nil)\n}\n\n")
 		return
 	}
 	out := g.goType(p.Output)
-	b.WriteString("func (" + n.receiver() + ") " + name + "(ctx context.Context" + param + ") (" + out + ", error) {\n")
-	b.WriteString("\tvar out " + out + "\n")
-	b.WriteString("\terr := " + n.client() + ".call(ctx, " + strconv.Quote(p.Path) + ", " + method + ", " + arg + ", &out)\n")
+	b.WriteString("func (")
+	b.WriteString(n.receiver())
+	b.WriteString(") ")
+	b.WriteString(name)
+	b.WriteString("(ctx context.Context")
+	b.WriteString(param)
+	b.WriteString(") (")
+	b.WriteString(out)
+	b.WriteString(", error) {\n")
+	b.WriteString("\tvar out ")
+	b.WriteString(out)
+	b.WriteString("\n")
+	b.WriteString("\terr := ")
+	b.WriteString(n.client())
+	b.WriteString(".call(ctx, ")
+	b.WriteString(strconv.Quote(p.Path))
+	b.WriteString(", ")
+	b.WriteString(method)
+	b.WriteString(", ")
+	b.WriteString(arg)
+	b.WriteString(", &out)\n")
 	b.WriteString("\treturn out, err\n}\n\n")
 }
 
@@ -172,24 +218,72 @@ func (g *generator) writeSubscription(b *strings.Builder, n *node, name string, 
 		method = "http.MethodGet"
 	}
 	out := g.goType(p.Output)
-	b.WriteString("func (" + n.receiver() + ") " + name + "(ctx context.Context" + param + ") (iter.Seq2[" + out + ", error], error) {\n")
-	b.WriteString("\tresp, err := " + n.client() + ".open(ctx, " + strconv.Quote(p.Path) + ", " + method + ", " + arg + ")\n")
+	b.WriteString("func (")
+	b.WriteString(n.receiver())
+	b.WriteString(") ")
+	b.WriteString(name)
+	b.WriteString("(ctx context.Context")
+	b.WriteString(param)
+	b.WriteString(") (iter.Seq2[")
+	b.WriteString(out)
+	b.WriteString(", error], error) {\n")
+	b.WriteString("\tresp, err := ")
+	b.WriteString(n.client())
+	b.WriteString(".open(ctx, ")
+	b.WriteString(strconv.Quote(p.Path))
+	b.WriteString(", ")
+	b.WriteString(method)
+	b.WriteString(", ")
+	b.WriteString(arg)
+	b.WriteString(")\n")
 	b.WriteString("\tif err != nil {\n\t\treturn nil, err\n\t}\n")
-	b.WriteString("\treturn stream[" + out + "](resp, " + strconv.Quote(p.Path) + "), nil\n}\n\n")
+	b.WriteString("\treturn stream[")
+	b.WriteString(out)
+	b.WriteString("](resp, ")
+	b.WriteString(strconv.Quote(p.Path))
+	b.WriteString("), nil\n}\n\n")
 }
 
 func (g *generator) writeUpload(b *strings.Builder, n *node, name string, p *contract.Procedure) {
 	g.uses["multipart"] = true
 	param, arg := g.inputParam(p)
 	if isEmptyStruct(p.Output) {
-		b.WriteString("func (" + n.receiver() + ") " + name + "(ctx context.Context" + param + ", name string, file io.Reader) error {\n")
-		b.WriteString("\treturn " + n.client() + ".upload(ctx, " + strconv.Quote(p.Path) + ", " + arg + ", name, file, nil)\n}\n\n")
+		b.WriteString("func (")
+		b.WriteString(n.receiver())
+		b.WriteString(") ")
+		b.WriteString(name)
+		b.WriteString("(ctx context.Context")
+		b.WriteString(param)
+		b.WriteString(", name string, file io.Reader) error {\n")
+		b.WriteString("\treturn ")
+		b.WriteString(n.client())
+		b.WriteString(".upload(ctx, ")
+		b.WriteString(strconv.Quote(p.Path))
+		b.WriteString(", ")
+		b.WriteString(arg)
+		b.WriteString(", name, file, nil)\n}\n\n")
 		return
 	}
 	out := g.goType(p.Output)
-	b.WriteString("func (" + n.receiver() + ") " + name + "(ctx context.Context" + param + ", name string, file io.Reader) (" + out + ", error) {\n")
-	b.WriteString("\tvar out " + out + "\n")
-	b.WriteString("\terr := " + n.client() + ".upload(ctx, " + strconv.Quote(p.Path) + ", " + arg + ", name, file, &out)\n")
+	b.WriteString("func (")
+	b.WriteString(n.receiver())
+	b.WriteString(") ")
+	b.WriteString(name)
+	b.WriteString("(ctx context.Context")
+	b.WriteString(param)
+	b.WriteString(", name string, file io.Reader) (")
+	b.WriteString(out)
+	b.WriteString(", error) {\n")
+	b.WriteString("\tvar out ")
+	b.WriteString(out)
+	b.WriteString("\n")
+	b.WriteString("\terr := ")
+	b.WriteString(n.client())
+	b.WriteString(".upload(ctx, ")
+	b.WriteString(strconv.Quote(p.Path))
+	b.WriteString(", ")
+	b.WriteString(arg)
+	b.WriteString(", name, file, &out)\n")
 	b.WriteString("\treturn out, err\n}\n\n")
 }
 

@@ -253,7 +253,10 @@ func writeDoc(b *strings.Builder, indent, doc string) {
 		return
 	}
 	for line := range strings.SplitSeq(doc, "\n") {
-		b.WriteString(indent + "/// " + strings.TrimSpace(line) + "\n")
+		b.WriteString(indent)
+		b.WriteString("/// ")
+		b.WriteString(strings.TrimSpace(line))
+		b.WriteString("\n")
 	}
 }
 

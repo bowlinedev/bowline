@@ -146,11 +146,16 @@ func jsdoc(indent string, lines ...string) string {
 		return indent + "/** " + content[0] + " */\n"
 	}
 	var b strings.Builder
-	b.WriteString(indent + "/**\n")
+	b.WriteString(indent)
+	b.WriteString("/**\n")
 	for _, l := range content {
-		b.WriteString(indent + " * " + l + "\n")
+		b.WriteString(indent)
+		b.WriteString(" * ")
+		b.WriteString(l)
+		b.WriteString("\n")
 	}
-	b.WriteString(indent + " */\n")
+	b.WriteString(indent)
+	b.WriteString(" */\n")
 	return b.String()
 }
 
@@ -159,10 +164,14 @@ func (g *generator) declarations() string {
 	for _, id := range g.errorOrder {
 		decl := g.doc.Errors[id]
 		b.WriteString(jsdoc("", decl.Doc))
-		b.WriteString("export interface " + g.names[id] + " {\n")
+		b.WriteString("export interface ")
+		b.WriteString(g.names[id])
+		b.WriteString(" {\n")
 		for _, f := range decl.Fields {
 			b.WriteString(jsdoc("  ", f.Doc))
-			b.WriteString("  " + g.fieldSignature(f) + "\n")
+			b.WriteString("  ")
+			b.WriteString(g.fieldSignature(f))
+			b.WriteString("\n")
 		}
 		b.WriteString("}\n\n")
 	}
@@ -172,17 +181,27 @@ func (g *generator) declarations() string {
 		b.WriteString(jsdoc("", decl.Doc))
 		switch decl.Kind {
 		case contract.Struct:
-			b.WriteString("export interface " + name + " {\n")
+			b.WriteString("export interface ")
+			b.WriteString(name)
+			b.WriteString(" {\n")
 			for _, f := range decl.Fields {
 				b.WriteString(jsdoc("  ", f.Doc))
-				b.WriteString("  " + g.fieldSignature(f) + "\n")
+				b.WriteString("  ")
+				b.WriteString(g.fieldSignature(f))
+				b.WriteString("\n")
 			}
 			b.WriteString("}\n\n")
 		case contract.Generic:
-			b.WriteString("export interface " + name + "<" + strings.Join(decl.Params, ", ") + "> {\n")
+			b.WriteString("export interface ")
+			b.WriteString(name)
+			b.WriteString("<")
+			b.WriteString(strings.Join(decl.Params, ", "))
+			b.WriteString("> {\n")
 			for _, f := range decl.Body.Fields {
 				b.WriteString(jsdoc("  ", f.Doc))
-				b.WriteString("  " + g.fieldSignature(f) + "\n")
+				b.WriteString("  ")
+				b.WriteString(g.fieldSignature(f))
+				b.WriteString("\n")
 			}
 			b.WriteString("}\n\n")
 		case contract.Enum:
@@ -190,9 +209,17 @@ func (g *generator) declarations() string {
 			for i, v := range decl.Values {
 				values[i] = literal(v.Value)
 			}
-			b.WriteString("export type " + name + " = " + strings.Join(values, " | ") + ";\n\n")
+			b.WriteString("export type ")
+			b.WriteString(name)
+			b.WriteString(" = ")
+			b.WriteString(strings.Join(values, " | "))
+			b.WriteString(";\n\n")
 		case contract.Primitive:
-			b.WriteString("export type " + name + " = " + g.primitive(&contract.Type{Kind: contract.Primitive, Name: decl.Primitive}) + ";\n\n")
+			b.WriteString("export type ")
+			b.WriteString(name)
+			b.WriteString(" = ")
+			b.WriteString(g.primitive(&contract.Type{Kind: contract.Primitive, Name: decl.Primitive}))
+			b.WriteString(";\n\n")
 		}
 	}
 	return b.String()

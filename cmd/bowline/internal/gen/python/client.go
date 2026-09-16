@@ -87,18 +87,30 @@ func (g *generator) clients() (string, error) {
 
 func (g *generator) writeClass(b *strings.Builder, n *node, fl flavor) {
 	name := n.className(fl.prefix)
-	b.WriteString("class " + name + ":\n")
+	b.WriteString("class ")
+	b.WriteString(name)
+	b.WriteString(":\n")
 	if len(n.segments) == 0 {
-		b.WriteString("    \"\"\"" + fl.transport + " client for every procedure in the contract.\"\"\"\n\n")
+		b.WriteString("    \"\"\"")
+		b.WriteString(fl.transport)
+		b.WriteString(" client for every procedure in the contract.\"\"\"\n\n")
 	} else {
-		b.WriteString("    \"\"\"Procedures under " + strconv.Quote(strings.Join(n.segments, ".")) + ".\"\"\"\n\n")
+		b.WriteString("    \"\"\"Procedures under ")
+		b.WriteString(strconv.Quote(strings.Join(n.segments, ".")))
+		b.WriteString(".\"\"\"\n\n")
 	}
-	b.WriteString("    def __init__(self, transport: " + fl.transport + ") -> None:\n")
+	b.WriteString("    def __init__(self, transport: ")
+	b.WriteString(fl.transport)
+	b.WriteString(") -> None:\n")
 	b.WriteString("        self._transport = transport\n")
 	for _, k := range sortedKeys(n) {
 		child := n.children[k]
 		if child.proc == nil {
-			b.WriteString("        self." + identifier(k) + " = " + child.className(fl.prefix) + "(transport)\n")
+			b.WriteString("        self.")
+			b.WriteString(identifier(k))
+			b.WriteString(" = ")
+			b.WriteString(child.className(fl.prefix))
+			b.WriteString("(transport)\n")
 		}
 	}
 	b.WriteString("\n")
@@ -165,7 +177,8 @@ func (g *generator) writeMethod(b *strings.Builder, name string, p *contract.Pro
 	if len(signature) > 100 {
 		signature = "    " + def + " " + name + "(\n        " + strings.Join(params, ",\n        ") + ",\n    ) -> " + returns + ":"
 	}
-	b.WriteString(signature + "\n")
+	b.WriteString(signature)
+	b.WriteString("\n")
 	docstring(b, "        ", p.Doc, p.Deprecated)
 	line := "        return " + call
 	if len(line) > 100 {
@@ -173,7 +186,8 @@ func (g *generator) writeMethod(b *strings.Builder, name string, p *contract.Pro
 		args := strings.Split(call[open+1:len(call)-1], ", ")
 		line = "        return " + call[:open+1] + "\n            " + strings.Join(args, ", ") + "\n        )"
 	}
-	b.WriteString(line + "\n\n")
+	b.WriteString(line)
+	b.WriteString("\n\n")
 }
 
 type Sample struct {
