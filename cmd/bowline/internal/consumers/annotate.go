@@ -1,8 +1,9 @@
 package consumers
 
 import (
+	"cmp"
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/shape"
@@ -59,7 +60,7 @@ func Annotate(old *contract.Document, changes contract.Changes, list []Consumer)
 					a.Impacts = append(a.Impacts, Impact{Consumer: c.Consumer, Interactions: n})
 				}
 			}
-			sort.Slice(a.Impacts, func(i, j int) bool { return a.Impacts[i].Consumer < a.Impacts[j].Consumer })
+			slices.SortFunc(a.Impacts, func(a, b Impact) int { return cmp.Compare(a.Consumer, b.Consumer) })
 		}
 		out = append(out, a)
 	}

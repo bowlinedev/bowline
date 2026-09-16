@@ -1,12 +1,13 @@
 package consumers
 
 import (
+	"cmp"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/shape"
@@ -67,7 +68,7 @@ func Load(dir string) ([]Consumer, error) {
 		}
 		out = append(out, c)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Consumer < out[j].Consumer })
+	slices.SortFunc(out, func(a, b Consumer) int { return cmp.Compare(a.Consumer, b.Consumer) })
 	return out, nil
 }
 

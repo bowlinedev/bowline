@@ -2,11 +2,13 @@ package bench
 
 import (
 	"bufio"
+	"cmp"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -68,7 +70,7 @@ func (r Run) Generators() []Result {
 			out = append(out, result)
 		}
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+	slices.SortFunc(out, func(a, b Result) int { return cmp.Compare(a.Name, b.Name) })
 	return out
 }
 
@@ -112,7 +114,7 @@ func Parse(r io.Reader) ([]Result, error) {
 	for _, result := range best {
 		results = append(results, result)
 	}
-	sort.Slice(results, func(i, j int) bool { return results[i].Name < results[j].Name })
+	slices.SortFunc(results, func(a, b Result) int { return cmp.Compare(a.Name, b.Name) })
 	return results, nil
 }
 
@@ -162,7 +164,7 @@ func Regressions(current Run, history []Run) []Regression {
 			out = append(out, Regression{Name: result.Name, Previous: before.NsPerOp, Current: result.NsPerOp, Percent: percent})
 		}
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Percent > out[j].Percent })
+	slices.SortFunc(out, func(a, b Regression) int { return cmp.Compare(b.Percent, a.Percent) })
 	return out
 }
 

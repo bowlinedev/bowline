@@ -1,10 +1,10 @@
 package python
 
 import (
+	"cmp"
 	"encoding/json"
 	"fmt"
 	"slices"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -656,6 +656,6 @@ func topo(decls []*declaration) (order []*declaration, cyclic []*declaration) {
 			}
 		}
 	}
-	sort.Slice(cyclic, func(i, j int) bool { return cyclic[i].name < cyclic[j].name })
+	slices.SortFunc(cyclic, func(a, b *declaration) int { return cmp.Compare(a.name, b.name) })
 	return order, cyclic
 }

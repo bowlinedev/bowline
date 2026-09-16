@@ -1,10 +1,11 @@
 package analyzer
 
 import (
+	"cmp"
 	"go/constant"
 	"go/token"
 	"go/types"
-	"sort"
+	"slices"
 
 	"github.com/bowlinedev/bowline/contract"
 )
@@ -48,7 +49,7 @@ func enumValues(t *types.Named, basic *types.Basic) []contract.EnumValue {
 		}
 		found = append(found, positioned{pos: cst.Pos(), value: contract.EnumValue{Name: name, Value: value}})
 	}
-	sort.Slice(found, func(i, j int) bool { return found[i].pos < found[j].pos })
+	slices.SortFunc(found, func(a, b positioned) int { return cmp.Compare(a.pos, b.pos) })
 	out := make([]contract.EnumValue, len(found))
 	for i, f := range found {
 		out[i] = f.value

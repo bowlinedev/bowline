@@ -1,12 +1,12 @@
 package registry
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
 	"maps"
 	"slices"
-	"sort"
 	"sync"
 )
 
@@ -56,7 +56,7 @@ func (m *MemStore) Services(ctx context.Context) ([]Service, error) {
 	for _, s := range m.services {
 		out = append(out, s)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+	slices.SortFunc(out, func(a, b Service) int { return cmp.Compare(a.Name, b.Name) })
 	if len(out) == 0 {
 		return nil, nil
 	}
@@ -225,7 +225,7 @@ func (m *MemStore) Consumers(ctx context.Context, provider string) ([]Consumer, 
 		c.Usage = cloneRaw(c.Usage)
 		out = append(out, c)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Consumer < out[j].Consumer })
+	slices.SortFunc(out, func(a, b Consumer) int { return cmp.Compare(a.Consumer, b.Consumer) })
 	return out, nil
 }
 
