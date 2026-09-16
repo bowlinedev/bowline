@@ -19,6 +19,8 @@ The syntax is the go-playground `validate` vocabulary, restricted to these eight
 
 From `examples/ledger/ledger/types.go`:
 
+source: examples/ledger/ledger/types.go:19-23
+
 ```go
 type Line struct {
 	Description string `json:"description" validate:"required,max=200" example:"Consulting"`
@@ -46,18 +48,20 @@ A failing call returns `INVALID_ARGUMENT` with one issue per broken rule:
 ]}}
 ```
 
-The ledger web app renders these in `examples/ledger/web/src/invoices.tsx`:
+The ledger web app renders these:
+
+source: examples/ledger/web/src/invoices.tsx:82-90
 
 ```tsx
-{create.error instanceof BowlineError && (
-  <ul role="alert" data-testid="issues">
-    {create.error.issues.map((issue) => (
-      <li key={issue.path.join(".")}>
-        {issue.path.join(".")}: {issue.message}
-      </li>
-    ))}
-  </ul>
-)}
+      {create.error instanceof BowlineError && (
+        <ul role="alert" data-testid="issues">
+          {create.error.issues.map((issue) => (
+            <li key={issue.path.join(".")}>
+              {issue.path.join(".")}: {issue.message}
+            </li>
+          ))}
+        </ul>
+      )}
 ```
 
 ## Cost
@@ -72,6 +76,8 @@ Setting `"zod": true` on the TypeScript target writes `bowline.zod.ts` next to t
 ```json
 { "entry": "./api.Routes", "targets": { "ts": { "out": "web/src/bowline.ts", "zod": true } } }
 ```
+
+sketch: how an application consumes the generated `inputs` map; no app in this repository parses client-side yet
 
 ```ts
 import { inputs } from "./bowline.zod.js";

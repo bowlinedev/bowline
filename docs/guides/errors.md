@@ -27,18 +27,22 @@ The mapping is fixed in `codes.go` and is not configurable, so every client can 
 
 ## Returning errors from Go
 
-`bowline.Errorf` builds an error with a code and a formatted message. `%w` wraps a cause that `errors.Is` and `errors.As` can still find. From `examples/ledger/api/invoices.go`:
+`bowline.Errorf` builds an error with a code and a formatted message. `%w` wraps a cause that `errors.Is` and `errors.As` can still find. From the ledger:
+
+source: examples/ledger/api/invoices.go:78-81
 
 ```go
-inv, err := a.store.Invoice(in.ID)
-if errors.Is(err, ledger.ErrNotFound) {
-	return ledger.Invoice{}, bowline.Errorf(bowline.NotFound, "invoice %d not found", in.ID)
-}
+	inv, err := a.store.Invoice(in.ID)
+	if errors.Is(err, ledger.ErrNotFound) {
+		return ledger.Invoice{}, bowline.Errorf(bowline.NotFound, "invoice %d not found", in.ID)
+	}
 ```
 
 A `*bowline.Error` anywhere in a wrapped chain is used as is. `context.Canceled` and `context.DeadlineExceeded` map to their codes. Any other error becomes `INTERNAL`. Panics are recovered, logged with a stack, and reported as `INTERNAL`.
 
 `WithDetails` attaches a JSON-serializable value that the client receives under `details`:
+
+sketch: `userID` stands for whatever the application's middleware put on the context
 
 ```go
 return nil, bowline.Errorf(bowline.FailedPrecondition, "invoice is locked").WithDetails(map[string]any{"lockedBy": userID})
@@ -48,6 +52,8 @@ return nil, bowline.Errorf(bowline.FailedPrecondition, "invoice is locked").With
 
 A procedure can declare typed errors it may return. A variant is a named struct with a `Code` method; its exported fields travel under `details`, and the type name travels as `type`, so clients can narrow on it.
 
+source: examples/ledger/api/errors.go:11-18
+
 ```go
 type InvoiceLocked struct {
 	ID     int64         `json:"id"`
@@ -55,9 +61,16 @@ type InvoiceLocked struct {
 }
 
 func (e InvoiceLocked) Error() string { return fmt.Sprintf("invoice %d is %s", e.ID, e.Status) }
-func (e InvoiceLocked) Code() bowline.Code { return bowline.FailedPrecondition }
 
-bowline.Mutation("void", a.voidInvoice, bowline.Errors(InvoiceLocked{}))
+func (e InvoiceLocked) Code() bowline.Code { return bowline.FailedPrecondition }
+```
+
+The procedure declares it with `bowline.Errors`:
+
+source: examples/ledger/api/invoices.go:49-49
+
+```go
+		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive()), bowline.Use(voidLimit())),
 ```
 
 Returning `InvoiceLocked{ID: 4, Status: "paid"}` from the handler, wrapped or not, produces:
@@ -81,6 +94,8 @@ In development every error carries the underlying message. With `bowline.Product
 `details` and `issues` are present only when set. Successful responses have no envelope at all; the body is the output value.
 
 ## On the client
+
+sketch: the narrowing pattern; every generated client throws `BowlineError` and nothing else
 
 ```ts
 import { BowlineError } from "@bowline/client";

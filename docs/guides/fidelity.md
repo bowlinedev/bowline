@@ -24,10 +24,11 @@ Struct fields with `omitempty` or `omitzero` become optional. Embedded structs a
 
 JSON numbers are doubles in JavaScript, so integers beyond 2^53 lose precision. An `int64` field is a `number` in TypeScript, and the server refuses to encode a value outside the safe range; that is reported as `INTERNAL` and logged with the field path, because it is a server bug by definition. A field that needs the full range is tagged `json:",string"`; it travels as a decimal string and the client hydrates it into a `bigint`:
 
+source: cmd/bowline/internal/analyzer/testdata/fidelity/rows/stdlib/api.go:17-18
+
 ```go
-type Event struct {
-	Sequence uint64 `json:"sequence,string"`
-}
+	Big      int64           `json:"big,string"`
+	Unsigned uint64          `json:"unsigned,string"`
 ```
 
 ## Dates
@@ -38,15 +39,25 @@ type Event struct {
 
 Go cannot tell the analyzer what a `MarshalJSON` method produces, so such a type is rejected unless its wire shape is declared once:
 
+source: examples/ledger/ledger/money.go:12-17
+
 ```go
 type Money struct {
 	Cents    int64
 	Currency string
 }
 
-func (m Money) MarshalJSON() ([]byte, error) { return json.Marshal(m.String()) }
-
 var _ = bowline.WireAs[Money, string]()
+```
+
+with the marshalling the analyzer cannot read:
+
+source: examples/ledger/ledger/money.go:29-31
+
+```go
+func (m Money) MarshalJSON() ([]byte, error) {
+	return json.Marshal(m.String())
+}
 ```
 
 After the declaration `Money` appears as `string` in every client. The wire type can be any supported type, including a struct or an array. This is the only escape hatch and it is typed. Types that implement `encoding.TextMarshaler` are mapped to `string` without a declaration.
@@ -82,8 +93,10 @@ Both answer `Cache-Control: no-store`, and any method other than `GET` is 405 wi
 
 The gateway uses both: it pins every upstream to a contract hash and refuses to start when the live hash differs, and its readiness probe reports each upstream separately. The ledger passes `api.Contract`, the same bytes `Router.Verify` checks at startup, so the served document and the compiled router can never disagree.
 
+source: examples/ledger/cmd/server/main.go:67-67
+
 ```go
-r.Mount("/api", routes.Handler(bowline.WithContract(api.Contract)))
+		bowline.WithContract(api.Contract),
 ```
 
 Procedure names cannot contain a slash, so the reserved paths can never shadow a procedure.
@@ -92,18 +105,29 @@ Procedure names cannot contain a slash, so the reserved paths can never shadow a
 
 `bowline.Signed(provider)` requires every request to this handler to carry a `Bowline-Signature` header, verified before the input is decoded and before any procedure runs.
 
+source: examples/federation/billing/cmd/server/main.go:27-29
+
 ```go
-routes.Handler(bowline.Signed(signing.StaticSecrets{"edge": secret}))
+	if secret := os.Getenv("BILLING_INBOUND_SECRET"); secret != "" {
+		options = append(options, bowline.Signed(signing.StaticSecrets{os.Getenv("BILLING_INBOUND_KEY"): []byte(secret)}))
+	}
 ```
 
 The header is `v1,t=<unix seconds>,kid=<key id>,sig=<base64 HMAC-SHA256>`. The signed message is four newline-terminated lines: the method, the request target with its query string, the lowercase hex SHA-256 of the body (of the empty string for `GET`), and the timestamp. A call fails with `UNAUTHENTICATED` when the header is missing or malformed, when the timestamp is more than 300 seconds from server time, when the key ID does not resolve, or when the HMAC does not match; the response never says which, and the reason is logged instead.
 
 Callers sign with `signing.Transport`, which is an `http.RoundTripper`, so the generated Go client takes it without any generator change:
 
+source: examples/federation/billing/api/ledger.go:10-17
+
 ```go
-client := ledgerclient.New(url, ledgerclient.WithHTTPClient(&http.Client{
-	Transport: &signing.Transport{KeyID: "edge", Secret: secret},
-}))
+func LedgerClient(url, keyID string, secret []byte) *ledgerclient.Client {
+	if keyID == "" || len(secret) == 0 {
+		return ledgerclient.New(url)
+	}
+	return ledgerclient.New(url, ledgerclient.WithHTTPClient(&http.Client{
+		Transport: &signing.Transport{KeyID: keyID, Secret: secret},
+	}))
+}
 ```
 
-The signature covers the request target as it goes on the wire, so a handler mounted behind `http.StripPrefix` still verifies correctly. Signing applies to every path the handler serves, including the reserved ones, so a probe of a signed handler must be signed too. The 300-second window is the only replay bound: there is no nonce cache, and a signature can be replayed inside that window.
+The signature covers the request target as it goes on the wire, so a handler mounted behind `http.StripPrefix` still verifies correctly. Signing applies to every path the handler serves, including the reserved ones, so a probe of a signed handler must be signed too. Each signature carries a random nonce, and the handler remembers the ones it has seen, so a captured request cannot be replayed inside the 300-second window; `docs/guides/signing.md` describes the canonical string and the cache.

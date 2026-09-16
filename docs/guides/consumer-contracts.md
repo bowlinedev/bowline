@@ -6,8 +6,12 @@ A consumer contract records what one client actually uses: which procedures, wit
 
 `@bowline/client` records through the `record` option, a sink that receives every call's procedure, method, input, and raw response before hydration:
 
+source: examples/ledger/web/src/api.ts:49-51
+
 ```ts
-export const client = createClient({ url: "/api", record: sink });
+if (record !== undefined) {
+  options.record = record;
+}
 ```
 
 Under Node, `@bowline/client/node` exports `fileSink(consumer, path, { provider })`, which deduplicates by procedure and canonical input and writes the consumer file on `flush()`. In a browser suite the app collects interactions on `window` and the test harness writes them; the ledger does exactly that in `examples/ledger/web/src/api.ts` and `examples/ledger/web/e2e/record.ts`, and `RECORD=1 pnpm test:e2e` refreshes `examples/ledger/contracts/consumers/ledger-web.json`.
@@ -46,7 +50,9 @@ The `ci` workflow runs it for the ledger; `cmd/bowline/internal/consumers/testda
 
 ## Dynamic verification
 
-`github.com/bowlinedev/bowline/contracttest` replays each interaction against the router in-process and requires the recorded status, the recorded error code and variant for error responses, and the shape rule on the live body. It catches what the contract cannot express, such as a procedure that now errors. From `examples/ledger/api/consumers_test.go`:
+`github.com/bowlinedev/bowline/contracttest` replays each interaction against the router in-process and requires the recorded status, the recorded error code and variant for error responses, and the shape rule on the live body. It catches what the contract cannot express, such as a procedure that now errors. From the ledger:
+
+source: examples/ledger/api/consumers_test.go:12-17
 
 ```go
 func TestConsumers(t *testing.T) {

@@ -10,7 +10,9 @@ bowline mock --addr 127.0.0.1:18091 --seed 1 --no-playground & sleep 1; curl -fs
 
 Every value is derived from the contract: fields carry their `example` tag when they have one, enums pick a declared value, `email`, `url`, and `uuid` rules produce matching strings, `min`, `max`, and `len` bound strings, numbers, and collections, timestamps land within a month before 2026-01-01, and fields named `id`, `*Id`, or `*ID` count up per type. The stream behind each value is seeded by the seed, the procedure, and the field path, so adding a field elsewhere never changes an existing value and the same seed produces the same bytes on every machine. Reviewers can commit screenshots and fixtures taken from the mock without churn.
 
-Set `example` tags where realism matters. From `examples/ledger/ledger/types.go`:
+Set `example` tags where realism matters. From the ledger:
+
+source: examples/ledger/ledger/types.go:37-38
 
 ```go
 	Name  string `json:"name" validate:"required" example:"Ada Lovelace"`
