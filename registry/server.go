@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"cmp"
 	"encoding/json"
 	"errors"
 	"io"
@@ -9,7 +10,6 @@ import (
 	"maps"
 	"net/http"
 	"slices"
-	"sort"
 	"time"
 
 	"github.com/bowlinedev/bowline"
@@ -482,14 +482,8 @@ func (s *Server) graph(w http.ResponseWriter, r *http.Request) {
 	for _, name := range names {
 		nodes = append(nodes, Node{Name: name, Kind: kinds[name]})
 	}
-	sort.Slice(edges, func(i, j int) bool {
-		if edges[i].Kind != edges[j].Kind {
-			return edges[i].Kind < edges[j].Kind
-		}
-		if edges[i].From != edges[j].From {
-			return edges[i].From < edges[j].From
-		}
-		return edges[i].To < edges[j].To
+	slices.SortFunc(edges, func(a, b Edge) int {
+		return cmp.Or(cmp.Compare(a.Kind, b.Kind), cmp.Compare(a.From, b.From), cmp.Compare(a.To, b.To))
 	})
 	if edges == nil {
 		edges = []Edge{}

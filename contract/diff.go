@@ -1,11 +1,11 @@
 package contract
 
 import (
+	"cmp"
 	"encoding/json"
 	"fmt"
 	"maps"
 	"slices"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -76,11 +76,8 @@ func Diff(old, new *Document) Changes {
 			d.add("procedure "+path, Added, "procedure added")
 		}
 	}
-	sort.SliceStable(d.changes, func(i, j int) bool {
-		if d.changes[i].Path != d.changes[j].Path {
-			return d.changes[i].Path < d.changes[j].Path
-		}
-		return d.changes[i].Category < d.changes[j].Category
+	slices.SortStableFunc(d.changes, func(a, b Change) int {
+		return cmp.Or(cmp.Compare(a.Path, b.Path), cmp.Compare(a.Category, b.Category))
 	})
 	return d.changes
 }

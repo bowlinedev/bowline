@@ -1,9 +1,10 @@
 package ts
 
 import (
+	"cmp"
 	"encoding/json"
 	"fmt"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -24,20 +25,14 @@ func newGenerator(doc *contract.Document) *generator {
 	for id := range doc.Types {
 		g.order = append(g.order, id)
 	}
-	sort.Slice(g.order, func(i, j int) bool {
-		if g.names[g.order[i]] != g.names[g.order[j]] {
-			return g.names[g.order[i]] < g.names[g.order[j]]
-		}
-		return g.order[i] < g.order[j]
+	slices.SortFunc(g.order, func(a, b string) int {
+		return cmp.Or(cmp.Compare(g.names[a], g.names[b]), cmp.Compare(a, b))
 	})
 	for id := range doc.Errors {
 		g.errorOrder = append(g.errorOrder, id)
 	}
-	sort.Slice(g.errorOrder, func(i, j int) bool {
-		if g.names[g.errorOrder[i]] != g.names[g.errorOrder[j]] {
-			return g.names[g.errorOrder[i]] < g.names[g.errorOrder[j]]
-		}
-		return g.errorOrder[i] < g.errorOrder[j]
+	slices.SortFunc(g.errorOrder, func(a, b string) int {
+		return cmp.Or(cmp.Compare(g.names[a], g.names[b]), cmp.Compare(a, b))
 	})
 	return g
 }

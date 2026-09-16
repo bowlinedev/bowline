@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"sort"
 	"strings"
 	"sync"
 )
@@ -393,22 +392,13 @@ func (f *FileStore) Compositions(ctx context.Context, service string) ([]Composi
 }
 
 func sortVersions(v []Version) {
-	sort.Slice(v, func(i, j int) bool {
-		if !v[i].PublishedAt.Equal(v[j].PublishedAt) {
-			return v[i].PublishedAt.After(v[j].PublishedAt)
-		}
-		return v[i].Hash < v[j].Hash
+	slices.SortFunc(v, func(a, b Version) int {
+		return cmp.Or(b.PublishedAt.Compare(a.PublishedAt), cmp.Compare(a.Hash, b.Hash))
 	})
 }
 
 func sortCompositions(c []Composition) {
-	sort.Slice(c, func(i, j int) bool {
-		if c[i].Gateway != c[j].Gateway {
-			return c[i].Gateway < c[j].Gateway
-		}
-		if !c[i].PublishedAt.Equal(c[j].PublishedAt) {
-			return c[i].PublishedAt.After(c[j].PublishedAt)
-		}
-		return c[i].Hash < c[j].Hash
+	slices.SortFunc(c, func(a, b Composition) int {
+		return cmp.Or(cmp.Compare(a.Gateway, b.Gateway), b.PublishedAt.Compare(a.PublishedAt), cmp.Compare(a.Hash, b.Hash))
 	})
 }
