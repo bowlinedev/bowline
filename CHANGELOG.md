@@ -11,6 +11,9 @@
 - Fuzzing: eleven Go fuzz targets and a client property test run nightly and for ten seconds in CI; they found and fixed a panic value reaching production clients, four generator panics on malformed documents, non-deterministic TypeScript output when two type IDs share a name, and `@bowline/client` throwing a bare `SyntaxError` on a non-JSON 2xx body.
 - API: `docs/api-freeze.md` lists every exported identifier 1.x will guarantee, pinned by a test, and `scripts/apidiff.sh` reports incompatible changes against the previous tag on every pull request; it becomes a hard gate at the first 1.x tag.
 - Incompatible since 0.7.0, both deliberate: `bowline.Call` is no longer comparable, because it now carries the response headers a middleware can set, and `signing.Verify` takes variadic options for the replay cache. Calls are unaffected; comparing a `Call` value or assigning `Verify` to a function variable is not.
+- CSRF: a request carrying no `Origin`, `Referer`, or `Sec-Fetch-Site` is now allowed rather than rejected, matching `net/http.CrossOriginProtection`. Rejecting those protected nothing — an attacker not driving a victim's browser sends the request directly — while breaking every generated non-browser client, `curl`, and service-to-service call. A browser that announced itself through `Sec-Fetch-Site` but sent no `Origin` is still refused, so `CSRF` is now safe to mount on a route that serves both browsers and machines.
+- Performance: the handler reads the `input` query parameter without parsing the whole query string and reads a request body of known length into an exactly sized buffer. Bowline now runs slightly faster than the equivalent hand-written `net/http` handler, with fewer allocations; a large request body costs 15% less memory.
+- Performance: the generators write string parts directly instead of concatenating them first, cutting Dart generation time by 10% and Elixir by 9%.
 
 ## 0.7.0
 
