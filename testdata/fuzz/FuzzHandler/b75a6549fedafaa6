@@ -1,0 +1,7 @@
+go test fuzz v1
+string("")
+string("users.get?input=%7B%22id%22%3A3%7D")
+string("")
+string("0")
+string("")
+bool(true)

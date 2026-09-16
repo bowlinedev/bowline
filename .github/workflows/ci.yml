@@ -137,6 +137,9 @@ jobs:
         run: |
           scripts/deps-allowlist.sh
           scripts/deps-allowlist.sh self-test
+      - name: fuzz smoke
+        if: matrix.os == 'ubuntu-latest' && matrix.go == 'stable'
+        run: scripts/fuzz-smoke.sh
 
   node:
     runs-on: ubuntu-latest

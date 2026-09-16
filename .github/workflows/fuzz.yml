@@ -1,0 +1,92 @@
+name: fuzz
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: .
+            package: .
+            target: FuzzHandler
+          - module: .
+            package: ./contract
+            target: FuzzContractParse
+          - module: .
+            package: ./contract
+            target: FuzzContractHash
+          - module: .
+            package: ./internal/codec
+            target: FuzzDecode
+          - module: .
+            package: ./internal/validate
+            target: FuzzValidateParseTag
+          - module: .
+            package: ./internal/validate
+            target: FuzzValidateCheck
+          - module: .
+            package: ./signing
+            target: FuzzVerify
+          - module: .
+            package: ./signing
+            target: FuzzReplayCache
+          - module: .
+            package: ./internal/codec
+            target: FuzzNormalizeEquivalence
+          - module: cmd/bowline
+            package: ./internal/gen/ts
+            target: FuzzTSGenerator
+          - module: cmd/bowline
+            package: ./internal/analyzer
+            target: FuzzAnalyzerMutatesFidelityRows
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: fuzz ${{ matrix.target }}
+        working-directory: ${{ matrix.module }}
+        env:
+          GOWORK: "off"
+        run: go test -run '^$' -fuzz '^${{ matrix.target }}$' -fuzztime 10m ${{ matrix.package }}
+      - name: collect crashers
+        if: failure()
+        run: |
+          found=0
+          while IFS= read -r dir; do
+            found=1
+            echo "== $dir"
+            ls -1 "$dir"
+          done < <(find . -type d -path '*/testdata/fuzz/*' -not -empty)
+          if [ "$found" -eq 0 ]; then echo "no crashers on disk"; fi
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: crashers-${{ matrix.target }}
+          path: "**/testdata/fuzz/**"
+          if-no-files-found: ignore
+
+  client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @bowline/client exec vitest run src/client.fuzz.test.ts

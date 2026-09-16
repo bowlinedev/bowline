@@ -228,6 +228,10 @@ func (h *handler) invoke(ctx context.Context, rt *route, in any) (out any, err e
 	defer func() {
 		if rec := recover(); rec != nil {
 			h.log.ErrorContext(ctx, "bowline: procedure panicked", "procedure", rt.path, "panic", rec, "stack", string(debug.Stack()))
+			if h.production {
+				err = Errorf(Internal, "internal error")
+				return
+			}
 			err = Errorf(Internal, "panic: %v", rec)
 		}
 	}()
