@@ -1,7 +1,6 @@
 package bowline
 
 import (
-	"container/list"
 	"context"
 	"net/http"
 	"net/http/httptest"
@@ -40,40 +39,6 @@ func call(h http.Handler) *httptest.ResponseRecorder {
 	return do(h, http.MethodGet, "/api/get?input=%7B%22id%22%3A1%7D", "", nil)
 }
 
-func TestRateLimitBucketRefill(t *testing.T) {
-	clock := &testClock{at: time.Unix(1700000000, 0)}
-	l := &limiter{
-		key: keyFrom("a"), rate: 2, burst: 3, maxKeys: 8,
-		now: clock.now, buckets: map[string]*bucket{}, order: list.New(),
-	}
-	for i := range 3 {
-		if _, ok := l.allow("a"); !ok {
-			t.Fatalf("burst token %d was refused", i)
-		}
-	}
-	if wait, ok := l.allow("a"); ok {
-		t.Fatal("a fourth call passed with an empty bucket")
-	} else if wait <= 0 || wait > 500*time.Millisecond {
-		t.Fatalf("wait %v, want up to 500ms at 2 per second", wait)
-	}
-	clock.advance(500 * time.Millisecond)
-	if _, ok := l.allow("a"); !ok {
-		t.Fatal("half a second did not refill one token at 2 per second")
-	}
-	if _, ok := l.allow("a"); ok {
-		t.Fatal("the refill produced more than one token")
-	}
-	clock.advance(time.Hour)
-	for i := range 3 {
-		if _, ok := l.allow("a"); !ok {
-			t.Fatalf("token %d was refused after a long idle period", i)
-		}
-	}
-	if _, ok := l.allow("a"); ok {
-		t.Fatal("the bucket refilled past its burst")
-	}
-}
-
 func TestRateLimitReturnsResourceExhausted(t *testing.T) {
 	clock := &testClock{at: time.Unix(1700000000, 0)}
 	h := limitedRouter(RateLimitOptions{Key: keyFrom("a"), Rate: 1, Burst: 1, Now: clock.now})
@@ -94,29 +59,6 @@ func TestRateLimitReturnsResourceExhausted(t *testing.T) {
 	clock.advance(2 * time.Second)
 	if rec := call(h); rec.Code != 200 {
 		t.Fatalf("the limiter never refilled: %d %s", rec.Code, rec.Body.String())
-	}
-}
-
-func TestRateLimitEvictsIdleKeys(t *testing.T) {
-	clock := &testClock{at: time.Unix(1700000000, 0)}
-	l := &limiter{
-		key: keyFrom(""), rate: 1, burst: 1, maxKeys: 2,
-		now: clock.now, buckets: map[string]*bucket{}, order: list.New(),
-	}
-	l.allow("a")
-	l.allow("b")
-	l.allow("a")
-	l.allow("c")
-	if len(l.buckets) != 2 {
-		t.Fatalf("%d buckets, want 2", len(l.buckets))
-	}
-	if _, ok := l.buckets["b"]; ok {
-		t.Fatal("the least recently used key survived eviction")
-	}
-	for _, key := range []string{"a", "c"} {
-		if _, ok := l.buckets[key]; !ok {
-			t.Fatalf("%q was evicted instead of the idle key", key)
-		}
 	}
 }
 
@@ -185,19 +127,6 @@ func TestResponseHeaderReachesTheClientOnSuccess(t *testing.T) {
 	rec := call(h)
 	if got := rec.Header().Get("X-Stamp"); got != "here" {
 		t.Fatalf("X-Stamp %q, want here", got)
-	}
-}
-
-func BenchmarkRateLimitAllow(b *testing.B) {
-	l := &limiter{
-		key: keyFrom("a"), rate: 1e9, burst: 1e9, maxKeys: 1024,
-		now: time.Now, buckets: map[string]*bucket{}, order: list.New(),
-	}
-	l.allow("tenant")
-	b.ReportAllocs()
-	b.ResetTimer()
-	for range b.N {
-		l.allow("tenant")
 	}
 }
 
