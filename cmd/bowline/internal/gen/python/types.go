@@ -433,7 +433,6 @@ func (g *generator) declarations() (string, error) {
 		byName[d.name] = d
 	}
 	for id, decl := range g.doc.Types {
-		id, decl := id, decl
 		name := g.names[id]
 		switch decl.Kind {
 		case contract.Struct:
@@ -482,7 +481,6 @@ func (g *generator) declarations() (string, error) {
 		}
 	}
 	for id, decl := range g.doc.Errors {
-		id, decl := id, decl
 		name := g.names[id]
 		doc := decl.Doc
 		if strings.TrimSpace(doc) == "" {

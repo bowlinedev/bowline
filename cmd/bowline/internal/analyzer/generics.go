@@ -23,8 +23,8 @@ func (c *collector) generic(t *types.Named, pos token.Pos, path string) *contrac
 		c.declareGeneric(origin, id)
 	}
 	args := make([]*contract.Type, 0, t.TypeArgs().Len())
-	for i := 0; i < t.TypeArgs().Len(); i++ {
-		arg := c.typeNode(t.TypeArgs().At(i), pos, path)
+	for typeArg := range t.TypeArgs().Types() {
+		arg := c.typeNode(typeArg, pos, path)
 		if arg == nil {
 			return nil
 		}
@@ -37,8 +37,8 @@ func (c *collector) declareGeneric(origin *types.Named, id string) {
 	obj := origin.Obj()
 	pkg := c.prog.Package(pkgPath(obj))
 	decl := &contract.TypeDecl{Kind: contract.Generic, Name: obj.Name(), Doc: c.prog.Doc(pkg, obj.Pos())}
-	for i := 0; i < origin.TypeParams().Len(); i++ {
-		decl.Params = append(decl.Params, origin.TypeParams().At(i).Obj().Name())
+	for tparam := range origin.TypeParams().TypeParams() {
+		decl.Params = append(decl.Params, tparam.Obj().Name())
 	}
 	c.doc.Types[id] = decl
 	c.recordPosition(id, obj.Pos())
@@ -53,8 +53,8 @@ func (c *collector) declareGeneric(origin *types.Named, id string) {
 }
 
 func needsMonomorphization(origin *types.Named) bool {
-	for i := 0; i < origin.TypeParams().Len(); i++ {
-		iface, ok := origin.TypeParams().At(i).Constraint().Underlying().(*types.Interface)
+	for tparam := range origin.TypeParams().TypeParams() {
+		iface, ok := tparam.Constraint().Underlying().(*types.Interface)
 		if ok && hasTypeTerms(iface, map[*types.Interface]bool{}) {
 			return true
 		}
@@ -67,8 +67,8 @@ func hasTypeTerms(iface *types.Interface, seen map[*types.Interface]bool) bool {
 		return false
 	}
 	seen[iface] = true
-	for i := 0; i < iface.NumEmbeddeds(); i++ {
-		switch e := iface.EmbeddedType(i).(type) {
+	for embedded := range iface.EmbeddedTypes() {
+		switch e := embedded.(type) {
 		case *types.Union:
 			return true
 		default:
@@ -93,8 +93,8 @@ func (c *collector) monomorphize(t *types.Named, pos token.Pos, path string) *co
 	obj := origin.Obj()
 	pkg := c.prog.Package(pkgPath(obj))
 	var suffix []string
-	for i := 0; i < t.TypeArgs().Len(); i++ {
-		suffix = append(suffix, identifierFor(t.TypeArgs().At(i)))
+	for typeArg := range t.TypeArgs().Types() {
+		suffix = append(suffix, identifierFor(typeArg))
 	}
 	decl := &contract.TypeDecl{
 		Kind:   contract.Struct,

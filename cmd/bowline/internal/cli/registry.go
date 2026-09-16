@@ -57,7 +57,7 @@ func envTokens() []string {
 		return nil
 	}
 	var tokens []string
-	for _, token := range strings.Split(raw, ",") {
+	for token := range strings.SplitSeq(raw, ",") {
 		if trimmed := strings.TrimSpace(token); trimmed != "" {
 			tokens = append(tokens, trimmed)
 		}

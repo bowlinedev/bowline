@@ -64,7 +64,7 @@ func parseFreezeList(t *testing.T) map[string][]string {
 	lists := map[string][]string{}
 	var pkg string
 	var inBlock bool
-	for _, line := range strings.Split(string(data), "\n") {
+	for line := range strings.SplitSeq(string(data), "\n") {
 		switch {
 		case strings.HasPrefix(line, "## "):
 			pkg = strings.TrimSpace(strings.TrimPrefix(line, "## "))

@@ -101,7 +101,7 @@ func (s *state) seed(p *contract.Procedure, elem *contract.Type, typeID, idField
 	if len(tb.order) > 0 {
 		return
 	}
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		row, ok := s.gen.Value(elem, p.Path, []string{"seed", fmt.Sprint(i)}).(map[string]any)
 		if !ok {
 			return

@@ -148,7 +148,7 @@ func (g *generator) tagOptions(f *contract.Field) string {
 func writeDoc(b *strings.Builder, indent, doc, deprecated string) {
 	doc = strings.TrimSpace(doc)
 	if doc != "" {
-		for _, line := range strings.Split(doc, "\n") {
+		for line := range strings.SplitSeq(doc, "\n") {
 			b.WriteString(indent + "// " + strings.TrimSpace(line) + "\n")
 		}
 	}

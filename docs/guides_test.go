@@ -74,7 +74,7 @@ func documentationPages(t *testing.T) []string {
 		return walkPages(t)
 	}
 	var pages []string
-	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+	for line := range strings.SplitSeq(strings.TrimSpace(string(out)), "\n") {
 		if line != "" {
 			pages = append(pages, filepath.FromSlash(line))
 		}

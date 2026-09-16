@@ -13,7 +13,7 @@ func Heartbeat(d time.Duration) HandlerOption {
 }
 
 func acceptsEventStream(req *http.Request) bool {
-	for _, part := range strings.Split(req.Header.Get("Accept"), ",") {
+	for part := range strings.SplitSeq(req.Header.Get("Accept"), ",") {
 		mediaType := strings.TrimSpace(strings.SplitN(part, ";", 2)[0])
 		if mediaType == "text/event-stream" || mediaType == "*/*" {
 			return true

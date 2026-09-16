@@ -113,7 +113,7 @@ func TestDevLoopBudget(t *testing.T) {
 	file := filepath.Join(dir, "p10", "p10.go")
 	src, _ := os.ReadFile(file)
 	var durations []time.Duration
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		tag := "name"
 		if i%2 == 0 {
 			tag = "label"

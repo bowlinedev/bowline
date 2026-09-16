@@ -22,7 +22,7 @@ func ParseTag(tag string) ([]Rule, error) {
 		return nil, nil
 	}
 	var rules []Rule
-	for _, term := range strings.Split(tag, ",") {
+	for term := range strings.SplitSeq(tag, ",") {
 		term = strings.TrimSpace(term)
 		if term == "" {
 			continue

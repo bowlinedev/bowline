@@ -178,7 +178,7 @@ func externalPath(dir, name string) (string, error) {
 
 func parseDiagnostics(stderr string) []analyzer.Diagnostic {
 	var diags []analyzer.Diagnostic
-	for _, line := range strings.Split(stderr, "\n") {
+	for line := range strings.SplitSeq(stderr, "\n") {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue

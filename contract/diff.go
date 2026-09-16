@@ -446,11 +446,11 @@ func (d *differ) rules(path string, oldRules, newRules []Rule, v variance) {
 
 func (d *differ) oneof(path, oldParam, newParam string, v variance) {
 	oldSet := map[string]bool{}
-	for _, s := range strings.Fields(oldParam) {
+	for s := range strings.FieldsSeq(oldParam) {
 		oldSet[s] = true
 	}
 	newSet := map[string]bool{}
-	for _, s := range strings.Fields(newParam) {
+	for s := range strings.FieldsSeq(newParam) {
 		newSet[s] = true
 	}
 	removed, added := false, false

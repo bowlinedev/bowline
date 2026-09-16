@@ -303,7 +303,7 @@ func trimComma(b *strings.Builder) {
 
 func specArgs(first string, n int, arg string) []string {
 	args := []string{first}
-	for i := 0; i < n; i++ {
+	for range n {
 		args = append(args, arg)
 	}
 	return args

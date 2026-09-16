@@ -175,7 +175,7 @@ type RateLimitOptions struct {
 
 Each key gets one token bucket, and the least recently used bucket is evicted once the map is full, so an attacker cycling keys cannot grow memory without bound:
 
-source: ratelimit.go:87-113
+source: ratelimit.go:84-110
 
 ```go
 func (l *limiter) allow(key string) (time.Duration, bool) {

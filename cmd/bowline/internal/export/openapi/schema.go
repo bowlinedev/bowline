@@ -219,7 +219,7 @@ func applyRules(prop schema, f *contract.Field) schema {
 			out[boundKey(class, "max")] = number(r.Param)
 		case "oneof":
 			var values []any
-			for _, v := range strings.Fields(r.Param) {
+			for v := range strings.FieldsSeq(r.Param) {
 				if class == "number" {
 					values = append(values, number(v))
 				} else {
