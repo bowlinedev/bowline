@@ -21,7 +21,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
@@ -35,5 +37,8 @@
     "@types/node": "24.7.0",
     "tsup": "8.5.0",
     "vitest": "3.2.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
