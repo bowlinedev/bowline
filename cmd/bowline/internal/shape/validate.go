@@ -5,6 +5,7 @@ import (
 	"net/mail"
 	"net/url"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -185,10 +186,8 @@ func apply(r contract.Rule, c class, value any) string {
 		default:
 			return ""
 		}
-		for _, option := range strings.Fields(r.Param) {
-			if option == s {
-				return ""
-			}
+		if slices.Contains(strings.Fields(r.Param), s) {
+			return ""
 		}
 		return "must be one of " + r.Param
 	case "email":

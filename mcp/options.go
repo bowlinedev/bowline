@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"log/slog"
+	"slices"
 	"time"
 
 	"github.com/bowlinedev/bowline"
@@ -66,10 +67,8 @@ func (o *options) visible(t Tool) bool {
 		return true
 	}
 	for _, want := range o.scopes {
-		for _, have := range t.Scopes {
-			if want == have {
-				return true
-			}
+		if slices.Contains(t.Scopes, want) {
+			return true
 		}
 	}
 	return false

@@ -1,6 +1,7 @@
 package jsonschema
 
 import (
+	"maps"
 	"strconv"
 	"strings"
 
@@ -15,15 +16,11 @@ func applyRules(n node, f *contract.Field) node {
 	wrapped := false
 	if anyOf, ok := n["anyOf"].([]node); ok && len(anyOf) == 2 {
 		target = node{}
-		for k, v := range anyOf[0] {
-			target[k] = v
-		}
+		maps.Copy(target, anyOf[0])
 		wrapped = true
 	} else {
 		target = node{}
-		for k, v := range n {
-			target[k] = v
-		}
+		maps.Copy(target, n)
 	}
 	class := classOf(target)
 	for _, r := range f.Rules {

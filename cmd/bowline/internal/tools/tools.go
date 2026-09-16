@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 
@@ -88,10 +89,8 @@ func Describe(doc *contract.Document, p *contract.Procedure) string {
 
 func intersects(a, b []string) bool {
 	for _, x := range a {
-		for _, y := range b {
-			if x == y {
-				return true
-			}
+		if slices.Contains(b, x) {
+			return true
 		}
 	}
 	return false

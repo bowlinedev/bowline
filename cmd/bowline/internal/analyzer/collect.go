@@ -5,6 +5,7 @@ import (
 	"go/token"
 	"go/types"
 	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -340,12 +341,7 @@ func classOf(t types.Type) validate.Class {
 }
 
 func hasOption(opts, name string) bool {
-	for _, o := range strings.Split(opts, ",") {
-		if o == name {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(strings.Split(opts, ","), name)
 }
 
 func implementsMethod(t types.Type, name string) bool {

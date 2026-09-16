@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"path"
 	"path/filepath"
@@ -143,9 +144,7 @@ func render(doc *contract.Document, cfg *Config, env []string) (map[string][]byt
 				diags = append(diags, targetDiags...)
 				continue
 			}
-			for rel, content := range produced {
-				files[rel] = content
-			}
+			maps.Copy(files, produced)
 			continue
 		}
 		generator := Generators[name]

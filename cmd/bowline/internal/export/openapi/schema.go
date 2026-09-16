@@ -3,6 +3,7 @@ package openapi
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"sort"
 	"strconv"
 	"strings"
@@ -129,9 +130,7 @@ func nullable(in schema) schema {
 		return schema{"oneOf": []schema{in, {"type": "null"}}}
 	}
 	out := schema{}
-	for k, v := range in {
-		out[k] = v
-	}
+	maps.Copy(out, in)
 	switch typ := in["type"].(type) {
 	case string:
 		out["type"] = []string{typ, "null"}
@@ -204,9 +203,7 @@ func applyRules(prop schema, f *contract.Field) schema {
 		prop = schema{"allOf": []schema{prop}}
 	}
 	out := schema{}
-	for k, v := range prop {
-		out[k] = v
-	}
+	maps.Copy(out, prop)
 	if f.Doc != "" {
 		out["description"] = f.Doc
 	}

@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -165,10 +166,8 @@ func externalPath(dir, name string) (string, error) {
 	if path.IsAbs(name) || strings.HasPrefix(name, "/") {
 		return "", fmt.Errorf("file path %q must be relative", name)
 	}
-	for _, element := range strings.Split(name, "/") {
-		if element == ".." {
-			return "", fmt.Errorf("file path %q must stay under the target's directory", name)
-		}
+	if slices.Contains(strings.Split(name, "/"), "..") {
+		return "", fmt.Errorf("file path %q must stay under the target's directory", name)
 	}
 	joined := name
 	if dir != "." && dir != "" {

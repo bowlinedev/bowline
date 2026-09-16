@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"sort"
 	"strconv"
 
@@ -95,9 +96,7 @@ func Export(doc *contract.Document, info Info) ([]byte, error) {
 		}
 		out.Paths["/"+p.Path] = schema{method: op}
 	}
-	for name, sch := range s.defined {
-		out.Components.Schemas[name] = sch
-	}
+	maps.Copy(out.Components.Schemas, s.defined)
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)
