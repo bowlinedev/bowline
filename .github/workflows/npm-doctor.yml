@@ -1,0 +1,26 @@
+name: npm-doctor
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  doctor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: who is this token
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
+          echo "--- whoami"
+          npm whoami || echo "whoami FAILED"
+          echo "--- orgs this user belongs to"
+          npm org ls bowlinedev || echo "org ls FAILED (org missing, or no access)"
+          echo "--- packages this token can write"
+          npm access list packages || echo "access list FAILED (token may have no package scope)"
