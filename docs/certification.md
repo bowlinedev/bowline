@@ -53,6 +53,6 @@ Certification proves the generator: every fidelity row renders, compiles under t
 
 Escape-hatch counting subtracts a baseline measured by generating an empty contract, so a language whose runtime code legitimately mentions the token — Go's `any` in a type parameter, Elixir's `term()` in a decoder spec — is not penalised for it. A row whose contract uses the `raw` primitive is exempt, which is how Rust's `serde_json::Value` is allowed exactly where `raw` appears.
 
-The six built-in targets are configured under `cmd/bowline/certify/` and certified by `scripts/certify-builtins.sh`, which regenerates `docs/certified.md`.
+The built-in targets are configured under `cmd/bowline/certify/` and certified by `scripts/certify-builtins.sh`, which regenerates `docs/certified.md`.
 
 Client packages share the CLI's minor version and are bumped together by `scripts/bump-clients.sh`; the `release-clients` workflow publishes each on demand once the registry accounts exist.
