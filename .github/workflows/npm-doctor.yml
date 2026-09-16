@@ -5,22 +5,29 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   doctor:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: who is this token
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @bowlinedev/client build
+      - name: attempt one real publish, verbosely
+        working-directory: packages/client
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
-          echo "--- whoami"
-          npm whoami || echo "whoami FAILED"
-          echo "--- orgs this user belongs to"
-          npm org ls bowlinedev || echo "org ls FAILED (org missing, or no access)"
-          echo "--- packages this token can write"
-          npm access list packages || echo "access list FAILED (token may have no package scope)"
+          echo "--- scope membership"
+          npm org ls bowlinedev || true
+          echo "--- packages visible in the scope"
+          npm access list packages @bowlinedev || true
+          echo "--- publish attempt"
+          npm publish --access public --loglevel verbose 2>&1 | tail -40
