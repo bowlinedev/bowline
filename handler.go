@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/bowlinedev/bowline/internal/codec"
+	"github.com/bowlinedev/bowline/internal/csrf"
 	"github.com/bowlinedev/bowline/signing"
 )
 
@@ -50,7 +51,7 @@ type handler struct {
 	signedBody int64
 	replay     *signing.ReplayCache
 
-	csrf            *csrf
+	csrf            *csrf.Guard
 	securityHeaders bool
 
 	idempotency    IdempotencyStore
@@ -100,7 +101,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.writeError(w, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, rt.path, proc.Method()))
 		return
 	}
-	if h.csrf != nil && !h.csrf.allows(req) {
+	if h.csrf != nil && !h.csrf.Allows(req) {
 		h.writeError(w, nil, 0, Errorf(PermissionDenied, "cross-origin request rejected"))
 		return
 	}

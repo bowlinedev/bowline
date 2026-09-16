@@ -6,28 +6,21 @@ The full review of what every error path says in production is `../security/audi
 
 ## CSRF
 
-source: csrf.go:10-21
+source: csrf.go:10-13
 
 ```go
 type CSRFOptions struct {
 	AllowedOrigins     []string
 	TrustFetchMetadata bool
 }
-
-func CSRF(options CSRFOptions) HandlerOption {
-	guard := &csrf{
-		allowed:            slices.Clone(options.AllowedOrigins),
-		trustFetchMetadata: options.TrustFetchMetadata,
-	}
-	return func(h *handler) { h.csrf = guard }
-}
 ```
 
 The check runs inside `ServeHTTP`, after the method is validated and before a single byte of the body is read, so a rejected request never reaches the decoder or the procedure.
 
-source: csrf.go:33-54
+source: internal/csrf/csrf.go:18-40
 
 ```go
+func (c *Guard) Allows(req *http.Request) bool {
 	if req.Method != http.MethodPost {
 		return true
 	}
@@ -111,7 +104,7 @@ It is **not** a CSRF control, an authorization control, or encryption. A sensiti
 
 ## Security headers
 
-source: csrf.go:68-76
+source: csrf.go:24-32
 
 ```go
 func (h *handler) secure(w http.ResponseWriter, method string) {
@@ -179,10 +172,10 @@ type RateLimitOptions struct {
 
 Each key gets one token bucket, and the least recently used bucket is evicted once the map is full, so an attacker cycling keys cannot grow memory without bound:
 
-source: ratelimit.go:84-110
+source: internal/ratelimit/ratelimit.go:51-77
 
 ```go
-func (l *limiter) allow(key string) (time.Duration, bool) {
+func (l *Limiter) Allow(key string) (time.Duration, bool) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	now := l.now()
