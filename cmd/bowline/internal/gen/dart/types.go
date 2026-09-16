@@ -359,16 +359,20 @@ func (g *generator) writeClass(b *strings.Builder, name string, params []string,
 		b.WriteString(strings.Join(ctor, ", "))
 		b.WriteString("});\n")
 	}
-	var fromArgs strings.Builder
-	toArgs := ""
-	validateArgs := ""
+	var fromArgs, toArgs, validateArgs strings.Builder
 	for _, p := range params {
 		fromArgs.WriteString(", ")
 		fromArgs.WriteString(p)
 		fromArgs.WriteString(" Function(Object?) fromJson")
 		fromArgs.WriteString(p)
-		toArgs += ", Object? Function(" + p + ") toJson" + p
-		validateArgs += ", List<Issue> Function(" + p + ") validate" + p
+		toArgs.WriteString(", Object? Function(")
+		toArgs.WriteString(p)
+		toArgs.WriteString(") toJson")
+		toArgs.WriteString(p)
+		validateArgs.WriteString(", List<Issue> Function(")
+		validateArgs.WriteString(p)
+		validateArgs.WriteString(") validate")
+		validateArgs.WriteString(p)
 	}
 	b.WriteString("\n  factory ")
 	b.WriteString(name)
@@ -423,7 +427,7 @@ func (g *generator) writeClass(b *strings.Builder, name string, params []string,
 		}
 	}
 	b.WriteString("\n  Map<String, Object?> toJson(")
-	b.WriteString(strings.TrimPrefix(toArgs, ", "))
+	b.WriteString(strings.TrimPrefix(toArgs.String(), ", "))
 	b.WriteString(")")
 	if len(jsonLocals) == 0 {
 		if len(fields) == 0 {
@@ -455,7 +459,7 @@ func (g *generator) writeClass(b *strings.Builder, name string, params []string,
 		}
 	}
 	b.WriteString("\n  List<Issue> validate(")
-	b.WriteString(strings.TrimPrefix(validateArgs, ", "))
+	b.WriteString(strings.TrimPrefix(validateArgs.String(), ", "))
 	b.WriteString(")")
 	if len(checks) == 0 {
 		b.WriteString(" => const [];\n")
