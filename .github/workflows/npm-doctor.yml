@@ -18,9 +18,9 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @bowlinedev/client build
+      - run: pnpm --filter @bowlinedev/agent build
       - name: attempt one real publish, verbosely
-        working-directory: packages/client
+        working-directory: packages/agent
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
@@ -30,4 +30,4 @@ jobs:
           echo "--- packages visible in the scope"
           npm access list packages @bowlinedev || true
           echo "--- publish attempt"
-          npm publish --access public --loglevel verbose 2>&1 | tail -40
+          npm publish --access public --provenance --loglevel verbose 2>&1 | tail -30
