@@ -21,7 +21,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
@@ -39,5 +41,8 @@
     "tsup": "8.5.0",
     "vite-plugin-solid": "2.11.14",
     "vitest": "3.2.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
