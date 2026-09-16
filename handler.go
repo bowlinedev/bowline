@@ -205,7 +205,7 @@ func (h *handler) bodyLimit(p *Procedure) int64 {
 
 func (h *handler) readInput(w http.ResponseWriter, req *http.Request, limit int64) ([]byte, int, error) {
 	if req.Method == http.MethodGet {
-		return []byte(req.URL.Query().Get("input")), 0, nil
+		return []byte(queryInput(req.URL.RawQuery)), 0, nil
 	}
 	if ct := req.Header.Get("Content-Type"); ct != "" {
 		mediaType, _, err := mime.ParseMediaType(ct)
