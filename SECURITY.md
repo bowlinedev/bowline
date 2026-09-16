@@ -11,7 +11,7 @@ Support windows for the 1.0 line and later are described in `docs/lts.md`.
 
 ## Reporting a vulnerability
 
-Report privately through GitHub's [private vulnerability reporting](https://github.com/bowlinedev/bowline/security/advisories/new) on this repository. If that is unavailable, email tunardev@gmail.com.
+Email tunardev@gmail.com. Once this repository is public, GitHub's [private vulnerability reporting](https://github.com/bowlinedev/bowline/security/advisories/new) is the preferred channel; GitHub offers that form only on public repositories.
 
 Please include the affected version, a description of the impact, and the smallest reproduction you have. A proof of concept helps but is not required.
 
