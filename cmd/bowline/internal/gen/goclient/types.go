@@ -119,7 +119,14 @@ func (g *generator) writeFields(b *strings.Builder, fields []*contract.Field, in
 		}
 		used[name] = true
 		writeDoc(b, indent, f.Doc, "")
-		b.WriteString(indent + name + " " + g.fieldType(f) + " `json:\"" + f.Name + g.tagOptions(f) + "\"`\n")
+		b.WriteString(indent)
+		b.WriteString(name)
+		b.WriteString(" ")
+		b.WriteString(g.fieldType(f))
+		b.WriteString(" `json:\"")
+		b.WriteString(f.Name)
+		b.WriteString(g.tagOptions(f))
+		b.WriteString("\"`\n")
 	}
 }
 
@@ -149,14 +156,21 @@ func writeDoc(b *strings.Builder, indent, doc, deprecated string) {
 	doc = strings.TrimSpace(doc)
 	if doc != "" {
 		for line := range strings.SplitSeq(doc, "\n") {
-			b.WriteString(indent + "// " + strings.TrimSpace(line) + "\n")
+			b.WriteString(indent)
+			b.WriteString("// ")
+			b.WriteString(strings.TrimSpace(line))
+			b.WriteString("\n")
 		}
 	}
 	if deprecated != "" {
 		if doc != "" {
-			b.WriteString(indent + "//\n")
+			b.WriteString(indent)
+			b.WriteString("//\n")
 		}
-		b.WriteString(indent + "// Deprecated: " + deprecated + "\n")
+		b.WriteString(indent)
+		b.WriteString("// Deprecated: ")
+		b.WriteString(deprecated)
+		b.WriteString("\n")
 	}
 }
 
@@ -165,7 +179,9 @@ func (g *generator) declarations() string {
 	for _, id := range g.errorOrder {
 		decl := g.doc.Errors[id]
 		writeDoc(&b, "", docOr(decl.Doc, decl.Name+" is the details shape of the "+decl.Name+" error variant ("+decl.Code+")."), "")
-		b.WriteString("type " + g.names[id] + " struct {\n")
+		b.WriteString("type ")
+		b.WriteString(g.names[id])
+		b.WriteString(" struct {\n")
 		g.writeFields(&b, decl.Fields, "\t")
 		b.WriteString("}\n\n")
 	}
@@ -179,12 +195,18 @@ func (g *generator) declarations() string {
 				doc = docOr(doc, name+" is an instantiation of "+decl.Origin+".")
 			}
 			writeDoc(&b, "", doc, "")
-			b.WriteString("type " + name + " struct {\n")
+			b.WriteString("type ")
+			b.WriteString(name)
+			b.WriteString(" struct {\n")
 			g.writeFields(&b, decl.Fields, "\t")
 			b.WriteString("}\n\n")
 		case contract.Generic:
 			writeDoc(&b, "", decl.Doc, "")
-			b.WriteString("type " + name + "[" + g.typeParams(decl) + "] struct {\n")
+			b.WriteString("type ")
+			b.WriteString(name)
+			b.WriteString("[")
+			b.WriteString(g.typeParams(decl))
+			b.WriteString("] struct {\n")
 			if decl.Body != nil {
 				g.writeFields(&b, decl.Body.Fields, "\t")
 			}
@@ -195,17 +217,31 @@ func (g *generator) declarations() string {
 			if decl.Base != "" && decl.Base != "string" {
 				base = g.primitive(decl.Base)
 			}
-			b.WriteString("type " + name + " " + base + "\n\n")
+			b.WriteString("type ")
+			b.WriteString(name)
+			b.WriteString(" ")
+			b.WriteString(base)
+			b.WriteString("\n\n")
 			if len(decl.Values) > 0 {
 				b.WriteString("const (\n")
 				for _, v := range decl.Values {
-					b.WriteString("\t" + exported(v.Name) + " " + name + " = " + literal(v.Value) + "\n")
+					b.WriteString("\t")
+					b.WriteString(exported(v.Name))
+					b.WriteString(" ")
+					b.WriteString(name)
+					b.WriteString(" = ")
+					b.WriteString(literal(v.Value))
+					b.WriteString("\n")
 				}
 				b.WriteString(")\n\n")
 			}
 		case contract.Primitive:
 			writeDoc(&b, "", decl.Doc, "")
-			b.WriteString("type " + name + " " + g.primitive(decl.Primitive) + "\n\n")
+			b.WriteString("type ")
+			b.WriteString(name)
+			b.WriteString(" ")
+			b.WriteString(g.primitive(decl.Primitive))
+			b.WriteString("\n\n")
 		}
 	}
 	return b.String()

@@ -112,7 +112,11 @@ func (g *generator) writeValidate(b *strings.Builder, name string, fields []*con
 		}
 		impl = "impl<" + strings.Join(bounds, ", ") + ">"
 	}
-	b.WriteString(impl + " Validate for " + name + generics(params, nil) + " {\n")
+	b.WriteString(impl)
+	b.WriteString(" Validate for ")
+	b.WriteString(name)
+	b.WriteString(generics(params, nil))
+	b.WriteString(" {\n")
 	if body.Len() == 0 {
 		b.WriteString("    fn validate(&self, _path: &mut Vec<String>, _issues: &mut Vec<Issue>) {}\n}\n\n")
 		return
@@ -130,7 +134,11 @@ func (g *generator) fieldChecks(b *strings.Builder, f *contract.Field, info fiel
 	var checks []string
 	for _, r := range f.Rules {
 		if r.Rule == "required" && info.option {
-			b.WriteString("        rules::required_some(&" + access + ", path, " + json + ", issues);\n")
+			b.WriteString("        rules::required_some(&")
+			b.WriteString(access)
+			b.WriteString(", path, ")
+			b.WriteString(json)
+			b.WriteString(", issues);\n")
 			continue
 		}
 		expr, val := "&"+access, access
@@ -146,19 +154,29 @@ func (g *generator) fieldChecks(b *strings.Builder, f *contract.Field, info fiel
 	}
 	if len(checks) > 0 {
 		if info.option {
-			b.WriteString("        if let Some(v) = &" + access + " {\n")
+			b.WriteString("        if let Some(v) = &")
+			b.WriteString(access)
+			b.WriteString(" {\n")
 			for _, check := range checks {
-				b.WriteString("            " + check + "\n")
+				b.WriteString("            ")
+				b.WriteString(check)
+				b.WriteString("\n")
 			}
 			b.WriteString("        }\n")
 		} else {
 			for _, check := range checks {
-				b.WriteString("        " + check + "\n")
+				b.WriteString("        ")
+				b.WriteString(check)
+				b.WriteString("\n")
 			}
 		}
 	}
 	if g.validatable(f.Type) {
-		b.WriteString("        rules::nested(&" + access + ", path, " + json + ", issues);\n")
+		b.WriteString("        rules::nested(&")
+		b.WriteString(access)
+		b.WriteString(", path, ")
+		b.WriteString(json)
+		b.WriteString(", issues);\n")
 	}
 }
 

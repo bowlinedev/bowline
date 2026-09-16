@@ -171,14 +171,18 @@ func (g *generator) runtimeTable() string {
 	sort.Strings(keys)
 	var b strings.Builder
 	b.WriteString("export const contract = {\n")
-	b.WriteString("  version: " + strconv.Quote(g.doc.Bowline) + ",\n")
+	b.WriteString("  version: ")
+	b.WriteString(strconv.Quote(g.doc.Bowline))
+	b.WriteString(",\n")
 	if len(keys) == 0 {
 		b.WriteString("  hydrators: {},\n")
 	} else {
 		b.WriteString("  hydrators: {\n")
 	}
 	for _, k := range keys {
-		b.WriteString("    " + strconv.Quote(k) + ": [\n")
+		b.WriteString("    ")
+		b.WriteString(strconv.Quote(k))
+		b.WriteString(": [\n")
 		for _, e := range hydrators[k] {
 			parts := make([]string, len(e.path))
 			for i, p := range e.path {
@@ -188,7 +192,11 @@ func (g *generator) runtimeTable() string {
 			if e.kind == "ref" {
 				kind = "{ ref: " + strconv.Quote(e.ref) + " }"
 			}
-			b.WriteString("      { path: [" + strings.Join(parts, ", ") + "], kind: " + kind + " },\n")
+			b.WriteString("      { path: [")
+			b.WriteString(strings.Join(parts, ", "))
+			b.WriteString("], kind: ")
+			b.WriteString(kind)
+			b.WriteString(" },\n")
 		}
 		b.WriteString("    ],\n")
 	}
@@ -208,7 +216,8 @@ func (g *generator) runtimeTable() string {
 			}
 			line += ", errors: [" + strings.Join(names, ", ") + "]"
 		}
-		b.WriteString(line + " },\n")
+		b.WriteString(line)
+		b.WriteString(" },\n")
 	}
 	b.WriteString("  },\n")
 	b.WriteString("} satisfies ContractRuntime;\n\n")

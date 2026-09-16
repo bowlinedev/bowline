@@ -106,7 +106,8 @@ func LowerCamel(json string) string {
 			b.WriteString(p)
 			continue
 		}
-		b.WriteString(strings.ToUpper(p[:1]) + p[1:])
+		b.WriteString(strings.ToUpper(p[:1]))
+		b.WriteString(p[1:])
 	}
 	return leadingDigit(b.String())
 }
@@ -118,7 +119,8 @@ func UpperCamel(json string) string {
 	}
 	var b strings.Builder
 	for _, p := range parts {
-		b.WriteString(strings.ToUpper(p[:1]) + p[1:])
+		b.WriteString(strings.ToUpper(p[:1]))
+		b.WriteString(p[1:])
 	}
 	return leadingDigit(b.String())
 }

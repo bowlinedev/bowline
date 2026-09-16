@@ -122,7 +122,9 @@ func (g *generator) imports() string {
 	}
 	var b strings.Builder
 	if len(items) > 0 {
-		b.WriteString("use bowline_client::{" + strings.Join(items, ", ") + "};\n")
+		b.WriteString("use bowline_client::{")
+		b.WriteString(strings.Join(items, ", "))
+		b.WriteString("};\n")
 	}
 	if g.uses["serde"] {
 		b.WriteString("use serde::{Deserialize, Serialize};\n")
@@ -139,6 +141,9 @@ func writeDoc(b *strings.Builder, indent, doc string) {
 		return
 	}
 	for line := range strings.SplitSeq(doc, "\n") {
-		b.WriteString(indent + "/// " + strings.TrimSpace(line) + "\n")
+		b.WriteString(indent)
+		b.WriteString("/// ")
+		b.WriteString(strings.TrimSpace(line))
+		b.WriteString("\n")
 	}
 }

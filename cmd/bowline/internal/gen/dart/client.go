@@ -84,7 +84,9 @@ func (g *generator) writeClient(b *strings.Builder, n *node) {
 		used[name] = true
 		members[k] = name
 	}
-	b.WriteString("class " + n.name + " {\n")
+	b.WriteString("class ")
+	b.WriteString(n.name)
+	b.WriteString(" {\n")
 	var inits []string
 	for _, k := range sortedKeys(n) {
 		child := n.children[k]
@@ -93,15 +95,25 @@ func (g *generator) writeClient(b *strings.Builder, n *node) {
 		}
 	}
 	if len(inits) == 0 {
-		b.WriteString("  " + n.name + "(this._transport);\n")
+		b.WriteString("  ")
+		b.WriteString(n.name)
+		b.WriteString("(this._transport);\n")
 	} else {
-		b.WriteString("  " + n.name + "(Transport transport)\n      : _transport = transport,\n        " + strings.Join(inits, ",\n        ") + ";\n")
+		b.WriteString("  ")
+		b.WriteString(n.name)
+		b.WriteString("(Transport transport)\n      : _transport = transport,\n        ")
+		b.WriteString(strings.Join(inits, ",\n        "))
+		b.WriteString(";\n")
 	}
 	b.WriteString("\n  final Transport _transport;\n")
 	for _, k := range sortedKeys(n) {
 		child := n.children[k]
 		if child.proc == nil {
-			b.WriteString("\n  final " + child.name + " " + members[k] + ";\n")
+			b.WriteString("\n  final ")
+			b.WriteString(child.name)
+			b.WriteString(" ")
+			b.WriteString(members[k])
+			b.WriteString(";\n")
 		}
 	}
 	for _, k := range sortedKeys(n) {
@@ -117,7 +129,9 @@ func (g *generator) writeMethod(b *strings.Builder, p *contract.Procedure, name 
 	b.WriteString("\n")
 	writeDoc(b, "  ", p.Doc)
 	if p.Deprecated != "" {
-		b.WriteString("  @Deprecated(" + quote(p.Deprecated) + ")\n")
+		b.WriteString("  @Deprecated(")
+		b.WriteString(quote(p.Deprecated))
+		b.WriteString(")\n")
 	}
 	method := "Method.post"
 	if p.Method == "GET" {
@@ -150,9 +164,17 @@ func (g *generator) writeMethod(b *strings.Builder, p *contract.Procedure, name 
 	if p.Kind == "subscription" {
 		returnType = "Stream<" + out + ">"
 	}
-	b.WriteString("  " + returnType + " " + name + "(" + strings.Join(params, ", ") + ") {\n")
+	b.WriteString("  ")
+	b.WriteString(returnType)
+	b.WriteString(" ")
+	b.WriteString(name)
+	b.WriteString("(")
+	b.WriteString(strings.Join(params, ", "))
+	b.WriteString(") {\n")
 	if !emptyIn {
-		b.WriteString("    ensureValid(input.validate(" + g.validateArgs(p.Input) + "));\n")
+		b.WriteString("    ensureValid(input.validate(")
+		b.WriteString(g.validateArgs(p.Input))
+		b.WriteString("));\n")
 	}
 	args := []string{quote(p.Path)}
 	switch p.Kind {
@@ -167,7 +189,12 @@ func (g *generator) writeMethod(b *strings.Builder, p *contract.Procedure, name 
 	if emptyOut {
 		typeArg = "<void>"
 	}
-	b.WriteString("    return _transport." + call + typeArg + "(" + strings.Join(args, ", ") + ", options: options);\n")
+	b.WriteString("    return _transport.")
+	b.WriteString(call)
+	b.WriteString(typeArg)
+	b.WriteString("(")
+	b.WriteString(strings.Join(args, ", "))
+	b.WriteString(", options: options);\n")
 	b.WriteString("  }\n")
 }
 

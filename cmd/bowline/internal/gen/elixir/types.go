@@ -69,7 +69,9 @@ func (g *generator) writeNominals(b *strings.Builder) {
 	if len(g.nominals) == 0 {
 		return
 	}
-	b.WriteString("defmodule " + g.types + " do\n")
+	b.WriteString("defmodule ")
+	b.WriteString(g.types)
+	b.WriteString(" do\n")
 	b.WriteString("  @moduledoc \"Named primitive types declared by the contract.\"\n")
 	for _, id := range g.nominals {
 		decl := g.doc.Types[id]
@@ -77,7 +79,11 @@ func (g *generator) writeNominals(b *strings.Builder) {
 		if strings.TrimSpace(decl.Doc) != "" {
 			writeModuleDoc(b, "  ", "@typedoc", decl.Doc)
 		}
-		b.WriteString("  @type " + nominalType(g.names[id]) + " :: " + g.primitiveSpec(decl.Primitive, "") + "\n")
+		b.WriteString("  @type ")
+		b.WriteString(nominalType(g.names[id]))
+		b.WriteString(" :: ")
+		b.WriteString(g.primitiveSpec(decl.Primitive, ""))
+		b.WriteString("\n")
 	}
 	b.WriteString("end\n\n")
 }
@@ -124,28 +130,48 @@ func (g *generator) writeEnum(out *strings.Builder, module, name string, decl *c
 		valueSpec = "integer()"
 	}
 	if len(atoms) == 0 {
-		b.WriteString("  @type t :: " + valueSpec + "\n\n")
+		b.WriteString("  @type t :: ")
+		b.WriteString(valueSpec)
+		b.WriteString("\n\n")
 		b.WriteString("  @spec from_value(term()) :: t()\n")
 		b.WriteString("  def from_value(value), do: value\n\n")
-		b.WriteString("  @spec to_value(t()) :: " + valueSpec + "\n")
+		b.WriteString("  @spec to_value(t()) :: ")
+		b.WriteString(valueSpec)
+		b.WriteString("\n")
 		b.WriteString("  def to_value(value), do: value\n")
 		return
 	}
-	b.WriteString("  @type t :: " + strings.Join(atoms, " | ") + "\n\n")
+	b.WriteString("  @type t :: ")
+	b.WriteString(strings.Join(atoms, " | "))
+	b.WriteString("\n\n")
 	b.WriteString("  @spec from_value(term()) :: t()\n")
 	for i, v := range decl.Values {
-		b.WriteString("  def from_value(" + literal(v.Value) + "), do: " + atoms[i] + "\n")
+		b.WriteString("  def from_value(")
+		b.WriteString(literal(v.Value))
+		b.WriteString("), do: ")
+		b.WriteString(atoms[i])
+		b.WriteString("\n")
 	}
 	names := make([]string, len(decl.Values))
 	for i, v := range decl.Values {
 		names[i] = literalText(v.Value)
 	}
 	b.WriteString("\n  def from_value(other) do\n")
-	b.WriteString("    Read.mismatch(" + quote(name) + ", " + quote("one of "+strings.Join(names, ", ")) + ", other)\n")
+	b.WriteString("    Read.mismatch(")
+	b.WriteString(quote(name))
+	b.WriteString(", ")
+	b.WriteString(quote("one of " + strings.Join(names, ", ")))
+	b.WriteString(", other)\n")
 	b.WriteString("  end\n\n")
-	b.WriteString("  @spec to_value(t()) :: " + valueSpec + "\n")
+	b.WriteString("  @spec to_value(t()) :: ")
+	b.WriteString(valueSpec)
+	b.WriteString("\n")
 	for i, v := range decl.Values {
-		b.WriteString("  def to_value(" + atoms[i] + "), do: " + literal(v.Value) + "\n")
+		b.WriteString("  def to_value(")
+		b.WriteString(atoms[i])
+		b.WriteString("), do: ")
+		b.WriteString(literal(v.Value))
+		b.WriteString("\n")
 	}
 }
 
@@ -185,39 +211,65 @@ func (g *generator) writeStruct(b *strings.Builder, module, name, doc string, fi
 		g.emitModule(out, module, moduleDoc(doc), b.String())
 	}()
 	if len(fields) == 0 {
-		b.WriteString("  @type " + typeName + " :: %__MODULE__{}\n\n")
+		b.WriteString("  @type ")
+		b.WriteString(typeName)
+		b.WriteString(" :: %__MODULE__{}\n\n")
 		b.WriteString("  defstruct []\n\n")
 		writeSpec(b, "from_map", specArgs("term()", len(params), "(term() -> term())"), ret)
-		b.WriteString("  def from_map(_json" + fnArgs("decode", params, true) + "), do: %__MODULE__{}\n\n")
+		b.WriteString("  def from_map(_json")
+		b.WriteString(fnArgs("decode", params, true))
+		b.WriteString("), do: %__MODULE__{}\n\n")
 		writeSpec(b, "to_map", specArgs(ret, len(params), "(term() -> term())"), "map()")
-		b.WriteString("  def to_map(%__MODULE__{}" + fnArgs("encode", params, true) + "), do: %{}\n\n")
+		b.WriteString("  def to_map(%__MODULE__{}")
+		b.WriteString(fnArgs("encode", params, true))
+		b.WriteString("), do: %{}\n\n")
 		writeSpec(b, "validate", specArgs(ret, len(params), "(term() -> [BowlineClient.Issue.t()])"), "[BowlineClient.Issue.t()]")
-		b.WriteString("  def validate(%__MODULE__{}" + fnArgs("validate", params, true) + "), do: []\n")
+		b.WriteString("  def validate(%__MODULE__{}")
+		b.WriteString(fnArgs("validate", params, true))
+		b.WriteString("), do: []\n")
 		return
 	}
-	b.WriteString("  @type " + typeName + " :: %__MODULE__{\n")
+	b.WriteString("  @type ")
+	b.WriteString(typeName)
+	b.WriteString(" :: %__MODULE__{\n")
 	for i, f := range fields {
-		b.WriteString("          " + atoms[i] + ": " + g.fieldSpec(f, module, atoms[i], params) + ",\n")
+		b.WriteString("          ")
+		b.WriteString(atoms[i])
+		b.WriteString(": ")
+		b.WriteString(g.fieldSpec(f, module, atoms[i], params))
+		b.WriteString(",\n")
 	}
 	trimComma(b)
 	b.WriteString("\n        }\n\n")
 	b.WriteString("  defstruct [\n")
 	for _, a := range atoms {
-		b.WriteString("    :" + a + ",\n")
+		b.WriteString("    :")
+		b.WriteString(a)
+		b.WriteString(",\n")
 	}
 	trimComma(b)
 	b.WriteString("\n  ]\n\n")
 	writeSpec(b, "from_map", specArgs("term()", len(params), "(term() -> term())"), ret)
-	b.WriteString("  def from_map(json" + fnArgs("decode", params, false) + ") do\n")
-	b.WriteString("    map = Read.object(json, " + quote(name) + ")\n\n")
+	b.WriteString("  def from_map(json")
+	b.WriteString(fnArgs("decode", params, false))
+	b.WriteString(") do\n")
+	b.WriteString("    map = Read.object(json, ")
+	b.WriteString(quote(name))
+	b.WriteString(")\n\n")
 	b.WriteString("    %__MODULE__{\n")
 	for i, f := range fields {
-		b.WriteString("      " + atoms[i] + ": " + g.fit("field", atoms[i], "map", g.fieldDecode(f, module, atoms[i]), 8+len(atoms[i])) + ",\n")
+		b.WriteString("      ")
+		b.WriteString(atoms[i])
+		b.WriteString(": ")
+		b.WriteString(g.fit("field", atoms[i], "map", g.fieldDecode(f, module, atoms[i]), 8+len(atoms[i])))
+		b.WriteString(",\n")
 	}
 	trimComma(b)
 	b.WriteString("\n    }\n  end\n\n")
 	writeSpec(b, "to_map", specArgs(ret, len(params), "(term() -> term())"), "map()")
-	b.WriteString("  def to_map(%__MODULE__{} = v" + fnArgs("encode", params, false) + ") do\n")
+	b.WriteString("  def to_map(%__MODULE__{} = v")
+	b.WriteString(fnArgs("encode", params, false))
+	b.WriteString(") do\n")
 	required, optional := 0, 0
 	for _, f := range fields {
 		if f.Optional {
@@ -234,7 +286,11 @@ func (g *generator) writeStruct(b *strings.Builder, module, name, doc string, fi
 			if f.Optional {
 				continue
 			}
-			b.WriteString("      " + quote(f.Name) + " => " + g.fit("wire", atoms[i], "v", g.fieldEncode(f, module, atoms[i]), 10+len(quote(f.Name))) + ",\n")
+			b.WriteString("      ")
+			b.WriteString(quote(f.Name))
+			b.WriteString(" => ")
+			b.WriteString(g.fit("wire", atoms[i], "v", g.fieldEncode(f, module, atoms[i]), 10+len(quote(f.Name))))
+			b.WriteString(",\n")
 		}
 		trimComma(b)
 		b.WriteString("\n    }\n")
@@ -243,7 +299,9 @@ func (g *generator) writeStruct(b *strings.Builder, module, name, doc string, fi
 		if !f.Optional {
 			continue
 		}
-		b.WriteString("    |> " + g.fit("wire", atoms[i], "v", "Encode.optional("+quote(f.Name)+", v."+atoms[i]+", "+g.encoderFn(f.Type, module, atoms[i])+")", 7) + "\n")
+		b.WriteString("    |> ")
+		b.WriteString(g.fit("wire", atoms[i], "v", "Encode.optional("+quote(f.Name)+", v."+atoms[i]+", "+g.encoderFn(f.Type, module, atoms[i])+")", 7))
+		b.WriteString("\n")
 	}
 	b.WriteString("  end\n\n")
 	writeSpec(b, "validate", specArgs(ret, len(params), "(term() -> [BowlineClient.Issue.t()])"), "[BowlineClient.Issue.t()]")
@@ -256,12 +314,18 @@ func (g *generator) writeStruct(b *strings.Builder, module, name, doc string, fi
 		}
 	}
 	if len(checks) == 0 {
-		b.WriteString("  def validate(%__MODULE__{}" + fnArgs("validate", params, true) + "), do: []\n")
+		b.WriteString("  def validate(%__MODULE__{}")
+		b.WriteString(fnArgs("validate", params, true))
+		b.WriteString("), do: []\n")
 	} else {
-		b.WriteString("  def validate(%__MODULE__{} = v" + fnArgs("validate", params, false) + ") do\n")
+		b.WriteString("  def validate(%__MODULE__{} = v")
+		b.WriteString(fnArgs("validate", params, false))
+		b.WriteString(") do\n")
 		b.WriteString("    List.flatten([\n")
 		for i, c := range checks {
-			b.WriteString("      " + g.fit("check", atoms[checkOwner[i]], "v", c, 7) + ",\n")
+			b.WriteString("      ")
+			b.WriteString(g.fit("check", atoms[checkOwner[i]], "v", c, 7))
+			b.WriteString(",\n")
 		}
 		trimComma(b)
 		b.WriteString("\n    ])\n  end\n")
@@ -269,7 +333,9 @@ func (g *generator) writeStruct(b *strings.Builder, module, name, doc string, fi
 }
 
 func (g *generator) emitModule(b *strings.Builder, module string, docAttr string, body string) {
-	b.WriteString("defmodule " + module + " do\n")
+	b.WriteString("defmodule ")
+	b.WriteString(module)
+	b.WriteString(" do\n")
 	b.WriteString(docAttr)
 	var aliases []string
 	for _, a := range []string{"BowlineClient.Encode", "BowlineClient.Read", "BowlineClient.Rules", "BowlineClient.Transport", g.types} {
@@ -279,7 +345,9 @@ func (g *generator) emitModule(b *strings.Builder, module string, docAttr string
 		}
 	}
 	for _, a := range aliases {
-		b.WriteString("  alias " + a + "\n")
+		b.WriteString("  alias ")
+		b.WriteString(a)
+		b.WriteString("\n")
 	}
 	if len(aliases) > 0 {
 		b.WriteString("\n")
@@ -316,7 +384,8 @@ func fnArgs(prefix string, params []string, unused bool) string {
 		if unused {
 			name = "_" + name
 		}
-		b.WriteString(", " + name)
+		b.WriteString(", ")
+		b.WriteString(name)
 	}
 	return b.String()
 }
