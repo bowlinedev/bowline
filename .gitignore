@@ -24,6 +24,7 @@ target/
 
 _build/
 deps/
+/packages/elixir/bowline_client/doc/
 __pycache__/
 *.pyc
 .pytest_cache/
