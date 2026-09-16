@@ -3,10 +3,6 @@ name: release-clients
 on:
   workflow_dispatch:
     inputs:
-      dart:
-        description: Publish the Dart package to pub.dev
-        type: boolean
-        default: false
       python:
         description: Publish bowline-client to PyPI
         type: boolean
@@ -25,19 +21,6 @@ permissions:
   id-token: write
 
 jobs:
-  dart:
-    if: inputs.dart
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: packages/dart/bowline
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@v1
-      - run: dart pub get
-      - run: dart pub publish --dry-run
-      - run: dart pub publish --force
-
   python:
     if: inputs.python
     runs-on: ubuntu-latest
