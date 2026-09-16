@@ -40,7 +40,7 @@ func (c *collector) errorDecl(ref errorRef, path string) (string, bool) {
 	if !ok {
 		return "", false
 	}
-	fields, ok := c.fields(st, obj.Pos(), obj.Name())
+	fields, ok := c.fields(st, obj.Name())
 	if !ok {
 		return "", false
 	}

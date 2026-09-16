@@ -2,6 +2,7 @@ package python
 
 import (
 	"maps"
+	"net/http"
 	"slices"
 	"strconv"
 	"strings"
@@ -68,7 +69,7 @@ type flavor struct {
 
 var flavors = []flavor{{"", "Transport", true}, {"Sync", "SyncTransport", false}}
 
-func (g *generator) clients() (string, error) {
+func (g *generator) clients() string {
 	root := buildTree(g.doc.Procedures)
 	var mounts []*node
 	collectMounts(root, &mounts)
@@ -79,7 +80,7 @@ func (g *generator) clients() (string, error) {
 		}
 		g.writeClass(&b, root, fl)
 	}
-	return b.String(), nil
+	return b.String()
 }
 
 func (g *generator) writeClass(b *strings.Builder, n *node, fl flavor) {
@@ -132,7 +133,7 @@ func (g *generator) writeMethod(b *strings.Builder, name string, p *contract.Pro
 		inputArg = "input or Empty()"
 	}
 	method := "Method.POST"
-	if p.Method == "GET" {
+	if p.Method == http.MethodGet {
 		method = "Method.GET"
 	}
 	def := "def"
@@ -156,7 +157,7 @@ func (g *generator) writeMethod(b *strings.Builder, name string, p *contract.Pro
 		params = []string{"self", inputParam, "options: CallOptions | None = None"}
 		returns = iter + "[" + output + "]"
 		args := []string{path, inputArg, output, "options"}
-		if p.Method != "GET" {
+		if p.Method != http.MethodGet {
 			args = append(args, "method="+method)
 		}
 		call = "self._transport.subscribe(" + strings.Join(args, ", ") + ")"

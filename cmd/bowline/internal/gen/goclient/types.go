@@ -106,12 +106,13 @@ func (g *generator) inlineStruct(fields []*contract.Field) string {
 	}
 	var b strings.Builder
 	b.WriteString("struct {\n")
-	g.writeFields(&b, fields, "\t")
+	g.writeFields(&b, fields)
 	b.WriteString("}")
 	return b.String()
 }
 
-func (g *generator) writeFields(b *strings.Builder, fields []*contract.Field, indent string) {
+func (g *generator) writeFields(b *strings.Builder, fields []*contract.Field) {
+	const indent = "\t"
 	used := map[string]bool{}
 	for _, f := range fields {
 		name := fieldName(f.Name)
@@ -183,7 +184,7 @@ func (g *generator) declarations() string {
 		b.WriteString("type ")
 		b.WriteString(g.names[id])
 		b.WriteString(" struct {\n")
-		g.writeFields(&b, decl.Fields, "\t")
+		g.writeFields(&b, decl.Fields)
 		b.WriteString("}\n\n")
 	}
 	for _, id := range g.order {
@@ -199,7 +200,7 @@ func (g *generator) declarations() string {
 			b.WriteString("type ")
 			b.WriteString(name)
 			b.WriteString(" struct {\n")
-			g.writeFields(&b, decl.Fields, "\t")
+			g.writeFields(&b, decl.Fields)
 			b.WriteString("}\n\n")
 		case contract.Generic:
 			writeDoc(&b, "", decl.Doc, "")
@@ -209,7 +210,7 @@ func (g *generator) declarations() string {
 			b.WriteString(g.typeParams(decl))
 			b.WriteString("] struct {\n")
 			if decl.Body != nil {
-				g.writeFields(&b, decl.Body.Fields, "\t")
+				g.writeFields(&b, decl.Body.Fields)
 			}
 			b.WriteString("}\n\n")
 		case contract.Enum:

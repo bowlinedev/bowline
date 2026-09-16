@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -112,7 +113,7 @@ func TestGatewayComposeWritesTheComposedDocument(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(got) != string(wantData) {
+	if !bytes.Equal(got, wantData) {
 		t.Fatalf("composed document differs from gateway.Compose\n%s", got)
 	}
 	doc, err := contract.Parse(got)

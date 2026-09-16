@@ -87,7 +87,7 @@ func summarize(v Version) VersionSummary {
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /v1/healthz", func(w http.ResponseWriter, r *http.Request) {
-		writeJSONResponse(w, http.StatusOK, map[string]bool{"ok": true})
+		writeJSONResponse(w, map[string]bool{"ok": true})
 	})
 	mux.HandleFunc("GET /v1/services", s.listServices)
 	mux.HandleFunc("PUT /v1/services/{name}", s.write(s.putService))
@@ -158,14 +158,14 @@ func (s *Server) write(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func writeJSONResponse(w http.ResponseWriter, status int, v any) {
+func writeJSONResponse(w http.ResponseWriter, v any) {
 	data, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
 		fail(w, bowline.Internal, err.Error())
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(status)
+	w.WriteHeader(http.StatusOK)
 	w.Write(append(data, '\n'))
 }
 
@@ -213,7 +213,7 @@ func (s *Server) listServices(w http.ResponseWriter, r *http.Request) {
 	if list == nil {
 		list = []Service{}
 	}
-	writeJSONResponse(w, http.StatusOK, list)
+	writeJSONResponse(w, list)
 }
 
 func (s *Server) putService(w http.ResponseWriter, r *http.Request) {
@@ -229,7 +229,7 @@ func (s *Server) putService(w http.ResponseWriter, r *http.Request) {
 		fail(w, bowline.InvalidArgument, err.Error())
 		return
 	}
-	writeJSONResponse(w, http.StatusOK, record)
+	writeJSONResponse(w, record)
 }
 
 func (s *Server) getService(w http.ResponseWriter, r *http.Request) {
@@ -249,7 +249,7 @@ func (s *Server) getService(w http.ResponseWriter, r *http.Request) {
 		latest := summarize(versions[0])
 		detail.Latest = &latest
 	}
-	writeJSONResponse(w, http.StatusOK, detail)
+	writeJSONResponse(w, detail)
 }
 
 func (s *Server) ensureService(r *http.Request, name string) error {
@@ -302,7 +302,7 @@ func (s *Server) publishVersion(w http.ResponseWriter, r *http.Request) {
 		failStore(w, err)
 		return
 	}
-	writeJSONResponse(w, http.StatusOK, PublishResult{Hash: hash, Created: created, Impact: report})
+	writeJSONResponse(w, PublishResult{Hash: hash, Created: created, Impact: report})
 }
 
 func (s *Server) impact(w http.ResponseWriter, r *http.Request) {
@@ -322,7 +322,7 @@ func (s *Server) impact(w http.ResponseWriter, r *http.Request) {
 		failStore(w, err)
 		return
 	}
-	writeJSONResponse(w, http.StatusOK, report)
+	writeJSONResponse(w, report)
 }
 
 func (s *Server) listVersions(w http.ResponseWriter, r *http.Request) {
@@ -335,7 +335,7 @@ func (s *Server) listVersions(w http.ResponseWriter, r *http.Request) {
 	for _, v := range versions {
 		out = append(out, summarize(v))
 	}
-	writeJSONResponse(w, http.StatusOK, out)
+	writeJSONResponse(w, out)
 }
 
 func (s *Server) getVersion(w http.ResponseWriter, r *http.Request) {
@@ -377,7 +377,7 @@ func (s *Server) putTag(w http.ResponseWriter, r *http.Request) {
 		failStore(w, err)
 		return
 	}
-	writeJSONResponse(w, http.StatusOK, summarize(v))
+	writeJSONResponse(w, summarize(v))
 }
 
 func (s *Server) putConsumer(w http.ResponseWriter, r *http.Request) {
@@ -393,7 +393,7 @@ func (s *Server) putConsumer(w http.ResponseWriter, r *http.Request) {
 		fail(w, bowline.InvalidArgument, err.Error())
 		return
 	}
-	writeJSONResponse(w, http.StatusOK, record)
+	writeJSONResponse(w, record)
 }
 
 func (s *Server) listConsumers(w http.ResponseWriter, r *http.Request) {
@@ -405,7 +405,7 @@ func (s *Server) listConsumers(w http.ResponseWriter, r *http.Request) {
 	if list == nil {
 		list = []Consumer{}
 	}
-	writeJSONResponse(w, http.StatusOK, list)
+	writeJSONResponse(w, list)
 }
 
 func (s *Server) putComposition(w http.ResponseWriter, r *http.Request) {
@@ -421,7 +421,7 @@ func (s *Server) putComposition(w http.ResponseWriter, r *http.Request) {
 		fail(w, bowline.InvalidArgument, err.Error())
 		return
 	}
-	writeJSONResponse(w, http.StatusOK, record)
+	writeJSONResponse(w, record)
 }
 
 func (s *Server) graph(w http.ResponseWriter, r *http.Request) {
@@ -488,5 +488,5 @@ func (s *Server) graph(w http.ResponseWriter, r *http.Request) {
 	if edges == nil {
 		edges = []Edge{}
 	}
-	writeJSONResponse(w, http.StatusOK, Graph{Nodes: nodes, Edges: edges})
+	writeJSONResponse(w, Graph{Nodes: nodes, Edges: edges})
 }

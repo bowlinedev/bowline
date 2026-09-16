@@ -1,6 +1,7 @@
 package signing
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"strings"
@@ -146,7 +147,7 @@ func TestVerifyWithoutAProviderRejects(t *testing.T) {
 func TestAnEmptyBodyAndANilBodyHashTheSame(t *testing.T) {
 	a := canonical("POST", "/api/ping", nil, now.Unix(), "fixed-nonce")
 	b := canonical("POST", "/api/ping", []byte{}, now.Unix(), "fixed-nonce")
-	if string(a) != string(b) {
+	if !bytes.Equal(a, b) {
 		t.Fatalf("%q != %q", a, b)
 	}
 }

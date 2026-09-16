@@ -3,6 +3,7 @@ package mock
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -71,9 +72,9 @@ func key(v any) string {
 	case string:
 		return x
 	case int64:
-		return fmt.Sprint(x)
+		return strconv.FormatInt(x, 10)
 	case float64:
-		return fmt.Sprint(int64(x))
+		return strconv.FormatInt(int64(x), 10)
 	}
 	return fmt.Sprint(v)
 }
@@ -102,7 +103,7 @@ func (s *state) seed(p *contract.Procedure, elem *contract.Type, typeID, idField
 		return
 	}
 	for i := range 5 {
-		row, ok := s.gen.Value(elem, p.Path, []string{"seed", fmt.Sprint(i)}).(map[string]any)
+		row, ok := s.gen.Value(elem, p.Path, []string{"seed", strconv.Itoa(i)}).(map[string]any)
 		if !ok {
 			return
 		}
@@ -257,7 +258,7 @@ func (s *state) create(p *contract.Procedure, input map[string]any) (any, bool) 
 		s.put(typeID, idField, row)
 		return row, true
 	}
-	row, ok := s.gen.Value(p.Output, p.Path, []string{"create", fmt.Sprint(len(s.table(typeID).order))}).(map[string]any)
+	row, ok := s.gen.Value(p.Output, p.Path, []string{"create", strconv.Itoa(len(s.table(typeID).order))}).(map[string]any)
 	if !ok {
 		return nil, false
 	}
@@ -266,9 +267,9 @@ func (s *state) create(p *contract.Procedure, input map[string]any) (any, bool) 
 			row[f.Name] = v
 		}
 	}
-	row[idField] = json.Number(fmt.Sprint(len(s.table(typeID).order) + 1))
+	row[idField] = json.Number(strconv.Itoa(len(s.table(typeID).order) + 1))
 	if isStringID(s.doc, outFields, idField) {
-		row[idField] = fmt.Sprint(len(s.table(typeID).order) + 1)
+		row[idField] = strconv.Itoa(len(s.table(typeID).order) + 1)
 	}
 	s.put(typeID, idField, row)
 	return row, true

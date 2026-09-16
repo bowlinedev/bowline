@@ -12,11 +12,11 @@ Pull requests with unsigned commits fail CI.
 
 - Go 1.26 or later to build the CLI and run the workspace; the runtime module itself supports Go 1.24
 - pnpm 10 or later
-- staticcheck: `go install honnef.co/go/tools/cmd/staticcheck@latest`
+- golangci-lint: `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2`
 
 ## Checks before pushing
 
-    gofmt -l . && go vet ./... && staticcheck ./... && go test ./...
+    gofmt -l . && go vet ./... && scripts/lint.sh && go test ./...
     cd cmd/bowline && go vet ./... && go test ./...
     pnpm install && pnpm check && pnpm test
 

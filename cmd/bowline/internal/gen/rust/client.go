@@ -2,6 +2,7 @@ package rust
 
 import (
 	"maps"
+	"net/http"
 	"slices"
 	"strconv"
 	"strings"
@@ -154,7 +155,7 @@ func (g *generator) inputParam(p *contract.Procedure) (param, arg string) {
 
 func (g *generator) method(p *contract.Procedure) string {
 	g.uses["Method"] = true
-	if p.Method == "GET" {
+	if p.Method == http.MethodGet {
 		return "Method::Get"
 	}
 	return "Method::Post"

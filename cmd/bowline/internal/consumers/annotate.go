@@ -101,7 +101,7 @@ func locate(doc *contract.Document, p *contract.Procedure, side string, path []s
 			}
 			rel = append(rel, "*")
 		default:
-			fields := fieldsOf(doc, t, env)
+			fields := fieldsOf(doc, t)
 			var next *contract.Type
 			for _, f := range fields {
 				if f.Name == segment {
@@ -151,7 +151,7 @@ func resolve(doc *contract.Document, t *contract.Type, env map[string]*contract.
 	return t
 }
 
-func fieldsOf(doc *contract.Document, t *contract.Type, env map[string]*contract.Type) []*contract.Field {
+func fieldsOf(doc *contract.Document, t *contract.Type) []*contract.Field {
 	switch t.Kind {
 	case contract.Struct:
 		return t.Fields

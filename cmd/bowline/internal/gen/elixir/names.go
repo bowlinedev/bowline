@@ -70,8 +70,7 @@ func fieldAtoms(fields []*contract.Field) []string {
 }
 
 func enumAtom(v any) string {
-	switch x := v.(type) {
-	case string:
+	if x, ok := v.(string); ok {
 		return ":" + naming.Snake(x)
 	}
 	return literal(v)

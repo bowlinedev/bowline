@@ -12,7 +12,7 @@ func applyRules(n node, f *contract.Field) node {
 	if len(f.Rules) == 0 {
 		return n
 	}
-	target := n
+	var target node
 	wrapped := false
 	if anyOf, ok := n["anyOf"].([]node); ok && len(anyOf) == 2 {
 		target = node{}

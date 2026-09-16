@@ -64,19 +64,19 @@ func execute(client *http.Client, base string, tc testCase) error {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("%s %s: %v", tc.Method, target, err)
+		return fmt.Errorf("%s %s: %w", tc.Method, target, err)
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	if err != nil {
-		return fmt.Errorf("%s %s: reading body: %v", tc.Method, target, err)
+		return fmt.Errorf("%s %s: reading body: %w", tc.Method, target, err)
 	}
 	if resp.StatusCode != tc.Status {
 		return fmt.Errorf("%s %s: status %d, want %d\nresponse: %s", tc.Method, target, resp.StatusCode, tc.Status, truncate(body))
 	}
 	if tc.Check != nil {
 		if err := tc.Check(resp, body); err != nil {
-			return fmt.Errorf("%s %s: %v\nresponse headers: %v", tc.Method, target, err, resp.Header)
+			return fmt.Errorf("%s %s: %w\nresponse headers: %v", tc.Method, target, err, resp.Header)
 		}
 	}
 	return nil

@@ -1,7 +1,6 @@
 package analyzer
 
 import (
-	"fmt"
 	"go/token"
 	"go/types"
 	"strings"
@@ -12,7 +11,7 @@ import (
 func (c *collector) generic(t *types.Named, pos token.Pos, path string) *contract.Type {
 	origin := t.Origin()
 	if t.TypeArgs() == nil || t.TypeArgs().Len() == 0 {
-		return c.fail(pos, path, fmt.Sprintf("%s must be instantiated", origin.Obj().Name()), "supply type arguments")
+		return c.fail(pos, path, origin.Obj().Name()+" must be instantiated", "supply type arguments")
 	}
 	if needsMonomorphization(origin) {
 		return c.monomorphize(t, pos, path)
@@ -48,7 +47,7 @@ func (c *collector) declareGeneric(origin *types.Named, id string) {
 		delete(c.doc.Types, id)
 		return
 	}
-	fields, _ := c.fields(st, obj.Pos(), obj.Name())
+	fields, _ := c.fields(st, obj.Name())
 	decl.Body = &contract.Type{Kind: contract.Struct, Fields: fields}
 }
 
@@ -110,7 +109,7 @@ func (c *collector) monomorphize(t *types.Named, pos token.Pos, path string) *co
 		delete(c.doc.Types, id)
 		return nil
 	}
-	fields, _ := c.fields(st, obj.Pos(), decl.Name)
+	fields, _ := c.fields(st, decl.Name)
 	decl.Fields = fields
 	return &contract.Type{Kind: contract.Ref, ID: id}
 }

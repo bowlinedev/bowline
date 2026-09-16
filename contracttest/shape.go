@@ -71,7 +71,7 @@ func (c *checker) node(t *contract.Type, value any, env map[string]*contract.Typ
 	case contract.Array:
 		list, ok := value.([]any)
 		if !ok {
-			*out = append(*out, mismatch{path, fmt.Sprintf("expected an array, recorded %s", describe(value))})
+			*out = append(*out, mismatch{path, "expected an array, recorded " + describe(value)})
 			return
 		}
 		for i, e := range list {
@@ -80,7 +80,7 @@ func (c *checker) node(t *contract.Type, value any, env map[string]*contract.Typ
 	case contract.Map:
 		m, ok := value.(map[string]any)
 		if !ok {
-			*out = append(*out, mismatch{path, fmt.Sprintf("expected an object, recorded %s", describe(value))})
+			*out = append(*out, mismatch{path, "expected an object, recorded " + describe(value)})
 			return
 		}
 		for k, e := range m {
@@ -96,7 +96,7 @@ func (c *checker) node(t *contract.Type, value any, env map[string]*contract.Typ
 func (c *checker) object(fields []*contract.Field, value any, env map[string]*contract.Type, path []string, out *[]mismatch) {
 	obj, ok := value.(map[string]any)
 	if !ok {
-		*out = append(*out, mismatch{path, fmt.Sprintf("expected an object, recorded %s", describe(value))})
+		*out = append(*out, mismatch{path, "expected an object, recorded " + describe(value)})
 		return
 	}
 	byName := map[string]*contract.Field{}
@@ -323,7 +323,7 @@ func apply(r contract.Rule, c class, value any) string {
 	case "min", "max", "len":
 		return compareSize(r, c, value)
 	case "oneof":
-		s := ""
+		var s string
 		switch x := value.(type) {
 		case string:
 			s = x

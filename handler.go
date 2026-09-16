@@ -140,7 +140,7 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route) {
 		return
 	}
 	if proc.Kind == KindSubscription {
-		h.serveSubscription(w, req, rt, ctx, in)
+		h.serveSubscription(w, rt, ctx, in)
 		return
 	}
 	out, err := h.invoke(ctx, rt, in)

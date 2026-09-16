@@ -54,14 +54,14 @@ func FuzzVerify(f *testing.F) {
 func FuzzReplayCache(f *testing.F) {
 	f.Add("a", int64(0), 8)
 	f.Add("", int64(1), 1)
-	f.Fuzz(func(t *testing.T, key string, offset int64, max int) {
-		if max < 1 || max > 4096 {
+	f.Fuzz(func(t *testing.T, key string, offset int64, limit int) {
+		if limit < 1 || limit > 4096 {
 			return
 		}
 		if offset < -1<<40 || offset > 1<<40 {
 			return
 		}
-		cache := NewReplayCache(max)
+		cache := NewReplayCache(limit)
 		at := now.Add(time.Duration(offset) * time.Second)
 		if !cache.observe(key, at) {
 			t.Fatalf("the first sighting of %q was reported as a replay", key)
@@ -69,8 +69,8 @@ func FuzzReplayCache(f *testing.F) {
 		if cache.observe(key, at) {
 			t.Fatalf("an immediate reuse of %q was accepted", key)
 		}
-		if got := cache.size(); got > 2*max {
-			t.Fatalf("the cache holds %d entries, over the %d bound", got, 2*max)
+		if got := cache.size(); got > 2*limit {
+			t.Fatalf("the cache holds %d entries, over the %d bound", got, 2*limit)
 		}
 	})
 }

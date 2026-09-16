@@ -92,13 +92,10 @@ func (s *Session) Update(changed []string) (Stats, []Diagnostic, error) {
 	var typeErrs []Diagnostic
 	for _, pkgPath := range order {
 		pkg := s.prog.byPath[pkgPath]
-		parseDur, checkDur, diags, err := s.recheck(pkg)
+		parseDur, checkDur, diags := s.recheck(pkg)
 		stats.Parse += parseDur
 		stats.Check += checkDur
 		stats.Rechecked = append(stats.Rechecked, pkgPath)
-		if err != nil {
-			return stats, nil, err
-		}
 		if len(diags) > 0 {
 			typeErrs = append(typeErrs, diags...)
 			break
@@ -164,7 +161,7 @@ func (s *Session) topological(set map[string]bool) []string {
 	return order
 }
 
-func (s *Session) recheck(pkg *packages.Package) (time.Duration, time.Duration, []Diagnostic, error) {
+func (s *Session) recheck(pkg *packages.Package) (time.Duration, time.Duration, []Diagnostic) {
 	start := time.Now()
 	files := make([]*ast.File, 0, len(pkg.CompiledGoFiles))
 	for _, name := range pkg.CompiledGoFiles {
@@ -174,7 +171,7 @@ func (s *Session) recheck(pkg *packages.Package) (time.Duration, time.Duration, 
 			if relErr != nil {
 				rel = name
 			}
-			return time.Since(start), 0, []Diagnostic{{Pos: token.Position{Filename: rel}, Message: err.Error(), Fix: "fix the syntax error"}}, nil
+			return time.Since(start), 0, []Diagnostic{{Pos: token.Position{Filename: rel}, Message: err.Error(), Fix: "fix the syntax error"}}
 		}
 		files = append(files, f)
 	}
@@ -213,14 +210,14 @@ func (s *Session) recheck(pkg *packages.Package) (time.Duration, time.Duration, 
 	tpkg, _ := conf.Check(pkg.PkgPath, s.prog.Fset, files, info)
 	checkDur := time.Since(start)
 	if len(diags) > 0 {
-		return parseDur, checkDur, diags, nil
+		return parseDur, checkDur, diags
 	}
 	pkg.Syntax = files
 	pkg.Types = tpkg
 	pkg.TypesInfo = info
 	pkg.IllTyped = false
 	delete(s.prog.docs, pkg)
-	return parseDur, checkDur, nil, nil
+	return parseDur, checkDur, nil
 }
 
 func canonicalPath(path string) string {

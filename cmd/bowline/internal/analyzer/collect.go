@@ -83,7 +83,7 @@ func (c *collector) typeNode(t types.Type, pos token.Pos, path string) *contract
 		}
 		return &contract.Type{Kind: contract.Map, Key: key, Value: value}
 	case *types.Struct:
-		fields, ok := c.fields(t, pos, path)
+		fields, ok := c.fields(t, path)
 		if !ok {
 			return nil
 		}
@@ -133,7 +133,7 @@ func (c *collector) named(t *types.Named, pos token.Pos, path string) *contract.
 		return c.typeNode(wire, pos, path)
 	}
 	if implementsMethod(t, "MarshalJSON") {
-		return c.fail(pos, path, fmt.Sprintf("%s implements json.Marshaler, so its wire shape cannot be inferred", obj.Name()), fmt.Sprintf("declare it with var _ = bowline.WireAs[%s, W]() where W is the type it marshals as", obj.Name()))
+		return c.fail(pos, path, obj.Name()+" implements json.Marshaler, so its wire shape cannot be inferred", fmt.Sprintf("declare it with var _ = bowline.WireAs[%s, W]() where W is the type it marshals as", obj.Name()))
 	}
 	if implementsMethod(t, "MarshalText") {
 		return primitive("string")
@@ -145,7 +145,7 @@ func (c *collector) named(t *types.Named, pos token.Pos, path string) *contract.
 	case *types.Slice, *types.Array, *types.Map:
 		return c.typeNode(t.Underlying(), pos, path)
 	case *types.Interface:
-		return c.fail(pos, path, fmt.Sprintf("%s is an interface type, which is not supported", obj.Name()), "use a concrete struct, or json.RawMessage for an untyped payload")
+		return c.fail(pos, path, obj.Name()+" is an interface type, which is not supported", "use a concrete struct, or json.RawMessage for an untyped payload")
 	}
 	if _, done := c.doc.Types[id]; !done {
 		c.declare(t, id)
@@ -162,7 +162,7 @@ func (c *collector) declare(t *types.Named, id string) {
 	switch u := t.Underlying().(type) {
 	case *types.Struct:
 		decl.Kind = contract.Struct
-		fields, _ := c.fields(u, obj.Pos(), obj.Name())
+		fields, _ := c.fields(u, obj.Name())
 		decl.Fields = fields
 	case *types.Basic:
 		c.basicDecl(t, u, decl)
@@ -192,7 +192,7 @@ type fieldEntry struct {
 	depth int
 }
 
-func (c *collector) fields(st *types.Struct, pos token.Pos, path string) ([]*contract.Field, bool) {
+func (c *collector) fields(st *types.Struct, path string) ([]*contract.Field, bool) {
 	entries, ok := c.collectFields(st, path, 0)
 	if !ok {
 		return nil, false

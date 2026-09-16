@@ -3,6 +3,7 @@ package gateway
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"maps"
@@ -90,7 +91,7 @@ func (g *Gateway) probe(ctx context.Context, name string) error {
 		return fmt.Errorf("health response is not JSON: %w", err)
 	}
 	if !health.OK {
-		return fmt.Errorf("health reports not ok")
+		return errors.New("health reports not ok")
 	}
 	if strings.HasPrefix(up.Version, "sha256:") && health.Hash != "" && health.Hash != up.Version {
 		return fmt.Errorf("serves contract %s but the gateway is pinned to %s", health.Hash, up.Version)

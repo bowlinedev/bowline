@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"slices"
+	"strconv"
 	"time"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/tools"
@@ -125,7 +126,7 @@ func (r *Runner) Replay(ctx context.Context, rec *Recording, strictMessages bool
 func (r *Runner) run(ctx context.Context, call Call, index int, volatile []string) (Step, error) {
 	id := call.ID
 	if id == "" {
-		id = fmt.Sprint(index + 1)
+		id = strconv.Itoa(index + 1)
 	}
 	input := call.Input
 	if len(bytes.TrimSpace(input)) == 0 {

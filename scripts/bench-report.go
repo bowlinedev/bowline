@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -42,7 +43,7 @@ func run(input, history, runOut, reportOut, commit string, failOnRegression bool
 		return err
 	}
 	if len(results) == 0 {
-		return fmt.Errorf("no benchmark results found in the input")
+		return errors.New("no benchmark results found in the input")
 	}
 	current := bench.Run{
 		Commit:  commit,

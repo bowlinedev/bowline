@@ -1,6 +1,7 @@
 package contract
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 )
@@ -29,7 +30,7 @@ func TestMigrateZeroToOne(t *testing.T) {
 	if doc.Hash != want || doc.Hash == "sha256:stale" {
 		t.Fatalf("hash %s want %s", doc.Hash, want)
 	}
-	if again, err := Migrate(migrated); err != nil || string(again) != string(migrated) {
+	if again, err := Migrate(migrated); err != nil || !bytes.Equal(again, migrated) {
 		t.Fatalf("migrating a current document must be a no-op: %v", err)
 	}
 }
@@ -42,7 +43,7 @@ func TestMigrateRejectsUnknownMajor(t *testing.T) {
 
 func TestMigrateKeepsSameMajor(t *testing.T) {
 	data := []byte(`{"bowline":"1.0","types":{},"errors":{},"procedures":[]}`)
-	if out, err := Migrate(data); err != nil || string(out) != string(data) {
+	if out, err := Migrate(data); err != nil || !bytes.Equal(out, data) {
 		t.Fatalf("got %s %v", out, err)
 	}
 }

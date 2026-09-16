@@ -1,6 +1,7 @@
 package codec
 
 import (
+	"bytes"
 	"encoding/json"
 	"reflect"
 	"testing"
@@ -57,7 +58,7 @@ func FuzzNormalizeEquivalence(f *testing.F) {
 		}
 		a, _ := json.Marshal(v)
 		b, _ := json.Marshal(out)
-		if string(a) != string(b) {
+		if !bytes.Equal(a, b) {
 			t.Fatalf("mismatch\n%s\n%s", a, b)
 		}
 	})

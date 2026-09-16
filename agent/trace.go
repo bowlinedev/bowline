@@ -55,6 +55,6 @@ func (t *RecordingTracer) Start(ctx context.Context, call Call) (context.Context
 		}
 		t.mu.Lock()
 		defer t.mu.Unlock()
-		t.out.Write(append(data, '\n'))
+		_, _ = t.out.Write(append(data, '\n'))
 	}
 }
