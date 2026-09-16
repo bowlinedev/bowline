@@ -350,15 +350,15 @@ func (g *generator) writeClass(b *strings.Builder, name string, params []string,
 	} else {
 		b.WriteString("  " + name + "({" + strings.Join(ctor, ", ") + "});\n")
 	}
-	fromArgs := ""
+	var fromArgs strings.Builder
 	toArgs := ""
 	validateArgs := ""
 	for _, p := range params {
-		fromArgs += ", " + p + " Function(Object?) fromJson" + p
+		fromArgs.WriteString(", " + p + " Function(Object?) fromJson" + p)
 		toArgs += ", Object? Function(" + p + ") toJson" + p
 		validateArgs += ", List<Issue> Function(" + p + ") validate" + p
 	}
-	b.WriteString("\n  factory " + name + ".fromJson(Map<String, Object?> json" + fromArgs + ") => " + name + "(")
+	b.WriteString("\n  factory " + name + ".fromJson(Map<String, Object?> json" + fromArgs.String() + ") => " + name + "(")
 	if len(fields) > 0 {
 		b.WriteString("\n")
 		for _, f := range fields {
@@ -372,15 +372,15 @@ func (g *generator) writeClass(b *strings.Builder, name string, params []string,
 		writeDoc(b, "  ", f.Doc)
 		b.WriteString("  final " + g.fieldType(f) + " " + members[f.Name] + ";\n")
 	}
-	entries := ""
+	var entries strings.Builder
 	var jsonLocals []string
 	for _, f := range fields {
 		m := members[f.Name]
 		enc := g.fieldEncode(f, m)
 		if f.Optional {
-			entries += "        if (" + m + " != null) " + quote(f.Name) + ": " + enc + ",\n"
+			entries.WriteString("        if (" + m + " != null) " + quote(f.Name) + ": " + enc + ",\n")
 		} else {
-			entries += "        " + quote(f.Name) + ": " + enc + ",\n"
+			entries.WriteString("        " + quote(f.Name) + ": " + enc + ",\n")
 		}
 		if g.isOptionalMember(f) && enc != m {
 			jsonLocals = append(jsonLocals, m)
@@ -391,10 +391,10 @@ func (g *generator) writeClass(b *strings.Builder, name string, params []string,
 		if len(fields) == 0 {
 			b.WriteString(" => {};\n")
 		} else {
-			b.WriteString(" => {\n" + entries + "      };\n")
+			b.WriteString(" => {\n" + entries.String() + "      };\n")
 		}
 	} else {
-		b.WriteString(" {\n" + locals(jsonLocals) + "    return {\n" + entries + "    };\n  }\n")
+		b.WriteString(" {\n" + locals(jsonLocals) + "    return {\n" + entries.String() + "    };\n  }\n")
 	}
 	checks := g.validations(fields, members)
 	var checkLocals []string
