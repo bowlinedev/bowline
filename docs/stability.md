@@ -19,6 +19,12 @@ Adding a field to an exported struct is a minor change, so construct them with f
 
 Packages under `internal/` in any module are not part of the API and carry no guarantee. That includes every generator: third parties integrate through the external generator protocol in `docs/plugins.md`, not by importing the generator packages.
 
+### Minimum Go version
+
+The floor is the one compatibility surface `apidiff` cannot check, so it has its own rule: the minimum Go version may rise in a minor release, never in a patch, and never past the oldest release Go itself still supports. A minor that raises it says so in the first line of its changelog entry.
+
+The runtime and every module an application imports declare `go 1.24`. The CLI declares a newer version because `golang.org/x/tools` supports only the two most recent releases; that floor never reaches an application, because `go install` fetches the toolchain it needs under the default `GOTOOLCHAIN=auto`.
+
 ## 2. The contract document
 
 The document carries its own format version, which moves independently of the library.
