@@ -25,7 +25,7 @@ func CSRF(options CSRFOptions) HandlerOption {
 
 The check runs inside `ServeHTTP`, after the method is validated and before a single byte of the body is read, so a rejected request never reaches the decoder or the procedure.
 
-source: csrf.go:33-53
+source: csrf.go:33-54
 
 ```go
 	if req.Method != http.MethodPost {
@@ -49,6 +49,7 @@ source: csrf.go:33-53
 		}
 		return c.sameHostOrListed(u.Scheme+"://"+u.Host, req.Host)
 	}
+	return req.Header.Get("Sec-Fetch-Site") == ""
 ```
 
 In words:
@@ -57,7 +58,8 @@ In words:
 2. With `TrustFetchMetadata`, a `Sec-Fetch-Site` of `same-origin` or `none` passes and nothing else is consulted; `same-site` and `cross-site` pass only if `Origin` is in `AllowedOrigins`. An unrecognized value falls through to the next rule, so a future value never fails open or closed by accident.
 3. Otherwise `Origin` must name the same host as the request, or be listed in `AllowedOrigins`.
 4. Otherwise `Referer`'s origin must satisfy the same rule.
-5. Otherwise the request is rejected, because a browser always sends one of these on a cross-site `POST`.
+5. A request carrying none of the three is allowed: it is not a browser, and CSRF is a browser attack.
+6. Otherwise the request is rejected — a browser that announced itself through `Sec-Fetch-Site` but sent no `Origin` cannot be verified.
 
 A rejection is one `PERMISSION_DENIED` with the message `cross-origin request rejected` and no further detail, so a probing page learns nothing about which origins are allowed.
 
@@ -65,7 +67,9 @@ Only the **host** is compared, not the scheme. A TLS-terminating proxy hands the
 
 ### Non-browser callers
 
-Rule 5 rejects a caller that sends no `Origin`, `Referer`, or `Sec-Fetch-Site` — which is every `curl`, every generated non-browser client, and every service-to-service call. That is deliberate: a request with none of those headers cannot be distinguished from a forged form post. Mount `CSRF` only on the route your browser app uses, and leave the machine-to-machine mount without it, authenticated by `Signed` instead. The ledger example does exactly that:
+Rule 5 is the same call the standard library makes in `net/http.CrossOriginProtection`, and it is worth being explicit about why. Every `curl`, every generated non-browser client, and every service-to-service call sends no `Origin`, `Referer`, or `Sec-Fetch-Site`. Rejecting those buys nothing: an attacker who is not driving a victim's browser does not need a forged form, they can send the request directly with whatever headers they like. What rejecting them does cost is every legitimate non-browser caller, which is most of them.
+
+Browsers have sent `Origin` on cross-origin `POST` since 2016 and `Sec-Fetch-Site` since 2023, so a browser-driven forgery always carries one of the three and is caught by rules 2 through 4. `CSRF` is therefore safe to mount on a route that serves both browsers and machines. It is still not authentication — pair it with `Signed` or your own scheme for service-to-service calls. The ledger example enables it on the browser mount:
 
 source: examples/ledger/cmd/server/main.go:44-52
 

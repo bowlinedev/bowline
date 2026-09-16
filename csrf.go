@@ -51,7 +51,7 @@ func (c *csrf) allows(req *http.Request) bool {
 		}
 		return c.sameHostOrListed(u.Scheme+"://"+u.Host, req.Host)
 	}
-	return false
+	return req.Header.Get("Sec-Fetch-Site") == ""
 }
 
 func (c *csrf) sameHostOrListed(origin, host string) bool {
