@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -144,7 +143,7 @@ func LoadHistory(dir string) ([]Run, error) {
 		}
 		runs = append(runs, run)
 	}
-	sort.Slice(runs, func(i, j int) bool { return runs[i].RanAt.Before(runs[j].RanAt) })
+	slices.SortFunc(runs, func(a, b Run) int { return a.RanAt.Compare(b.RanAt) })
 	return runs, nil
 }
 

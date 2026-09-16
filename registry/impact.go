@@ -1,13 +1,13 @@
 package registry
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"maps"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -87,18 +87,13 @@ func ImpactWith(ctx context.Context, store Store, service string, candidate *con
 		}
 		report.Affected = append(report.Affected, found...)
 	}
-	sort.SliceStable(report.Affected, func(i, j int) bool {
-		a, b := report.Affected[i], report.Affected[j]
-		if a.Consumer != b.Consumer {
-			return a.Consumer < b.Consumer
-		}
-		if a.Via != b.Via {
-			return a.Via < b.Via
-		}
-		if a.Change.Path != b.Change.Path {
-			return a.Change.Path < b.Change.Path
-		}
-		return a.Change.Message < b.Change.Message
+	slices.SortStableFunc(report.Affected, func(a, b Affected) int {
+		return cmp.Or(
+			cmp.Compare(a.Consumer, b.Consumer),
+			cmp.Compare(a.Via, b.Via),
+			cmp.Compare(a.Change.Path, b.Change.Path),
+			cmp.Compare(a.Change.Message, b.Change.Message),
+		)
 	})
 	report.OK = len(report.Affected) == 0 && (!opts.Strict || len(report.Unattributed) == 0)
 	return report, nil
