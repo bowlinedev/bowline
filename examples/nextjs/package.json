@@ -12,8 +12,8 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@bowline/client": "workspace:*",
-    "@bowline/react-query": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
+    "@bowlinedev/react-query": "workspace:*",
     "@tanstack/react-query": "5.90.2",
     "next": "15.5.25",
     "react": "19.1.1",

@@ -6,7 +6,7 @@ import {
   type ProcedureKey,
   procedureKey,
   walkProcedures,
-} from "@bowline/client";
+} from "@bowlinedev/client";
 
 export type QueryKeyOf<I> = ProcedureKey<I>;
 

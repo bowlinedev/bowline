@@ -13,7 +13,7 @@ Starting a timer, the tester must:
 
 1. Read `docs/quickstart.md`.
 2. Add `bowline.json` and run `bowline gen`.
-3. Create a Vite React app in `web/` that lists invoices using `@bowline/client` and `@bowline/react-query`, with `createdAt` rendered through `toLocaleDateString()`.
+3. Create a Vite React app in `web/` that lists invoices using `@bowlinedev/client` and `@bowlinedev/react-query`, with `createdAt` rendered through `toLocaleDateString()`.
 4. Stop the timer when the list renders in a browser.
 
 ## Record

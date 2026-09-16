@@ -42,7 +42,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @bowline/client build && pnpm --filter @bowline/react-query build
+      - run: pnpm --filter @bowlinedev/client build && pnpm --filter @bowlinedev/react-query build
       - run: pnpm --filter ledger-web build
       - run: pnpm --filter ledger-web exec playwright install --with-deps chromium
       - run: pnpm --filter ledger-web test:e2e:mock
@@ -62,7 +62,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @bowline/client build && pnpm --filter @bowline/svelte build
+      - run: pnpm --filter @bowlinedev/client build && pnpm --filter @bowlinedev/svelte build
       - run: pnpm --filter bowline-sveltekit-example check:gen
       - run: pnpm --filter bowline-sveltekit-example check
       - run: pnpm --filter bowline-sveltekit-example build
@@ -84,10 +84,10 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @bowline/client build
-      - run: pnpm --filter @bowline/playground build
-      - run: pnpm --filter @bowline/playground exec playwright install --with-deps chromium
-      - run: pnpm --filter @bowline/playground test:e2e
+      - run: pnpm --filter @bowlinedev/client build
+      - run: pnpm --filter @bowlinedev/playground build
+      - run: pnpm --filter @bowlinedev/playground exec playwright install --with-deps chromium
+      - run: pnpm --filter @bowlinedev/playground test:e2e
         env:
           CI: "1"
 
@@ -107,10 +107,10 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @bowline/client build
-      - run: pnpm --filter @bowline/registry-ui build
-      - run: pnpm --filter @bowline/registry-ui exec playwright install --with-deps chromium
-      - run: pnpm --filter @bowline/registry-ui test:e2e
+      - run: pnpm --filter @bowlinedev/client build
+      - run: pnpm --filter @bowlinedev/registry-ui build
+      - run: pnpm --filter @bowlinedev/registry-ui exec playwright install --with-deps chromium
+      - run: pnpm --filter @bowlinedev/registry-ui test:e2e
         env:
           CI: "1"
 
@@ -127,7 +127,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @bowline/client build && pnpm --filter @bowline/solid build
+      - run: pnpm --filter @bowlinedev/client build && pnpm --filter @bowlinedev/solid build
       - run: pnpm --filter ledger-astro check:gen
       - run: pnpm --filter ledger-astro build
       - run: pnpm --filter ledger-astro exec playwright install --with-deps chromium
@@ -148,7 +148,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @bowline/client build && pnpm --filter @bowline/react-query build
+      - run: pnpm --filter @bowlinedev/client build && pnpm --filter @bowlinedev/react-query build
       - run: pnpm --filter example-nextjs check:gen
       - run: pnpm --filter example-nextjs build
       - run: pnpm --filter example-nextjs exec playwright install --with-deps chromium
@@ -169,7 +169,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @bowline/client build && pnpm --filter @bowline/react-query build
+      - run: pnpm --filter @bowlinedev/client build && pnpm --filter @bowlinedev/react-query build
       - run: pnpm --filter example-remix check:gen
       - run: pnpm --filter example-remix build
       - run: pnpm --filter example-remix exec playwright install --with-deps chromium
@@ -279,7 +279,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @bowline/client build && pnpm --filter @bowline/react-query build
+      - run: pnpm --filter @bowlinedev/client build && pnpm --filter @bowlinedev/react-query build
       - name: the billing service and its signed ledger client
         working-directory: examples/federation/billing
         run: go vet ./... && go test -race ./...

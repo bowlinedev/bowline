@@ -1,4 +1,4 @@
-# @bowline/vue
+# @bowlinedev/vue
 
 Vue bindings for [Bowline](https://github.com/bowlinedev/bowline).
 
@@ -7,13 +7,13 @@ Bowline turns your Go code into typed API clients. This package connects that cl
 ## Install
 
 ```bash
-npm install @bowline/vue @bowline/client
+npm install @bowlinedev/vue @bowlinedev/client
 ```
 
 ## Use
 
 ```ts
-import { bowlineVue } from "@bowline/vue";
+import { bowlineVue } from "@bowlinedev/vue";
 import { createClient } from "./bowline";
 
 const bq = bowlineVue(createClient({ url: "/api" }));

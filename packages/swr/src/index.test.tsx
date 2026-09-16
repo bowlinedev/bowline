@@ -1,4 +1,4 @@
-import { BowlineError, type Mutation, type Query } from "@bowline/client";
+import { BowlineError, type Mutation, type Query } from "@bowlinedev/client";
 import { render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { useEffect } from "react";

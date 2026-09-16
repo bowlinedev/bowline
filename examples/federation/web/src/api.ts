@@ -1,4 +1,4 @@
-import { bowlineQuery } from "@bowline/react-query";
+import { bowlineQuery } from "@bowlinedev/react-query";
 import { createClient } from "./bowline.js";
 
 export const client = createClient({ url: "/api" });

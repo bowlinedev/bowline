@@ -1,5 +1,5 @@
 {
-  "name": "@bowline/svelte",
+  "name": "@bowlinedev/svelte",
   "version": "1.0.0",
   "description": "Svelte store bindings and SvelteKit helpers for Bowline clients",
   "license": "Apache-2.0",
@@ -30,7 +30,7 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@bowline/client": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
     "@sveltejs/kit": "^2.0.0",
     "svelte": "^5.0.0"
   },
@@ -40,7 +40,7 @@
     }
   },
   "devDependencies": {
-    "@bowline/client": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
     "@sveltejs/kit": "2.70.3",
     "svelte": "5.57.0",
     "tsup": "8.5.0",

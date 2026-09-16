@@ -1,5 +1,5 @@
 {
-  "name": "@bowline/vue",
+  "name": "@bowlinedev/vue",
   "version": "1.0.0",
   "description": "Vue composables and TanStack Vue Query option builders for Bowline clients",
   "license": "Apache-2.0",
@@ -30,7 +30,7 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@bowline/client": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
     "@tanstack/vue-query": "^5.0.0",
     "vue": "^3.5.0"
   },
@@ -40,7 +40,7 @@
     }
   },
   "devDependencies": {
-    "@bowline/client": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
     "@tanstack/vue-query": "5.90.2",
     "@vue/test-utils": "2.4.6",
     "jsdom": "29.1.1",

@@ -8,7 +8,7 @@ import {
   createClient,
   type HeadersSource,
   type Issue,
-} from "@bowline/client";
+} from "@bowlinedev/client";
 import type { Tool } from "./tools.js";
 
 export interface Call {

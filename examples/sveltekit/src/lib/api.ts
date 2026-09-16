@@ -1,4 +1,4 @@
-import { bowlineStores } from "@bowline/svelte";
+import { bowlineStores } from "@bowlinedev/svelte";
 import { createClient } from "./bowline.js";
 
 export const client = createClient({ url: "/api" });

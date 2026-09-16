@@ -7,7 +7,7 @@ import {
   type ProcedureKey,
   procedureKey,
   walkProcedures,
-} from "@bowline/client";
+} from "@bowlinedev/client";
 import { type Readable, readable, writable } from "svelte/store";
 
 export interface QueryState<O> {

@@ -42,5 +42,5 @@ func (g *generator) imports() string {
 	}
 	slices.Sort(extra)
 	names = append(names, extra...)
-	return "import { " + strings.Join(names, ", ") + " } from \"@bowline/client\";\n\n"
+	return "import { " + strings.Join(names, ", ") + " } from \"@bowlinedev/client\";\n\n"
 }

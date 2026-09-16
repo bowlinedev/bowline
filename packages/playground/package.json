@@ -1,5 +1,5 @@
 {
-  "name": "@bowline/playground",
+  "name": "@bowlinedev/playground",
   "version": "1.0.0",
   "private": true,
   "description": "Browser playground for Bowline contracts",
@@ -11,7 +11,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@bowline/client": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
     "react": "19.1.1",
     "react-dom": "19.1.1"
   },

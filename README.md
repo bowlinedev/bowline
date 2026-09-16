@@ -141,7 +141,7 @@ This is the 0.5 alpha. Applications need Go 1.24 or later; building the CLI need
 - `/signing` HMAC request signing, in the root module
 - `/adapters/fiber` the Fiber adapter
 - `/contract` contract document types
-- `/packages` npm packages `@bowline/client`, `@bowline/react-query`, `@bowline/swr`, `@bowline/svelte`, `@bowline/solid`, `@bowline/vue`, and `@bowline/agent`, plus the playground app
+- `/packages` npm packages `@bowlinedev/client`, `@bowlinedev/react-query`, `@bowlinedev/swr`, `@bowlinedev/svelte`, `@bowlinedev/solid`, `@bowlinedev/vue`, and `@bowlinedev/agent`, plus the playground app
 - `/python/bowline-agent` the Python agent package
 - `/packages/dart/bowline`, `/packages/python/bowline-client`, `/packages/rust/bowline-client`, `/packages/elixir/bowline_client` the client runtimes for the generated Dart, Python, Rust, and Elixir clients
 - `/spec` contract specification and JSON Schema

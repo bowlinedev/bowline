@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import type { ContractDocument } from "@bowline/client";
+import type { ContractDocument } from "@bowlinedev/client";
 import { describe, expect, it } from "vitest";
 import { type Call, createDispatcher, type Result, recordingTracer } from "./dispatch.js";
 import { tools } from "./tools.js";

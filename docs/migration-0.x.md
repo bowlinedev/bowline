@@ -34,7 +34,7 @@ The format moved to 1.2 to carry `example` on fields, filled from the `example` 
 
 ## 0.4.0 to 0.5.0
 
-`procedureKey`, `walkProcedures`, `InputOf`, and `OutputOf` are exported from `@bowline/client`. The framework bindings re-export them, so imports that already went through `@bowline/react-query` keep resolving.
+`procedureKey`, `walkProcedures`, `InputOf`, and `OutputOf` are exported from `@bowlinedev/client`. The framework bindings re-export them, so imports that already went through `@bowlinedev/react-query` keep resolving.
 
 If you wrote a router by hand against a framework other than `net/http`, run the conformance suite against it once:
 

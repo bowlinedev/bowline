@@ -1,4 +1,4 @@
-import { createServerClient, type ServerClientOptions } from "@bowline/client/server";
+import { createServerClient, type ServerClientOptions } from "@bowlinedev/client/server";
 import { headers } from "next/headers";
 import { type Client, createClient } from "./bowline";
 

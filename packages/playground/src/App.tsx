@@ -1,4 +1,4 @@
-import type { ContractDocument, ContractProcedure } from "@bowline/client";
+import type { ContractDocument, ContractProcedure } from "@bowlinedev/client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   type ContractIndex,

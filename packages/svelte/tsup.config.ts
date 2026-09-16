@@ -7,5 +7,5 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   target: "es2022",
-  external: ["svelte", "svelte/store", "@sveltejs/kit", "@bowline/client"],
+  external: ["svelte", "svelte/store", "@sveltejs/kit", "@bowlinedev/client"],
 });

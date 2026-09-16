@@ -40,7 +40,7 @@ export async function createInvoice(description: string, quantity: number): Prom
 }
 ```
 
-`createServerClient` passes `cache` and `next` through to `fetch`, so tag revalidation works with no Next-specific package; the action's `.safe` call turns validation issues into data the form renders. Client components use `@bowline/react-query` against `/api`, which `next.config.ts` rewrites to the Go server.
+`createServerClient` passes `cache` and `next` through to `fetch`, so tag revalidation works with no Next-specific package; the action's `.safe` call turns validation issues into data the form renders. Client components use `@bowlinedev/react-query` against `/api`, which `next.config.ts` rewrites to the Go server.
 
 Proof: `cd examples/nextjs && pnpm build && pnpm test:e2e` asserts the raw HTML lists the seeded invoices before hydration, that the action returns issues, and that a created invoice appears through tag revalidation without a client refetch.
 

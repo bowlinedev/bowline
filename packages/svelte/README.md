@@ -1,4 +1,4 @@
-# @bowline/svelte
+# @bowlinedev/svelte
 
 Svelte bindings for [Bowline](https://github.com/bowlinedev/bowline).
 
@@ -7,13 +7,13 @@ Bowline turns your Go code into typed API clients. This package connects that cl
 ## Install
 
 ```bash
-npm install @bowline/svelte @bowline/client
+npm install @bowlinedev/svelte @bowlinedev/client
 ```
 
 ## Use
 
 ```ts
-import { bowlineStores } from "@bowline/svelte";
+import { bowlineStores } from "@bowlinedev/svelte";
 import { createClient } from "./bowline";
 
 const bq = bowlineStores(createClient({ url: "/api" }));

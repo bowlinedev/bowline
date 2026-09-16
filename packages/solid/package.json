@@ -1,5 +1,5 @@
 {
-  "name": "@bowline/solid",
+  "name": "@bowlinedev/solid",
   "version": "1.0.0",
   "description": "Solid resource and action bindings for Bowline clients",
   "license": "Apache-2.0",
@@ -30,11 +30,11 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@bowline/client": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
     "solid-js": "^1.9.0"
   },
   "devDependencies": {
-    "@bowline/client": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
     "@solidjs/testing-library": "0.8.10",
     "jsdom": "29.1.1",
     "solid-js": "1.9.15",

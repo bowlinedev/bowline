@@ -26,10 +26,10 @@ importers:
       '@astrojs/solid-js':
         specifier: 7.0.2
         version: 7.0.2(@types/node@24.7.0)(esbuild@0.28.2)(solid-js@1.9.15)(terser@5.51.2)(yaml@2.9.1)
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../../packages/client
-      '@bowline/solid':
+      '@bowlinedev/solid':
         specifier: workspace:*
         version: link:../../packages/solid
       astro:
@@ -54,10 +54,10 @@ importers:
 
   examples/expo:
     dependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../../packages/client
-      '@bowline/react-query':
+      '@bowlinedev/react-query':
         specifier: workspace:*
         version: link:../../packages/react-query
       '@tanstack/react-query':
@@ -112,10 +112,10 @@ importers:
 
   examples/federation/web:
     dependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../../../packages/client
-      '@bowline/react-query':
+      '@bowlinedev/react-query':
         specifier: workspace:*
         version: link:../../../packages/react-query
       '@tanstack/react-query':
@@ -152,10 +152,10 @@ importers:
 
   examples/ledger/web:
     dependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../../../packages/client
-      '@bowline/react-query':
+      '@bowlinedev/react-query':
         specifier: workspace:*
         version: link:../../../packages/react-query
       '@tanstack/react-query':
@@ -195,10 +195,10 @@ importers:
 
   examples/nextjs:
     dependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../../packages/client
-      '@bowline/react-query':
+      '@bowlinedev/react-query':
         specifier: workspace:*
         version: link:../../packages/react-query
       '@tanstack/react-query':
@@ -232,10 +232,10 @@ importers:
 
   examples/remix:
     dependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../../packages/client
-      '@bowline/react-query':
+      '@bowlinedev/react-query':
         specifier: workspace:*
         version: link:../../packages/react-query
       '@react-router/node':
@@ -284,10 +284,10 @@ importers:
 
   examples/sveltekit:
     dependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../../packages/client
-      '@bowline/svelte':
+      '@bowlinedev/svelte':
         specifier: workspace:*
         version: link:../../packages/svelte
     devDependencies:
@@ -321,7 +321,7 @@ importers:
 
   packages/agent:
     devDependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../client
       '@types/node':
@@ -351,7 +351,7 @@ importers:
 
   packages/playground:
     dependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../client
       react:
@@ -388,7 +388,7 @@ importers:
 
   packages/react-query:
     devDependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../client
       '@tanstack/react-query':
@@ -403,7 +403,7 @@ importers:
 
   packages/registry-ui:
     dependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../client
       react:
@@ -440,7 +440,7 @@ importers:
 
   packages/solid:
     devDependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../client
       '@solidjs/testing-library':
@@ -464,7 +464,7 @@ importers:
 
   packages/svelte:
     devDependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../client
       '@sveltejs/kit':
@@ -482,7 +482,7 @@ importers:
 
   packages/swr:
     devDependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../client
       '@testing-library/react':
@@ -515,7 +515,7 @@ importers:
 
   packages/vue:
     devDependencies:
-      '@bowline/client':
+      '@bowlinedev/client':
         specifier: workspace:*
         version: link:../client
       '@tanstack/vue-query':

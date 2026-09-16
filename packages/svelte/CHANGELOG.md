@@ -1,4 +1,4 @@
-# @bowline/svelte
+# @bowlinedev/svelte
 
 ## 1.0.0
 

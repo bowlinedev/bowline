@@ -9,9 +9,9 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@bowline/client": ["../../packages/client/src/index.ts"],
-      "@bowline/client/server": ["../../packages/client/src/server.ts"],
-      "@bowline/solid": ["../../packages/solid/src/index.ts"]
+      "@bowlinedev/client": ["../../packages/client/src/index.ts"],
+      "@bowlinedev/client/server": ["../../packages/client/src/server.ts"],
+      "@bowlinedev/solid": ["../../packages/solid/src/index.ts"]
     }
   },
   "include": [".astro/types.d.ts", "src", "e2e", "playwright.config.ts"],

@@ -1,4 +1,4 @@
-import { BowlineError, type Mutation, type Query } from "@bowline/client";
+import { BowlineError, type Mutation, type Query } from "@bowlinedev/client";
 import { cleanup, render, screen, waitFor } from "@solidjs/testing-library";
 import { createRoot, type ResourceReturn, Show } from "solid-js";
 import { afterEach, describe, expect, expectTypeOf, it } from "vitest";

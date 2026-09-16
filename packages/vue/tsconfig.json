@@ -4,7 +4,7 @@
     "noEmit": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "baseUrl": ".",
-    "paths": { "@bowline/client": ["../client/src/index.ts"] }
+    "paths": { "@bowlinedev/client": ["../client/src/index.ts"] }
   },
   "include": ["src"]
 }

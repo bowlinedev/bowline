@@ -1,4 +1,4 @@
-import { BowlineError, type Mutation, type Query } from "@bowline/client";
+import { BowlineError, type Mutation, type Query } from "@bowlinedev/client";
 import { QueryClient, useQuery as useTanstackQuery, VueQueryPlugin } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, expectTypeOf, it } from "vitest";

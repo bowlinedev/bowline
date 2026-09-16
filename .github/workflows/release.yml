@@ -35,7 +35,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: embed the playground bundle in the playground module tag
         run: |
-          pnpm --filter @bowline/playground build
+          pnpm --filter @bowlinedev/playground build
           git add -f playground/ui/dist
           git -c user.name=bowline-release -c user.email=release@bowline.dev commit -s -m "chore(playground): embed the release bundle"
           git tag -f "playground/${GITHUB_REF_NAME}"
@@ -43,7 +43,7 @@ jobs:
           git checkout -q "${GITHUB_SHA}"
       - name: embed the registry bundle in the registry module tag
         run: |
-          pnpm --filter @bowline/registry-ui build
+          pnpm --filter @bowlinedev/registry-ui build
           git add -f registry/ui/dist
           git -c user.name=bowline-release -c user.email=release@bowline.dev commit -s -m "chore(registry): embed the release bundle"
           git tag -f "registry/${GITHUB_REF_NAME}"

@@ -3,8 +3,8 @@ import {
   type Interaction,
   type RecordSink,
   websocketTransport,
-} from "@bowline/client";
-import { bowlineQuery } from "@bowline/react-query";
+} from "@bowlinedev/client";
+import { bowlineQuery } from "@bowlinedev/react-query";
 import { createClient } from "./bowline.js";
 
 const params = new URLSearchParams(window.location.search);

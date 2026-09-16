@@ -1,4 +1,4 @@
-# @bowline/solid
+# @bowlinedev/solid
 
 Solid bindings for [Bowline](https://github.com/bowlinedev/bowline).
 
@@ -7,13 +7,13 @@ Bowline turns your Go code into typed API clients. This package connects that cl
 ## Install
 
 ```bash
-npm install @bowline/solid @bowline/client
+npm install @bowlinedev/solid @bowlinedev/client
 ```
 
 ## Use
 
 ```ts
-import { bowlineSolid } from "@bowline/solid";
+import { bowlineSolid } from "@bowlinedev/solid";
 import { createClient } from "./bowline";
 
 const bq = bowlineSolid(createClient({ url: "/api" }));

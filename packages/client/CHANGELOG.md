@@ -1,4 +1,4 @@
-# @bowline/client
+# @bowlinedev/client
 
 ## 1.0.0
 
@@ -18,13 +18,13 @@
 
 ### Minor Changes
 
-- `procedureKey`, `walkProcedures`, `InputOf`, and `OutputOf` are shared with every binding, and `@bowline/client/server` exports `createServerClient` with header forwarding and `fetch` cache passthrough.
+- `procedureKey`, `walkProcedures`, `InputOf`, and `OutputOf` are shared with every binding, and `@bowlinedev/client/server` exports `createServerClient` with header forwarding and `fetch` cache passthrough.
 
 ## 0.4.0
 
 ### Minor Changes
 
-- The `record` option delivers every call to a `RecordSink`, and `@bowline/client/node` exports `fileSink` to write consumer contract files; `ContractField` carries `example`.
+- The `record` option delivers every call to a `RecordSink`, and `@bowlinedev/client/node` exports `fileSink` to write consumer contract files; `ContractField` carries `example`.
 
 ## 0.3.0
 

@@ -1,6 +1,6 @@
 "use server";
 
-import type { Issue } from "@bowline/client";
+import type { Issue } from "@bowlinedev/client";
 import { revalidateTag } from "next/cache";
 import { ledger } from "../src/ledger";
 

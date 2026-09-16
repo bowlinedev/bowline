@@ -10,7 +10,7 @@ First stable release. `docs/stability.md` states what will not change inside 1.x
 - CLI: `check --json` and `diff --json` for machine-readable output, `docs/cli.md` documenting every command, flag, exit code and output shape with a test that keeps it honest, and `docs/stability.md` stating what does not change inside a major version.
 - Generators: an external generator protocol so a new language can be added without forking (`docs/plugins.md`), and `bowline certify`, which proves a generator against the fidelity corpus and writes `docs/certified.md`.
 - Signing: `Sign` draws a nonce into the canonical string and `bowline.Signed` rejects a replayed signature through a bounded `signing.ReplayCache`; a signature without a nonce still verifies, so 0.7.0 callers keep working.
-- Fuzzing: eleven Go fuzz targets and a client property test run nightly and for ten seconds in CI; they found and fixed a panic value reaching production clients, four generator panics on malformed documents, non-deterministic TypeScript output when two type IDs share a name, and `@bowline/client` throwing a bare `SyntaxError` on a non-JSON 2xx body.
+- Fuzzing: eleven Go fuzz targets and a client property test run nightly and for ten seconds in CI; they found and fixed a panic value reaching production clients, four generator panics on malformed documents, non-deterministic TypeScript output when two type IDs share a name, and `@bowlinedev/client` throwing a bare `SyntaxError` on a non-JSON 2xx body.
 - API: `docs/api-freeze.md` lists every exported identifier 1.x will guarantee, pinned by a test, and `scripts/apidiff.sh` reports incompatible changes against the previous tag on every pull request; it becomes a hard gate at the first 1.x tag.
 - Incompatible since 0.7.0, both deliberate: `bowline.Call` is no longer comparable, because it now carries the response headers a middleware can set, and `signing.Verify` takes variadic options for the replay cache. Calls are unaffected; comparing a `Call` value or assigning `Verify` to a function variable is not.
 - CSRF: a request carrying no `Origin`, `Referer`, or `Sec-Fetch-Site` is now allowed rather than rejected, matching `net/http.CrossOriginProtection`. Rejecting those protected nothing — an attacker not driving a victim's browser sends the request directly — while breaking every generated non-browser client, `curl`, and service-to-service call. A browser that announced itself through `Sec-Fetch-Site` but sent no `Origin` is still refused, so `CSRF` is now safe to mount on a route that serves both browsers and machines.
@@ -39,8 +39,8 @@ First stable release. `docs/stability.md` states what will not change inside 1.x
 
 - Conformance: the `conformance` package drives any mount through the fixed wire rules; router examples for the standard mux, Chi, Gin, Echo, and Connect run it in CI.
 - Adapters: `adapters/fiber` mounts a router on Fiber through fasthttp's adaptor and passes the suite, streaming included.
-- Client: `procedureKey`, `walkProcedures`, `InputOf`, and `OutputOf` are shared from `@bowline/client`; `@bowline/client/server` exports `createServerClient` for server-side callers with header forwarding and `fetch` cache passthrough.
-- Bindings: `@bowline/swr`, `@bowline/svelte` with SvelteKit `serverClient`, `@bowline/solid`, and `@bowline/vue`, all on the shared key shape.
+- Client: `procedureKey`, `walkProcedures`, `InputOf`, and `OutputOf` are shared from `@bowlinedev/client`; `@bowlinedev/client/server` exports `createServerClient` for server-side callers with header forwarding and `fetch` cache passthrough.
+- Bindings: `@bowlinedev/swr`, `@bowlinedev/svelte` with SvelteKit `serverClient`, `@bowlinedev/solid`, and `@bowlinedev/vue`, all on the shared key shape.
 - CLI: the `go` target generates a standard-library Go client with typed errors, generics, subscriptions as iterators, and uploads.
 - Examples: Next.js, React Router, SvelteKit, Astro, and Expo apps against the ledger with end-to-end tests, and a Go-to-Go reports service on the generated client.
 - Docs: framework guides whose snippets are verified against the examples by `docs/guides_test.go`.
@@ -50,7 +50,7 @@ First stable release. `docs/stability.md` states what will not change inside 1.x
 - Contract: format 1.2 adds `example` on fields from the `example` struct tag, checked by the analyzer and emitted into JSON Schemas.
 - CLI: `mock` serves generated or recorded responses from the contract alone, with a state model, `--record` and `--replay --strict`, and the playground at `/_playground/`; `verify-consumers` checks recorded consumer files against the contract; `diff` and `check --against` name the consumers a breaking change affects; `eval` gains `--backend mock|replay|url`; `dev --playground` serves the playground for the live contract.
 - Playground: the `playground` module embeds a browser app with a router tree, a TypeScript type browser, generated forms, history, and shareable links, calling the API through a same-origin proxy.
-- Client: the `record` option and `@bowline/client/node`'s `fileSink` write consumer contracts; `ContractDocument` carries examples.
+- Client: the `record` option and `@bowlinedev/client/node`'s `fileSink` write consumer contracts; `ContractDocument` carries examples.
 - Contract tests: the `contracttest` module replays consumer files against a router in `go test`.
 - Examples: the ledger carries example tags, a recorded consumer file, a mock-backed browser suite, and the playground at `/playground/`.
 
@@ -60,7 +60,7 @@ First stable release. `docs/stability.md` states what will not change inside 1.x
 - Contract: format 1.1 adds `tool` and optional embedded JSON Schemas per procedure; `"schemas": true` in `bowline.json` fills them.
 - CLI: `export tools` in Anthropic, OpenAI, and JSON Schema shapes with scope and read-only filters, a `tools` generator target, `mcp` serving tools over stdio or HTTP through a running API, and `eval record` and `eval replay` for deterministic agent runs.
 - MCP: the `mcp` module serves protocol revision 2025-06-18 in process with header forwarding, scoping, and rate limits.
-- Agents: `github.com/bowlinedev/bowline/agent`, `@bowline/agent`, and `bowline-agent` on PyPI emit tool definitions and dispatch typed calls, with recording tracers for `eval record --agent`.
+- Agents: `github.com/bowlinedev/bowline/agent`, `@bowlinedev/agent`, and `bowline-agent` on PyPI emit tool definitions and dispatch typed calls, with recording tracers for `eval record --agent`.
 - Examples: the ledger exposes four tools, guards invoices with `LEDGER_TOKEN`, runs on a fixed clock with `LEDGER_FIXED_TIME`, mounts `/mcp`, and ships a recorded run replayed in CI.
 
 ## 0.2.0
@@ -79,5 +79,5 @@ First public alpha.
 - Runtime: expression-composed routers, `http.Handler`, sixteen-code error envelope, middleware, validation, output normalization, `Verify`.
 - Analyzer: static router evaluation, full mapping table, enums, generics, `WireAs`, diagnostics with positions and fixes.
 - CLI: `gen`, `check`, `dev`.
-- TypeScript: generated client with hydration, `@bowline/client`, `@bowline/react-query`.
+- TypeScript: generated client with hydration, `@bowlinedev/client`, `@bowlinedev/react-query`.
 - Examples: ledger with web app and e2e test, minimal net/http.

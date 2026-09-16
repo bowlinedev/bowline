@@ -1,4 +1,4 @@
-import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type Mutation, type Query, type TypedError, type UntypedError } from "@bowline/client";
+import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type Mutation, type Query, type TypedError, type UntypedError } from "@bowlinedev/client";
 
 /** UnknownInvoice is returned when the ledger has no invoice with the given ID. */
 export interface UnknownInvoice {

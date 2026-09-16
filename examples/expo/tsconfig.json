@@ -9,8 +9,8 @@
     "types": ["jest"],
     "baseUrl": ".",
     "paths": {
-      "@bowline/client": ["../../packages/client/src/index.ts"],
-      "@bowline/react-query": ["../../packages/react-query/src/index.ts"]
+      "@bowlinedev/client": ["../../packages/client/src/index.ts"],
+      "@bowlinedev/react-query": ["../../packages/react-query/src/index.ts"]
     }
   },
   "include": ["app", "src", "__tests__", "expo-env.d.ts"]
