@@ -53,10 +53,7 @@ func RateLimit(options RateLimitOptions) Middleware {
 			if ok {
 				return next(ctx, in)
 			}
-			seconds := int(math.Ceil(wait.Seconds()))
-			if seconds < 1 {
-				seconds = 1
-			}
+			seconds := max(int(math.Ceil(wait.Seconds())), 1)
 			if call := CallFrom(ctx); call != nil {
 				call.ResponseHeader().Set("Retry-After", strconv.Itoa(seconds))
 			}

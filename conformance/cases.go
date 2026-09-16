@@ -260,7 +260,6 @@ func buildCases() []testCase {
 		},
 	})
 	for _, code := range allCodes {
-		code := code
 		list = append(list, testCase{
 			Name: "code-" + strings.ToLower(string(code)), Method: http.MethodGet, Path: "fail", Body: fmt.Sprintf(`{"code":%q}`, code), Status: code.HTTPStatus(),
 			Check: func(resp *http.Response, body []byte) error {

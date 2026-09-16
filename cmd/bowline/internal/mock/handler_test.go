@@ -184,13 +184,11 @@ func TestConcurrentCreates(t *testing.T) {
 	h := New(ledger(t), Options{})
 	var wg sync.WaitGroup
 	ids := make(chan any, 50)
-	for i := 0; i < 50; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+	for range 50 {
+		wg.Go(func() {
 			rec := call(h, http.MethodPost, "invoices.create", `{"customerId":1,"lines":[{"description":"x","quantity":1,"unitPrice":"USD 1.00"}]}`)
 			ids <- decode(t, rec)["id"]
-		}()
+		})
 	}
 	wg.Wait()
 	close(ids)

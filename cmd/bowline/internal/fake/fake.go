@@ -300,7 +300,7 @@ func (g *Generator) mapValue(t *contract.Type, s scope) any {
 	r := g.stream(s)
 	count := 1 + r.IntN(3)
 	out := map[string]any{}
-	for i := 0; i < count; i++ {
+	for range count {
 		key := g.mapKey(t.Key, r)
 		if _, dup := out[key]; dup {
 			continue

@@ -22,7 +22,7 @@ func replace(header, field, value string) string {
 }
 
 func signatureOf(header string) string {
-	for _, part := range strings.Split(header, ",") {
+	for part := range strings.SplitSeq(header, ",") {
 		if value, ok := strings.CutPrefix(part, "sig="); ok {
 			return value
 		}

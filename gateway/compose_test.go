@@ -150,7 +150,7 @@ func TestComposeIsDeterministic(t *testing.T) {
 		"billing": load(t, "billing.contract.json"),
 		"search":  load(t, "search.contract.json"),
 	})
-	for i := 0; i < 20; i++ {
+	for range 20 {
 		again, _ := Compose(map[string]*contract.Document{
 			"search":  load(t, "search.contract.json"),
 			"billing": load(t, "billing.contract.json"),

@@ -98,7 +98,7 @@ func writeModuleDoc(b *strings.Builder, indent, attr, doc string) {
 		return
 	}
 	b.WriteString(indent + attr + " \"\"\"\n")
-	for _, line := range strings.Split(doc, "\n") {
+	for line := range strings.SplitSeq(doc, "\n") {
 		if strings.TrimSpace(line) == "" {
 			b.WriteString("\n")
 			continue

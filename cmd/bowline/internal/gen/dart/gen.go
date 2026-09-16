@@ -166,7 +166,7 @@ func (g *generator) collectInlines() error {
 
 func procTypeName(path string) string {
 	var b strings.Builder
-	for _, s := range strings.Split(path, ".") {
+	for s := range strings.SplitSeq(path, ".") {
 		b.WriteString(naming.UpperCamel(s))
 	}
 	return b.String()
@@ -252,7 +252,7 @@ func writeDoc(b *strings.Builder, indent, doc string) {
 	if doc == "" {
 		return
 	}
-	for _, line := range strings.Split(doc, "\n") {
+	for line := range strings.SplitSeq(doc, "\n") {
 		b.WriteString(indent + "/// " + strings.TrimSpace(line) + "\n")
 	}
 }

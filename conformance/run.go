@@ -31,7 +31,6 @@ func RunURL(t *testing.T, baseURL string) {
 	base := strings.TrimRight(baseURL, "/")
 	client := &http.Client{Timeout: 10 * time.Second}
 	for _, tc := range cases {
-		tc := tc
 		t.Run(tc.Name, func(t *testing.T) {
 			if err := execute(client, base, tc); err != nil {
 				t.Error(err)

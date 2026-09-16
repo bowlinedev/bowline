@@ -77,7 +77,7 @@ func TestOverheadBudget(t *testing.T) {
 		t.Skip("set BOWLINE_BENCH=1 to run")
 	}
 	raw, bl := 0.0, 0.0
-	for i := 0; i < 7; i++ {
+	for range 7 {
 		raw = best(raw, testing.Benchmark(BenchmarkRawNetHTTP))
 		bl = best(bl, testing.Benchmark(BenchmarkBowline))
 	}
