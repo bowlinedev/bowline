@@ -150,3 +150,9 @@ This is the 0.5 alpha. Applications need Go 1.24 or later; building the CLI need
 ## License
 
 Apache-2.0. See `LICENSE`.
+
+### Generated code is yours
+
+Running `bowline gen` writes code into your project. That output is yours. You can use, change, and ship it under any licence you choose, with no attribution and no obligations from this licence — including where the output contains parts copied from Bowline's generators.
+
+Apache-2.0 covers Bowline itself: the runtime, the CLI, the generators, and the client packages you install as dependencies.
