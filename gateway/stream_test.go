@@ -73,6 +73,9 @@ func TestStreamDeliversEventsAsTheyArrive(t *testing.T) {
 			break
 		}
 	}
+	if err := scanner.Err(); err != nil {
+		t.Fatalf("reading the event stream: %v", err)
+	}
 	if events < 4 || !done {
 		t.Fatalf("%d data lines, done=%v", events, done)
 	}

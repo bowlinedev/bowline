@@ -189,6 +189,9 @@ func checkGuide(t *testing.T, guide string, required bool) {
 			}
 		}
 	}
+	if err := scanner.Err(); err != nil {
+		t.Fatalf("%s: reading the guide: %v", guide, err)
+	}
 	if snippets == 0 && required {
 		t.Errorf("%s: no verified snippet; every framework guide needs at least one source: block", guide)
 	}
