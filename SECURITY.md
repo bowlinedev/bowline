@@ -4,8 +4,8 @@
 
 | Version | Supported |
 | --- | --- |
-| 0.7.x | yes |
-| < 0.7 | no |
+| 1.0.x | yes |
+| < 1.0 | no |
 
 Support windows for the 1.0 line and later are described in `docs/lts.md`.
 
