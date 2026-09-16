@@ -29,7 +29,9 @@
 - `stability.md`: what does not change inside a major version.
 - `migration-0.x.md`: what each 0.x release asks of an existing user.
 - `lts.md`: release cadence, support windows, and what gets backported.
+- `api-freeze.md`: every exported identifier the major version guarantees.
 - `security/audit-2026.md`: every error path in the runtime, what it says in production, and the test that pins it.
+- `security/api-audit.md`: why each exported identifier is public, and what was unexported before the freeze.
 - `security/signing.md`: the signature canonicalization, the replay cache, and the skew window.
 - `benchmarks.md`: handler overhead, regeneration latency, and generator throughput, with history.
 - `adoption-test.md`: the ten-minute adoption protocol run before each minor release.

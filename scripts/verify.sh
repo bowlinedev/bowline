@@ -79,6 +79,8 @@ step "generated files are current" contracts_current
 step "language goldens" language_goldens
 step "node workspace" node_workspace
 step "python packages" python_packages
+step "exported surface matches the freeze list" go test -run TestPublicIdentifiersMatchFreezeList .
+step "no incompatible api change" scripts/apidiff.sh
 step "dependency allowlist" scripts/deps-allowlist.sh
 step "allowlist self-test" scripts/deps-allowlist.sh self-test
 step "published packages have no advisories" scripts/audit-packages.sh

@@ -15,7 +15,7 @@ Every module in this repository follows semantic versioning, and they share one 
 
 Adding a field to an exported struct is a minor change, so construct them with field names rather than positionally. Adding a method to an exported interface is not: interfaces you implement are frozen for the major.
 
-`scripts/apidiff.sh` compares the exported surface against the previous tag on every pull request and fails on an incompatible change, so this is enforced rather than promised.
+`docs/api-freeze.md` lists every identifier this covers, and `TestPublicIdentifiersMatchFreezeList` fails if the list and the real surface ever disagree. `scripts/apidiff.sh` compares the exported surface against the previous release tag on every pull request; while that tag is a `v0.x` it reports what changed, and from the first `v1` tag onward it fails the build on an incompatible change. `scripts/apidiff.sh --strict` fails on one at any version and is what the release checklist runs. `docs/security/api-audit.md` records why each identifier is public.
 
 Packages under `internal/` in any module are not part of the API and carry no guarantee. That includes every generator: third parties integrate through the external generator protocol in `docs/plugins.md`, not by importing the generator packages.
 

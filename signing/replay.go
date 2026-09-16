@@ -28,7 +28,7 @@ func NewReplayCache(max int) *ReplayCache {
 	}
 }
 
-func (c *ReplayCache) Len() int {
+func (c *ReplayCache) size() int {
 	if c == nil {
 		return 0
 	}
