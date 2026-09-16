@@ -51,7 +51,7 @@ func (s *session) run(parent context.Context) {
 		}
 		var f frame
 		if err := json.Unmarshal(data, &f); err != nil {
-			s.write(errorFrame(f.ID, fmt.Appendf(nil, `{"error":{"code":"INVALID_ARGUMENT","message":%q}}`, "malformed frame: "+err.Error())))
+			_ = s.write(errorFrame(f.ID, fmt.Appendf(nil, `{"error":{"code":"INVALID_ARGUMENT","message":%q}}`, "malformed frame: "+err.Error())))
 			continue
 		}
 		switch f.Type {
@@ -60,7 +60,7 @@ func (s *session) run(parent context.Context) {
 		case "stop":
 			s.stop(f.ID)
 		default:
-			s.write(errorFrame(f.ID, fmt.Appendf(nil, `{"error":{"code":"INVALID_ARGUMENT","message":%q}}`, "unknown frame type "+f.Type)))
+			_ = s.write(errorFrame(f.ID, fmt.Appendf(nil, `{"error":{"code":"INVALID_ARGUMENT","message":%q}}`, "unknown frame type "+f.Type)))
 		}
 	}
 }
@@ -69,7 +69,7 @@ func (s *session) subscribe(ctx context.Context, f frame) {
 	s.mu.Lock()
 	if _, exists := s.cancels[f.ID]; exists {
 		s.mu.Unlock()
-		s.write(errorFrame(f.ID, []byte(`{"error":{"code":"ALREADY_EXISTS","message":"subscription id is in use"}}`)))
+		_ = s.write(errorFrame(f.ID, []byte(`{"error":{"code":"ALREADY_EXISTS","message":"subscription id is in use"}}`)))
 		return
 	}
 	subCtx, cancel := context.WithCancel(ctx)
@@ -92,11 +92,11 @@ func (s *session) subscribe(ctx context.Context, f frame) {
 		var failure *bowline.StreamFailure
 		switch {
 		case err == nil:
-			s.write(frame{ID: f.ID, Type: "done"})
+			_ = s.write(frame{ID: f.ID, Type: "done"})
 		case errors.As(err, &failure):
-			s.write(errorFrame(f.ID, failure.Body))
+			_ = s.write(errorFrame(f.ID, failure.Body))
 		default:
-			s.write(errorFrame(f.ID, []byte(`{"error":{"code":"INTERNAL","message":"internal error"}}`)))
+			_ = s.write(errorFrame(f.ID, []byte(`{"error":{"code":"INTERNAL","message":"internal error"}}`)))
 		}
 	}()
 }

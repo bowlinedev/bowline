@@ -62,8 +62,8 @@ func TestMarshalIsCanonical(t *testing.T) {
 	if !strings.HasPrefix(string(first), "{\n  \"bowline\": \"1.2\"") {
 		t.Fatalf("unexpected prefix: %q", first[:40])
 	}
-	getIdx := strings.Index(string(first), `"path": "users.get"`)
-	listIdx := strings.Index(string(first), `"path": "users.list"`)
+	getIdx := bytes.Index(first, []byte(`"path": "users.get"`))
+	listIdx := bytes.Index(first, []byte(`"path": "users.list"`))
 	if getIdx < 0 || listIdx < 0 || getIdx > listIdx {
 		t.Fatal("procedures must be sorted by path")
 	}

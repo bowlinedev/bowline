@@ -3,6 +3,7 @@ package contract
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -14,7 +15,7 @@ func Migrate(data []byte) ([]byte, error) {
 		return nil, fmt.Errorf("contract: migrate: %w", err)
 	}
 	if doc.Bowline == "" {
-		return nil, fmt.Errorf("contract: migrate: document has no version")
+		return nil, errors.New("contract: migrate: document has no version")
 	}
 	if checkVersion(doc.Bowline) == nil {
 		return data, nil

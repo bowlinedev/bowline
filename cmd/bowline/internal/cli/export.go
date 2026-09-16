@@ -125,7 +125,7 @@ func exportTools(opts Options, args []string) int {
 		return 1
 	}
 	if *out == "" {
-		opts.Stdout.Write(data)
+		_, _ = opts.Stdout.Write(data)
 		return 0
 	}
 	target := filepath.Join(opts.Dir, filepath.FromSlash(*out))

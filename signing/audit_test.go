@@ -5,6 +5,7 @@ import (
 	"crypto/subtle"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -34,11 +35,11 @@ func TestSignatureComparisonIsConstantTime(t *testing.T) {
 	path := "/api/invoices.create"
 	body := []byte(`{"customerId":1}`)
 	header := Sign("POST", path, body, "billing-2026", secrets["billing-2026"], now)
-	real := signatureOf(header)
+	genuine := signatureOf(header)
 
 	forged := []string{}
-	for n := range len(real) {
-		candidate := []byte(real)
+	for n := range len(genuine) {
+		candidate := []byte(genuine)
 		if candidate[n] == 'A' {
 			candidate[n] = 'B'
 		} else {
@@ -48,7 +49,7 @@ func TestSignatureComparisonIsConstantTime(t *testing.T) {
 	}
 
 	for _, candidate := range forged {
-		want := subtle.ConstantTimeCompare([]byte(real), []byte(candidate)) == 1
+		want := subtle.ConstantTimeCompare([]byte(genuine), []byte(candidate)) == 1
 		err := Verify(context.Background(), secrets, replace(header, "sig", candidate), "POST", path, body, now)
 		got := err == nil
 		if got != want {
@@ -59,7 +60,7 @@ func TestSignatureComparisonIsConstantTime(t *testing.T) {
 		}
 	}
 
-	if subtle.ConstantTimeCompare([]byte(real), []byte(real)) != 1 {
+	if subtle.ConstantTimeCompare([]byte(genuine), []byte(genuine)) != 1 {
 		t.Fatal("the real signature does not compare equal to itself")
 	}
 	if err := Verify(context.Background(), secrets, header, "POST", path, body, now); err != nil {
@@ -130,8 +131,8 @@ func TestClockSkewRejectsTimestampsThatWouldOverflow(t *testing.T) {
 	path := "/api/ping"
 	header := Sign("GET", path, nil, "billing-2026", secrets["billing-2026"], now)
 	for _, stamp := range []int64{-9223372036854775808, 9223372036854775807, -1, 0, 1 << 62} {
-		t.Run(fmt.Sprint(stamp), func(t *testing.T) {
-			err := Verify(context.Background(), secrets, replace(header, "t", fmt.Sprint(stamp)), "GET", path, nil, now)
+		t.Run(strconv.FormatInt(stamp, 10), func(t *testing.T) {
+			err := Verify(context.Background(), secrets, replace(header, "t", strconv.FormatInt(stamp, 10)), "GET", path, nil, now)
 			if !errors.Is(err, ErrSkew) {
 				t.Fatalf("timestamp %d returned %v, want %v", stamp, err, ErrSkew)
 			}
@@ -140,17 +141,17 @@ func TestClockSkewRejectsTimestampsThatWouldOverflow(t *testing.T) {
 }
 
 func TestReplayCacheIsBounded(t *testing.T) {
-	const max = 64
-	cache := NewReplayCache(max)
+	const limit = 64
+	cache := NewReplayCache(limit)
 	path := "/api/ping"
-	for i := range max * 40 {
+	for i := range limit * 40 {
 		body := fmt.Appendf(nil, `{"n":%d}`, i)
 		header := Sign("POST", path, body, "billing-2026", secrets["billing-2026"], now)
 		if err := Verify(context.Background(), secrets, header, "POST", path, body, now, WithReplayCache(cache)); err != nil {
 			t.Fatalf("call %d: %v", i, err)
 		}
-		if got := cache.size(); got > 2*max {
-			t.Fatalf("after %d calls the cache holds %d entries, which is over the %d bound", i, got, 2*max)
+		if got := cache.size(); got > 2*limit {
+			t.Fatalf("after %d calls the cache holds %d entries, which is over the %d bound", i, got, 2*limit)
 		}
 	}
 }

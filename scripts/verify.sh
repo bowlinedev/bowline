@@ -25,15 +25,6 @@ go_modules() {
   done
 }
 
-staticcheck_modules() {
-  command -v staticcheck >/dev/null || { echo "staticcheck not installed; skipping"; return 0; }
-  local m
-  for m in . cmd/bowline transport/websocket mcp agent playground contracttest conformance gateway registry adapters/fiber examples/ledger examples/federation/billing; do
-    [ -f "$m/go.mod" ] || continue
-    (cd "$m" && staticcheck ./...) || return 1
-  done
-}
-
 gofmt_clean() {
   local out
   out="$(gofmt -l . | grep -v '^\.claude' || true)"
@@ -75,7 +66,7 @@ language_goldens() {
 
 step "gofmt" gofmt_clean
 step "go modules" go_modules
-step "staticcheck" staticcheck_modules
+step "golangci-lint" scripts/lint.sh
 step "generated files are current" contracts_current
 step "language goldens" language_goldens
 step "node workspace" node_workspace

@@ -50,14 +50,14 @@ type differ struct {
 	visited  map[string]bool
 }
 
-func Diff(old, new *Document) Changes {
-	d := &differ{old: old, new: new, visited: map[string]bool{}}
+func Diff(prev, next *Document) Changes {
+	d := &differ{old: prev, new: next, visited: map[string]bool{}}
 	oldProcs := map[string]*Procedure{}
-	for _, p := range old.Procedures {
+	for _, p := range prev.Procedures {
 		oldProcs[p.Path] = p
 	}
 	newProcs := map[string]*Procedure{}
-	for _, p := range new.Procedures {
+	for _, p := range next.Procedures {
 		newProcs[p.Path] = p
 	}
 	oldPaths := slices.Sorted(maps.Keys(oldProcs))
@@ -396,7 +396,7 @@ func (d *differ) rules(path string, oldRules, newRules []Rule, v variance) {
 	for _, r := range newRules {
 		newByName[r.Rule] = r
 	}
-	report := func(rule string, tightened bool, message string) {
+	report := func(tightened bool, message string) {
 		switch {
 		case tightened && v == input:
 			d.add(path, Breaking, message)
@@ -411,7 +411,7 @@ func (d *differ) rules(path string, oldRules, newRules []Rule, v variance) {
 	for _, or := range oldRules {
 		nr, ok := newByName[or.Rule]
 		if !ok {
-			report(or.Rule, false, "validation rule "+or.Rule+" removed")
+			report(false, "validation rule "+or.Rule+" removed")
 			continue
 		}
 		if or.Param == nr.Param {
@@ -419,18 +419,18 @@ func (d *differ) rules(path string, oldRules, newRules []Rule, v variance) {
 		}
 		switch or.Rule {
 		case "min":
-			report(or.Rule, numeric(nr.Param) > numeric(or.Param), fmt.Sprintf("validation rule min changed from %s to %s", or.Param, nr.Param))
+			report(numeric(nr.Param) > numeric(or.Param), fmt.Sprintf("validation rule min changed from %s to %s", or.Param, nr.Param))
 		case "max":
-			report(or.Rule, numeric(nr.Param) < numeric(or.Param), fmt.Sprintf("validation rule max changed from %s to %s", or.Param, nr.Param))
+			report(numeric(nr.Param) < numeric(or.Param), fmt.Sprintf("validation rule max changed from %s to %s", or.Param, nr.Param))
 		case "oneof":
 			d.oneof(path, or.Param, nr.Param, v)
 		default:
-			report(or.Rule, true, fmt.Sprintf("validation rule %s changed from %s to %s", or.Rule, or.Param, nr.Param))
+			report(true, fmt.Sprintf("validation rule %s changed from %s to %s", or.Rule, or.Param, nr.Param))
 		}
 	}
 	for _, nr := range newRules {
 		if _, ok := oldByName[nr.Rule]; !ok {
-			report(nr.Rule, true, "validation rule "+nr.Rule+" added")
+			report(true, "validation rule "+nr.Rule+" added")
 		}
 	}
 }

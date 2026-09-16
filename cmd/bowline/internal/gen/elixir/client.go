@@ -2,6 +2,7 @@ package elixir
 
 import (
 	"maps"
+	"net/http"
 	"slices"
 	"strings"
 
@@ -197,7 +198,8 @@ func writeSpec(b *strings.Builder, name string, args []string, result string) {
 	b.WriteString("\n")
 }
 
-func writeArgs(b *strings.Builder, indent, call string, args []string) {
+func writeArgs(b *strings.Builder, call string, args []string) {
+	const indent = "    "
 	line := indent + call + "(" + strings.Join(args, ", ") + ")"
 	if len(line) <= lineWidth {
 		b.WriteString(line)
@@ -221,7 +223,7 @@ func writeArgs(b *strings.Builder, indent, call string, args []string) {
 
 func (g *generator) writeCall(b *strings.Builder, name string, p *contract.Procedure) {
 	method := ":post"
-	if p.Method == "GET" {
+	if p.Method == http.MethodGet {
 		method = ":get"
 	}
 	result := "{:ok, " + g.outputSpec(p) + "} | {:error, BowlineClient.Error.t()}"
@@ -230,7 +232,7 @@ func (g *generator) writeCall(b *strings.Builder, name string, p *contract.Proce
 		b.WriteString("  def ")
 		b.WriteString(name)
 		b.WriteString("(transport, opts \\\\ []) do\n")
-		writeArgs(b, "    ", "Transport.call", []string{"transport", quote(p.Path), method, "%{}", g.outputDecoder(p), "opts"})
+		writeArgs(b, "Transport.call", []string{"transport", quote(p.Path), method, "%{}", g.outputDecoder(p), "opts"})
 		b.WriteString("  end\n\n")
 		writeSpec(b, name+"!", []string{"Transport.t()", "Transport.call_opts()"}, g.outputSpec(p))
 		b.WriteString("  def ")
@@ -248,7 +250,7 @@ func (g *generator) writeCall(b *strings.Builder, name string, p *contract.Proce
 	b.WriteString("(transport, ")
 	b.WriteString(g.inputPattern(p))
 	b.WriteString(", opts \\\\ []) do\n")
-	writeArgs(b, "    ", "Transport.call", []string{"transport", quote(p.Path), method, g.inputEncode(p), g.outputDecoder(p), "opts"})
+	writeArgs(b, "Transport.call", []string{"transport", quote(p.Path), method, g.inputEncode(p), g.outputDecoder(p), "opts"})
 	b.WriteString("  end\n\n")
 	writeSpec(b, name+"!", []string{"Transport.t()", g.inputSpec(p), "Transport.call_opts()"}, g.outputSpec(p))
 	b.WriteString("  def ")
@@ -267,7 +269,7 @@ func (g *generator) writeSubscription(b *strings.Builder, name string, p *contra
 		b.WriteString("  def ")
 		b.WriteString(name)
 		b.WriteString("(transport, opts \\\\ []) do\n")
-		writeArgs(b, "    ", "Transport.subscribe", []string{"transport", quote(p.Path), "%{}", g.outputDecoder(p), "opts"})
+		writeArgs(b, "Transport.subscribe", []string{"transport", quote(p.Path), "%{}", g.outputDecoder(p), "opts"})
 		b.WriteString("  end\n")
 		return
 	}
@@ -277,7 +279,7 @@ func (g *generator) writeSubscription(b *strings.Builder, name string, p *contra
 	b.WriteString("(transport, ")
 	b.WriteString(g.inputPattern(p))
 	b.WriteString(", opts \\\\ []) do\n")
-	writeArgs(b, "    ", "Transport.subscribe", []string{"transport", quote(p.Path), g.inputEncode(p), g.outputDecoder(p), "opts"})
+	writeArgs(b, "Transport.subscribe", []string{"transport", quote(p.Path), g.inputEncode(p), g.outputDecoder(p), "opts"})
 	b.WriteString("  end\n")
 }
 
@@ -293,7 +295,7 @@ func (g *generator) writeUpload(b *strings.Builder, name string, p *contract.Pro
 	b.WriteString("(transport, ")
 	b.WriteString(g.inputPattern(p))
 	b.WriteString(", file, filename, opts \\\\ []) do\n")
-	writeArgs(b, "    ", "Transport.upload", []string{"transport", quote(p.Path), g.inputEncode(p), "file", "filename", g.outputDecoder(p), "opts"})
+	writeArgs(b, "Transport.upload", []string{"transport", quote(p.Path), g.inputEncode(p), "file", "filename", g.outputDecoder(p), "opts"})
 	b.WriteString("  end\n")
 }
 

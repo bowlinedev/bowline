@@ -55,7 +55,7 @@ func (h *handler) proxy(w http.ResponseWriter, req *http.Request, procedure stri
 		}
 	}
 	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+	_, _ = io.Copy(w, resp.Body)
 }
 
 func (h *handler) resolve(req *http.Request) (*url.URL, error) {

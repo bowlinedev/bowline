@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
 	"github.com/bowlinedev/bowline/contract"
@@ -124,7 +125,7 @@ func fieldName(jsonName string) string {
 		b.WriteString(string(runes))
 	}
 	out := b.String()
-	if unicode.IsDigit([]rune(out)[0]) {
+	if first, _ := utf8.DecodeRuneInString(out); unicode.IsDigit(first) {
 		out = "F" + out
 	}
 	return out
@@ -151,7 +152,7 @@ func packageIdentifier(s string) string {
 		}
 	}
 	out := b.String()
-	if out == "" || keywords[out] || unicode.IsDigit([]rune(out)[0]) {
+	if first, _ := utf8.DecodeRuneInString(out); out == "" || keywords[out] || unicode.IsDigit(first) {
 		return "apiclient"
 	}
 	return out

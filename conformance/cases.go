@@ -285,10 +285,10 @@ func multipartBody(input, fileName string, file []byte) (string, string) {
 	var buf bytes.Buffer
 	w := multipart.NewWriter(&buf)
 	part, _ := w.CreatePart(map[string][]string{"Content-Disposition": {`form-data; name="input"`}, "Content-Type": {"application/json"}})
-	part.Write([]byte(input))
+	_, _ = part.Write([]byte(input))
 	if fileName != "" {
 		fw, _ := w.CreateFormFile("file", fileName)
-		fw.Write(file)
+		_, _ = fw.Write(file)
 	}
 	w.Close()
 	return buf.String(), w.FormDataContentType()

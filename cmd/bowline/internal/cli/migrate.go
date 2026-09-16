@@ -10,7 +10,7 @@ import (
 )
 
 func Migrate(opts Options, args []string) int {
-	rel := ""
+	var rel string
 	if len(args) > 0 {
 		rel = args[0]
 	} else {

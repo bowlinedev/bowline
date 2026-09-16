@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"maps"
+	"net/http"
 	"slices"
 	"strconv"
 
@@ -87,7 +88,7 @@ func Export(doc *contract.Document, info Info) ([]byte, error) {
 			return nil, err
 		}
 		method := "get"
-		if p.Method == "POST" {
+		if p.Method == http.MethodPost {
 			method = "post"
 		}
 		out.Paths["/"+p.Path] = schema{method: op}
@@ -134,7 +135,7 @@ func (s *schemas) operation(p *contract.Procedure) (schema, error) {
 			}},
 		}
 	default:
-		if p.Method == "GET" {
+		if p.Method == http.MethodGet {
 			op["parameters"] = []schema{{
 				"name":     "input",
 				"in":       "query",

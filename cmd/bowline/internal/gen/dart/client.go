@@ -2,6 +2,7 @@ package dart
 
 import (
 	"maps"
+	"net/http"
 	"slices"
 	"strings"
 
@@ -49,7 +50,7 @@ func sortedKeys(n *node) []string {
 	return keys
 }
 
-func (g *generator) clients(b *strings.Builder) error {
+func (g *generator) clients(b *strings.Builder) {
 	root := g.buildTree()
 	var mounts []*node
 	collectMounts(root, &mounts)
@@ -57,7 +58,6 @@ func (g *generator) clients(b *strings.Builder) error {
 		g.writeClient(b, m)
 	}
 	g.writeClient(b, root)
-	return nil
 }
 
 func collectMounts(n *node, out *[]*node) {
@@ -131,7 +131,7 @@ func (g *generator) writeMethod(b *strings.Builder, p *contract.Procedure, name 
 		b.WriteString(")\n")
 	}
 	method := "Method.post"
-	if p.Method == "GET" {
+	if p.Method == http.MethodGet {
 		method = "Method.get"
 	}
 	emptyIn := isEmptyStruct(p.Input)

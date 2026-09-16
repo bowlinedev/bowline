@@ -1,6 +1,7 @@
 package codec
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"reflect"
@@ -167,7 +168,7 @@ func TestEquivalenceWithStdlibOnCleanValues(t *testing.T) {
 	}
 	a, _ := json.Marshal(in)
 	b, _ := json.Marshal(out)
-	if string(a) != string(b) {
+	if !bytes.Equal(a, b) {
 		t.Fatalf("normalized output differs from stdlib on a clean value:\n%s\n%s", a, b)
 	}
 }

@@ -65,7 +65,7 @@ func (c *checker) node(t *contract.Type, value any, env map[string]*contract.Typ
 	case contract.Array:
 		list, ok := value.([]any)
 		if !ok {
-			*out = append(*out, Mismatch{path, fmt.Sprintf("expected an array, recorded %s", describe(value))})
+			*out = append(*out, Mismatch{path, "expected an array, recorded " + describe(value)})
 			return
 		}
 		for i, e := range list {
@@ -74,7 +74,7 @@ func (c *checker) node(t *contract.Type, value any, env map[string]*contract.Typ
 	case contract.Map:
 		m, ok := value.(map[string]any)
 		if !ok {
-			*out = append(*out, Mismatch{path, fmt.Sprintf("expected an object, recorded %s", describe(value))})
+			*out = append(*out, Mismatch{path, "expected an object, recorded " + describe(value)})
 			return
 		}
 		for k, e := range m {
@@ -90,7 +90,7 @@ func (c *checker) node(t *contract.Type, value any, env map[string]*contract.Typ
 func (c *checker) object(fields []*contract.Field, value any, env map[string]*contract.Type, path []string, out *[]Mismatch) {
 	obj, ok := value.(map[string]any)
 	if !ok {
-		*out = append(*out, Mismatch{path, fmt.Sprintf("expected an object, recorded %s", describe(value))})
+		*out = append(*out, Mismatch{path, "expected an object, recorded " + describe(value)})
 		return
 	}
 	byName := map[string]*contract.Field{}

@@ -24,7 +24,7 @@ func acceptsEventStream(req *http.Request) bool {
 	return false
 }
 
-func (h *handler) serveSubscription(w http.ResponseWriter, req *http.Request, rt *route, ctx context.Context, in any) {
+func (h *handler) serveSubscription(w http.ResponseWriter, rt *route, ctx context.Context, in any) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		h.writeError(w, nil, 0, Errorf(Internal, "response writer does not support streaming"))
@@ -72,8 +72,8 @@ func (h *handler) serveSubscription(w http.ResponseWriter, req *http.Request, rt
 		if marshalErr != nil {
 			body = []byte(`{"error":{"code":"INTERNAL","message":"error encoding failed"}}`)
 		}
-		sink.Write("error", body)
+		_ = sink.Write("error", body)
 		return
 	}
-	sink.Write("done", []byte("{}"))
+	_ = sink.Write("done", []byte("{}"))
 }
