@@ -20,6 +20,7 @@
 - `guides/dart.md`, `guides/python.md`, `guides/rust.md`, `guides/elixir.md`: the generated clients for each language and their runtime packages.
 - `certification.md`: what makes a client target official.
 - `plugins.md`: the external generator protocol for adding a language.
+- `certified.md`: every generator that has passed `bowline certify`.
 - `guides/federation.md`: composing several services into one client behind a gateway.
 - `guides/registry.md`: the contract registry and the "who breaks" query.
 - `guides/signing.md`: signed service-to-service calls.

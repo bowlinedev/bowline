@@ -51,6 +51,8 @@ commands:
              publish this module's contract as a version of a service
   publish --registry URL --consumer NAME --provider SERVICE --usage PATH [--token T]
              publish what a consumer uses of a service
+  certify --target <name> --generator <command> [--config certify.json] [--out docs/certified.md] [--report]
+             run a generator against the fidelity corpus and the target's toolchain
   migrate-contract [path]
              rewrite a contract document from an older format version
   diff <old> <new> [--format text|markdown|json] [--json] [--consumers dir]
@@ -83,6 +85,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cli.Check(opts, args[1:])
 	case "export":
 		return cli.Export(opts, args[1:])
+	case "certify":
+		return cli.Certify(opts, args[1:])
 	case "migrate-contract":
 		return cli.Migrate(opts, args[1:])
 	case "diff":

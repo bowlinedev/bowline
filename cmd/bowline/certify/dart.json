@@ -1,0 +1,8 @@
+{
+  "target": "dart",
+  "generator": "dart",
+  "repository": "built in",
+  "compile": ["scripts/check-goldens.sh", "dart"],
+  "test": ["bash", "-c", "cd packages/dart/bowline && dart pub get >/dev/null && dart test"],
+  "conformance": "examples/ledger/dart/bin/e2e.dart"
+}

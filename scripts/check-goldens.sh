@@ -3,7 +3,9 @@ set -euo pipefail
 
 repo="$(cd "$(dirname "$0")/.." && pwd)"
 target="${1:?usage: check-goldens.sh ts|go|dart|python|rust|elixir}"
-testdata="$repo/cmd/bowline/internal/gen/$target/testdata"
+package="$target"
+[ "$package" = "go" ] && package="goclient"
+testdata="$repo/cmd/bowline/internal/gen/$package/testdata"
 [ -d "$testdata" ] || { echo "check-goldens: no testdata for $target" >&2; exit 2; }
 
 case "$target" in

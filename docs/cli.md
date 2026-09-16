@@ -239,6 +239,20 @@ Publishes this module's contract as a version of a service, or what a consumer u
 | `--usage <path>` | the recorded consumer usage file |
 | `--token <t>` | bearer token; defaults to `BOWLINE_REGISTRY_TOKEN` |
 
+### `bowline certify`
+
+Runs a generator against the fidelity corpus and the target's own toolchain, and reports whether it qualifies for `docs/certified.md`.
+
+| Flag | Meaning |
+|---|---|
+| `--target <name>` | the target being certified |
+| `--generator <command>` | the generator command, or a built-in target name |
+| `--config <path>` | the `certify.json` describing the toolchain commands; defaults to `certify.json` |
+| `--out <path>` | the certified list to update; defaults to `docs/certified.md` |
+| `--report` | write the target's row into that list after a passing run |
+
+Prints one line per check and exits 1 if any check failed or could not run. `docs/certification.md` describes each check and the `certify.json` keys.
+
 ### `bowline verify-consumers`
 
 Checks recorded consumer interactions against the current contract.

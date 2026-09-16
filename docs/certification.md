@@ -2,6 +2,14 @@
 
 A client target is official when every check below is green in this repository's CI with a pinned toolchain. Community targets reach the same list by the same checks.
 
+Run them yourself with `bowline certify`:
+
+```bash
+bowline certify --target kotlin --generator bowline-gen-kotlin --config certify.json
+```
+
+It pipes every accepted fidelity row through the generator over the protocol in `docs/plugins.md`, scans for escape-hatch types, runs the generator twice to check determinism, and runs the compile and test commands your `certify.json` declares. `docs/certified.md` lists every generator that has passed; `--report` writes the row.
+
 | Check | What it proves |
 |---|---|
 | Fidelity goldens | Every `expected.contract.json` under `cmd/bowline/internal/analyzer/testdata/fidelity/rows` produces a golden file for the target, reviewed against `spec/mapping-table.md`. |
@@ -22,5 +30,27 @@ A client target is official when every check below is green in this repository's
 | `python` | `cmd/bowline/internal/gen/python` | `packages/python/bowline-client` | `goldens-python` | `python` in `e2e.yml` | `docs/guides/python.md` |
 | `rust` | `cmd/bowline/internal/gen/rust` | `packages/rust/bowline-client` | `goldens-rust` | `rust` in `e2e.yml` | `docs/guides/rust.md` |
 | `elixir` | `cmd/bowline/internal/gen/elixir` | `packages/elixir/bowline_client` | `goldens-elixir` | `elixir` in `e2e.yml` | `docs/guides/elixir.md` |
+
+## certify.json
+
+The command reads a `certify.json` beside the module it is run in:
+
+| Key | Meaning |
+|---|---|
+| `target` | the target name, also the default for the escape-hatch list and file extension |
+| `generator` | the command to run, or a built-in target name |
+| `repository` | where the generator lives, for the certified list |
+| `version` | the generator version being certified |
+| `extension` | the extension for the file handed to the generator as `out` |
+| `escapeHatch` | tokens that must not appear beyond the generator's own runtime code |
+| `compile` | the command that compiles the generated output |
+| `test` | the command that runs the conformance suite |
+| `conformance` | the client entry point the conformance run drives |
+
+`compile` and `test` run in the module directory with `BOWLINE_CERTIFY_DIR` pointing at a directory holding one subdirectory of generated output per fidelity row. A target with no `compile` or no `test` is not certified: the run reports them as skipped and exits 1.
+
+Escape-hatch counting subtracts a baseline measured by generating an empty contract, so a language whose runtime code legitimately mentions the token — Go's `any` in a type parameter, Elixir's `term()` in a decoder spec — is not penalised for it. A row whose contract uses the `raw` primitive is exempt, which is how Rust's `serde_json::Value` is allowed exactly where `raw` appears.
+
+The six built-in targets are configured under `cmd/bowline/certify/` and certified by `scripts/certify-builtins.sh`, which regenerates `docs/certified.md`.
 
 Client packages share the CLI's minor version and are bumped together by `scripts/bump-clients.sh`; the `release-clients` workflow publishes each on demand once the registry accounts exist.

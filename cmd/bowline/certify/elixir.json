@@ -1,0 +1,18 @@
+{
+  "target": "elixir",
+  "generator": "elixir",
+  "repository": "built in",
+  "compile": [
+    "scripts/check-goldens.sh",
+    "elixir"
+  ],
+  "test": [
+    "bash",
+    "-c",
+    "cd packages/elixir/bowline_client && mix deps.get >/dev/null && mix test"
+  ],
+  "conformance": "examples/ledger/elixir/lib/e2e.ex",
+  "escapeHatch": [
+    "any()"
+  ]
+}
