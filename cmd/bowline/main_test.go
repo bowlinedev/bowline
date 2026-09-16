@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
+	"slices"
 	"strings"
 	"testing"
 
@@ -95,7 +95,7 @@ func TestEveryDocumentedFlagExistsInUsage(t *testing.T) {
 			missing = append(missing, flag)
 		}
 	}
-	sort.Strings(missing)
+	slices.Sort(missing)
 	if len(missing) > 0 {
 		t.Errorf("docs/cli.md documents flags the usage text does not mention: %s", strings.Join(missing, " "))
 	}

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"maps"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/ts"
@@ -306,7 +306,7 @@ func (b *builder) object(fields []*contract.Field, doc string, env map[string]*c
 	}
 	out := node{"type": "object", "properties": props, "additionalProperties": false}
 	if len(required) > 0 {
-		sort.Strings(required)
+		slices.Sort(required)
 		out["required"] = required
 	}
 	if doc != "" {

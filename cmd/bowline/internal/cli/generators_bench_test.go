@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"sort"
 	"testing"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -17,7 +16,7 @@ func fidelityCorpus(tb testing.TB) []*contract.Document {
 	if err != nil {
 		tb.Fatal(err)
 	}
-	sort.Strings(paths)
+	slices.Sort(paths)
 	docs := make([]*contract.Document, 0, len(paths))
 	for _, path := range paths {
 		data, err := os.ReadFile(path)

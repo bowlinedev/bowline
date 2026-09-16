@@ -593,7 +593,7 @@ func (g *generator) depsOf(id string) []string {
 	} else if fields, ok := g.inline[id]; ok {
 		walkFields(fields, id)
 	}
-	sort.Strings(out)
+	slices.Sort(out)
 	return out
 }
 
@@ -623,7 +623,7 @@ func topo(decls []*declaration) (order []*declaration, cyclic []*declaration) {
 			ready = append(ready, name)
 		}
 	}
-	sort.Strings(ready)
+	slices.Sort(ready)
 	done := map[string]bool{}
 	for len(ready) > 0 {
 		name := ready[0]
@@ -634,7 +634,7 @@ func topo(decls []*declaration) (order []*declaration, cyclic []*declaration) {
 			indegree[dep]--
 			if indegree[dep] == 0 {
 				ready = append(ready, dep)
-				sort.Strings(ready)
+				slices.Sort(ready)
 			}
 		}
 	}
@@ -644,7 +644,7 @@ func topo(decls []*declaration) (order []*declaration, cyclic []*declaration) {
 			rest = append(rest, d.name)
 		}
 	}
-	sort.Strings(rest)
+	slices.Sort(rest)
 	for _, name := range rest {
 		order = append(order, byName[name])
 		cyclic = append(cyclic, byName[name])

@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"sort"
+	"slices"
 	"time"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/tools"
@@ -67,7 +67,7 @@ func (r *Runner) Record(ctx context.Context, calls []Call, volatile []string, no
 		now = time.Now
 	}
 	sorted := append([]string(nil), volatile...)
-	sort.Strings(sorted)
+	slices.Sort(sorted)
 	if sorted == nil {
 		sorted = []string{}
 	}

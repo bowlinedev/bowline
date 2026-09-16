@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/jsonschema"
@@ -151,7 +150,7 @@ func Encode(list []Tool, format string) ([]byte, error) {
 
 func sortedCopy(s []string) []string {
 	out := append([]string{}, s...)
-	sort.Strings(out)
+	slices.Sort(out)
 	if out == nil {
 		out = []string{}
 	}

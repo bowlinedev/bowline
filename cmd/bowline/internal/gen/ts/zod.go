@@ -2,7 +2,7 @@ package ts
 
 import (
 	"encoding/json"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -95,7 +95,7 @@ func (z *zodGenerator) deps(id string) []string {
 	if decl.Body != nil {
 		walk(decl.Body)
 	}
-	sort.Strings(out)
+	slices.Sort(out)
 	return out
 }
 

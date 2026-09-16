@@ -3,7 +3,7 @@ package analyzer
 import (
 	_ "embed"
 	"encoding/json"
-	"sort"
+	"slices"
 )
 
 //go:embed corpus.json
@@ -33,6 +33,6 @@ func FidelityAccepted() map[string][]byte {
 
 func FidelityRejected() []string {
 	rows := append([]string(nil), loadCorpus().Rejected...)
-	sort.Strings(rows)
+	slices.Sort(rows)
 	return rows
 }

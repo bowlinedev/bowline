@@ -3,7 +3,6 @@ package python
 import (
 	"maps"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
@@ -119,13 +118,13 @@ func (g *generator) imports() string {
 	}
 	runtime := []string{"CallOptions", "Method", "SyncTransport", "Transport"}
 	runtime = append(runtime, g.pick("BigInt", "DurationNs", "Empty")...)
-	sort.Strings(runtime)
+	slices.Sort(runtime)
 	b.WriteString("from bowline_client import ")
 	b.WriteString(strings.Join(runtime, ", "))
 	b.WriteString("\n")
 	pyd := []string{"BaseModel", "ConfigDict"}
 	pyd = append(pyd, g.pick("AnyUrl", "Base64Bytes", "Field", "JsonValue")...)
-	sort.Strings(pyd)
+	slices.Sort(pyd)
 	b.WriteString("from pydantic import ")
 	b.WriteString(strings.Join(pyd, ", "))
 	b.WriteString("\n\n\n")

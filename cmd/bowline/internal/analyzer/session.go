@@ -8,7 +8,7 @@ import (
 	"go/token"
 	"go/types"
 	"path/filepath"
-	"sort"
+	"slices"
 	"time"
 
 	"golang.org/x/tools/go/packages"
@@ -142,7 +142,7 @@ func (s *Session) topological(set map[string]bool) []string {
 			ready = append(ready, p)
 		}
 	}
-	sort.Strings(ready)
+	slices.Sort(ready)
 	var order []string
 	for len(ready) > 0 {
 		p := ready[0]
@@ -158,7 +158,7 @@ func (s *Session) topological(set map[string]bool) []string {
 				next = append(next, dep)
 			}
 		}
-		sort.Strings(next)
+		slices.Sort(next)
 		ready = append(ready, next...)
 	}
 	return order

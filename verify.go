@@ -3,7 +3,7 @@ package bowline
 import (
 	"errors"
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -46,7 +46,7 @@ func (r *Router) Verify(document []byte) error {
 	if len(problems) == 0 {
 		return nil
 	}
-	sort.Strings(problems)
+	slices.Sort(problems)
 	return errors.New("bowline: contract drift; run bowline gen\n  " + strings.Join(problems, "\n  "))
 }
 

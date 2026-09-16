@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"maps"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -38,7 +38,7 @@ func assignNames(doc *contract.Document) map[string]string {
 			names[ids[0]] = identifier(name)
 			continue
 		}
-		sort.Strings(ids)
+		slices.Sort(ids)
 		for _, id := range ids {
 			names[id] = identifier(packageName(id) + "_" + name)
 		}
