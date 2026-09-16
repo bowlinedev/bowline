@@ -6,9 +6,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"io/fs"
+	"maps"
 	"net/http"
 	"path"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -67,11 +68,7 @@ func Encode(fx *Fixture) ([]byte, error) {
 }
 
 func (fx *Fixture) serve(w http.ResponseWriter) {
-	names := make([]string, 0, len(fx.Response.Headers))
-	for name := range fx.Response.Headers {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(fx.Response.Headers))
 	for _, name := range names {
 		w.Header().Set(name, fx.Response.Headers[name])
 	}

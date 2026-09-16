@@ -1,7 +1,8 @@
 package dart
 
 import (
-	"sort"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -44,11 +45,7 @@ func (g *generator) nameMounts(n *node) {
 }
 
 func sortedKeys(n *node) []string {
-	keys := make([]string, 0, len(n.children))
-	for k := range n.children {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
+	keys := slices.Sorted(maps.Keys(n.children))
 	return keys
 }
 

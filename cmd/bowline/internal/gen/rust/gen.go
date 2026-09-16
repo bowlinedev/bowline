@@ -1,6 +1,8 @@
 package rust
 
 import (
+	"maps"
+	"slices"
 	"sort"
 	"strings"
 
@@ -69,11 +71,7 @@ var rawForbidden = map[string]bool{"self": true, "Self": true, "super": true, "c
 
 func assignNames(doc *contract.Document) map[string]string {
 	base := naming.Assign(doc, nil)
-	ids := make([]string, 0, len(base))
-	for id := range base {
-		ids = append(ids, id)
-	}
-	sort.Strings(ids)
+	ids := slices.Sorted(maps.Keys(base))
 	names := map[string]string{}
 	used := map[string]bool{}
 	for _, id := range ids {

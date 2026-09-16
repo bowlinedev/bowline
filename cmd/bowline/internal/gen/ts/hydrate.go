@@ -1,7 +1,8 @@
 package ts
 
 import (
-	"sort"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -164,11 +165,7 @@ func (g *generator) runtimeTable() string {
 		}
 	}
 	hydrators := g.pruneHydrators()
-	keys := make([]string, 0, len(hydrators))
-	for k := range hydrators {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
+	keys := slices.Sorted(maps.Keys(hydrators))
 	var b strings.Builder
 	b.WriteString("export const contract = {\n")
 	b.WriteString("  version: ")

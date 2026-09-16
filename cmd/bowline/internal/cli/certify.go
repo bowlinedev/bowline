@@ -7,10 +7,11 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 	"time"
 
@@ -194,11 +195,7 @@ func runCertification(opts Options, cfg *CertifyConfig) ([]certifyCheck, error) 
 	if len(accepted) == 0 {
 		return nil, errors.New("certify: the fidelity corpus is empty")
 	}
-	rows := make([]string, 0, len(accepted))
-	for row := range accepted {
-		rows = append(rows, row)
-	}
-	sort.Strings(rows)
+	rows := slices.Sorted(maps.Keys(accepted))
 
 	work, err := os.MkdirTemp("", "bowline-certify-")
 	if err != nil {
@@ -353,11 +350,7 @@ func escapeHatchBaseline(producer filesProducer, cfg *CertifyConfig, out string)
 }
 
 func findEscapeHatch(files map[string][]byte, hatches []string, baseline map[string]int) (string, string, int) {
-	names := make([]string, 0, len(files))
-	for name := range files {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(files))
 	counts := map[string]int{}
 	for _, name := range names {
 		for _, hatch := range hatches {
@@ -381,11 +374,7 @@ func compareFiles(first, second map[string][]byte) string {
 	if len(first) != len(second) {
 		return fmt.Sprintf("the first run wrote %d file(s), the second %d", len(first), len(second))
 	}
-	names := make([]string, 0, len(first))
-	for name := range first {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(first))
 	for _, name := range names {
 		other, ok := second[name]
 		if !ok {

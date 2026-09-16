@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"slices"
 	"sort"
 	"strings"
 
@@ -178,11 +179,7 @@ func attributeThroughGateways(ctx context.Context, store Store, service string, 
 		composed := contract.Diff(oldComposed, newComposed)
 		gatewayHits := map[int][]Affected{}
 		attribute(composed, consumers, composition.Gateway, gatewayHits)
-		positions := make([]int, 0, len(gatewayHits))
-		for i := range gatewayHits {
-			positions = append(positions, i)
-		}
-		sort.Ints(positions)
+		positions := slices.Sorted(maps.Keys(gatewayHits))
 		for _, i := range positions {
 			target, ok := index[unprefix(composed[i], service)]
 			if !ok {

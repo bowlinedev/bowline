@@ -2,6 +2,8 @@ package dart
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 	"sort"
 	"strings"
 
@@ -86,11 +88,7 @@ func (Generator) Generate(doc *contract.Document, out string) ([]byte, error) {
 func newGenerator(doc *contract.Document) *generator {
 	base := naming.Assign(doc, nil)
 	g := &generator{doc: doc, names: map[string]string{}, usedNames: map[string]bool{}, inline: map[*contract.Type]*inlineDecl{}, uses: map[string]bool{}}
-	ids := make([]string, 0, len(base))
-	for id := range base {
-		ids = append(ids, id)
-	}
-	sort.Strings(ids)
+	ids := slices.Sorted(maps.Keys(base))
 	for _, id := range ids {
 		g.names[id] = g.uniqueType(naming.UpperCamel(base[id]))
 	}

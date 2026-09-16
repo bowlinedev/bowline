@@ -3,8 +3,9 @@ package analyzer
 import (
 	"fmt"
 	"go/token"
+	"maps"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 
 	"golang.org/x/tools/go/packages"
@@ -87,11 +88,7 @@ func (p *Program) reachable(from *packages.Package) []*packages.Package {
 		}
 		seen[pkg] = true
 		out = append(out, pkg)
-		paths := make([]string, 0, len(pkg.Imports))
-		for path := range pkg.Imports {
-			paths = append(paths, path)
-		}
-		sort.Strings(paths)
+		paths := slices.Sorted(maps.Keys(pkg.Imports))
 		for _, path := range paths {
 			visit(p.byPath[pkg.Imports[path].PkgPath])
 		}

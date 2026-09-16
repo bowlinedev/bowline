@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"sort"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/analyzer"
@@ -173,11 +174,7 @@ func render(doc *contract.Document, cfg *Config, env []string) (map[string][]byt
 }
 
 func sortedTargets(cfg *Config) []string {
-	names := make([]string, 0, len(cfg.Targets))
-	for name := range cfg.Targets {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(cfg.Targets))
 	return names
 }
 
@@ -234,10 +231,6 @@ func printDiagnostics(w io.Writer, diags []analyzer.Diagnostic) {
 }
 
 func sortedPaths(files map[string][]byte) []string {
-	paths := make([]string, 0, len(files))
-	for p := range files {
-		paths = append(paths, p)
-	}
-	sort.Strings(paths)
+	paths := slices.Sorted(maps.Keys(files))
 	return paths
 }
