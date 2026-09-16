@@ -22,5 +22,6 @@ Starting a timer, the tester must:
 |---|---|---|---|
 | 2026-09-15 | automated run of `scripts/quickstart.sh` by the author, not a fresh tester | 0.2 | none; a run by a person new to Bowline is still owed |
 | 2026-09-16 | automated run of the Dart, Python, Rust, and Elixir ledger examples by the author, not a fresh tester | 1.5 | none; each language's example lists, creates, validates, voids, and subscribes on a first `test` invocation, but a run by a person new to Bowline is still owed for every language |
+| 2026-09-16 | automated run of the whole verification, the six certified generators, and the fuzz smoke suite by the author, not a fresh tester | 0.2 | none for the automated path; a run by a person new to Bowline is still owed and is the one row 1.0 does not have |
 
 A result over ten minutes is a documentation bug first. File an issue for every blocker before the release.

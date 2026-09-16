@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.0.0
+
+First stable release. `docs/stability.md` states what will not change inside 1.x: the Go API, the minimum Go version, the contract document format, generated code, the CLI and its machine-readable output, and the wire format. `docs/migration-0.x.md` lists everything a 0.x upgrade asks of you, and `docs/lts.md` gives the support windows.
 
 - Security: every error path in the runtime is audited in `docs/security/audit-2026.md`; production now redacts the message, details, and issues of every 5xx, including `bowline.Errorf(bowline.Internal, ...)` and panics, and decoder failures answer `invalid input` instead of echoing the request body.
 - Runtime: `bowline.CSRF` rejects cross-origin mutations by origin and fetch metadata, `bowline.SecurityHeaders` sets the header set, `bowline.MaxBody` sets a per-procedure body limit recorded in the contract, and `bowline.RateLimit` is a token bucket middleware with key eviction.

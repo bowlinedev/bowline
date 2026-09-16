@@ -1,3 +1,3 @@
 package bowline
 
-const Version = "0.7.0"
+const Version = "1.0.0"
