@@ -211,33 +211,34 @@ func (z *zodGenerator) schemaWithRules(t *contract.Type, rules []contract.Rule, 
 	if oneof := findRule(rules, "oneof"); oneof != nil {
 		return z.oneof(t, oneof.Param)
 	}
-	s := z.schema(t, env)
+	var b strings.Builder
+	b.WriteString(z.schema(t, env))
 	class := zodClass(t)
 	for _, r := range rules {
 		switch r.Rule {
 		case "required":
 			if (class == "string" || class == "array") && findRule(rules, "min") == nil {
-				s += ".min(1)"
+				b.WriteString(".min(1)")
 			}
 		case "min":
-			s += ".min(" + r.Param + ")"
+			b.WriteString(".min(" + r.Param + ")")
 		case "max":
-			s += ".max(" + r.Param + ")"
+			b.WriteString(".max(" + r.Param + ")")
 		case "len":
 			if class == "number" {
-				s += ".min(" + r.Param + ").max(" + r.Param + ")"
+				b.WriteString(".min(" + r.Param + ").max(" + r.Param + ")")
 			} else {
-				s += ".length(" + r.Param + ")"
+				b.WriteString(".length(" + r.Param + ")")
 			}
 		case "email":
-			s += ".email()"
+			b.WriteString(".email()")
 		case "url":
-			s += ".url()"
+			b.WriteString(".url()")
 		case "uuid":
-			s += ".uuid()"
+			b.WriteString(".uuid()")
 		}
 	}
-	return s
+	return b.String()
 }
 
 func findRule(rules []contract.Rule, name string) *contract.Rule {

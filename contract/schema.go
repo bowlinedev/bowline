@@ -15,7 +15,7 @@ type schemaNode = map[string]any
 
 func Schema() ([]byte, error) {
 	b := &schemaBuilder{defs: map[string]schemaNode{}}
-	root := b.object(reflect.TypeOf(Document{}))
+	root := b.object(reflect.TypeFor[Document]())
 	root["$schema"] = "https://json-schema.org/draft/2020-12/schema"
 	root["$id"] = schemaID
 	root["title"] = "Bowline contract document"
@@ -69,7 +69,7 @@ func (b *schemaBuilder) object(t reflect.Type) schemaNode {
 }
 
 func (b *schemaBuilder) node(t reflect.Type, jsonName string) schemaNode {
-	if t == reflect.TypeOf(Kind("")) {
+	if t == reflect.TypeFor[Kind]() {
 		return schemaNode{"type": "string", "enum": kindValues}
 	}
 	switch t.Kind() {
@@ -78,7 +78,7 @@ func (b *schemaBuilder) node(t reflect.Type, jsonName string) schemaNode {
 	case reflect.Struct:
 		return b.ref(t)
 	case reflect.Slice:
-		if t == reflect.TypeOf(json.RawMessage{}) {
+		if t == reflect.TypeFor[json.RawMessage]() {
 			return schemaNode{}
 		}
 		return schemaNode{"type": "array", "items": b.node(t.Elem(), jsonName)}

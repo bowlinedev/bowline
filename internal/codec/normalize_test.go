@@ -95,7 +95,7 @@ func TestNormalizeSharesUnchangedSubtrees(t *testing.T) {
 }
 
 func TestInactivePlanReturnsSameValue(t *testing.T) {
-	p := Compile(reflect.TypeOf(plain{}))
+	p := Compile(reflect.TypeFor[plain]())
 	if p.Active() {
 		t.Fatal("plain has nothing to normalize")
 	}
@@ -107,7 +107,7 @@ func TestInactivePlanReturnsSameValue(t *testing.T) {
 }
 
 func TestSafeRange(t *testing.T) {
-	p := Compile(reflect.TypeOf(outer{}))
+	p := Compile(reflect.TypeFor[outer]())
 	_, err := p.Normalize(outer{ID: 1 << 53})
 	var re *RangeError
 	if !errors.As(err, &re) || re.Path != "id" {
@@ -121,7 +121,7 @@ func TestSafeRange(t *testing.T) {
 			U uint64 `json:"u"`
 		} `json:"items"`
 	}
-	_, err = Compile(reflect.TypeOf(nested{})).Normalize(nested{Items: []struct {
+	_, err = Compile(reflect.TypeFor[nested]()).Normalize(nested{Items: []struct {
 		U uint64 `json:"u"`
 	}{{U: 1 << 60}}})
 	if !errors.As(err, &re) || re.Path != "items[0].u" {
@@ -130,11 +130,11 @@ func TestSafeRange(t *testing.T) {
 }
 
 func TestRecursiveTypes(t *testing.T) {
-	p := Compile(reflect.TypeOf(chain{}))
+	p := Compile(reflect.TypeFor[chain]())
 	if p.Active() {
 		t.Fatal("chain has no collections or 64-bit ints")
 	}
-	tp := Compile(reflect.TypeOf(tree{}))
+	tp := Compile(reflect.TypeFor[tree]())
 	out, err := tp.Normalize(tree{Children: []*tree{{}}})
 	if err != nil {
 		t.Fatal(err)
@@ -149,7 +149,7 @@ func TestMarshalersAreLeaves(t *testing.T) {
 	type withTime struct {
 		When time.Time `json:"when"`
 	}
-	if Compile(reflect.TypeOf(withTime{})).Active() {
+	if Compile(reflect.TypeFor[withTime]()).Active() {
 		t.Fatal("time.Time implements json.Marshaler and must be a leaf")
 	}
 }

@@ -106,9 +106,8 @@ func checkAgainst(opts Options, ref string, allowBreaking bool, consumersDir str
 	cmd.Dir = opts.Dir
 	oldRaw, err := cmd.Output()
 	if err != nil {
-		var exitErr *exec.ExitError
 		detail := err.Error()
-		if errors.As(err, &exitErr) {
+		if exitErr, ok := errors.AsType[*exec.ExitError](err); ok {
 			detail = strings.TrimSpace(string(exitErr.Stderr))
 		}
 		fmt.Fprintf(opts.Stderr, "bowline: reading %s at %s: %s\n", cfg.Contract, ref, detail)

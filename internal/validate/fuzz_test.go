@@ -69,7 +69,7 @@ func FuzzValidateCheck(f *testing.F) {
 		if _, err := ParseTag(tag); err != nil {
 			return
 		}
-		checker, err := Compile(reflect.TypeOf(fuzzInput{}))
+		checker, err := Compile(reflect.TypeFor[fuzzInput]())
 		if err != nil {
 			t.Fatalf("the fixture type failed to compile: %v", err)
 		}

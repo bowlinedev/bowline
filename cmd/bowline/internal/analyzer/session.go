@@ -189,8 +189,7 @@ func (s *Session) recheck(pkg *packages.Package) (time.Duration, time.Duration, 
 			return nil, fmt.Errorf("import %q not available", path)
 		}),
 		Error: func(err error) {
-			var te types.Error
-			if errors.As(err, &te) {
+			if te, ok := errors.AsType[types.Error](err); ok {
 				diags = append(diags, Diagnostic{Pos: s.prog.Position(te.Pos), Message: te.Msg, Fix: "fix the compile error"})
 				return
 			}
