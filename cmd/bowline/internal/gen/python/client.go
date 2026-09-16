@@ -1,7 +1,8 @@
 package python
 
 import (
-	"sort"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -45,11 +46,7 @@ func (n *node) className(prefix string) string {
 }
 
 func sortedKeys(n *node) []string {
-	keys := make([]string, 0, len(n.children))
-	for k := range n.children {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
+	keys := slices.Sorted(maps.Keys(n.children))
 	return keys
 }
 

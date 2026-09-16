@@ -1,6 +1,8 @@
 package python
 
 import (
+	"maps"
+	"slices"
 	"sort"
 	"strings"
 
@@ -144,11 +146,7 @@ func (g *generator) typeVars() string {
 	if len(g.params) == 0 {
 		return ""
 	}
-	names := make([]string, 0, len(g.params))
-	for p := range g.params {
-		names = append(names, p)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(g.params))
 	var b strings.Builder
 	for _, p := range names {
 		b.WriteString(p)

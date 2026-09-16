@@ -3,6 +3,7 @@ package gateway
 import (
 	"fmt"
 	"maps"
+	"slices"
 	"sort"
 	"strings"
 
@@ -30,11 +31,7 @@ func Compose(services map[string]*contract.Document) (*contract.Document, []Diag
 	if len(services) == 0 {
 		return nil, []Diagnostic{{Message: "no services to compose", Fix: "name at least one service in the gateway configuration"}}
 	}
-	names := make([]string, 0, len(services))
-	for name := range services {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(services))
 
 	var diags []Diagnostic
 	major := ""

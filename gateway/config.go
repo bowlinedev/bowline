@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"time"
 )
 
@@ -127,11 +128,7 @@ func ParseConfig(data []byte, path string) (*Config, error) {
 	if len(file.Services) == 0 {
 		return nil, fmt.Errorf("%s: %q is required with at least one service", path, "services")
 	}
-	names := make([]string, 0, len(file.Services))
-	for name := range file.Services {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(file.Services))
 	for _, name := range names {
 		up := file.Services[name]
 		if up.URL == "" {
@@ -163,11 +160,7 @@ func ParseConfig(data []byte, path string) (*Config, error) {
 }
 
 func (c *Config) ServiceNames() []string {
-	names := make([]string, 0, len(c.Services))
-	for name := range c.Services {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(c.Services))
 	return names
 }
 

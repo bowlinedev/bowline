@@ -51,7 +51,7 @@ func (s *session) run(parent context.Context) {
 		}
 		var f frame
 		if err := json.Unmarshal(data, &f); err != nil {
-			s.write(errorFrame(f.ID, []byte(fmt.Sprintf(`{"error":{"code":"INVALID_ARGUMENT","message":%q}}`, "malformed frame: "+err.Error()))))
+			s.write(errorFrame(f.ID, fmt.Appendf(nil, `{"error":{"code":"INVALID_ARGUMENT","message":%q}}`, "malformed frame: "+err.Error())))
 			continue
 		}
 		switch f.Type {
@@ -60,7 +60,7 @@ func (s *session) run(parent context.Context) {
 		case "stop":
 			s.stop(f.ID)
 		default:
-			s.write(errorFrame(f.ID, []byte(fmt.Sprintf(`{"error":{"code":"INVALID_ARGUMENT","message":%q}}`, "unknown frame type "+f.Type))))
+			s.write(errorFrame(f.ID, fmt.Appendf(nil, `{"error":{"code":"INVALID_ARGUMENT","message":%q}}`, "unknown frame type "+f.Type)))
 		}
 	}
 }

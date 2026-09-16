@@ -6,7 +6,9 @@ import (
 	"io"
 	"io/fs"
 	"log/slog"
+	"maps"
 	"net/http"
+	"slices"
 	"sort"
 	"time"
 
@@ -446,11 +448,7 @@ func (s *Server) graph(w http.ResponseWriter, r *http.Request) {
 	for _, c := range compositions {
 		kinds[c.Gateway] = "gateway"
 		providers = append(providers, c.Gateway)
-		names := make([]string, 0, len(c.Services))
-		for name := range c.Services {
-			names = append(names, name)
-		}
-		sort.Strings(names)
+		names := slices.Sorted(maps.Keys(c.Services))
 		for _, name := range names {
 			if _, ok := kinds[name]; !ok {
 				kinds[name] = "service"
@@ -479,11 +477,7 @@ func (s *Server) graph(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	edges = append(edges, consumerEdges...)
-	names := make([]string, 0, len(kinds))
-	for name := range kinds {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(kinds))
 	nodes := make([]Node, 0, len(names))
 	for _, name := range names {
 		nodes = append(nodes, Node{Name: name, Kind: kinds[name]})

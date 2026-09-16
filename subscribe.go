@@ -82,7 +82,7 @@ func failure(err error, h *handler, proc *Procedure) error {
 	status, env, _ := classify(err, h.production, variants)
 	body, marshalErr := json.Marshal(env)
 	if marshalErr != nil {
-		body = []byte(fmt.Sprintf(`{"error":{"code":"INTERNAL","message":%q}}`, "error encoding failed"))
+		body = fmt.Appendf(nil, `{"error":{"code":"INTERNAL","message":%q}}`, "error encoding failed")
 	}
 	return &StreamFailure{Status: status, Body: body, Err: err}
 }

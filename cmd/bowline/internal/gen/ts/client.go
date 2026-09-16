@@ -1,7 +1,8 @@
 package ts
 
 import (
-	"sort"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -71,11 +72,7 @@ func (g *generator) errorUnion(p *contract.Procedure) string {
 }
 
 func (g *generator) writeNode(b *strings.Builder, node *clientNode, indent string) {
-	keys := make([]string, 0, len(node.children))
-	for k := range node.children {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
+	keys := slices.Sorted(maps.Keys(node.children))
 	for _, k := range keys {
 		child := node.children[k]
 		if child.proc != nil {

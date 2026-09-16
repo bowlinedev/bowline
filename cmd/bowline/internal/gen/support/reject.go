@@ -2,7 +2,8 @@ package support
 
 import (
 	"fmt"
-	"sort"
+	"maps"
+	"slices"
 
 	"github.com/bowlinedev/bowline/contract"
 )
@@ -34,11 +35,7 @@ var knownDeclKinds = map[contract.Kind]bool{
 }
 
 func Reject(doc *contract.Document, target string) error {
-	ids := make([]string, 0, len(doc.Types))
-	for id := range doc.Types {
-		ids = append(ids, id)
-	}
-	sort.Strings(ids)
+	ids := slices.Sorted(maps.Keys(doc.Types))
 	for _, id := range ids {
 		decl := doc.Types[id]
 		if !knownDeclKinds[decl.Kind] {
@@ -64,11 +61,7 @@ func Reject(doc *contract.Document, target string) error {
 			}
 		}
 	}
-	errorIDs := make([]string, 0, len(doc.Errors))
-	for id := range doc.Errors {
-		errorIDs = append(errorIDs, id)
-	}
-	sort.Strings(errorIDs)
+	errorIDs := slices.Sorted(maps.Keys(doc.Errors))
 	for _, id := range errorIDs {
 		for i, f := range doc.Errors[id].Fields {
 			if f == nil {

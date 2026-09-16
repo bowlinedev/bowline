@@ -1,8 +1,10 @@
 package cli
 
 import (
+	"maps"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"testing"
 
@@ -36,11 +38,7 @@ func fidelityCorpus(tb testing.TB) []*contract.Document {
 
 func BenchmarkGenerators(b *testing.B) {
 	docs := fidelityCorpus(b)
-	names := make([]string, 0, len(Generators))
-	for name := range Generators {
-		names = append(names, name)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(Generators))
 	for _, name := range names {
 		generator := Generators[name]
 		out := "bench/out" + generatorExtension(name)

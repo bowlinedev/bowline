@@ -1,7 +1,8 @@
 package goclient
 
 import (
-	"sort"
+	"maps"
+	"slices"
 	"strings"
 	"unicode"
 
@@ -23,11 +24,7 @@ var keywords = map[string]bool{
 
 func assignNames(doc *contract.Document) map[string]string {
 	base := naming.Assign(doc, nil)
-	ids := make([]string, 0, len(base))
-	for id := range base {
-		ids = append(ids, id)
-	}
-	sort.Strings(ids)
+	ids := slices.Sorted(maps.Keys(base))
 	groups := map[string][]string{}
 	for _, id := range ids {
 		name := exported(base[id])

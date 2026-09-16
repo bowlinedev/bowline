@@ -249,7 +249,7 @@ func (h *handler) writeError(w http.ResponseWriter, proc *Procedure, statusOverr
 	}
 	body, marshalErr := json.Marshal(env)
 	if marshalErr != nil {
-		body = []byte(fmt.Sprintf(`{"error":{"code":"INTERNAL","message":%q}}`, "error encoding failed"))
+		body = fmt.Appendf(nil, `{"error":{"code":"INTERNAL","message":%q}}`, "error encoding failed")
 		status = http.StatusInternalServerError
 	}
 	h.secure(w, http.MethodPost)

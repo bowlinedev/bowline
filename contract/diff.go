@@ -3,6 +3,8 @@ package contract
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -58,11 +60,7 @@ func Diff(old, new *Document) Changes {
 	for _, p := range new.Procedures {
 		newProcs[p.Path] = p
 	}
-	oldPaths := make([]string, 0, len(oldProcs))
-	for path := range oldProcs {
-		oldPaths = append(oldPaths, path)
-	}
-	sort.Strings(oldPaths)
+	oldPaths := slices.Sorted(maps.Keys(oldProcs))
 	for _, path := range oldPaths {
 		op := oldProcs[path]
 		np, ok := newProcs[path]
@@ -72,11 +70,7 @@ func Diff(old, new *Document) Changes {
 		}
 		d.procedure(op, np)
 	}
-	newPaths := make([]string, 0, len(newProcs))
-	for path := range newProcs {
-		newPaths = append(newPaths, path)
-	}
-	sort.Strings(newPaths)
+	newPaths := slices.Sorted(maps.Keys(newProcs))
 	for _, path := range newPaths {
 		if _, ok := oldProcs[path]; !ok {
 			d.add("procedure "+path, Added, "procedure added")
