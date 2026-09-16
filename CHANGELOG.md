@@ -9,6 +9,8 @@
 - Generators: an external generator protocol so a new language can be added without forking (`docs/plugins.md`), and `bowline certify`, which proves a generator against the fidelity corpus and writes `docs/certified.md`.
 - Signing: `Sign` draws a nonce into the canonical string and `bowline.Signed` rejects a replayed signature through a bounded `signing.ReplayCache`; a signature without a nonce still verifies, so 0.7.0 callers keep working.
 - Fuzzing: eleven Go fuzz targets and a client property test run nightly and for ten seconds in CI; they found and fixed a panic value reaching production clients, four generator panics on malformed documents, non-deterministic TypeScript output when two type IDs share a name, and `@bowline/client` throwing a bare `SyntaxError` on a non-JSON 2xx body.
+- API: `docs/api-freeze.md` lists every exported identifier 1.x will guarantee, pinned by a test, and `scripts/apidiff.sh` reports incompatible changes against the previous tag on every pull request; it becomes a hard gate at the first 1.x tag.
+- Incompatible since 0.7.0, both deliberate: `bowline.Call` is no longer comparable, because it now carries the response headers a middleware can set, and `signing.Verify` takes variadic options for the replay cache. Calls are unaffected; comparing a `Call` value or assigning `Verify` to a function variable is not.
 
 ## 0.7.0
 
