@@ -1,22 +1,28 @@
 # bowline-agent
 
-Tool definitions and dispatch for [Bowline](https://github.com/bowlinedev/bowline) APIs, with no runtime dependencies.
+Turn a [Bowline](https://github.com/bowlinedev/bowline) API into tools for an LLM agent, in Python.
 
-```python
-from bowline_agent import Call, Dispatcher, load_contract, to_anthropic, tools
+Bowline turns your Go code into typed API clients. This package turns the same contract into tool definitions, and calls them.
 
-contract = load_contract("api/bowline.contract.json")
-exposed = tools(contract, scopes=["billing"])
-definitions = to_anthropic(exposed)
+## Install
 
-dispatcher = Dispatcher(
-    exposed, "http://localhost:8080/api", headers={"Authorization": "Bearer dev"}
-)
-result = dispatcher.dispatch(Call(id="1", tool="invoices_get", input={"id": 3}))
-if result.error:
-    print(result.error["code"])
-else:
-    print(result.output)
+```bash
+pip install bowline-agent
 ```
 
-`tools` reads the procedures exposed with `bowline.Tool(...)` from a contract generated with `"schemas": true`. `to_anthropic`, `to_openai`, and `to_json_schema` produce the same shapes as `bowline export tools`. `Dispatcher` forwards a `Call` to the running API and returns the output or the Bowline error envelope; a `RecordingTracer` writes one JSON line per call for `bowline eval record --agent`.
+## Use
+
+```python
+from bowline_agent import to_anthropic, create_dispatcher
+
+tools = to_anthropic(contract)
+dispatch = create_dispatcher(client, contract)
+```
+
+`to_anthropic`, `to_openai` and `to_json_schema` build the tool list. `create_dispatcher` runs a tool call against your API.
+
+Only procedures you mark as tools in Go are included.
+
+Docs: [bowlinedev/bowline](https://github.com/bowlinedev/bowline)
+
+Apache-2.0
