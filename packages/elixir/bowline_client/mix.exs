@@ -28,7 +28,8 @@ defmodule BowlineClient.MixProject do
     [
       licenses: ["Apache-2.0"],
       links: %{"GitHub" => "https://github.com/bowlinedev/bowline"},
-      files: ~w(lib mix.exs README.md CHANGELOG.md)
+      source_url: "https://github.com/bowlinedev/bowline",
+      files: ~w(lib mix.exs README.md CHANGELOG.md LICENSE)
     ]
   end
 
