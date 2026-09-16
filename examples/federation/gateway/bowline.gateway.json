@@ -6,12 +6,12 @@
     "ledger": {
       "url": "http://127.0.0.1:8080/api",
       "contract": "../../ledger/api/bowline.contract.json",
-      "version": "sha256:21e846087842eb018397264ce6eb5622ce74fccf2ec700d0fed43b57d6b6f5df"
+      "version": "sha256:c8bd354f5a48c124c23d9f0aa0f7aabc848331b76a28f21732d59be8646af85d"
     },
     "billing": {
       "url": "http://127.0.0.1:8081/api",
       "contract": "../billing/api/bowline.contract.json",
-      "version": "sha256:4bc57aefd4c42872b125d1d2dbfe755d6098ab58d768d5c51f846dbc94e4a281"
+      "version": "sha256:7c40b5b79482adbf6645409ce4a30de9e5e693f092fb8e3c3eed288c5a3cd77c"
     }
   }
 }
