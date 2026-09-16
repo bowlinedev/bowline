@@ -27,6 +27,7 @@
 - `guides/security.md`: CSRF, security headers, what `Sensitive()` does, and the reverse proxy checklist.
 - `cli.md`: every command, flag, exit code, and machine-readable output.
 - `stability.md`: what does not change inside a major version.
+- `migration-0.x.md`: what each 0.x release asks of an existing user.
 - `lts.md`: release cadence, support windows, and what gets backported.
 - `security/audit-2026.md`: every error path in the runtime, what it says in production, and the test that pins it.
 - `security/signing.md`: the signature canonicalization, the replay cache, and the skew window.
