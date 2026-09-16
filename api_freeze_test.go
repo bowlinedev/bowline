@@ -9,7 +9,7 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -75,7 +75,7 @@ func parseFreezeList(t *testing.T) map[string][]string {
 		}
 	}
 	for _, ids := range lists {
-		sort.Strings(ids)
+		slices.Sort(ids)
 	}
 	return lists
 }
@@ -110,7 +110,7 @@ func exportedIdentifiers(t *testing.T, dir string) []string {
 		}
 		ids = append(ids, identifiersOf(doc.New(pkg, filepath.ToSlash(dir), 0))...)
 	}
-	sort.Strings(ids)
+	slices.Sort(ids)
 	return ids
 }
 

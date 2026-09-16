@@ -3,6 +3,7 @@ package analyzer
 import (
 	"fmt"
 	"go/types"
+	"slices"
 	"sort"
 	"strings"
 
@@ -72,7 +73,7 @@ func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
 			seenErrors[id] = true
 			proc.Errors = append(proc.Errors, id)
 		}
-		sort.Strings(proc.Errors)
+		slices.Sort(proc.Errors)
 		c.recordPosition(spec.Path, spec.Pos)
 		doc.Procedures = append(doc.Procedures, proc)
 	}

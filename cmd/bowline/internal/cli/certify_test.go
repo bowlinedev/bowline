@@ -13,8 +13,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"os"
-	"sort"
+	"slices"
 )
 
 func main() {
@@ -23,11 +24,7 @@ func main() {
 		Types map[string]json.RawMessage ` + "`json:\"types\"`" + `
 	}
 	json.Unmarshal(body, &doc)
-	names := make([]string, 0, len(doc.Types))
-	for id := range doc.Types {
-		names = append(names, id)
-	}
-	sort.Strings(names)
+	names := slices.Sorted(maps.Keys(doc.Types))
 	fmt.Println("// generated")
 	for i := range names {
 		fmt.Printf("export type T%d = any;\n", i)

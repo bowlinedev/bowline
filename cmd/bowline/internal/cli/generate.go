@@ -9,7 +9,6 @@ import (
 	"path"
 	"path/filepath"
 	"slices"
-	"sort"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/analyzer"
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/export/openapi"
@@ -216,7 +215,7 @@ func availableTargets() string {
 		names = append(names, name)
 	}
 	names = append(names, "tools")
-	sort.Strings(names)
+	slices.Sort(names)
 	if len(names) == 0 {
 		return "none"
 	}

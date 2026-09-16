@@ -456,7 +456,7 @@ func (s *Server) graph(w http.ResponseWriter, r *http.Request) {
 			edges = append(edges, Edge{From: c.Gateway, To: name, Kind: "composes"})
 		}
 	}
-	sort.Strings(providers)
+	slices.Sort(providers)
 	seen := map[Edge]bool{}
 	var consumerEdges []Edge
 	for _, provider := range providers {

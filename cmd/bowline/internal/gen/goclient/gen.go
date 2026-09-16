@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"go/format"
 	"path"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/support"
@@ -70,7 +70,7 @@ func (g *generator) imports() string {
 	if g.uses["time"] {
 		std = append(std, "time")
 	}
-	sort.Strings(std)
+	slices.Sort(std)
 	var b strings.Builder
 	b.WriteString("import (\n")
 	for _, s := range std {

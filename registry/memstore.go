@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"maps"
+	"slices"
 	"sort"
 	"sync"
 )
@@ -126,7 +127,7 @@ func (m *MemStore) tagsFor(service string) map[string][]string {
 		out[hash] = append(out[hash], tag)
 	}
 	for hash := range out {
-		sort.Strings(out[hash])
+		slices.Sort(out[hash])
 	}
 	return out
 }

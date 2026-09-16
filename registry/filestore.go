@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -193,7 +194,7 @@ func (f *FileStore) tagsFor(service string) (map[string][]string, error) {
 		out[record["hash"]] = append(out[record["hash"]], tag)
 	}
 	for hash := range out {
-		sort.Strings(out[hash])
+		slices.Sort(out[hash])
 	}
 	return out, nil
 }

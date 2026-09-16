@@ -1,7 +1,7 @@
 package naming
 
 import (
-	"sort"
+	"slices"
 	"strings"
 	"unicode"
 
@@ -22,7 +22,7 @@ func Assign(doc *contract.Document, reserved map[string]bool) map[string]string 
 			names[ids[0]] = escape(Identifier(name), reserved)
 			continue
 		}
-		sort.Strings(ids)
+		slices.Sort(ids)
 		for _, id := range ids {
 			names[id] = escape(Identifier(PackageName(id)+"_"+name), reserved)
 		}

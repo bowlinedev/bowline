@@ -6,7 +6,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"testing"
 )
 
@@ -32,7 +32,7 @@ func buildCorpus(t *testing.T) corpusFile {
 			file.Rejected = append(file.Rejected, row)
 		}
 	}
-	sort.Strings(file.Rejected)
+	slices.Sort(file.Rejected)
 	return file
 }
 

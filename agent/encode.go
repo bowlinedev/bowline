@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"sort"
+	"slices"
 )
 
 type Format string
@@ -64,7 +64,7 @@ func Encode(tools []Tool, f Format) (json.RawMessage, error) {
 
 func sortedCopy(s []string) []string {
 	out := append([]string{}, s...)
-	sort.Strings(out)
+	slices.Sort(out)
 	if out == nil {
 		out = []string{}
 	}
