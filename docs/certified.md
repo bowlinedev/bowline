@@ -1,6 +1,6 @@
 # Certified generators
 
-Every row here passed `bowline certify` against the fidelity corpus: it generates every accepted row, emits no escape-hatch type where the contract has no raw primitive, is deterministic across two runs, compiles with the target's own toolchain, and passes the conformance suite. `docs/certification.md` describes the checks and how to submit a generator.
+Every row here passed `bowline certify` against the fidelity corpus: it generates every accepted row, emits no escape-hatch type where the contract has no raw primitive, is deterministic across two runs, compiles with the target's own toolchain, and leaves the target's runtime package tests passing. `docs/certification.md` describes the checks and how to submit a generator.
 
 | Target | Generator | Version certified | Bowline version | Date |
 |---|---|---|---|---|
