@@ -5,6 +5,8 @@
 - Security: every error path in the runtime is audited in `docs/security/audit-2026.md`; production now redacts the message, details, and issues of every 5xx, including `bowline.Errorf(bowline.Internal, ...)` and panics, and decoder failures answer `invalid input` instead of echoing the request body.
 - Runtime: `bowline.CSRF` rejects cross-origin mutations by origin and fetch metadata, `bowline.SecurityHeaders` sets the header set, `bowline.MaxBody` sets a per-procedure body limit recorded in the contract, and `bowline.RateLimit` is a token bucket middleware with key eviction.
 - Benchmarks: `docs/benchmarks.md` reports handler overhead, regeneration latency, and generator throughput, regenerated from a run published on each `main` push with history and a five percent regression gate.
+- CLI: `check --json` and `diff --json` for machine-readable output, `docs/cli.md` documenting every command, flag, exit code and output shape with a test that keeps it honest, and `docs/stability.md` stating what does not change inside a major version.
+- Generators: an external generator protocol so a new language can be added without forking (`docs/plugins.md`), and `bowline certify`, which proves a generator against the fidelity corpus and writes `docs/certified.md`.
 
 ## 0.7.0
 
