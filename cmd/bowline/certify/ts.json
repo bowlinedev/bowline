@@ -3,6 +3,6 @@
   "generator": "ts",
   "repository": "built in",
   "compile": ["scripts/check-goldens.sh", "ts"],
-  "test": ["pnpm", "--filter", "@bowline/client", "test"],
+  "test": ["pnpm", "--filter", "@bowlinedev/client", "test"],
   "conformance": "packages/client/src/index.ts"
 }

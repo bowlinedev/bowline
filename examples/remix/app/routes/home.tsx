@@ -1,4 +1,4 @@
-import { BowlineError } from "@bowline/client";
+import { BowlineError } from "@bowlinedev/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type FormEvent, useState } from "react";
 import { useRevalidator } from "react-router";

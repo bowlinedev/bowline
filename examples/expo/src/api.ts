@@ -1,4 +1,4 @@
-import { bowlineQuery } from "@bowline/react-query";
+import { bowlineQuery } from "@bowlinedev/react-query";
 import Constants from "expo-constants";
 import { createClient } from "./bowline";
 

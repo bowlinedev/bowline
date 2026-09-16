@@ -1,5 +1,5 @@
 {
-  "name": "@bowline/react-query",
+  "name": "@bowlinedev/react-query",
   "version": "1.0.0",
   "description": "TanStack Query bindings for Bowline clients",
   "license": "Apache-2.0",
@@ -30,11 +30,11 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@bowline/client": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
     "@tanstack/react-query": "^5.0.0"
   },
   "devDependencies": {
-    "@bowline/client": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
     "@tanstack/react-query": "5.90.2",
     "tsup": "8.5.0",
     "vitest": "3.2.4"

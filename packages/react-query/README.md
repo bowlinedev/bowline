@@ -1,4 +1,4 @@
-# @bowline/react-query
+# @bowlinedev/react-query
 
 TanStack Query bindings for [Bowline](https://github.com/bowlinedev/bowline).
 
@@ -7,13 +7,13 @@ Bowline turns your Go code into typed API clients. This package connects that cl
 ## Install
 
 ```bash
-npm install @bowline/react-query @bowline/client
+npm install @bowlinedev/react-query @bowlinedev/client
 ```
 
 ## Use
 
 ```ts
-import { bowlineQuery } from "@bowline/react-query";
+import { bowlineQuery } from "@bowlinedev/react-query";
 import { createClient } from "./bowline";
 
 const bq = bowlineQuery(createClient({ url: "/api" }));

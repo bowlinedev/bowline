@@ -1,4 +1,4 @@
-import { BowlineError, type Mutation, type Query } from "@bowline/client";
+import { BowlineError, type Mutation, type Query } from "@bowlinedev/client";
 import { get } from "svelte/store";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { bowlineStores, type QueryState } from "./stores.js";

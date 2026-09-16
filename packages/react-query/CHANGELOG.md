@@ -1,4 +1,4 @@
-# @bowline/react-query
+# @bowlinedev/react-query
 
 ## 1.0.0
 
@@ -18,21 +18,21 @@
 
 ### Patch Changes
 
-- Built on the shared key helper from `@bowline/client`.
+- Built on the shared key helper from `@bowlinedev/client`.
 
 ## 0.4.0
 
 ### Patch Changes
 
 - Updated dependencies
-  - @bowline/client@0.4.0
+  - @bowlinedev/client@0.4.0
 
 ## 0.3.0
 
 ### Patch Changes
 
 - Updated dependencies
-  - @bowline/client@0.3.0
+  - @bowlinedev/client@0.3.0
 
 ## 0.2.0
 
@@ -43,7 +43,7 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @bowline/client@0.2.0
+  - @bowlinedev/client@0.2.0
 
 ## 0.1.0
 
@@ -54,4 +54,4 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @bowline/client@0.1.0
+  - @bowlinedev/client@0.1.0

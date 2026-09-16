@@ -1,4 +1,4 @@
-# @bowline/swr
+# @bowlinedev/swr
 
 ## 1.0.0
 

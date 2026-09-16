@@ -29,13 +29,13 @@ if result.Error != nil {
 
 ## TypeScript
 
-Package `@bowline/agent`, built on `@bowline/client`.
+Package `@bowlinedev/agent`, built on `@bowlinedev/client`.
 
 sketch: the same tour in TypeScript; `./bowline.contract.json` is whatever path the application generates to
 
 ```ts
-import { createDispatcher, recordingTracer, toAnthropic, tools } from "@bowline/agent";
-import type { ContractDocument } from "@bowline/client";
+import { createDispatcher, recordingTracer, toAnthropic, tools } from "@bowlinedev/agent";
+import type { ContractDocument } from "@bowlinedev/client";
 import contract from "./bowline.contract.json";
 
 const exposed = tools(contract as ContractDocument, { scopes: ["billing"] });
@@ -53,7 +53,7 @@ if (result.error) {
 }
 ```
 
-`ContractDocument` in `@bowline/client` types the parsed contract. The dispatcher calls procedures through the client's own transport, so error mapping is the same one the browser client uses; `Tool.inputSchema` is `Record<string, unknown>`, never `any`.
+`ContractDocument` in `@bowlinedev/client` types the parsed contract. The dispatcher calls procedures through the client's own transport, so error mapping is the same one the browser client uses; `Tool.inputSchema` is `Record<string, unknown>`, never `any`.
 
 ## Python
 

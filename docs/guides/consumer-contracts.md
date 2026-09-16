@@ -4,7 +4,7 @@ A consumer contract records what one client actually uses: which procedures, wit
 
 ## Recording
 
-`@bowline/client` records through the `record` option, a sink that receives every call's procedure, method, input, and raw response before hydration:
+`@bowlinedev/client` records through the `record` option, a sink that receives every call's procedure, method, input, and raw response before hydration:
 
 source: examples/ledger/web/src/api.ts:49-51
 
@@ -14,7 +14,7 @@ if (record !== undefined) {
 }
 ```
 
-Under Node, `@bowline/client/node` exports `fileSink(consumer, path, { provider })`, which deduplicates by procedure and canonical input and writes the consumer file on `flush()`. In a browser suite the app collects interactions on `window` and the test harness writes them; the ledger does exactly that in `examples/ledger/web/src/api.ts` and `examples/ledger/web/e2e/record.ts`, and `RECORD=1 pnpm test:e2e` refreshes `examples/ledger/contracts/consumers/ledger-web.json`.
+Under Node, `@bowlinedev/client/node` exports `fileSink(consumer, path, { provider })`, which deduplicates by procedure and canonical input and writes the consumer file on `flush()`. In a browser suite the app collects interactions on `window` and the test harness writes them; the ledger does exactly that in `examples/ledger/web/src/api.ts` and `examples/ledger/web/e2e/record.ts`, and `RECORD=1 pnpm test:e2e` refreshes `examples/ledger/contracts/consumers/ledger-web.json`.
 
 The file is plain JSON, one object per interaction, and lives in the provider repository under `contracts/consumers/`:
 

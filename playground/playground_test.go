@@ -46,7 +46,7 @@ func TestPlaceholderWhenBundleAbsent(t *testing.T) {
 	h := New([]byte(`{}`), withAssets(placeholderOnly))
 	for _, target := range []string{"/", "/index.html", "/some/client/route"} {
 		rec := get(h, target)
-		if rec.Code != 200 || !strings.Contains(rec.Body.String(), "pnpm --filter @bowline/playground build") {
+		if rec.Code != 200 || !strings.Contains(rec.Body.String(), "pnpm --filter @bowlinedev/playground build") {
 			t.Fatalf("%s: %d %s", target, rec.Code, rec.Body.String())
 		}
 		if !strings.Contains(rec.Body.String(), "<title>Bowline playground</title>") {

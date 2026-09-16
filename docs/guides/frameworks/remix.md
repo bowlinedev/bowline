@@ -1,6 +1,6 @@
 # React Router
 
-In React Router's framework mode, a `loader` calls the API on the server through `createServerClient` with the incoming `Request`, and the component uses `@bowline/react-query` for client-side updates.
+In React Router's framework mode, a `loader` calls the API on the server through `createServerClient` with the incoming `Request`, and the component uses `@bowlinedev/react-query` for client-side updates.
 
 source: examples/remix/src/ledger.ts:6-8
 

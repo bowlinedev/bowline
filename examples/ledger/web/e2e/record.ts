@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
-import type { Interaction } from "@bowline/client";
-import { fileSink } from "@bowline/client/node";
+import type { Interaction } from "@bowlinedev/client";
+import { fileSink } from "@bowlinedev/client/node";
 import type { BrowserContext, Page } from "@playwright/test";
 
 export const recording = process.env.RECORD === "1";

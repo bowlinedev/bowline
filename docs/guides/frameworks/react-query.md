@@ -1,6 +1,6 @@
 # React Query
 
-`@bowline/react-query` turns every query and mutation into TanStack Query option builders with the shared key shape.
+`@bowlinedev/react-query` turns every query and mutation into TanStack Query option builders with the shared key shape.
 
 source: examples/ledger/web/src/api.ts:54-54
 

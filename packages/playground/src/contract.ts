@@ -3,7 +3,7 @@ import type {
   ContractProcedure,
   ContractType,
   ContractTypeDecl,
-} from "@bowline/client";
+} from "@bowlinedev/client";
 
 export interface TreeNode {
   name: string;

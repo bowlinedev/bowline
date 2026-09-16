@@ -50,7 +50,7 @@ node_workspace() {
   pnpm build >/dev/null &&
     pnpm exec biome check packages examples package.json biome.json &&
     pnpm -r exec tsc --noEmit &&
-    pnpm --filter @bowline/client exec tsc -p tsconfig.golden.json &&
+    pnpm --filter @bowlinedev/client exec tsc -p tsconfig.golden.json &&
     pnpm -r test
 }
 

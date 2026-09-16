@@ -1,4 +1,4 @@
-import type { ContractField, ContractType } from "@bowline/client";
+import type { ContractField, ContractType } from "@bowlinedev/client";
 import type { ContractIndex, TypeEntry } from "./contract.js";
 
 function names(index: ContractIndex): Map<string, string> {

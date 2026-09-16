@@ -28,7 +28,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @bowline/client build && pnpm --filter @bowline/react-query build
+      - run: pnpm --filter @bowlinedev/client build && pnpm --filter @bowlinedev/react-query build
       - name: start the ledger on the emulator's host address
         working-directory: examples/ledger
         run: |

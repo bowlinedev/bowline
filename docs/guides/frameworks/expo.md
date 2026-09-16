@@ -24,7 +24,7 @@ export default function InvoicesScreen() {
   const list = useQuery(bq.invoices.list.queryOptions({ limit: 20 }));
 ```
 
-`extra.apiUrl` in `app.json` is where each build points: an Android emulator reaches the host at `10.0.2.2`, an iOS simulator at `localhost`, and a device at the machine's LAN address. Screens use `@bowline/react-query` exactly as on the web; the create screen renders `BowlineError.issues` from a failed mutation.
+`extra.apiUrl` in `app.json` is where each build points: an Android emulator reaches the host at `10.0.2.2`, an iOS simulator at `localhost`, and a device at the machine's LAN address. Screens use `@bowlinedev/react-query` exactly as on the web; the create screen renders `BowlineError.issues` from a failed mutation.
 
 Proof: `cd examples/expo && pnpm test` runs the Jest suite with a mocked `fetch`, asserting the list and the validation issues, on every push; `maestro/flow.yaml` drives the real app on an Android emulator through the `expo-device` workflow, on a weekly schedule and on demand, because an emulator job takes too long for every pull request.
 

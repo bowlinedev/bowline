@@ -13,8 +13,8 @@
     "prepare": "svelte-kit sync"
   },
   "dependencies": {
-    "@bowline/client": "workspace:*",
-    "@bowline/svelte": "workspace:*"
+    "@bowlinedev/client": "workspace:*",
+    "@bowlinedev/svelte": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0",

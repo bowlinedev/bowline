@@ -1,4 +1,4 @@
-# @bowline/agent
+# @bowlinedev/agent
 
 Turn a [Bowline](https://github.com/bowlinedev/bowline) API into tools for an LLM agent.
 
@@ -7,13 +7,13 @@ Bowline turns your Go code into typed API clients. This package turns the same c
 ## Install
 
 ```bash
-npm install @bowline/agent @bowline/client
+npm install @bowlinedev/agent @bowlinedev/client
 ```
 
 ## Use
 
 ```ts
-import { toAnthropic, createDispatcher } from "@bowline/agent";
+import { toAnthropic, createDispatcher } from "@bowlinedev/agent";
 
 const tools = toAnthropic(contract);
 const dispatch = createDispatcher(client, contract);

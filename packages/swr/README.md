@@ -1,4 +1,4 @@
-# @bowline/swr
+# @bowlinedev/swr
 
 SWR bindings for [Bowline](https://github.com/bowlinedev/bowline).
 
@@ -7,13 +7,13 @@ Bowline turns your Go code into typed API clients. This package connects that cl
 ## Install
 
 ```bash
-npm install @bowline/swr @bowline/client
+npm install @bowlinedev/swr @bowlinedev/client
 ```
 
 ## Use
 
 ```ts
-import { bowlineSWR } from "@bowline/swr";
+import { bowlineSWR } from "@bowlinedev/swr";
 import { createClient } from "./bowline";
 
 const bq = bowlineSWR(createClient({ url: "/api" }));

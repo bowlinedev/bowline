@@ -13,8 +13,8 @@
   "dependencies": {
     "@astrojs/node": "11.1.5",
     "@astrojs/solid-js": "7.0.2",
-    "@bowline/client": "workspace:*",
-    "@bowline/solid": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
+    "@bowlinedev/solid": "workspace:*",
     "astro": "7.3.2",
     "solid-js": "1.9.15"
   },

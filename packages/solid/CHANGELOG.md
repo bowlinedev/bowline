@@ -1,4 +1,4 @@
-# @bowline/solid
+# @bowlinedev/solid
 
 ## 1.0.0
 

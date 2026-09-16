@@ -13,10 +13,10 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@bowline/client": ["../../packages/client/src/index.ts"],
-      "@bowline/client/node": ["../../packages/client/src/node.ts"],
-      "@bowline/client/server": ["../../packages/client/src/server.ts"],
-      "@bowline/svelte": ["../../packages/svelte/src/index.ts"],
+      "@bowlinedev/client": ["../../packages/client/src/index.ts"],
+      "@bowlinedev/client/node": ["../../packages/client/src/node.ts"],
+      "@bowlinedev/client/server": ["../../packages/client/src/server.ts"],
+      "@bowlinedev/svelte": ["../../packages/svelte/src/index.ts"],
       "$lib": ["src/lib"],
       "$lib/*": ["src/lib/*"]
     }

@@ -12,11 +12,11 @@ Every snippet in these guides is copied from a file in the repository and named 
 | `echo.md` | Echo |
 | `connect.md` | Connect beside Bowline on one mux |
 | `fiber.md` | the Fiber adapter module |
-| `react-query.md` | `@bowline/react-query` |
-| `swr.md` | `@bowline/swr` |
-| `svelte.md` | `@bowline/svelte` stores and SvelteKit loads |
-| `solid.md` | `@bowline/solid` |
-| `vue.md` | `@bowline/vue` |
+| `react-query.md` | `@bowlinedev/react-query` |
+| `swr.md` | `@bowlinedev/swr` |
+| `svelte.md` | `@bowlinedev/svelte` stores and SvelteKit loads |
+| `solid.md` | `@bowlinedev/solid` |
+| `vue.md` | `@bowlinedev/vue` |
 | `nextjs.md` | Next.js App Router with server components and actions |
 | `remix.md` | React Router framework mode |
 | `sveltekit.md` | SvelteKit pages and server loads |

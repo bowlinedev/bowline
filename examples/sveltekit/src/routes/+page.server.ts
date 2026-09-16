@@ -1,4 +1,4 @@
-import { serverClient } from "@bowline/svelte";
+import { serverClient } from "@bowlinedev/svelte";
 import { createClient } from "$lib/bowline.js";
 import type { PageServerLoad } from "./$types.js";
 

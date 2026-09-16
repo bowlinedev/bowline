@@ -69,7 +69,7 @@ You now have `bowline.contract.json` and `web/src/bowline.ts`. Commit both. `bow
 
 ## 3. Call it from TypeScript
 
-    cd web && npm init -y && npm install @bowline/client typescript
+    cd web && npm init -y && npm install @bowlinedev/client typescript
 
 `src/main.ts`:
 

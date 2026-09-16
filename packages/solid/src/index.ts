@@ -7,7 +7,7 @@ import {
   type ProcedureKey,
   procedureKey,
   walkProcedures,
-} from "@bowline/client";
+} from "@bowlinedev/client";
 import { type Accessor, createResource, createSignal, type ResourceReturn } from "solid-js";
 
 export interface QueryHelpers<I, O> {

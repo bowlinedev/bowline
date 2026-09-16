@@ -1,4 +1,4 @@
-import type { ClientOptions } from "@bowline/client";
+import type { ClientOptions } from "@bowlinedev/client";
 import type { RequestEvent } from "@sveltejs/kit";
 import { describe, expect, it, vi } from "vitest";
 import { serverClient } from "./kit.js";

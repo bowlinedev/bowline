@@ -1,4 +1,4 @@
-import type { ContractDocument } from "@bowline/client";
+import type { ContractDocument } from "@bowlinedev/client";
 import { describe, expect, it } from "vitest";
 import { indexContract, shortName, typeLabel } from "./contract.js";
 import { renderDeclarations } from "./types-pane.js";

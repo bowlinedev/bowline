@@ -13,8 +13,8 @@
     "prepare": "react-router typegen"
   },
   "dependencies": {
-    "@bowline/client": "workspace:*",
-    "@bowline/react-query": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
+    "@bowlinedev/react-query": "workspace:*",
     "@react-router/node": "7.18.4",
     "@react-router/serve": "7.18.4",
     "@tanstack/react-query": "5.90.2",

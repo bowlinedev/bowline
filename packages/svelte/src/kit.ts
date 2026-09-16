@@ -1,4 +1,4 @@
-import type { ClientOptions, HeadersSource } from "@bowline/client";
+import type { ClientOptions, HeadersSource } from "@bowlinedev/client";
 import type { RequestEvent } from "@sveltejs/kit";
 
 const forwarded = ["cookie", "authorization"];
