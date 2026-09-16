@@ -36,7 +36,7 @@ type SettleChargeInput struct {
 
 type HealthOutput struct {
 	OK      bool   `json:"ok"`
-	Version string `json:"version" example:"0.7.0"`
+	Version string `json:"version" example:"1.0.0"`
 }
 
 func Routes() *bowline.Router {
