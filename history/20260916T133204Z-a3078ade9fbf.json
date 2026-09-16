@@ -1,0 +1,80 @@
+{
+  "commit": "a3078ade9fbf27773f23a82e6f0f0a5beba3071f",
+  "ranAt": "2026-09-16T13:32:04Z",
+  "goos": "linux",
+  "goarch": "amd64",
+  "results": [
+    {
+      "name": "BenchmarkBowline",
+      "nsPerOp": 2896,
+      "bytesPerOp": 1457,
+      "allocsPerOp": 19
+    },
+    {
+      "name": "BenchmarkBowlinePost",
+      "nsPerOp": 5112,
+      "bytesPerOp": 7082,
+      "allocsPerOp": 33
+    },
+    {
+      "name": "BenchmarkBowlinePostLargeBody",
+      "nsPerOp": 302764,
+      "bytesPerOp": 269457,
+      "allocsPerOp": 2044
+    },
+    {
+      "name": "BenchmarkDevLoopUpdate",
+      "nsPerOp": 11752501,
+      "bytesPerOp": 7618059,
+      "allocsPerOp": 68963
+    },
+    {
+      "name": "BenchmarkGenerators/dart",
+      "nsPerOp": 29768,
+      "bytesPerOp": 19908,
+      "allocsPerOp": 284
+    },
+    {
+      "name": "BenchmarkGenerators/elixir",
+      "nsPerOp": 42122,
+      "bytesPerOp": 43011,
+      "allocsPerOp": 295
+    },
+    {
+      "name": "BenchmarkGenerators/go",
+      "nsPerOp": 593924,
+      "bytesPerOp": 150077,
+      "allocsPerOp": 3241
+    },
+    {
+      "name": "BenchmarkGenerators/python",
+      "nsPerOp": 34149,
+      "bytesPerOp": 24036,
+      "allocsPerOp": 273
+    },
+    {
+      "name": "BenchmarkGenerators/rust",
+      "nsPerOp": 21673,
+      "bytesPerOp": 16754,
+      "allocsPerOp": 184
+    },
+    {
+      "name": "BenchmarkGenerators/ts",
+      "nsPerOp": 12628,
+      "bytesPerOp": 9480,
+      "allocsPerOp": 110
+    },
+    {
+      "name": "BenchmarkRateLimitMiddleware",
+      "nsPerOp": 91.46,
+      "bytesPerOp": 0,
+      "allocsPerOp": 0
+    },
+    {
+      "name": "BenchmarkRawNetHTTP",
+      "nsPerOp": 2831,
+      "bytesPerOp": 1778,
+      "allocsPerOp": 21
+    }
+  ]
+}
