@@ -193,7 +193,8 @@ func renderFreezeList(current map[string][]string) []byte {
 	for _, pkg := range frozenPackages {
 		fmt.Fprintf(&out, "\n## %s\n\n```\n", pkg.Import)
 		for _, id := range current[pkg.Import] {
-			out.WriteString(id + "\n")
+			out.WriteString(id)
+			out.WriteString("\n")
 		}
 		out.WriteString("```\n")
 	}

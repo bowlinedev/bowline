@@ -20,11 +20,13 @@ func (d Diagnostic) String() string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "%s:%d:%d: ", filepath.ToSlash(d.Pos.Filename), d.Pos.Line, d.Pos.Column)
 	if d.Path != "" {
-		b.WriteString(d.Path + ": ")
+		b.WriteString(d.Path)
+		b.WriteString(": ")
 	}
 	b.WriteString(d.Message)
 	if d.Fix != "" {
-		b.WriteString(". " + d.Fix)
+		b.WriteString(". ")
+		b.WriteString(d.Fix)
 	}
 	return b.String()
 }
