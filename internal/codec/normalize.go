@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -164,12 +165,7 @@ func (c *compiler) mark() {
 }
 
 func hasOption(opts, name string) bool {
-	for _, o := range strings.Split(opts, ",") {
-		if o == name {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(strings.Split(opts, ","), name)
 }
 
 func isInteger(t reflect.Type) bool {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"sort"
 	"strings"
 
@@ -164,9 +165,7 @@ func attributeThroughGateways(ctx context.Context, store Store, service string, 
 			continue
 		}
 		after := map[string]*contract.Document{}
-		for name, doc := range before {
-			after[name] = doc
-		}
+		maps.Copy(after, before)
 		after[service] = candidate
 		oldComposed, err := compose(before)
 		if err != nil {

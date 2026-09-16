@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"fmt"
+	"maps"
 	"sort"
 	"strings"
 
@@ -180,9 +181,7 @@ func copyProcedure(p *contract.Procedure, service string) *contract.Procedure {
 	}
 	if p.Meta != nil {
 		meta := make(map[string]string, len(p.Meta))
-		for k, v := range p.Meta {
-			meta[k] = v
-		}
+		maps.Copy(meta, p.Meta)
 		copied.Meta = meta
 	}
 	return &copied

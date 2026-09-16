@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"maps"
 	"sort"
 	"sync"
 )
@@ -242,9 +243,7 @@ func (m *MemStore) PutComposition(ctx context.Context, c Composition) error {
 		m.compositions[c.Gateway] = byHash
 	}
 	services := map[string]string{}
-	for k, v := range c.Services {
-		services[k] = v
-	}
+	maps.Copy(services, c.Services)
 	c.Services = services
 	byHash[c.Hash] = c
 	return nil
@@ -262,9 +261,7 @@ func (m *MemStore) Compositions(ctx context.Context, service string) ([]Composit
 				}
 			}
 			services := map[string]string{}
-			for k, v := range c.Services {
-				services[k] = v
-			}
+			maps.Copy(services, c.Services)
 			c.Services = services
 			out = append(out, c)
 		}

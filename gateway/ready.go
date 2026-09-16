@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"strings"
 
-	"github.com/bowlinedev/bowline/signing"
 	"sync"
 	"time"
+
+	"github.com/bowlinedev/bowline/signing"
 )
 
 const (
@@ -27,9 +29,7 @@ func (g *Gateway) Ready(ctx context.Context) map[string]error {
 	g.mu.Lock()
 	if g.probes != nil && g.nowFunc().Sub(g.probed) < readyCacheFor {
 		cached := make(map[string]error, len(g.probes))
-		for name, err := range g.probes {
-			cached[name] = err
-		}
+		maps.Copy(cached, g.probes)
 		g.mu.Unlock()
 		return cached
 	}
@@ -59,9 +59,7 @@ func (g *Gateway) Ready(ctx context.Context) map[string]error {
 	g.mu.Unlock()
 
 	out := make(map[string]error, len(probes))
-	for name, err := range probes {
-		out[name] = err
-	}
+	maps.Copy(out, probes)
 	return out
 }
 

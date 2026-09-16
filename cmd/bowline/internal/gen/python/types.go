@@ -3,6 +3,7 @@ package python
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -627,11 +628,8 @@ func topo(decls []*declaration) (order []*declaration, cyclic []*declaration) {
 	}
 	for _, d := range decls {
 		if done[d.name] {
-			for _, dep := range d.deps {
-				if dep == d.name {
-					cyclic = append(cyclic, d)
-					break
-				}
+			if slices.Contains(d.deps, d.name) {
+				cyclic = append(cyclic, d)
 			}
 		}
 	}

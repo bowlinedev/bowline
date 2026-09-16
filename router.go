@@ -2,6 +2,7 @@ package bowline
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -101,8 +102,8 @@ func (r *Router) walk(prefix string, inherited []Middleware, out *[]route) {
 		full = append(full, chain...)
 		full = append(full, e.proc.middleware...)
 		next := e.proc.call
-		for i := len(full) - 1; i >= 0; i-- {
-			next = full[i](next)
+		for _, f := range slices.Backward(full) {
+			next = f(next)
 		}
 		procedure := *e.proc
 		procedure.Path = path
