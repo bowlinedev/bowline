@@ -73,7 +73,7 @@ func TestCertifyPassesBuiltinTS(t *testing.T) {
 		"ok        generator is deterministic",
 		"ok        reject rows stop at the analyzer",
 		"ok        goldens compile",
-		"ok        conformance suite",
+		"ok        runtime tests",
 		"certified ts with ts",
 	} {
 		if !strings.Contains(out.String(), want) {

@@ -270,7 +270,7 @@ func runCertification(opts Options, cfg *CertifyConfig) ([]certifyCheck, error) 
 		rejectRowCheck(),
 	}
 	checks = append(checks, toolchainCheck("goldens compile", cfg.Compile, opts.Dir, work, env))
-	checks = append(checks, toolchainCheck("conformance suite", cfg.Test, opts.Dir, work, env))
+	checks = append(checks, toolchainCheck("runtime tests", cfg.Test, opts.Dir, work, env))
 	return checks, nil
 }
 
@@ -460,7 +460,7 @@ func certifiedRow(cfg *CertifyConfig) string {
 
 const certifiedHeader = `# Certified generators
 
-Every row here passed ` + "`bowline certify`" + ` against the fidelity corpus: it generates every accepted row, emits no escape-hatch type where the contract has no raw primitive, is deterministic across two runs, compiles with the target's own toolchain, and passes the conformance suite. ` + "`docs/certification.md`" + ` describes the checks and how to submit a generator.
+Every row here passed ` + "`bowline certify`" + ` against the fidelity corpus: it generates every accepted row, emits no escape-hatch type where the contract has no raw primitive, is deterministic across two runs, compiles with the target's own toolchain, and leaves the target's runtime package tests passing. ` + "`docs/certification.md`" + ` describes the checks and how to submit a generator.
 
 | Target | Generator | Version certified | Bowline version | Date |
 |---|---|---|---|---|
