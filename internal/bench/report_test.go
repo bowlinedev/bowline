@@ -209,3 +209,57 @@ func mustTime(t *testing.T, value string) time.Time {
 	}
 	return parsed
 }
+
+func TestRegressionsIgnoreAUniformlySlowerRunner(t *testing.T) {
+	previous := Run{Results: []Result{
+		{Name: baselineName, NsPerOp: 1622, AllocsPerOp: 25},
+		{Name: "BenchmarkBowline", NsPerOp: 1571, AllocsPerOp: 23},
+	}}
+	slower := Run{Results: []Result{
+		{Name: baselineName, NsPerOp: 2216, AllocsPerOp: 25},
+		{Name: "BenchmarkBowline", NsPerOp: 2220, AllocsPerOp: 23},
+	}}
+	if got := Regressions(slower, []Run{previous}); len(got) != 0 {
+		t.Fatalf("a 37%% slower runner reported %d regressions: %v", len(got), got)
+	}
+}
+
+func TestRegressionsIgnoreAllocationJitterInLargeBenchmarks(t *testing.T) {
+	previous := Run{Results: []Result{
+		{Name: baselineName, NsPerOp: 1622, AllocsPerOp: 25},
+		{Name: "BenchmarkDevLoopUpdate", NsPerOp: 6400000, AllocsPerOp: 68976},
+	}}
+	jittery := Run{Results: []Result{
+		{Name: baselineName, NsPerOp: 1622, AllocsPerOp: 25},
+		{Name: "BenchmarkDevLoopUpdate", NsPerOp: 6400000, AllocsPerOp: 68980},
+	}}
+	if got := Regressions(jittery, []Run{previous}); len(got) != 0 {
+		t.Fatalf("four allocations out of 68976 reported %v", got)
+	}
+}
+
+func TestRegressionsCatchAnExtraAllocation(t *testing.T) {
+	previous := Run{Results: []Result{
+		{Name: baselineName, NsPerOp: 1622, AllocsPerOp: 25},
+		{Name: "BenchmarkBowline", NsPerOp: 1571, AllocsPerOp: 23},
+	}}
+	leaky := Run{Results: []Result{
+		{Name: baselineName, NsPerOp: 1622, AllocsPerOp: 25},
+		{Name: "BenchmarkBowline", NsPerOp: 1580, AllocsPerOp: 24},
+	}}
+	got := Regressions(leaky, []Run{previous})
+	if len(got) != 1 || got[0].Metric != "allocs" {
+		t.Fatalf("one extra allocation reported %v", got)
+	}
+}
+
+func TestBlockingKeepsAllocationsAndDropsTimings(t *testing.T) {
+	regressions := []Regression{
+		{Name: "BenchmarkA", Metric: "time", Percent: 31},
+		{Name: "BenchmarkB", Metric: "allocs", Percent: 4},
+	}
+	blocking := Blocking(regressions)
+	if len(blocking) != 1 || blocking[0].Name != "BenchmarkB" {
+		t.Fatalf("blocking = %v, want only the allocation regression", blocking)
+	}
+}
