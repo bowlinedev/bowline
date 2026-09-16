@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"time"
 )
 
@@ -165,12 +166,19 @@ func (c *Config) ServiceNames() []string {
 }
 
 func relativeTo(configPath, contract string) string {
-	if contract == "" || filepath.IsAbs(contract) {
+	if contract == "" {
 		return contract
+	}
+	if rooted(contract) {
+		return filepath.FromSlash(contract)
 	}
 	dir := filepath.Dir(configPath)
 	if dir == "" || dir == "." {
-		return contract
+		return filepath.FromSlash(contract)
 	}
 	return filepath.Join(dir, filepath.FromSlash(contract))
+}
+
+func rooted(contract string) bool {
+	return strings.HasPrefix(contract, "/") || strings.HasPrefix(contract, `\`) || filepath.IsAbs(contract)
 }
