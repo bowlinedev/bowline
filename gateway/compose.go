@@ -1,10 +1,10 @@
 package gateway
 
 import (
+	"cmp"
 	"fmt"
 	"maps"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -93,7 +93,7 @@ func Compose(services map[string]*contract.Document) (*contract.Document, []Diag
 			out.Procedures = append(out.Procedures, copyProcedure(p, name))
 		}
 	}
-	sort.SliceStable(out.Procedures, func(i, j int) bool { return out.Procedures[i].Path < out.Procedures[j].Path })
+	slices.SortStableFunc(out.Procedures, func(a, b *contract.Procedure) int { return cmp.Compare(a.Path, b.Path) })
 	if err := out.SetHash(); err != nil {
 		return nil, []Diagnostic{{Message: "hashing the composed document: " + err.Error()}}
 	}

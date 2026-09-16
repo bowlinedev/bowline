@@ -1,10 +1,10 @@
 package dart
 
 import (
+	"cmp"
 	"fmt"
 	"maps"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
@@ -95,7 +95,7 @@ func newGenerator(doc *contract.Document) *generator {
 	for id := range doc.Types {
 		g.order = append(g.order, id)
 	}
-	sort.Slice(g.order, func(i, j int) bool { return g.names[g.order[i]] < g.names[g.order[j]] })
+	slices.SortFunc(g.order, func(a, b string) int { return cmp.Compare(g.names[a], g.names[b]) })
 	return g
 }
 
@@ -153,7 +153,7 @@ func (g *generator) collectInlines() error {
 		g.walkFields(g.doc.Errors[id].Fields, g.names[id], nil)
 	}
 	procs := append([]*contract.Procedure(nil), g.doc.Procedures...)
-	sort.Slice(procs, func(i, j int) bool { return procs[i].Path < procs[j].Path })
+	slices.SortFunc(procs, func(a, b *contract.Procedure) int { return cmp.Compare(a.Path, b.Path) })
 	for _, p := range procs {
 		base := procTypeName(p.Path)
 		g.walkNode(p.Input, base+"Input", nil)
@@ -241,7 +241,7 @@ func (g *generator) errorOrder() []string {
 	for id := range g.doc.Errors {
 		ids = append(ids, id)
 	}
-	sort.Slice(ids, func(i, j int) bool { return g.names[ids[i]] < g.names[ids[j]] })
+	slices.SortFunc(ids, func(a, b string) int { return cmp.Compare(g.names[a], g.names[b]) })
 	return ids
 }
 

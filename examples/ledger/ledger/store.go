@@ -1,8 +1,9 @@
 package ledger
 
 import (
+	"cmp"
 	"errors"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -64,7 +65,7 @@ func (s *Store) Attachments(invoiceID int64) []Attachment {
 			out = append(out, a)
 		}
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	slices.SortFunc(out, func(a, b Attachment) int { return cmp.Compare(a.ID, b.ID) })
 	return out
 }
 
@@ -109,7 +110,7 @@ func (s *Store) SearchCustomers(query string) []Customer {
 			out = append(out, c)
 		}
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	slices.SortFunc(out, func(a, b Customer) int { return cmp.Compare(a.ID, b.ID) })
 	return out
 }
 
@@ -158,7 +159,7 @@ func (s *Store) ListInvoices(cursor string, limit int, status *Status) ([]Invoic
 			all = append(all, inv)
 		}
 	}
-	sort.Slice(all, func(i, j int) bool { return all[i].ID < all[j].ID })
+	slices.SortFunc(all, func(a, b Invoice) int { return cmp.Compare(a.ID, b.ID) })
 	if len(all) <= limit {
 		return all, ""
 	}

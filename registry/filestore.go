@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
@@ -110,7 +111,7 @@ func (f *FileStore) Services(ctx context.Context) ([]Service, error) {
 		}
 		out = append(out, s)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+	slices.SortFunc(out, func(a, b Service) int { return cmp.Compare(a.Name, b.Name) })
 	return out, nil
 }
 
@@ -333,7 +334,7 @@ func (f *FileStore) Consumers(ctx context.Context, provider string) ([]Consumer,
 		}
 		out = append(out, c)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Consumer < out[j].Consumer })
+	slices.SortFunc(out, func(a, b Consumer) int { return cmp.Compare(a.Consumer, b.Consumer) })
 	return out, nil
 }
 

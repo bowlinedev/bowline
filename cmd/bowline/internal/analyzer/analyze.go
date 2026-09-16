@@ -1,10 +1,10 @@
 package analyzer
 
 import (
+	"cmp"
 	"fmt"
 	"go/types"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -82,7 +82,7 @@ func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
 		sortDiagnostics(diags)
 		return nil, diags
 	}
-	sort.Slice(doc.Procedures, func(i, j int) bool { return doc.Procedures[i].Path < doc.Procedures[j].Path })
+	slices.SortFunc(doc.Procedures, func(a, b *contract.Procedure) int { return cmp.Compare(a.Path, b.Path) })
 	if err := doc.SetHash(); err != nil {
 		return nil, []Diagnostic{{Message: fmt.Sprintf("hashing contract: %v", err)}}
 	}

@@ -1,9 +1,9 @@
 package rust
 
 import (
+	"cmp"
 	"maps"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/bowlinedev/bowline/cmd/bowline/internal/gen/naming"
@@ -43,11 +43,11 @@ func newGenerator(doc *contract.Document) *generator {
 	for id := range doc.Types {
 		g.order = append(g.order, id)
 	}
-	sort.Slice(g.order, func(i, j int) bool { return g.names[g.order[i]] < g.names[g.order[j]] })
+	slices.SortFunc(g.order, func(a, b string) int { return cmp.Compare(g.names[a], g.names[b]) })
 	for id := range doc.Errors {
 		g.errorOrder = append(g.errorOrder, id)
 	}
-	sort.Slice(g.errorOrder, func(i, j int) bool { return g.names[g.errorOrder[i]] < g.names[g.errorOrder[j]] })
+	slices.SortFunc(g.errorOrder, func(a, b string) int { return cmp.Compare(g.names[a], g.names[b]) })
 	return g
 }
 

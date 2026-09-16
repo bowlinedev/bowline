@@ -1,12 +1,13 @@
 package contracttest
 
 import (
+	"cmp"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 )
 
@@ -49,7 +50,7 @@ func loadConsumers(dir string) ([]consumer, error) {
 		}
 		out = append(out, c)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Consumer < out[j].Consumer })
+	slices.SortFunc(out, func(a, b consumer) int { return cmp.Compare(a.Consumer, b.Consumer) })
 	return out, nil
 }
 
