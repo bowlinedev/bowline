@@ -1,0 +1,2437 @@
+{
+  "accepted": {
+    "aliases": {
+      "bowline": "1.2",
+      "hash": "sha256:4319e3e03a8d4ac8af283c9ecb7c647c01c3fc243f65d15a031ca64e67d5926f",
+      "types": {
+        "fidelity.test/rows/aliases.Holder": {
+          "kind": "struct",
+          "name": "Holder",
+          "fields": [
+            {
+              "name": "a",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/aliases.Real"
+              }
+            },
+            {
+              "name": "b",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "ref",
+                  "id": "fidelity.test/rows/aliases.Real"
+                }
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/aliases.Real": {
+          "kind": "struct",
+          "name": "Real",
+          "fields": [
+            {
+              "name": "n",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/aliases.Real"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/aliases.Holder"
+          },
+          "goInput": "fidelity.test/rows/aliases.Real",
+          "goOutput": "fidelity.test/rows/aliases.Holder"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/aliases.Holder": {
+          "file": "rows/aliases/api.go",
+          "line": 15
+        },
+        "fidelity.test/rows/aliases.Real": {
+          "file": "rows/aliases/api.go",
+          "line": 9
+        },
+        "get": {
+          "file": "rows/aliases/api.go",
+          "line": 23
+        }
+      }
+    },
+    "basics": {
+      "bowline": "1.2",
+      "hash": "sha256:bf43672a4c52bc38424460d42183e9050f764c81fd4c072faaa3dfa9bc0464a6",
+      "types": {
+        "fidelity.test/rows/basics.Input": {
+          "kind": "struct",
+          "name": "Input",
+          "fields": [
+            {
+              "name": "name",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            },
+            {
+              "name": "count",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            },
+            {
+              "name": "small",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              }
+            },
+            {
+              "name": "big",
+              "type": {
+                "kind": "primitive",
+                "name": "uint64"
+              }
+            },
+            {
+              "name": "ratio",
+              "type": {
+                "kind": "primitive",
+                "name": "float64"
+              }
+            },
+            {
+              "name": "on",
+              "type": {
+                "kind": "primitive",
+                "name": "bool"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/basics.Output": {
+          "kind": "struct",
+          "name": "Output",
+          "fields": [
+            {
+              "name": "echo",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "echo",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/basics.Input"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/basics.Output"
+          },
+          "goInput": "fidelity.test/rows/basics.Input",
+          "goOutput": "fidelity.test/rows/basics.Output"
+        }
+      ],
+      "positions": {
+        "echo": {
+          "file": "rows/basics/api.go",
+          "line": 27
+        },
+        "fidelity.test/rows/basics.Input": {
+          "file": "rows/basics/api.go",
+          "line": 9
+        },
+        "fidelity.test/rows/basics.Output": {
+          "file": "rows/basics/api.go",
+          "line": 18
+        }
+      }
+    },
+    "collections": {
+      "bowline": "1.2",
+      "hash": "sha256:07e721143507bd737de9e12095c3b4396146e4a9a392223c010c77efe7da87bf",
+      "types": {
+        "fidelity.test/rows/collections.Cell": {
+          "kind": "struct",
+          "name": "Cell",
+          "fields": [
+            {
+              "name": "v",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/collections.Grid": {
+          "kind": "struct",
+          "name": "Grid",
+          "fields": [
+            {
+              "name": "rows",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "array",
+                  "elem": {
+                    "kind": "ref",
+                    "id": "fidelity.test/rows/collections.Cell"
+                  }
+                }
+              }
+            },
+            {
+              "name": "fixed",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "primitive",
+                  "name": "int32"
+                },
+                "length": 3
+              }
+            },
+            {
+              "name": "byKey",
+              "type": {
+                "kind": "map",
+                "key": {
+                  "kind": "primitive",
+                  "name": "string"
+                },
+                "value": {
+                  "kind": "ref",
+                  "id": "fidelity.test/rows/collections.Cell"
+                }
+              }
+            },
+            {
+              "name": "byInt",
+              "type": {
+                "kind": "map",
+                "key": {
+                  "kind": "primitive",
+                  "name": "int64"
+                },
+                "value": {
+                  "kind": "primitive",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "names",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "primitive",
+                  "name": "string"
+                }
+              },
+              "optional": true,
+              "rules": [
+                {
+                  "rule": "max",
+                  "param": "10"
+                }
+              ]
+            },
+            {
+              "name": "blob",
+              "type": {
+                "kind": "primitive",
+                "name": "bytes"
+              }
+            },
+            {
+              "name": "ids",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "primitive",
+                  "name": "int64"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/collections.Cell"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/collections.Grid"
+          },
+          "goInput": "fidelity.test/rows/collections.Cell",
+          "goOutput": "fidelity.test/rows/collections.Grid"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/collections.Cell": {
+          "file": "rows/collections/api.go",
+          "line": 11
+        },
+        "fidelity.test/rows/collections.Grid": {
+          "file": "rows/collections/api.go",
+          "line": 15
+        },
+        "get": {
+          "file": "rows/collections/api.go",
+          "line": 30
+        }
+      }
+    },
+    "embedded": {
+      "bowline": "1.2",
+      "hash": "sha256:91c629bdf56f67727d392a06486136700aa51ad1d4ec074cea2e1b50f39ed8b7",
+      "types": {
+        "fidelity.test/rows/embedded.Audit": {
+          "kind": "struct",
+          "name": "Audit",
+          "fields": [
+            {
+              "name": "createdBy",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            },
+            {
+              "name": "version",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/embedded.Named": {
+          "kind": "struct",
+          "name": "Named",
+          "fields": [
+            {
+              "name": "name",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/embedded.Record": {
+          "kind": "struct",
+          "name": "Record",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            },
+            {
+              "name": "createdBy",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            },
+            {
+              "name": "version",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              }
+            },
+            {
+              "name": "named",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/embedded.Named"
+              },
+              "nullable": true
+            },
+            {
+              "name": "extra",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/embedded.Audit"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/embedded.Record"
+          },
+          "goInput": "fidelity.test/rows/embedded.Audit",
+          "goOutput": "fidelity.test/rows/embedded.Record"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/embedded.Audit": {
+          "file": "rows/embedded/api.go",
+          "line": 9
+        },
+        "fidelity.test/rows/embedded.Named": {
+          "file": "rows/embedded/api.go",
+          "line": 18
+        },
+        "fidelity.test/rows/embedded.Record": {
+          "file": "rows/embedded/api.go",
+          "line": 22
+        },
+        "get": {
+          "file": "rows/embedded/api.go",
+          "line": 33
+        }
+      }
+    },
+    "enums": {
+      "bowline": "1.2",
+      "hash": "sha256:c0120e1bf4686b8a2167f27c1bca6aad744fe466a608cf3f0d1999c4bd29e112",
+      "types": {
+        "fidelity.test/rows/enums.Level": {
+          "kind": "enum",
+          "name": "Level",
+          "base": "int32",
+          "values": [
+            {
+              "name": "LevelLow",
+              "value": 1
+            },
+            {
+              "name": "LevelHigh",
+              "value": 10
+            }
+          ]
+        },
+        "fidelity.test/rows/enums.Order": {
+          "kind": "struct",
+          "name": "Order",
+          "fields": [
+            {
+              "name": "status",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/enums.Status"
+              },
+              "rules": [
+                {
+                  "rule": "oneof",
+                  "param": "draft sent"
+                }
+              ]
+            },
+            {
+              "name": "level",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/enums.Level"
+              }
+            },
+            {
+              "name": "slug",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/enums.Slug"
+              }
+            },
+            {
+              "name": "history",
+              "type": {
+                "kind": "map",
+                "key": {
+                  "kind": "primitive",
+                  "name": "string"
+                },
+                "value": {
+                  "kind": "primitive",
+                  "name": "int32"
+                }
+              }
+            },
+            {
+              "name": "levels",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "ref",
+                  "id": "fidelity.test/rows/enums.Level"
+                }
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/enums.Slug": {
+          "kind": "primitive",
+          "name": "Slug",
+          "primitive": "string"
+        },
+        "fidelity.test/rows/enums.Status": {
+          "kind": "enum",
+          "name": "Status",
+          "doc": "Status is the lifecycle state of an order.",
+          "base": "string",
+          "values": [
+            {
+              "name": "StatusDraft",
+              "value": "draft"
+            },
+            {
+              "name": "StatusSent",
+              "value": "sent"
+            },
+            {
+              "name": "statusVoid",
+              "value": "void"
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "struct"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/enums.Order"
+          },
+          "goInput": "struct{}",
+          "goOutput": "fidelity.test/rows/enums.Order"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/enums.Level": {
+          "file": "rows/enums/api.go",
+          "line": 18
+        },
+        "fidelity.test/rows/enums.Order": {
+          "file": "rows/enums/api.go",
+          "line": 27
+        },
+        "fidelity.test/rows/enums.Slug": {
+          "file": "rows/enums/api.go",
+          "line": 25
+        },
+        "fidelity.test/rows/enums.Status": {
+          "file": "rows/enums/api.go",
+          "line": 10
+        },
+        "get": {
+          "file": "rows/enums/api.go",
+          "line": 38
+        }
+      }
+    },
+    "errors": {
+      "bowline": "1.2",
+      "hash": "sha256:b959e8d625176f0768fee4438637078150e07bbf7ac3d8b1a16fd6d7d6cf175e",
+      "types": {
+        "fidelity.test/rows/errors.ID": {
+          "kind": "struct",
+          "name": "ID",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/errors.Invoice": {
+          "kind": "struct",
+          "name": "Invoice",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/errors.Status": {
+          "kind": "enum",
+          "name": "Status",
+          "base": "string",
+          "values": [
+            {
+              "name": "StatusDraft",
+              "value": "draft"
+            },
+            {
+              "name": "StatusPaid",
+              "value": "paid"
+            }
+          ]
+        }
+      },
+      "errors": {
+        "fidelity.test/rows/errors.InvoiceLocked": {
+          "name": "InvoiceLocked",
+          "code": "FAILED_PRECONDITION",
+          "doc": "InvoiceLocked is returned when an invoice cannot change.",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            },
+            {
+              "name": "status",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/errors.Status"
+              }
+            },
+            {
+              "name": "since",
+              "type": {
+                "kind": "primitive",
+                "name": "timestamp"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/errors.QuotaExceeded": {
+          "name": "QuotaExceeded",
+          "code": "RESOURCE_EXHAUSTED",
+          "fields": [
+            {
+              "name": "limit",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              }
+            }
+          ]
+        }
+      },
+      "procedures": [
+        {
+          "path": "send",
+          "kind": "mutation",
+          "method": "POST",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/errors.ID"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/errors.Invoice"
+          },
+          "goInput": "fidelity.test/rows/errors.ID",
+          "goOutput": "fidelity.test/rows/errors.Invoice",
+          "errors": [
+            "fidelity.test/rows/errors.InvoiceLocked"
+          ]
+        },
+        {
+          "path": "void",
+          "kind": "mutation",
+          "method": "POST",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/errors.ID"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/errors.Invoice"
+          },
+          "goInput": "fidelity.test/rows/errors.ID",
+          "goOutput": "fidelity.test/rows/errors.Invoice",
+          "errors": [
+            "fidelity.test/rows/errors.InvoiceLocked",
+            "fidelity.test/rows/errors.QuotaExceeded"
+          ]
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/errors.ID": {
+          "file": "rows/errors/api.go",
+          "line": 37
+        },
+        "fidelity.test/rows/errors.Invoice": {
+          "file": "rows/errors/api.go",
+          "line": 41
+        },
+        "fidelity.test/rows/errors.InvoiceLocked": {
+          "file": "rows/errors/api.go",
+          "line": 19
+        },
+        "fidelity.test/rows/errors.QuotaExceeded": {
+          "file": "rows/errors/api.go",
+          "line": 29
+        },
+        "fidelity.test/rows/errors.Status": {
+          "file": "rows/errors/api.go",
+          "line": 11
+        },
+        "send": {
+          "file": "rows/errors/api.go",
+          "line": 52
+        },
+        "void": {
+          "file": "rows/errors/api.go",
+          "line": 51
+        }
+      }
+    },
+    "examples": {
+      "bowline": "1.2",
+      "hash": "sha256:8e275f7f8176b03371ff272e7758cc594f957165df423047a62d953c02846ac2",
+      "types": {
+        "fidelity.test/rows/examples.Address": {
+          "kind": "struct",
+          "name": "Address",
+          "fields": [
+            {
+              "name": "city",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "example": "Paris"
+            }
+          ]
+        },
+        "fidelity.test/rows/examples.Level": {
+          "kind": "enum",
+          "name": "Level",
+          "base": "int32",
+          "values": [
+            {
+              "name": "LevelLow",
+              "value": 1
+            },
+            {
+              "name": "LevelHigh",
+              "value": 10
+            }
+          ]
+        },
+        "fidelity.test/rows/examples.Sample": {
+          "kind": "struct",
+          "name": "Sample",
+          "fields": [
+            {
+              "name": "name",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                }
+              ],
+              "example": "Ada Lovelace"
+            },
+            {
+              "name": "email",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "rules": [
+                {
+                  "rule": "email"
+                }
+              ],
+              "example": "ada@example.com"
+            },
+            {
+              "name": "age",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              },
+              "rules": [
+                {
+                  "rule": "min",
+                  "param": "0"
+                }
+              ],
+              "example": 36
+            },
+            {
+              "name": "big",
+              "type": {
+                "kind": "primitive",
+                "name": "int64",
+                "encoding": "string"
+              },
+              "example": "9007199254740993"
+            },
+            {
+              "name": "ratio",
+              "type": {
+                "kind": "primitive",
+                "name": "float64"
+              },
+              "example": 0.75
+            },
+            {
+              "name": "active",
+              "type": {
+                "kind": "primitive",
+                "name": "bool"
+              },
+              "example": true
+            },
+            {
+              "name": "status",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/examples.Status"
+              },
+              "example": "sent"
+            },
+            {
+              "name": "level",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/examples.Level"
+              },
+              "example": 10
+            },
+            {
+              "name": "slug",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/examples.Slug"
+              },
+              "example": "ada-lovelace"
+            },
+            {
+              "name": "since",
+              "type": {
+                "kind": "primitive",
+                "name": "timestamp"
+              },
+              "example": "2026-01-01T00:00:00Z"
+            },
+            {
+              "name": "timeout",
+              "type": {
+                "kind": "primitive",
+                "name": "duration"
+              },
+              "example": 1500000000
+            },
+            {
+              "name": "blob",
+              "type": {
+                "kind": "primitive",
+                "name": "bytes"
+              },
+              "example": "aGVsbG8="
+            },
+            {
+              "name": "raw",
+              "type": {
+                "kind": "primitive",
+                "name": "raw"
+              },
+              "example": {
+                "any": 1
+              }
+            },
+            {
+              "name": "tags",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "primitive",
+                  "name": "string"
+                }
+              },
+              "example": [
+                "a",
+                "b"
+              ]
+            },
+            {
+              "name": "counts",
+              "type": {
+                "kind": "map",
+                "key": {
+                  "kind": "primitive",
+                  "name": "string"
+                },
+                "value": {
+                  "kind": "primitive",
+                  "name": "int32"
+                }
+              },
+              "example": {
+                "x": 1
+              }
+            },
+            {
+              "name": "home",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/examples.Address"
+              },
+              "example": {
+                "city": "Rome"
+              }
+            },
+            {
+              "name": "nick",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "optional": true,
+              "example": "ada"
+            },
+            {
+              "name": "ratings",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "ref",
+                  "id": "fidelity.test/rows/examples.Level"
+                }
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/examples.Slug": {
+          "kind": "primitive",
+          "name": "Slug",
+          "primitive": "string"
+        },
+        "fidelity.test/rows/examples.Status": {
+          "kind": "enum",
+          "name": "Status",
+          "base": "string",
+          "values": [
+            {
+              "name": "StatusDraft",
+              "value": "draft"
+            },
+            {
+              "name": "StatusSent",
+              "value": "sent"
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "struct"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/examples.Sample"
+          },
+          "goInput": "struct{}",
+          "goOutput": "fidelity.test/rows/examples.Sample"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/examples.Address": {
+          "file": "rows/examples/api.go",
+          "line": 27
+        },
+        "fidelity.test/rows/examples.Level": {
+          "file": "rows/examples/api.go",
+          "line": 18
+        },
+        "fidelity.test/rows/examples.Sample": {
+          "file": "rows/examples/api.go",
+          "line": 31
+        },
+        "fidelity.test/rows/examples.Slug": {
+          "file": "rows/examples/api.go",
+          "line": 25
+        },
+        "fidelity.test/rows/examples.Status": {
+          "file": "rows/examples/api.go",
+          "line": 11
+        },
+        "get": {
+          "file": "rows/examples/api.go",
+          "line": 55
+        }
+      }
+    },
+    "generics": {
+      "bowline": "1.2",
+      "hash": "sha256:ae463234847bbfbbf699ed9b2be72fdea29d7f141f46ba23f84aab9023f53f4f",
+      "types": {
+        "fidelity.test/rows/generics.Page": {
+          "kind": "generic",
+          "name": "Page",
+          "doc": "Page is one page of results.",
+          "params": [
+            "T"
+          ],
+          "body": {
+            "kind": "struct",
+            "fields": [
+              {
+                "name": "items",
+                "type": {
+                  "kind": "array",
+                  "elem": {
+                    "kind": "param",
+                    "name": "T"
+                  }
+                }
+              },
+              {
+                "name": "next",
+                "type": {
+                  "kind": "primitive",
+                  "name": "string"
+                },
+                "optional": true
+              }
+            ]
+          }
+        },
+        "fidelity.test/rows/generics.Pair": {
+          "kind": "generic",
+          "name": "Pair",
+          "params": [
+            "K",
+            "V"
+          ],
+          "body": {
+            "kind": "struct",
+            "fields": [
+              {
+                "name": "key",
+                "type": {
+                  "kind": "param",
+                  "name": "K"
+                }
+              },
+              {
+                "name": "value",
+                "type": {
+                  "kind": "param",
+                  "name": "V"
+                }
+              }
+            ]
+          }
+        },
+        "fidelity.test/rows/generics.Range[float64]": {
+          "kind": "struct",
+          "name": "Range_float64",
+          "fields": [
+            {
+              "name": "low",
+              "type": {
+                "kind": "primitive",
+                "name": "float64"
+              }
+            },
+            {
+              "name": "high",
+              "type": {
+                "kind": "primitive",
+                "name": "float64"
+              }
+            }
+          ],
+          "origin": "fidelity.test/rows/generics.Range"
+        },
+        "fidelity.test/rows/generics.Range[int32]": {
+          "kind": "struct",
+          "name": "Range_int32",
+          "fields": [
+            {
+              "name": "low",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              }
+            },
+            {
+              "name": "high",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              }
+            }
+          ],
+          "origin": "fidelity.test/rows/generics.Range"
+        },
+        "fidelity.test/rows/generics.Range[int64]": {
+          "kind": "struct",
+          "name": "Range_int64",
+          "fields": [
+            {
+              "name": "low",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            },
+            {
+              "name": "high",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            }
+          ],
+          "origin": "fidelity.test/rows/generics.Range"
+        },
+        "fidelity.test/rows/generics.Report": {
+          "kind": "struct",
+          "name": "Report",
+          "fields": [
+            {
+              "name": "users",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/generics.Page",
+                "args": [
+                  {
+                    "kind": "ref",
+                    "id": "fidelity.test/rows/generics.User"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "nested",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/generics.Page",
+                "args": [
+                  {
+                    "kind": "ref",
+                    "id": "fidelity.test/rows/generics.Page",
+                    "args": [
+                      {
+                        "kind": "ref",
+                        "id": "fidelity.test/rows/generics.User"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "pairs",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "ref",
+                  "id": "fidelity.test/rows/generics.Pair",
+                  "args": [
+                    {
+                      "kind": "primitive",
+                      "name": "string"
+                    },
+                    {
+                      "kind": "ref",
+                      "id": "fidelity.test/rows/generics.User"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "tree",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/generics.Tree",
+                "args": [
+                  {
+                    "kind": "ref",
+                    "id": "fidelity.test/rows/generics.User"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "ints",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/generics.Range[int64]"
+              }
+            },
+            {
+              "name": "floats",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/generics.Range[float64]"
+              }
+            },
+            {
+              "name": "scores",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/generics.Page",
+                "args": [
+                  {
+                    "kind": "ref",
+                    "id": "fidelity.test/rows/generics.Range[int32]"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/generics.Tree": {
+          "kind": "generic",
+          "name": "Tree",
+          "params": [
+            "T"
+          ],
+          "body": {
+            "kind": "struct",
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "param",
+                  "name": "T"
+                }
+              },
+              {
+                "name": "children",
+                "type": {
+                  "kind": "array",
+                  "elem": {
+                    "kind": "ref",
+                    "id": "fidelity.test/rows/generics.Tree",
+                    "args": [
+                      {
+                        "kind": "param",
+                        "name": "T"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "fidelity.test/rows/generics.User": {
+          "kind": "struct",
+          "name": "User",
+          "fields": [
+            {
+              "name": "name",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/generics.Page",
+            "args": [
+              {
+                "kind": "ref",
+                "id": "fidelity.test/rows/generics.User"
+              }
+            ]
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/generics.Report"
+          },
+          "goInput": "fidelity.test/rows/generics.Page[fidelity.test/rows/generics.User]",
+          "goOutput": "fidelity.test/rows/generics.Report"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/generics.Page": {
+          "file": "rows/generics/api.go",
+          "line": 10
+        },
+        "fidelity.test/rows/generics.Pair": {
+          "file": "rows/generics/api.go",
+          "line": 15
+        },
+        "fidelity.test/rows/generics.Range[float64]": {
+          "file": "rows/generics/api.go",
+          "line": 29
+        },
+        "fidelity.test/rows/generics.Range[int32]": {
+          "file": "rows/generics/api.go",
+          "line": 29
+        },
+        "fidelity.test/rows/generics.Range[int64]": {
+          "file": "rows/generics/api.go",
+          "line": 29
+        },
+        "fidelity.test/rows/generics.Report": {
+          "file": "rows/generics/api.go",
+          "line": 38
+        },
+        "fidelity.test/rows/generics.Tree": {
+          "file": "rows/generics/api.go",
+          "line": 20
+        },
+        "fidelity.test/rows/generics.User": {
+          "file": "rows/generics/api.go",
+          "line": 34
+        },
+        "get": {
+          "file": "rows/generics/api.go",
+          "line": 51
+        }
+      }
+    },
+    "idempotent": {
+      "bowline": "1.2",
+      "hash": "sha256:c1b4e5b0fed5cf1c4783dfc5b9bb28a12aba94b53cad2226459bc37f8f337f26",
+      "types": {
+        "fidelity.test/rows/idempotent.CreateInput": {
+          "kind": "struct",
+          "name": "CreateInput",
+          "fields": [
+            {
+              "name": "name",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                }
+              ]
+            }
+          ]
+        },
+        "fidelity.test/rows/idempotent.Created": {
+          "kind": "struct",
+          "name": "Created",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "create",
+          "kind": "mutation",
+          "method": "POST",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/idempotent.CreateInput"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/idempotent.Created"
+          },
+          "goInput": "fidelity.test/rows/idempotent.CreateInput",
+          "goOutput": "fidelity.test/rows/idempotent.Created",
+          "idempotent": true
+        }
+      ],
+      "positions": {
+        "create": {
+          "file": "rows/idempotent/api.go",
+          "line": 20
+        },
+        "fidelity.test/rows/idempotent.CreateInput": {
+          "file": "rows/idempotent/api.go",
+          "line": 9
+        },
+        "fidelity.test/rows/idempotent.Created": {
+          "file": "rows/idempotent/api.go",
+          "line": 13
+        }
+      }
+    },
+    "pointers": {
+      "bowline": "1.2",
+      "hash": "sha256:5384eb4ea009e234a70fc7399f3f0591a99633dd5e78c0610bd18c29e7808227",
+      "types": {
+        "fidelity.test/rows/pointers.Doc": {
+          "kind": "struct",
+          "name": "Doc",
+          "fields": [
+            {
+              "name": "title",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "nullable": true
+            },
+            {
+              "name": "subtitle",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "optional": true
+            },
+            {
+              "name": "primary",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/pointers.Tag"
+              },
+              "nullable": true
+            },
+            {
+              "name": "tags",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "ref",
+                  "id": "fidelity.test/rows/pointers.Tag",
+                  "nullable": true
+                }
+              }
+            },
+            {
+              "name": "byName",
+              "type": {
+                "kind": "map",
+                "key": {
+                  "kind": "primitive",
+                  "name": "string"
+                },
+                "value": {
+                  "kind": "ref",
+                  "id": "fidelity.test/rows/pointers.Tag",
+                  "nullable": true
+                }
+              }
+            },
+            {
+              "name": "count",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              },
+              "optional": true
+            }
+          ]
+        },
+        "fidelity.test/rows/pointers.Tag": {
+          "kind": "struct",
+          "name": "Tag",
+          "fields": [
+            {
+              "name": "label",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/pointers.Tag"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/pointers.Doc"
+          },
+          "goInput": "fidelity.test/rows/pointers.Tag",
+          "goOutput": "fidelity.test/rows/pointers.Doc"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/pointers.Doc": {
+          "file": "rows/pointers/api.go",
+          "line": 13
+        },
+        "fidelity.test/rows/pointers.Tag": {
+          "file": "rows/pointers/api.go",
+          "line": 9
+        },
+        "get": {
+          "file": "rows/pointers/api.go",
+          "line": 25
+        }
+      }
+    },
+    "recursive": {
+      "bowline": "1.2",
+      "hash": "sha256:c27bf4e31f34ad0c14ec65badf4cb9a99392b4b9bb0476be262445e7a5f2c248",
+      "types": {
+        "fidelity.test/rows/recursive.Node": {
+          "kind": "struct",
+          "name": "Node",
+          "fields": [
+            {
+              "name": "name",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            },
+            {
+              "name": "children",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "ref",
+                  "id": "fidelity.test/rows/recursive.Node"
+                }
+              }
+            },
+            {
+              "name": "parent",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/recursive.Node"
+              },
+              "optional": true
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/recursive.Node"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/recursive.Node"
+          },
+          "goInput": "fidelity.test/rows/recursive.Node",
+          "goOutput": "fidelity.test/rows/recursive.Node"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/recursive.Node": {
+          "file": "rows/recursive/api.go",
+          "line": 9
+        },
+        "get": {
+          "file": "rows/recursive/api.go",
+          "line": 18
+        }
+      }
+    },
+    "routing": {
+      "bowline": "1.2",
+      "hash": "sha256:47847599baabc6bb505479d5f9f147f171bf979ffa4e95097ff6842557ad8867",
+      "types": {
+        "fidelity.test/rows/routing.ID": {
+          "kind": "struct",
+          "name": "ID",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/routing.Item": {
+          "kind": "struct",
+          "name": "Item",
+          "fields": [
+            {
+              "name": "name",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/routing/sub.ID": {
+          "kind": "struct",
+          "name": "ID",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "admin.purge",
+          "kind": "mutation",
+          "method": "POST",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/routing.ID"
+          },
+          "output": {
+            "kind": "struct"
+          },
+          "goInput": "fidelity.test/rows/routing.ID",
+          "goOutput": "struct{}",
+          "deprecated": "use sub.remove",
+          "meta": {
+            "auth": "admin"
+          }
+        },
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/routing.ID"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/routing.Item"
+          },
+          "goInput": "fidelity.test/rows/routing.ID",
+          "goOutput": "fidelity.test/rows/routing.Item",
+          "doc": "Get fetches an item."
+        },
+        {
+          "path": "search",
+          "kind": "query",
+          "method": "POST",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/routing.Item"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/routing.Item"
+          },
+          "goInput": "fidelity.test/rows/routing.Item",
+          "goOutput": "fidelity.test/rows/routing.Item"
+        },
+        {
+          "path": "sub.remove",
+          "kind": "mutation",
+          "method": "POST",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/routing/sub.ID"
+          },
+          "output": {
+            "kind": "struct"
+          },
+          "goInput": "fidelity.test/rows/routing/sub.ID",
+          "goOutput": "struct{}",
+          "doc": "Remove deletes an item by ID."
+        }
+      ],
+      "positions": {
+        "admin.purge": {
+          "file": "rows/routing/api.go",
+          "line": 21
+        },
+        "fidelity.test/rows/routing.ID": {
+          "file": "rows/routing/api.go",
+          "line": 12
+        },
+        "fidelity.test/rows/routing.Item": {
+          "file": "rows/routing/api.go",
+          "line": 16
+        },
+        "fidelity.test/rows/routing/sub.ID": {
+          "file": "rows/routing/sub/sub.go",
+          "line": 9
+        },
+        "get": {
+          "file": "rows/routing/api.go",
+          "line": 32
+        },
+        "search": {
+          "file": "rows/routing/api.go",
+          "line": 33
+        },
+        "sub.remove": {
+          "file": "rows/routing/sub/sub.go",
+          "line": 17
+        }
+      }
+    },
+    "stdlib": {
+      "bowline": "1.2",
+      "hash": "sha256:40b59cef11abe15216857df362dc3c2373fdc553973ced8561342a2c0e0fc64f",
+      "types": {
+        "fidelity.test/rows/stdlib.Event": {
+          "kind": "struct",
+          "name": "Event",
+          "fields": [
+            {
+              "name": "at",
+              "type": {
+                "kind": "primitive",
+                "name": "timestamp"
+              }
+            },
+            {
+              "name": "took",
+              "type": {
+                "kind": "primitive",
+                "name": "duration"
+              }
+            },
+            {
+              "name": "payload",
+              "type": {
+                "kind": "primitive",
+                "name": "raw"
+              }
+            },
+            {
+              "name": "addr",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            },
+            {
+              "name": "big",
+              "type": {
+                "kind": "primitive",
+                "name": "int64",
+                "encoding": "string"
+              }
+            },
+            {
+              "name": "unsigned",
+              "type": {
+                "kind": "primitive",
+                "name": "uint64",
+                "encoding": "string"
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "struct"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/stdlib.Event"
+          },
+          "goInput": "struct{}",
+          "goOutput": "fidelity.test/rows/stdlib.Event"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/stdlib.Event": {
+          "file": "rows/stdlib/api.go",
+          "line": 12
+        },
+        "get": {
+          "file": "rows/stdlib/api.go",
+          "line": 24
+        }
+      }
+    },
+    "structs": {
+      "bowline": "1.2",
+      "hash": "sha256:9b45c0ee13816948f21fb80582c5ef9602a725e9031f9bced3438513ff3aa7e3",
+      "types": {
+        "fidelity.test/rows/structs.Address": {
+          "kind": "struct",
+          "name": "Address",
+          "doc": "Address is where mail goes.",
+          "fields": [
+            {
+              "name": "street",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "doc": "Street line."
+            },
+            {
+              "name": "city",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                }
+              ]
+            }
+          ]
+        },
+        "fidelity.test/rows/structs.Person": {
+          "kind": "struct",
+          "name": "Person",
+          "fields": [
+            {
+              "name": "name",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                },
+                {
+                  "rule": "min",
+                  "param": "1"
+                },
+                {
+                  "rule": "max",
+                  "param": "80"
+                }
+              ]
+            },
+            {
+              "name": "age",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              },
+              "rules": [
+                {
+                  "rule": "min",
+                  "param": "0"
+                },
+                {
+                  "rule": "max",
+                  "param": "150"
+                }
+              ]
+            },
+            {
+              "name": "email",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "rules": [
+                {
+                  "rule": "email"
+                }
+              ]
+            },
+            {
+              "name": "home",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/structs.Address"
+              }
+            },
+            {
+              "name": "NoTag",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            },
+            {
+              "name": "inline",
+              "type": {
+                "kind": "struct",
+                "fields": [
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "primitive",
+                      "name": "int32"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/structs.Address"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/structs.Person"
+          },
+          "goInput": "fidelity.test/rows/structs.Address",
+          "goOutput": "fidelity.test/rows/structs.Person"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/structs.Address": {
+          "file": "rows/structs/api.go",
+          "line": 10
+        },
+        "fidelity.test/rows/structs.Person": {
+          "file": "rows/structs/api.go",
+          "line": 16
+        },
+        "get": {
+          "file": "rows/structs/api.go",
+          "line": 32
+        }
+      }
+    },
+    "subscriptions": {
+      "bowline": "1.2",
+      "hash": "sha256:d058509f5f24df3ae150420e559a14c19b803311770d9a33b9fbfd7409afe856",
+      "types": {
+        "fidelity.test/rows/subscriptions.Change": {
+          "kind": "struct",
+          "name": "Change",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            },
+            {
+              "name": "at",
+              "type": {
+                "kind": "primitive",
+                "name": "timestamp"
+              }
+            },
+            {
+              "name": "tags",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "primitive",
+                  "name": "string"
+                }
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/subscriptions.WatchInput": {
+          "kind": "struct",
+          "name": "WatchInput",
+          "fields": [
+            {
+              "name": "limit",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              },
+              "rules": [
+                {
+                  "rule": "min",
+                  "param": "1"
+                },
+                {
+                  "rule": "max",
+                  "param": "100"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "errors": {
+        "fidelity.test/rows/subscriptions.Gone": {
+          "name": "Gone",
+          "code": "NOT_FOUND",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            }
+          ]
+        }
+      },
+      "procedures": [
+        {
+          "path": "secret",
+          "kind": "subscription",
+          "method": "POST",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/subscriptions.WatchInput"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/subscriptions.Change"
+          },
+          "goInput": "fidelity.test/rows/subscriptions.WatchInput",
+          "goOutput": "fidelity.test/rows/subscriptions.Change"
+        },
+        {
+          "path": "watch",
+          "kind": "subscription",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/subscriptions.WatchInput"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/subscriptions.Change"
+          },
+          "goInput": "fidelity.test/rows/subscriptions.WatchInput",
+          "goOutput": "fidelity.test/rows/subscriptions.Change",
+          "errors": [
+            "fidelity.test/rows/subscriptions.Gone"
+          ],
+          "doc": "Watch streams every change."
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/subscriptions.Change": {
+          "file": "rows/subscriptions/api.go",
+          "line": 14
+        },
+        "fidelity.test/rows/subscriptions.Gone": {
+          "file": "rows/subscriptions/api.go",
+          "line": 20
+        },
+        "fidelity.test/rows/subscriptions.WatchInput": {
+          "file": "rows/subscriptions/api.go",
+          "line": 10
+        },
+        "secret": {
+          "file": "rows/subscriptions/api.go",
+          "line": 36
+        },
+        "watch": {
+          "file": "rows/subscriptions/api.go",
+          "line": 35
+        }
+      }
+    },
+    "tools": {
+      "bowline": "1.2",
+      "hash": "sha256:384edb2e12c62065ade370dac1306f7fe96c7cc59082eb2c725892da80205f61",
+      "types": {
+        "fidelity.test/rows/tools.ID": {
+          "kind": "struct",
+          "name": "ID",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/tools.Item": {
+          "kind": "struct",
+          "name": "Item",
+          "fields": [
+            {
+              "name": "name",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/tools.ID"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/tools.Item"
+          },
+          "goInput": "fidelity.test/rows/tools.ID",
+          "goOutput": "fidelity.test/rows/tools.Item",
+          "tool": {
+            "scopes": [
+              "billing"
+            ],
+            "readOnly": true
+          },
+          "doc": "Get returns one item."
+        },
+        {
+          "path": "hidden",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/tools.ID"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/tools.Item"
+          },
+          "goInput": "fidelity.test/rows/tools.ID",
+          "goOutput": "fidelity.test/rows/tools.Item"
+        },
+        {
+          "path": "remove",
+          "kind": "mutation",
+          "method": "POST",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/tools.ID"
+          },
+          "output": {
+            "kind": "struct"
+          },
+          "goInput": "fidelity.test/rows/tools.ID",
+          "goOutput": "struct{}",
+          "tool": {
+            "scopes": [
+              "billing"
+            ],
+            "destructive": true
+          }
+        },
+        {
+          "path": "search",
+          "kind": "query",
+          "method": "POST",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/tools.Item"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/tools.Item"
+          },
+          "goInput": "fidelity.test/rows/tools.Item",
+          "goOutput": "fidelity.test/rows/tools.Item",
+          "tool": {
+            "scopes": [
+              "crm",
+              "billing"
+            ],
+            "readOnly": true
+          }
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/tools.ID": {
+          "file": "rows/tools/api.go",
+          "line": 9
+        },
+        "fidelity.test/rows/tools.Item": {
+          "file": "rows/tools/api.go",
+          "line": 13
+        },
+        "get": {
+          "file": "rows/tools/api.go",
+          "line": 30
+        },
+        "hidden": {
+          "file": "rows/tools/api.go",
+          "line": 33
+        },
+        "remove": {
+          "file": "rows/tools/api.go",
+          "line": 32
+        },
+        "search": {
+          "file": "rows/tools/api.go",
+          "line": 31
+        }
+      }
+    },
+    "uploads": {
+      "bowline": "1.2",
+      "hash": "sha256:799740014f85e7e8c4cdd606d2105a3b3cbe2a52d1003546b553400c8c425e98",
+      "types": {
+        "fidelity.test/rows/uploads.AttachInput": {
+          "kind": "struct",
+          "name": "AttachInput",
+          "fields": [
+            {
+              "name": "invoiceId",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                }
+              ]
+            }
+          ]
+        },
+        "fidelity.test/rows/uploads.Attachment": {
+          "kind": "struct",
+          "name": "Attachment",
+          "fields": [
+            {
+              "name": "name",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            },
+            {
+              "name": "size",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "attach",
+          "kind": "upload",
+          "method": "POST",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/uploads.AttachInput"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/uploads.Attachment"
+          },
+          "goInput": "fidelity.test/rows/uploads.AttachInput",
+          "goOutput": "fidelity.test/rows/uploads.Attachment",
+          "doc": "Attach stores a file."
+        }
+      ],
+      "positions": {
+        "attach": {
+          "file": "rows/uploads/api.go",
+          "line": 24
+        },
+        "fidelity.test/rows/uploads.AttachInput": {
+          "file": "rows/uploads/api.go",
+          "line": 9
+        },
+        "fidelity.test/rows/uploads.Attachment": {
+          "file": "rows/uploads/api.go",
+          "line": 13
+        }
+      }
+    },
+    "wireas": {
+      "bowline": "1.2",
+      "hash": "sha256:2bd95bc34abb77b19c77340dd518fdfd323d5294a69c1fb7e7554221c386015d",
+      "types": {
+        "fidelity.test/rows/wireas.Envelope": {
+          "kind": "struct",
+          "name": "Envelope",
+          "fields": [
+            {
+              "name": "kind",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/wireas.Line": {
+          "kind": "struct",
+          "name": "Line",
+          "fields": [
+            {
+              "name": "price",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            },
+            {
+              "name": "origin",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "primitive",
+                  "name": "float64"
+                },
+                "length": 2
+              }
+            },
+            {
+              "name": "meta",
+              "type": {
+                "kind": "ref",
+                "id": "fidelity.test/rows/wireas.Envelope"
+              }
+            },
+            {
+              "name": "prices",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "primitive",
+                  "name": "string"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "struct"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/wireas.Line"
+          },
+          "goInput": "struct{}",
+          "goOutput": "fidelity.test/rows/wireas.Line"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/wireas.Envelope": {
+          "file": "rows/wireas/api.go",
+          "line": 27
+        },
+        "fidelity.test/rows/wireas.Line": {
+          "file": "rows/wireas/api.go",
+          "line": 39
+        },
+        "get": {
+          "file": "rows/wireas/api.go",
+          "line": 49
+        }
+      }
+    }
+  },
+  "rejected": [
+    "reject-computed-name",
+    "reject-dynamic-router",
+    "reject-error-shapes",
+    "reject-example",
+    "reject-interface",
+    "reject-marshaler",
+    "reject-shapes",
+    "reject-spread",
+    "reject-tool-collision",
+    "reject-tool-on-stream",
+    "reject-wireas-conflict"
+  ]
+}

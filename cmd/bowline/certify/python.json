@@ -1,0 +1,8 @@
+{
+  "target": "python",
+  "generator": "python",
+  "repository": "built in",
+  "compile": ["scripts/check-goldens.sh", "python"],
+  "test": ["bash", "-c", "cd packages/python/bowline-client && uv run --frozen pytest -q"],
+  "conformance": "examples/ledger/python/e2e.py"
+}

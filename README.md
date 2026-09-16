@@ -83,6 +83,7 @@ const greeting = await client.greet({ name: "ada" });
 | `docs/guides/dart.md`, `python.md`, `rust.md`, `elixir.md` | the generated Dart, Python, Rust, and Elixir clients |
 | `docs/certification.md` | what makes a client target official |
 | `docs/plugins.md` | the external generator protocol for a new language |
+| `docs/certified.md` | every generator that has passed `bowline certify` |
 | `docs/guides/federation.md` | composing services behind a gateway |
 | `docs/guides/registry.md` | the contract registry and impact queries |
 | `docs/guides/signing.md` | signed service-to-service calls |
