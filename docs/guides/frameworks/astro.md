@@ -1,11 +1,11 @@
 # Astro
 
-An Astro page calls the API at request time through `createServerClient`, and a Solid island keeps the page live through `@bowline/solid`.
+An Astro page calls the API at request time through `createServerClient`, and a Solid island keeps the page live through `@bowlinedev/solid`.
 
 source: examples/astro/src/pages/index.astro:2-10
 
 ```ts
-import { createServerClient } from "@bowline/client/server";
+import { createServerClient } from "@bowlinedev/client/server";
 import { createClient } from "../bowline.js";
 import Invoices from "../components/Invoices.tsx";
 

@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [solid()],
   resolve: {
     alias: {
-      "@bowline/client": fileURLToPath(new URL("../client/src/index.ts", import.meta.url)),
+      "@bowlinedev/client": fileURLToPath(new URL("../client/src/index.ts", import.meta.url)),
     },
     conditions: ["development", "browser"],
   },

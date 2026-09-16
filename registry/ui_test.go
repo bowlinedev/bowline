@@ -14,7 +14,7 @@ func TestUIEmbedsThePlaceholder(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reading the embedded placeholder: %v", err)
 	}
-	if !strings.Contains(string(data), "pnpm --filter @bowline/registry-ui build") {
+	if !strings.Contains(string(data), "pnpm --filter @bowlinedev/registry-ui build") {
 		t.Fatalf("the placeholder does not carry the build instruction: %q", data)
 	}
 	if _, err := fs.Stat(UI(), "ui/dist"); err == nil {

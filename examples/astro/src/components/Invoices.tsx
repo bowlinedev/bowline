@@ -1,4 +1,4 @@
-import { bowlineSolid } from "@bowline/solid";
+import { bowlineSolid } from "@bowlinedev/solid";
 import { createSignal, For, Show } from "solid-js";
 import { client } from "../api.js";
 

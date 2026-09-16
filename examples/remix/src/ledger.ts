@@ -1,4 +1,4 @@
-import { createServerClient } from "@bowline/client/server";
+import { createServerClient } from "@bowlinedev/client/server";
 import { type Client, createClient } from "./bowline.js";
 
 export const backend = `${process.env.LEDGER_URL ?? "http://localhost:8080"}/api`;

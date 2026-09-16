@@ -1,6 +1,6 @@
 # Ledger on Expo
 
-An Expo Router app that lists and creates invoices through the ledger's generated client, `@bowline/client`, and `@bowline/react-query`.
+An Expo Router app that lists and creates invoices through the ledger's generated client, `@bowlinedev/client`, and `@bowlinedev/react-query`.
 
 ```bash
 pnpm --filter ledger-expo gen

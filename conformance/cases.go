@@ -216,7 +216,10 @@ func buildCases() []testCase {
 				if ct := resp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "text/event-stream") {
 					return fmt.Errorf("content type %q, want text/event-stream", ct)
 				}
-				events := parseEvents(body)
+				events, err := parseEvents(body)
+				if err != nil {
+					return err
+				}
 				messages := 0
 				done := false
 				for _, e := range events {
@@ -296,7 +299,7 @@ type event struct {
 	data string
 }
 
-func parseEvents(body []byte) []event {
+func parseEvents(body []byte) ([]event, error) {
 	var out []event
 	scanner := bufio.NewScanner(bytes.NewReader(body))
 	scanner.Buffer(make([]byte, 0, 64<<10), 1<<20)
@@ -315,8 +318,11 @@ func parseEvents(body []byte) []event {
 			current.data = strings.TrimPrefix(line, "data: ")
 		}
 	}
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("reading the event stream: %w", err)
+	}
 	if current.name != "" || current.data != "" {
 		out = append(out, current)
 	}
-	return out
+	return out, nil
 }

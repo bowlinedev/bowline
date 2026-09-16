@@ -18,6 +18,7 @@ func (Generator) GenerateZodFor(doc *contract.Document, _ string) ([]byte, error
 	z := &zodGenerator{generator: g, lazy: map[string]bool{}}
 	z.plan()
 	var b strings.Builder
+	b.WriteString(generatedHeader)
 	b.WriteString("import { z } from \"zod\";\n\n")
 	for _, id := range z.order {
 		b.WriteString(z.declaration(id))

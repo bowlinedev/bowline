@@ -7,7 +7,7 @@ import {
   type ProcedureKey,
   procedureKey,
   walkProcedures,
-} from "@bowline/client";
+} from "@bowlinedev/client";
 import useSWR, { type SWRConfiguration, type SWRResponse } from "swr";
 import useSWRMutation, {
   type SWRMutationConfiguration,

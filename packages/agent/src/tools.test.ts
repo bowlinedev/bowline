@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import type { ContractDocument } from "@bowline/client";
+import type { ContractDocument } from "@bowlinedev/client";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { toAnthropic, toJSONSchema, toOpenAI } from "./encode.js";
 import { type Tool, tools } from "./tools.js";

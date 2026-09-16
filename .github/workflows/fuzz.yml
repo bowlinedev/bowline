@@ -89,4 +89,4 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @bowline/client exec vitest run src/client.fuzz.test.ts
+      - run: pnpm --filter @bowlinedev/client exec vitest run src/client.fuzz.test.ts

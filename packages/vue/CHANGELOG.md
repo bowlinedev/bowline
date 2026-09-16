@@ -1,4 +1,4 @@
-# @bowline/vue
+# @bowlinedev/vue
 
 ## 1.0.0
 

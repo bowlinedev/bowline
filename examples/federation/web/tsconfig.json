@@ -7,8 +7,8 @@
     "types": ["vite/client", "node"],
     "baseUrl": ".",
     "paths": {
-      "@bowline/client": ["../../../packages/client/src/index.ts"],
-      "@bowline/react-query": ["../../../packages/react-query/src/index.ts"]
+      "@bowlinedev/client": ["../../../packages/client/src/index.ts"],
+      "@bowlinedev/react-query": ["../../../packages/react-query/src/index.ts"]
     }
   },
   "include": ["src", "e2e", "vite.config.ts", "playwright.config.ts"]

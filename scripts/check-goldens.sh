@@ -10,7 +10,7 @@ testdata="$repo/cmd/bowline/internal/gen/$package/testdata"
 
 case "$target" in
   ts)
-    (cd "$repo" && pnpm --filter @bowline/client exec tsc -p tsconfig.golden.json)
+    (cd "$repo" && pnpm --filter @bowlinedev/client exec tsc -p tsconfig.golden.json)
     ;;
   go|goclient)
     (cd "$repo/cmd/bowline" && go test ./internal/gen/goclient -run TestGoldens)

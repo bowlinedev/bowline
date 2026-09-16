@@ -98,7 +98,7 @@ In development every error carries the underlying message. With `bowline.Product
 sketch: the narrowing pattern; every generated client throws `BowlineError` and nothing else
 
 ```ts
-import { BowlineError } from "@bowline/client";
+import { BowlineError } from "@bowlinedev/client";
 
 try {
   await client.invoices.get({ id: 42 });

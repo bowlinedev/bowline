@@ -1,11 +1,11 @@
 # SvelteKit
 
-A SvelteKit page loads on the server through `serverClient`, which forwards `event.fetch` and the caller's `cookie` and `authorization` headers, and updates in the browser through `@bowline/svelte` stores.
+A SvelteKit page loads on the server through `serverClient`, which forwards `event.fetch` and the caller's `cookie` and `authorization` headers, and updates in the browser through `@bowlinedev/svelte` stores.
 
 source: examples/sveltekit/src/routes/+page.server.ts:1-10
 
 ```ts
-import { serverClient } from "@bowline/svelte";
+import { serverClient } from "@bowlinedev/svelte";
 import { createClient } from "$lib/bowline.js";
 import type { PageServerLoad } from "./$types.js";
 

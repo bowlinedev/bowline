@@ -13,8 +13,8 @@
     "test": "jest --forceExit"
   },
   "dependencies": {
-    "@bowline/client": "workspace:*",
-    "@bowline/react-query": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
+    "@bowlinedev/react-query": "workspace:*",
     "@tanstack/react-query": "5.90.2",
     "expo": "54.0.37",
     "expo-constants": "18.0.14",
@@ -40,8 +40,8 @@
       "**/__tests__/**/*.test.tsx"
     ],
     "moduleNameMapper": {
-      "^@bowline/client$": "<rootDir>/../../packages/client/src/index.ts",
-      "^@bowline/react-query$": "<rootDir>/../../packages/react-query/src/index.ts",
+      "^@bowlinedev/client$": "<rootDir>/../../packages/client/src/index.ts",
+      "^@bowlinedev/react-query$": "<rootDir>/../../packages/react-query/src/index.ts",
       "^\\./(.*)\\.js$": "./$1"
     },
     "transformIgnorePatterns": [

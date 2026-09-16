@@ -1,4 +1,4 @@
-import type { ContractDocument, ContractProcedure } from "@bowline/client";
+import type { ContractDocument, ContractProcedure } from "@bowlinedev/client";
 
 export interface Tool {
   name: string;

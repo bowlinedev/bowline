@@ -1,4 +1,4 @@
-import type { ContractDocument } from "@bowline/client";
+import type { ContractDocument } from "@bowlinedev/client";
 
 export interface Service {
   name: string;

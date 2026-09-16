@@ -24,7 +24,7 @@ It pipes every accepted fidelity row through the generator over the protocol in 
 
 | Target | Generator | Runtime | Goldens job | End-to-end job | Guide |
 |---|---|---|---|---|---|
-| `ts` | `cmd/bowline/internal/gen/ts` | `@bowline/client` | `node` in `ci.yml` | `ledger` in `e2e.yml` | `docs/quickstart.md` |
+| `ts` | `cmd/bowline/internal/gen/ts` | `@bowlinedev/client` | `node` in `ci.yml` | `ledger` in `e2e.yml` | `docs/quickstart.md` |
 | `go` | `cmd/bowline/internal/gen/goclient` | the root module | `go` in `ci.yml` | `go-client example` in `ci.yml` | `docs/guides/frameworks/go-client.md` |
 | `dart` | `cmd/bowline/internal/gen/dart` | `packages/dart/bowline` | `goldens-dart` | `dart` in `e2e.yml` | `docs/guides/dart.md` |
 | `python` | `cmd/bowline/internal/gen/python` | `packages/python/bowline-client` | `goldens-python` | `python` in `e2e.yml` | `docs/guides/python.md` |
@@ -53,6 +53,6 @@ Certification proves the generator: every fidelity row renders, compiles under t
 
 Escape-hatch counting subtracts a baseline measured by generating an empty contract, so a language whose runtime code legitimately mentions the token — Go's `any` in a type parameter, Elixir's `term()` in a decoder spec — is not penalised for it. A row whose contract uses the `raw` primitive is exempt, which is how Rust's `serde_json::Value` is allowed exactly where `raw` appears.
 
-The six built-in targets are configured under `cmd/bowline/certify/` and certified by `scripts/certify-builtins.sh`, which regenerates `docs/certified.md`.
+The built-in targets are configured under `cmd/bowline/certify/` and certified by `scripts/certify-builtins.sh`, which regenerates `docs/certified.md`.
 
 Client packages share the CLI's minor version and are bumped together by `scripts/bump-clients.sh`; the `release-clients` workflow publishes each on demand once the registry accounts exist.

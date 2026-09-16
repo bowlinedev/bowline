@@ -1,4 +1,4 @@
-import type { ContractField, ContractType, ContractTypeDecl } from "@bowline/client";
+import type { ContractField, ContractType, ContractTypeDecl } from "@bowlinedev/client";
 import { useState } from "react";
 import { type ContractIndex, typeLabel } from "./contract.js";
 

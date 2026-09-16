@@ -4,7 +4,7 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@bowline/client": ["src/index.ts"],
+      "@bowlinedev/client": ["src/index.ts"],
       "zod": ["node_modules/zod"]
     },
     "rootDir": "../.."

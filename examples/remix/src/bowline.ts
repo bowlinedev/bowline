@@ -1,4 +1,4 @@
-import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type Mutation, type Query, type Subscription, type TypedError, type UntypedError, type Upload } from "@bowline/client";
+import { createClient as create, type ClientOptions, type ContractRuntime, type BowlineError, type Mutation, type Query, type Subscription, type TypedError, type UntypedError, type Upload } from "@bowlinedev/client";
 
 /** InvoiceLocked is returned when an invoice can no longer change. */
 export interface InvoiceLocked {

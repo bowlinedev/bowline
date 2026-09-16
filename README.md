@@ -1,6 +1,20 @@
 # Bowline
 
-Bowline makes a Go codebase the single source of truth for an API contract and projects that contract, with full type fidelity, into typed clients. You write plain Go functions; the contract, the TypeScript types, and the client are generated, committed, and checked for drift in CI.
+### Delete a field. Find out who breaks. Before you merge.
+
+```
+$ bowline check --registry "$REGISTRY" --service ledger
+
+breaking  procedure invoices.create output field total: field removed
+breaks    ledger-web: procedure invoices.create output field total (reads total)
+bowline: 1 consumer break(s)
+```
+
+`ledger-web` is a browser app in another repository. Bowline knows it reads `total` because that client recorded what it actually used, and the registry joined that usage against the change you just made. The build fails with the consumer named, not with a stack trace three weeks later.
+
+This works because your Go code is the contract. Bowline makes a Go codebase the single source of truth for an API contract and projects that contract, with full type fidelity, into typed clients. You write plain Go functions; the contract, the client types, and the check that keeps them honest are generated, committed, and verified in CI.
+
+Both the registry and the failure above run in this repository's end-to-end suite on every push, so the query is proven rather than described.
 
 ## Three files
 
@@ -127,7 +141,7 @@ This is the 0.5 alpha. Applications need Go 1.24 or later; building the CLI need
 - `/signing` HMAC request signing, in the root module
 - `/adapters/fiber` the Fiber adapter
 - `/contract` contract document types
-- `/packages` npm packages `@bowline/client`, `@bowline/react-query`, `@bowline/swr`, `@bowline/svelte`, `@bowline/solid`, `@bowline/vue`, and `@bowline/agent`, plus the playground app
+- `/packages` npm packages `@bowlinedev/client`, `@bowlinedev/react-query`, `@bowlinedev/swr`, `@bowlinedev/svelte`, `@bowlinedev/solid`, `@bowlinedev/vue`, and `@bowlinedev/agent`, plus the playground app
 - `/python/bowline-agent` the Python agent package
 - `/packages/dart/bowline`, `/packages/python/bowline-client`, `/packages/rust/bowline-client`, `/packages/elixir/bowline_client` the client runtimes for the generated Dart, Python, Rust, and Elixir clients
 - `/spec` contract specification and JSON Schema
@@ -136,3 +150,9 @@ This is the 0.5 alpha. Applications need Go 1.24 or later; building the CLI need
 ## License
 
 Apache-2.0. See `LICENSE`.
+
+### Generated code is yours
+
+Running `bowline gen` writes code into your project. That output is yours. You can use, change, and ship it under any licence you choose, with no attribution and no obligations from this licence — including where the output contains parts copied from Bowline's generators.
+
+Apache-2.0 covers Bowline itself: the runtime, the CLI, the generators, and the client packages you install as dependencies.

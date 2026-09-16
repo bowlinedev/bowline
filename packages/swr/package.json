@@ -1,5 +1,5 @@
 {
-  "name": "@bowline/swr",
+  "name": "@bowlinedev/swr",
   "version": "1.0.0",
   "description": "SWR bindings for Bowline clients",
   "license": "Apache-2.0",
@@ -21,19 +21,21 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@bowline/client": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
     "react": "^18 || ^19",
     "swr": "^2.0.0"
   },
   "devDependencies": {
-    "@bowline/client": "workspace:*",
+    "@bowlinedev/client": "workspace:*",
     "@testing-library/react": "16.3.3",
     "@types/react": "19.1.12",
     "@types/react-dom": "19.1.9",
@@ -43,5 +45,8 @@
     "swr": "2.3.8",
     "tsup": "8.5.0",
     "vitest": "3.2.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

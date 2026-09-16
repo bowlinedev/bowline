@@ -1,4 +1,4 @@
-import type { Mutation, Query } from "@bowline/client";
+import type { Mutation, Query } from "@bowlinedev/client";
 import { expect, expectTypeOf, test } from "vitest";
 import { bowlineQuery } from "./index.js";
 
