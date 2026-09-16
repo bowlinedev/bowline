@@ -10,6 +10,7 @@ defmodule BowlineClient.MixProject do
       deps: deps(),
       description: "Runtime for Bowline generated Elixir clients",
       package: package(),
+      docs: docs(),
       elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
@@ -20,7 +21,16 @@ defmodule BowlineClient.MixProject do
 
   defp deps do
     [
-      {:req, "~> 0.7"}
+      {:req, "~> 0.7"},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      extras: ["README.md", "CHANGELOG.md"],
+      source_url: "https://github.com/bowlinedev/bowline"
     ]
   end
 
