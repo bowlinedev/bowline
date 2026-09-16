@@ -1608,7 +1608,7 @@
     },
     "routing": {
       "bowline": "1.2",
-      "hash": "sha256:47847599baabc6bb505479d5f9f147f171bf979ffa4e95097ff6842557ad8867",
+      "hash": "sha256:3db39f0390ec66b3ea0578d08e30014c5e1b8251b744d69f6d33ebf0cfb24cde",
       "types": {
         "fidelity.test/rows/routing.ID": {
           "kind": "struct",
@@ -1667,7 +1667,8 @@
           "goOutput": "struct{}",
           "deprecated": "use sub.remove",
           "meta": {
-            "auth": "admin"
+            "auth": "admin",
+            "maxBody": "1048576"
           }
         },
         {
