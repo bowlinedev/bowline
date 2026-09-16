@@ -69,7 +69,7 @@ func FuzzReplayCache(f *testing.F) {
 		if cache.observe(key, at) {
 			t.Fatalf("an immediate reuse of %q was accepted", key)
 		}
-		if got := cache.Len(); got > 2*max {
+		if got := cache.size(); got > 2*max {
 			t.Fatalf("the cache holds %d entries, over the %d bound", got, 2*max)
 		}
 	})

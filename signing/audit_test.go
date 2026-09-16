@@ -149,7 +149,7 @@ func TestReplayCacheIsBounded(t *testing.T) {
 		if err := Verify(context.Background(), secrets, header, "POST", path, body, now, WithReplayCache(cache)); err != nil {
 			t.Fatalf("call %d: %v", i, err)
 		}
-		if got := cache.Len(); got > 2*max {
+		if got := cache.size(); got > 2*max {
 			t.Fatalf("after %d calls the cache holds %d entries, which is over the %d bound", i, got, 2*max)
 		}
 	}
@@ -199,8 +199,8 @@ func TestReplayCacheForgetsPastTheSkewWindow(t *testing.T) {
 	if !cache.observe("first", now.Add(2*Skew+time.Second)) {
 		t.Fatal("the entry outlived two windows, so the cache never forgets")
 	}
-	if cache.Len() > 2 {
-		t.Fatalf("the cache holds %d entries after two rotations", cache.Len())
+	if cache.size() > 2 {
+		t.Fatalf("the cache holds %d entries after two rotations", cache.size())
 	}
 }
 
