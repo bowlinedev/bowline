@@ -1,6 +1,6 @@
 # Next.js
 
-A Next.js App Router page calls the API from a server component through `createServerClient`, forwarding the incoming request's cookies and authorization and tagging the fetch so a server action can revalidate it.
+A Next.js App Router page calls the API from a server component through `createServerClient`. It forwards the incoming request's cookies and authorization header, and tags the fetch so a server action can revalidate it.
 
 source: examples/nextjs/src/ledger.ts:7-14
 
@@ -40,8 +40,8 @@ export async function createInvoice(description: string, quantity: number): Prom
 }
 ```
 
-`createServerClient` passes `cache` and `next` through to `fetch`, so tag revalidation works with no Next-specific package; the action's `.safe` call turns validation issues into data the form renders. Client components use `@bowlinedev/react-query` against `/api`, which `next.config.ts` rewrites to the Go server.
+`createServerClient` passes `cache` and `next` through to `fetch`, so tag revalidation works without a Next-specific package. The action's `.safe` call turns validation issues into data that the form can render. Client components use `@bowlinedev/react-query` against `/api`, which `next.config.ts` rewrites to the Go server.
 
-Proof: `cd examples/nextjs && pnpm build && pnpm test:e2e` asserts the raw HTML lists the seeded invoices before hydration, that the action returns issues, and that a created invoice appears through tag revalidation without a client refetch.
+Tests: `cd examples/nextjs && pnpm build && pnpm test:e2e` checks that the raw HTML lists the seeded invoices before hydration, that the action returns issues, and that a created invoice appears through tag revalidation without a client-side refetch.
 
-Gotchas: `headers()` is asynchronous in Next 15, hence the `await`. A server component fetch with no `cache` or `next` option is cached by Next's defaults on some routes, so tag it or set `dynamic`. Server actions must return plain data, which is why the action maps `BowlineError` to `{ ok, message, issues }` instead of throwing.
+Gotchas: `headers()` is asynchronous in Next 15, which is why it is awaited. A server component fetch with no `cache` or `next` option gets cached by Next's defaults on some routes, so tag it or set `dynamic`. Server actions have to return plain data, which is why the action maps `BowlineError` to `{ ok, message, issues }` rather than throwing.

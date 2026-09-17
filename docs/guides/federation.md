@@ -1,10 +1,10 @@
 # Federation
 
-Several Go services each publish a contract. A gateway composes them into one document, so a browser gets a single typed client with `client.ledger.invoices.get` beside `client.billing.charges.create`, and every call is proxied to the service that owns it.
+When several Go services each publish a contract, a gateway can compose them into one document. A browser then gets a single typed client with `client.ledger.invoices.get` next to `client.billing.charges.create`, and each call is proxied to the service that owns it.
 
 ## Composing
 
-Composition is a pure function over contract documents, so nothing about it is specific to the gateway: each service's procedures move under its name, its type IDs gain a `service:` prefix, and a type name that two services share is renamed with the service in front.
+Composition is a pure function over contract documents, so none of it is specific to the gateway. Each service's procedures are moved under the service name, its type IDs get a `service:` prefix, and if two services share a type name, both are renamed with the service name in front.
 
 ```
 ledger.invoices.get      billing.charges.create
@@ -36,24 +36,24 @@ source: examples/federation/gateway/bowline.gateway.json:1-17
 }
 ```
 
-`version` is required and is the upstream's contract hash. The gateway refuses to start when a resolved contract does not match its pin, and `.bowline/ready` reports the mismatch per service, so a service that redeploys with a changed API cannot silently change the client's API. Contract paths are resolved against the config file, not the working directory.
+`version` is required and holds the upstream's contract hash. The gateway refuses to start if a resolved contract does not match its pin, and `.bowline/ready` reports the mismatch per service. This means a service that redeploys with a changed API cannot silently change the client's API. Contract paths are resolved relative to the config file, not the working directory.
 
 ```bash
 bowline gateway compose -o composed.contract.json
 bowline gen --from composed.contract.json
 ```
 
-The first command writes the composed document; the second renders whatever targets `bowline.json` declares from it, which is how the federation web app gets its client without a Go module of its own.
+The first command writes the composed document. The second renders whatever targets `bowline.json` lists from it. This is how the federation web app gets its client without having a Go module of its own.
 
 ## Serving
 
-`bowline gateway` resolves, composes, and listens. Each call goes to the service named by the first path segment, with the segment stripped: `POST /api/billing.charges.create` becomes `POST /api/charges.create` on billing. Only allowlisted headers cross, `X-Forwarded-*` are set, error envelopes pass through untouched, subscriptions stream with a flush per event, and uploads stream without buffering. A `GET` query retries twice on a connection error or a 502, 503, or 504; nothing else ever retries, because nothing else is idempotent by definition.
+`bowline gateway` resolves, composes, and listens. Each call is routed to the service named by the first path segment, with that segment removed. `POST /api/billing.charges.create` becomes `POST /api/charges.create` on billing. Only allowlisted headers are forwarded, `X-Forwarded-*` headers are set, error envelopes pass through unchanged, subscriptions stream with a flush after each event, and uploads stream without buffering. A `GET` query is retried twice on a connection error or a 502, 503, or 504. Nothing else is ever retried, because nothing else is idempotent by definition.
 
 The gateway also serves `.bowline/contract`, `.bowline/health`, and `.bowline/ready` for the composed document.
 
 ## Calling between services
 
-Services still call each other directly, not through the gateway. Billing reads an invoice from the ledger through the generated Go client, signed:
+Services still call each other directly, not through the gateway. Billing reads an invoice from the ledger through the generated Go client, with a signature:
 
 source: examples/federation/billing/api/ledger.go:10-17
 
@@ -83,6 +83,6 @@ source: examples/federation/billing/api/routes.go:86-95
 }
 ```
 
-The ledger's `NOT_FOUND` becomes billing's declared `UnknownInvoice` variant, so billing's own clients see a typed failure that belongs to billing's contract rather than a leaked upstream error. See `signing.md` for the signature itself.
+The ledger's `NOT_FOUND` is turned into billing's own declared `UnknownInvoice` variant. Billing's clients then see a typed failure that belongs to billing's contract rather than an upstream error leaking through. See `signing.md` for the signature itself.
 
-Proof: `cd examples/federation/billing && go test ./...` covers the signed call, the rejection of an unsigned one, and the variant mapping; `pnpm --filter federation-web test:e2e` starts the ledger, billing, and the gateway, then drives the browser to create an invoice and charge it through one client.
+To verify this yourself: `cd examples/federation/billing && go test ./...` covers the signed call, the rejection of an unsigned one, and the variant mapping. `pnpm --filter federation-web test:e2e` starts the ledger, billing, and the gateway, then drives a browser to create an invoice and charge it through one client.

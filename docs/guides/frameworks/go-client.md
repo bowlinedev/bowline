@@ -1,12 +1,12 @@
 # Go client
 
-The `go` target generates a Go client from the contract: one file, standard library only, importing nothing but Bowline itself, so a second service calls the first with the same types and error codes it uses on the server.
+The `go` target generates a Go client from the contract. It is a single file that only imports the standard library and Bowline itself, so a second service can call the first with the same types and error codes it uses on the server side.
 
 ```json
 { "targets": { "go": { "out": "ledgerclient/client.go", "package": "ledgerclient" } } }
 ```
 
-`bowline gen` writes and `bowline check` verifies the file with the other targets. The ledger generates `examples/ledger/ledgerclient`, and the reports service in `examples/go-client` calls it:
+`bowline gen` writes the file and `bowline check` verifies it, along with the other targets. The ledger generates `examples/ledger/ledgerclient`, and the reports service in `examples/go-client` calls it:
 
 source: examples/go-client/main.go:117-125
 
@@ -38,8 +38,8 @@ func (r *Reports) customer(ctx context.Context, in CustomerInput) (CustomerRepor
 }
 ```
 
-Every failure is a `*bowline.Error`, so `errors.As` and a switch on `Code` replace status-code parsing; declared error variants are reachable through `VariantOf(err)` and `DetailsAs[T](err)`. Structs mirror the contract with `time.Time`, `,string` integers, pointers for nullable and optional fields, named enum types with constants, and Go generics for generic declarations. Subscriptions are `iter.Seq2[Out, error]` over server-sent events and uploads take an `io.Reader` and a file name.
+Every failure is a `*bowline.Error`, so you use `errors.As` and a switch on `Code` instead of parsing status codes. Declared error variants can be reached through `VariantOf(err)` and `DetailsAs[T](err)`. The structs mirror the contract, with `time.Time`, `,string` integers, pointers for nullable and optional fields, named enum types with constants, and Go generics for generic declarations. Subscriptions are `iter.Seq2[Out, error]` over server-sent events. Uploads take an `io.Reader` and a file name.
 
-Proof: `cd examples/go-client && go test ./...` starts the ledger in-process, calls it through the generated client, and asserts the outstanding total, the round-tripped timestamp, the `NOT_FOUND` mapping, and the `InvoiceLocked` variant; `cmd/bowline/internal/gen/goclient` vets a golden for every fidelity fixture.
+Tests: `cd examples/go-client && go test ./...` starts the ledger in-process, calls it through the generated client, and checks the outstanding total, the round-tripped timestamp, the `NOT_FOUND` mapping, and the `InvoiceLocked` variant. `cmd/bowline/internal/gen/goclient` runs `go vet` on a golden for every fidelity fixture.
 
-Gotchas: the generated file requires the root module at the version the CLI was built with, so bump both together. Connection failures come back as `UNAVAILABLE` and a canceled context as `CANCELED`, which is what the server's own callers see, so the codes compose across hops without translation.
+Gotchas: the generated file requires the root module at the version the CLI was built with, so bump both together. Connection failures come back as `UNAVAILABLE` and a canceled context as `CANCELED`. These are the same codes the server's own callers see, so the codes compose across hops without translation.

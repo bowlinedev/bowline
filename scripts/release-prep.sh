@@ -32,7 +32,7 @@ sub() {
 
 sub version.go "const Version = \"$old\"" "const Version = \"$new\""
 sub version_test.go "Version != \"$old\"" "Version != \"$new\""
-sub README.md "Version $old\." "Version $new."
+sub README.md "Current version is $old\." "Current version is $new."
 
 for pkg in packages/*/package.json; do
   sub "$pkg" "\"version\": \"$old\"" "\"version\": \"$new\""

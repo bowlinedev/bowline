@@ -2,7 +2,7 @@
 
 Every command and flag on this page is covered by the stability guarantee in `docs/stability.md`: within 1.x nothing here is removed or changes meaning, and new flags are additive with a default that preserves existing behaviour.
 
-A test in `cmd/bowline` fails if this page names a command or flag the binary's own usage text does not, so the two cannot drift apart.
+A test in `cmd/bowline` fails if this page names a command or flag that the binary's own usage text does not have, so the two stay in sync.
 
 ## Exit codes
 
@@ -14,7 +14,7 @@ Every command uses the same three:
 | 1 | the command ran and the answer is no: drift, a breaking change, a failed replay, an unreachable upstream |
 | 2 | the command line is wrong: an unknown flag, a missing argument, an unknown command |
 
-A `1` means the tool worked and you have a problem. A `2` means the tool did not get far enough to have an opinion.
+Exit code 1 means the tool ran and found a problem. Exit code 2 means the command line itself was invalid.
 
 ## Configuration
 
@@ -102,7 +102,7 @@ Lists the semantic changes between two contract documents on disk.
 | `--json` | shorthand for `--format json` |
 | `--consumers <dir>` | name the recorded consumers each breaking change affects |
 
-Exits 1 when any change is breaking, which is what makes it usable as a gate.
+Exits 1 when any change is breaking, so it can be used as a gate.
 
 #### `diff --json`
 

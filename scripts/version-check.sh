@@ -25,7 +25,7 @@ noted() {
 }
 
 check version_test.go                              's/.*Version != "\([^"]*\)".*/\1/p'
-check README.md                                    's/^Version \([0-9][^.]*\.[^.]*\.[0-9A-Za-z.-]*\)\..*/\1/p'
+check README.md                                    's/^Current version is \([0-9][^.]*\.[^.]*\.[0-9A-Za-z.-]*\)\..*/\1/p'
 
 for pkg in packages/*/package.json; do
   check "$pkg"                                     's/^  "version": "\([^"]*\)",$/\1/p'

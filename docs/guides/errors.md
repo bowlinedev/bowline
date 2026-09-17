@@ -1,6 +1,6 @@
 # Errors
 
-Every failure a Bowline procedure returns reaches the client as one envelope with a code from a fixed set. The Go side returns a `*bowline.Error`; the wire carries `{"error": {...}}` with a matching HTTP status; the TypeScript client rejects with a `BowlineError`.
+Every error returned by a Bowline procedure reaches the client as a single envelope with a code from a fixed set. On the Go side the procedure returns a `*bowline.Error`. On the wire this becomes `{"error": {...}}` with a matching HTTP status. The TypeScript client rejects the promise with a `BowlineError`.
 
 ## Codes
 
@@ -23,11 +23,11 @@ Every failure a Bowline procedure returns reaches the client as one envelope wit
 | `DATA_LOSS` | 500 | unrecoverable data loss |
 | `UNAUTHENTICATED` | 401 | the caller is not identified |
 
-The mapping is fixed in `codes.go` and is not configurable, so every client can rely on it.
+The mapping is defined in `codes.go` and cannot be configured. This is so that every client can rely on it.
 
 ## Returning errors from Go
 
-`bowline.Errorf` builds an error with a code and a formatted message. `%w` wraps a cause that `errors.Is` and `errors.As` can still find. From the ledger:
+`bowline.Errorf` creates an error with a code and a formatted message. If you use `%w` to wrap a cause, `errors.Is` and `errors.As` will still find it. Here is an example from the ledger:
 
 source: examples/ledger/api/invoices.go:78-81
 
@@ -38,9 +38,9 @@ source: examples/ledger/api/invoices.go:78-81
 	}
 ```
 
-A `*bowline.Error` anywhere in a wrapped chain is used as is. `context.Canceled` and `context.DeadlineExceeded` map to their codes. Any other error becomes `INTERNAL`. Panics are recovered, logged with a stack, and reported as `INTERNAL`.
+If there is a `*bowline.Error` anywhere in a wrapped chain, it is used as is. `context.Canceled` and `context.DeadlineExceeded` map to their respective codes. Any other error becomes `INTERNAL`. Panics are recovered, logged with a stack trace, and reported as `INTERNAL`.
 
-`WithDetails` attaches a JSON-serializable value that the client receives under `details`:
+`WithDetails` attaches a JSON-serializable value. The client receives it under `details`:
 
 sketch: `userID` stands for whatever the application's middleware put on the context
 
@@ -50,7 +50,7 @@ return nil, bowline.Errorf(bowline.FailedPrecondition, "invoice is locked").With
 
 ## Declared variants
 
-A procedure can declare typed errors it may return. A variant is a named struct with a `Code` method; its exported fields travel under `details`, and the type name travels as `type`, so clients can narrow on it.
+A procedure can declare typed errors that it may return. A variant is a named struct with a `Code` method. Its exported fields are sent under `details`, and the type name is sent as `type`, which lets clients switch on it.
 
 source: examples/ledger/api/errors.go:11-18
 
@@ -65,7 +65,7 @@ func (e InvoiceLocked) Error() string { return fmt.Sprintf("invoice %d is %s", e
 func (e InvoiceLocked) Code() bowline.Code { return bowline.FailedPrecondition }
 ```
 
-The procedure declares it with `bowline.Errors`:
+The procedure declares the variant with `bowline.Errors`:
 
 source: examples/ledger/api/invoices.go:49-49
 
@@ -73,17 +73,17 @@ source: examples/ledger/api/invoices.go:49-49
 		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive()), bowline.Use(voidLimit())),
 ```
 
-Returning `InvoiceLocked{ID: 4, Status: "paid"}` from the handler, wrapped or not, produces:
+If the handler returns `InvoiceLocked{ID: 4, Status: "paid"}`, wrapped or not, the response is:
 
 ```json
 {"error":{"code":"FAILED_PRECONDITION","message":"invoice 4 is paid","type":"InvoiceLocked","details":{"id":4,"status":"paid"}}}
 ```
 
-Details pass through the same normalizer as outputs, so nil slices are `[]` and `time.Time` fields are RFC 3339. A `Code()` method that returns anything but a single constant is rejected by `bowline gen`, because the client needs the status at generation time. An error with a `Code` method that a procedure did not declare is still serialized with its code and message, without `type`, and logged as a warning in development so the omission is noticed.
+Details go through the same normalizer as outputs, so nil slices become `[]` and `time.Time` fields are formatted as RFC 3339. A `Code()` method that returns anything other than a single constant is rejected by `bowline gen`, since the client needs to know the status at generation time. If an error has a `Code` method but the procedure did not declare it, it is still serialized with its code and message but without `type`. In development a warning is logged so that the missing declaration is noticed.
 
 ## Redaction
 
-In development every error carries the underlying message. With `bowline.Production(true)` on the handler, any error that maps to a 5xx status — `INTERNAL`, `UNKNOWN`, `UNAVAILABLE`, `DATA_LOSS`, and a panic — is replaced by `internal error`, its `details` and `issues` are dropped, and the original is written to the logger. A 4xx message is written for the caller and is kept as is, except for a decoding failure, which becomes plain `invalid input` so the response never quotes the request body. A declared error variant is part of the contract and is never redacted, whatever its status. The ledger server switches on the `ENV` variable in `examples/ledger/cmd/server/main.go`.
+In development, every error includes the underlying message. When `bowline.Production(true)` is set on the handler, any error that maps to a 5xx status (`INTERNAL`, `UNKNOWN`, `UNAVAILABLE`, `DATA_LOSS`, and panics) has its message replaced with `internal error`, its `details` and `issues` dropped, and the original written to the logger. Messages for 4xx errors are intended for the caller and are kept as is, with one exception: a decoding failure becomes plain `invalid input`, so that the response never quotes the request body. Declared error variants are part of the contract and are never redacted, whatever their status. The ledger server switches this on based on the `ENV` variable in `examples/ledger/cmd/server/main.go`.
 
 ## The wire envelope
 
@@ -91,7 +91,7 @@ In development every error carries the underlying message. With `bowline.Product
 {"error":{"code":"INVALID_ARGUMENT","message":"invalid input","issues":[{"path":["email"],"rule":"email","message":"must be a valid email address"}]}}
 ```
 
-`details` and `issues` are present only when set. Successful responses have no envelope at all; the body is the output value.
+`details` and `issues` are only present when set. Successful responses have no envelope. The body is just the output value.
 
 ## On the client
 
@@ -109,4 +109,4 @@ try {
 }
 ```
 
-`BowlineError` carries `code`, `status`, `details`, and `issues`. Network failures reject with `UNAVAILABLE` and status 0; an aborted request rejects with `CANCELED`; a non-JSON failure from a proxy rejects with `UNKNOWN` and the HTTP status. The test file `packages/client/src/client.test.ts` exercises every case.
+`BowlineError` has `code`, `status`, `details`, and `issues` properties. A network failure rejects with `UNAVAILABLE` and status 0. An aborted request rejects with `CANCELED`. A non-JSON failure from a proxy rejects with `UNKNOWN` and the HTTP status. The test file `packages/client/src/client.test.ts` covers each of these cases.

@@ -1,42 +1,57 @@
 # Bowline documentation
 
-- `quickstart.md`: from an empty directory to a typed TypeScript call in five minutes.
-- `guides/errors.md`: the sixteen error codes, returning errors from Go, redaction, and `BowlineError` on the client.
-- `guides/validation.md`: the eight validation rules, nested values, and how issues reach the client.
-- `guides/fidelity.md`: how Go types become TypeScript types, the 64-bit rule, dates, `WireAs`, and what is rejected.
-- `guides/subscriptions.md`: streaming values over server-sent events or a multiplexed WebSocket.
+Start with `quickstart.md`. It goes from an empty directory to a typed TypeScript call, and it is the only page you need to read before writing code. `cli.md` is the reference for every command, flag, exit code, and JSON output. It is worth skimming once and coming back to later.
+
+## Writing procedures
+
+- `guides/fidelity.md`: how Go types become client types. Covers the 64-bit rule, dates, `WireAs`, and what Bowline refuses to generate. Read this before you design your structs.
+- `guides/errors.md`: the sixteen codes, `bowline.Errorf`, redaction, and `BowlineError` on the client.
+- `guides/validation.md`: the eight rules, nested values, and how issues reach the client.
+- `guides/subscriptions.md`: streaming over SSE, or multiplexed on one WebSocket.
 - `guides/uploads.md`: typed multipart uploads.
-- `guides/idempotency.md`: idempotency keys, replay, and stores.
-- `guides/contract.md`: the contract document, the semantic diff, and the breaking-change gate.
-- `guides/openapi.md`: exporting OpenAPI 3.1 from the contract.
-- `guides/tools.md`: exposing procedures as LLM tools with derived JSON Schemas.
-- `guides/mcp.md`: serving tools to MCP clients in process or with `bowline mcp`.
-- `guides/agents.md`: the Go, TypeScript, and Python agent SDKs.
-- `guides/evals.md`: recording and replaying agent runs in CI.
-- `guides/mock-server.md`: the contract-derived mock with state, recording, and replay.
+- `guides/idempotency.md`: keys, replay, stores.
+
+## The contract
+
+- `guides/contract.md`: the document, the semantic diff, and the breaking-change gate.
+- `guides/consumer-contracts.md`: recording what a client actually uses, then verifying it statically, dynamically, and in the gate.
+- `guides/openapi.md`: OpenAPI 3.1 export.
+
+The normative specs are in `../spec/`. `contract.md` is the document every generator reads, `mapping-table.md` is the Go-to-TypeScript mapping, `diff.md` has the diff rules, and `eval.md` and `mock.md` describe the recording formats.
+
+## Day to day
+
+- `guides/frameworks/README.md`: a page per Go router and frontend framework, with snippets that CI verifies against the examples.
+- `guides/mock-server.md`: the contract-derived mock, with state, recording and replay. For when the Go server is not running.
 - `guides/playground.md`: the embeddable playground and its same-origin proxy.
-- `guides/consumer-contracts.md`: recording what a client uses and verifying it statically, dynamically, and in the gate.
-- `guides/frameworks/README.md`: one page per Go router and frontend framework, with snippets verified against the examples.
-- `guides/dart.md`, `guides/python.md`, `guides/rust.md`, `guides/elixir.md`: the generated clients for each language and their runtime packages.
-- `certification.md`: what makes a client target official.
-- `plugins.md`: the external generator protocol for adding a language.
-- `certified.md`: every generator that has passed `bowline certify`.
-- `guides/federation.md`: composing several services into one client behind a gateway.
-- `guides/registry.md`: the contract registry and the "who breaks" query.
+
+## Agents and LLM tools
+
+- `guides/tools.md`: exposing procedures as tools with derived JSON Schemas.
+- `guides/mcp.md`: serving them to MCP clients, in process or via `bowline mcp`.
+- `guides/agents.md`: the Go, TypeScript and Python agent SDKs.
+- `guides/evals.md`: recording agent runs and replaying them in CI.
+
+## Other languages
+
+`guides/dart.md`, `guides/python.md`, `guides/rust.md` and `guides/elixir.md` each cover one generated client and its runtime package.
+
+To add a language, see `plugins.md` for the external generator protocol and `certification.md` for the checks a generator has to pass. `certified.md` lists the ones that have passed.
+
+## Running it in production
+
+- `guides/security.md`: CSRF, security headers, what `Sensitive()` actually does, and the reverse proxy checklist.
 - `guides/signing.md`: signed service-to-service calls.
-- `guides/security.md`: CSRF, security headers, what `Sensitive()` does, and the reverse proxy checklist.
-- `cli.md`: every command, flag, exit code, and machine-readable output.
+- `guides/federation.md`: composing several services into one client behind a gateway.
+- `guides/registry.md`: the registry and the "who breaks if I change this" query.
+
+## Promises and process
+
 - `stability.md`: what does not change inside a major version.
-- `migration-0.x.md`: what each 0.x release asks of an existing user.
-- `lts.md`: release cadence, support windows, and what gets backported.
-- `api-freeze.md`: every exported identifier the major version guarantees.
-- `security/audit-2026.md`: every error path in the runtime, what it says in production, and the test that pins it.
-- `security/api-audit.md`: why each exported identifier is public, and what was unexported before the freeze.
-- `security/signing.md`: the signature canonicalization, the replay cache, and the skew window.
-- `benchmarks.md`: handler overhead, regeneration latency, and generator throughput, with history.
-- `adoption-test.md`: the ten-minute adoption protocol run before each minor release.
-- `../spec/contract.md`: the contract document format that every generator reads.
-- `../spec/mapping-table.md`: the normative Go to contract to TypeScript mapping.
-- `../spec/diff.md`: the semantic diff rules.
-- `../spec/eval.md`: the recording format `bowline eval` writes and replays.
-- `../spec/mock.md`: the fixture files `bowline mock --record` writes.
+- `api-freeze.md`: every exported identifier the major version guarantees. This file is generated, not written by hand.
+- `migration-0.x.md`: what each 0.x release required from an existing user.
+- `lts.md`: release cadence, support windows, and the backport rule.
+- `benchmarks.md`: handler overhead, regeneration latency, and generator throughput, with history. Regenerated by CI.
+- `adoption-test.md`: the ten-minute protocol, and a record of who has actually run it.
+
+The `security/` directory holds the audits. `audit-2026.md` walks through every error path in the runtime and what it says in production. `api-audit.md` explains why each exported identifier is public. `signing.md` covers canonicalization, the replay cache, and the skew window.

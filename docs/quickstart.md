@@ -1,6 +1,6 @@
 # Quickstart
 
-Five minutes from an empty directory to a typed call in TypeScript.
+This page sets up a Go module with one procedure, generates a TypeScript client for it, and makes a call. It takes about five minutes.
 
 ## 1. A Go module with one procedure
 
@@ -65,7 +65,7 @@ Five minutes from an empty directory to a typed call in TypeScript.
 
     bowline gen
 
-You now have `bowline.contract.json` and `web/src/bowline.ts`. Commit both. `bowline check` in CI fails when they drift from the Go code.
+This writes two files, `bowline.contract.json` and `web/src/bowline.ts`. Commit both of them. In CI, `bowline check` will fail if either one is out of date compared to the Go code.
 
 ## 3. Call it from TypeScript
 
@@ -79,16 +79,16 @@ You now have `bowline.contract.json` and `web/src/bowline.ts`. Commit both. `bow
     const greeting = await client.greet({ name: "ada" });
     console.log(greeting.message);
 
-`greeting` is typed as `Greeting`, `client.greet` requires `name`, and a typo in either is a compile error. Run `go run .` in the module and execute `main.ts` with your bundler or `node --experimental-strip-types src/main.ts`.
+`greeting` has the type `Greeting`, and `client.greet` requires a `name` argument. A typo in either is a compile error. Start the server with `go run .` in the module directory, then run `main.ts` with your bundler or with `node --experimental-strip-types src/main.ts`.
 
 ## 4. Keep it in sync while you work
 
     bowline dev
 
-Every save that changes the contract rewrites `bowline.ts` in well under a second.
+This watches the module and rewrites `bowline.ts` whenever a save changes the contract. It normally takes well under a second.
 
 ## Notes
 
-- Queries are `GET` with the input in the `input` query parameter. Inputs therefore appear in URLs and access logs; mark a query `bowline.Sensitive()` to force `POST`.
-- Mutations are `POST` with a JSON body.
-- Errors arrive as `BowlineError` with a `code` from a fixed set and, for validation failures, an `issues` list.
+- Queries are sent as `GET` with the input in the `input` query parameter. This means the input shows up in URLs and access logs. If that is a problem for a particular query, mark it with `bowline.Sensitive()` and it will use `POST` instead.
+- Mutations are sent as `POST` with a JSON body.
+- Errors are returned as a `BowlineError` with a `code` from a fixed set. Validation failures also include an `issues` list.
