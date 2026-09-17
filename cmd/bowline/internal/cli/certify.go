@@ -265,9 +265,9 @@ func runCertification(opts Options, cfg *CertifyConfig) ([]certifyCheck, error) 
 		result("no escape-hatch types", hatchFailures, describeHatches(cfg.EscapeHatch)),
 		result("generator is deterministic", determinismFailures, "two runs per row"),
 		rejectRowCheck(),
+		toolchainCheck("goldens compile", cfg.Compile, opts.Dir, work, env),
+		toolchainCheck("runtime tests", cfg.Test, opts.Dir, work, env),
 	}
-	checks = append(checks, toolchainCheck("goldens compile", cfg.Compile, opts.Dir, work, env))
-	checks = append(checks, toolchainCheck("runtime tests", cfg.Test, opts.Dir, work, env))
 	return checks, nil
 }
 
@@ -378,10 +378,10 @@ func compareFiles(first, second map[string][]byte) string {
 	for _, name := range names {
 		other, ok := second[name]
 		if !ok {
-			return fmt.Sprintf("the second run did not write %s", name)
+			return "the second run did not write " + name
 		}
 		if !bytes.Equal(first[name], other) {
-			return fmt.Sprintf("%s differs between two runs", name)
+			return name + " differs between two runs"
 		}
 	}
 	return ""

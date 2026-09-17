@@ -1,6 +1,7 @@
 package ts
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -54,7 +55,7 @@ func FuzzTSGenerator(f *testing.F) {
 		if err != nil {
 			t.Fatalf("the generator succeeded once and then failed: %v", err)
 		}
-		if string(first) != string(second) {
+		if !bytes.Equal(first, second) {
 			t.Fatal("the generator is not deterministic across two runs")
 		}
 		for i, line := range strings.Split(string(first), "\n") {

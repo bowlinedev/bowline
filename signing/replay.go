@@ -16,12 +16,12 @@ type ReplayCache struct {
 	rotateAt time.Time
 }
 
-func NewReplayCache(max int) *ReplayCache {
-	if max <= 0 {
-		max = DefaultReplayCacheSize
+func NewReplayCache(size int) *ReplayCache {
+	if size <= 0 {
+		size = DefaultReplayCacheSize
 	}
 	return &ReplayCache{
-		max:    max,
+		max:    size,
 		window: Skew,
 		curr:   map[string]struct{}{},
 		prev:   map[string]struct{}{},

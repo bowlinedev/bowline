@@ -24,6 +24,10 @@ const (
 	DevLoopBudget     = 500 * time.Millisecond
 	RegressionPercent = 5.0
 
+	AllocRegressionPercent = 1.0
+
+	baselineName = "BenchmarkRawNetHTTP"
+
 	historyLimit = 20
 )
 
@@ -47,9 +51,13 @@ type Regression struct {
 	Previous float64
 	Current  float64
 	Percent  float64
+	Metric   string
 }
 
 func (r Regression) String() string {
+	if r.Metric == "allocs" {
+		return fmt.Sprintf("%s allocates %.1f%% more: %.0f -> %.0f allocs/op", r.Name, r.Percent, r.Previous, r.Current)
+	}
 	return fmt.Sprintf("%s regressed %.1f%%: %s -> %s", r.Name, r.Percent, formatNs(r.Previous), formatNs(r.Current))
 }
 
@@ -152,18 +160,53 @@ func Regressions(current Run, history []Run) []Regression {
 		return nil
 	}
 	previous := history[len(history)-1]
+	scale := runnerScale(current, previous)
 	var out []Regression
 	for _, result := range current.Results {
 		before, ok := previous.Lookup(result.Name)
-		if !ok || before.NsPerOp <= 0 {
+		if !ok {
 			continue
 		}
-		percent := (result.NsPerOp/before.NsPerOp - 1) * 100
+		if before.AllocsPerOp > 0 && result.AllocsPerOp > before.AllocsPerOp {
+			percent := (float64(result.AllocsPerOp)/float64(before.AllocsPerOp) - 1) * 100
+			if percent > AllocRegressionPercent {
+				out = append(out, Regression{
+					Name: result.Name, Previous: float64(before.AllocsPerOp),
+					Current: float64(result.AllocsPerOp), Percent: percent, Metric: "allocs",
+				})
+			}
+		}
+		if before.NsPerOp <= 0 || result.Name == baselineName {
+			continue
+		}
+		percent := (result.NsPerOp/scale/before.NsPerOp - 1) * 100
 		if percent > RegressionPercent {
-			out = append(out, Regression{Name: result.Name, Previous: before.NsPerOp, Current: result.NsPerOp, Percent: percent})
+			out = append(out, Regression{Name: result.Name, Previous: before.NsPerOp, Current: result.NsPerOp / scale, Percent: percent, Metric: "time"})
 		}
 	}
 	slices.SortFunc(out, func(a, b Regression) int { return cmp.Compare(b.Percent, a.Percent) })
+	return out
+}
+
+func runnerScale(current, previous Run) float64 {
+	now, ok := current.Lookup(baselineName)
+	if !ok || now.NsPerOp <= 0 {
+		return 1
+	}
+	before, ok := previous.Lookup(baselineName)
+	if !ok || before.NsPerOp <= 0 {
+		return 1
+	}
+	return now.NsPerOp / before.NsPerOp
+}
+
+func Blocking(regressions []Regression) []Regression {
+	var out []Regression
+	for _, r := range regressions {
+		if r.Metric == "allocs" {
+			out = append(out, r)
+		}
+	}
 	return out
 }
 

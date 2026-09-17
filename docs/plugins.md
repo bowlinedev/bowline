@@ -1,6 +1,6 @@
 # External generators
 
-A target in `bowline.json` normally names a generator built into the CLI. It can instead name a command, and Bowline will run that command to produce the target's files. This is the supported way to add a language: the generator packages inside `cmd/bowline/internal` are not a public API, the protocol on this page is.
+A target in `bowline.json` normally names one of the generators built into the CLI. It can instead name a command. Bowline then runs that command to produce the target's files. This is how you add support for a new language. The generator packages under `cmd/bowline/internal` are not a public API, but the protocol described on this page is.
 
 ```json
 {
@@ -11,17 +11,17 @@ A target in `bowline.json` normally names a generator built into the CLI. It can
 }
 ```
 
-The target's name is yours to pick and must not be one the CLI already has. `command` is a command name, not a path: it is resolved on `PATH` and never from the module directory, so checking out a repository can never make `bowline gen` run a program that repository ships.
+You can pick any target name that the CLI does not already use. `command` is a command name, not a path. It is looked up on `PATH` and never resolved relative to the module directory. This means that checking out a repository cannot cause `bowline gen` to run a program shipped inside that repository.
 
 ## The protocol
 
-Bowline runs the command once per target, with:
+Bowline runs the command once per target. It provides:
 
 - the contract document, as JSON, on **stdin**
-- `BOWLINE_CONTRACT_VERSION`, the document's format version, such as `1.2`
+- `BOWLINE_CONTRACT_VERSION`, the document's format version, for example `1.2`
 - `BOWLINE_OUT`, the target's `out` path, relative to the module
 
-It waits up to two minutes and reads the exit code:
+It waits up to two minutes and then looks at the exit code:
 
 | Exit code | Meaning |
 |---|---|
@@ -29,36 +29,36 @@ It waits up to two minutes and reads the exit code:
 | 2 | diagnostics; stderr carries one per line and nothing is written |
 | anything else | failure; stderr is reported and nothing is written |
 
-"Nothing is written" is whole-run, not per-target: if any generator fails or reports a diagnostic, `bowline gen` writes no files at all, including the contract. A half-generated module is never left behind.
+"Nothing is written" applies to the whole run, not just to the failing target. If any generator fails or reports a diagnostic, `bowline gen` does not write any files, including the contract. This avoids leaving a module in a half-generated state.
 
 ### Single file
 
-The common case. Exit 0 and write the file's content to stdout; it lands at `out`.
+This is the common case. Exit 0 and write the file's content to stdout. It is written to `out`.
 
 ### Several files
 
-Write the line `bowline-files/1` first, then a JSON object mapping paths to content:
+Write the line `bowline-files/1` first, followed by a JSON object mapping paths to content:
 
 ```
 bowline-files/1
 {"files": {"Api.kt": "…", "Models.kt": "…"}}
 ```
 
-Paths are relative to the directory of `out`, so with `"out": "client/Api.kt"` those two files land at `client/Api.kt` and `client/Models.kt`. A path may descend into subdirectories, which are created as needed; it may not be absolute and may not contain a `..` element.
+Paths are relative to the directory containing `out`. With `"out": "client/Api.kt"`, the two files above are written to `client/Api.kt` and `client/Models.kt`. A path can go into subdirectories, which are created if needed. It cannot be absolute and cannot contain a `..` element.
 
 ### Diagnostics
 
-A generator that cannot represent something in the contract must say so rather than degrade to a dynamic type — that is the reject rule every built-in generator follows. Write one diagnostic per line on stderr, in the same shape the analyzer uses, and exit 2:
+If a generator cannot represent something in the contract, it should report that rather than fall back to a dynamic type. All of the built-in generators follow this rule. Write one diagnostic per line to stderr, using the same format the analyzer uses, and exit with status 2:
 
 ```
 file:line:col: path: message. fix
 ```
 
-The leading position is optional; everything after the final `. ` is treated as the suggested fix. Bowline prints them exactly as it prints its own and exits 1.
+The position at the start is optional. Everything after the last `. ` is treated as the suggested fix. Bowline prints the diagnostics in the same way it prints its own and exits with status 1.
 
 ## `bowline check`
 
-External targets are checked like built-in ones. `bowline check` runs the generator and compares every file it produces against what is on disk, reporting `ok`, `outdated`, or `missing` per file. Commit the generated files and the drift gate works with no extra configuration.
+External targets are checked the same way as built-in ones. `bowline check` runs the generator and compares each file it produces with the file on disk, reporting `ok`, `outdated`, or `missing` for each. If you commit the generated files, the drift check works with no extra configuration.
 
 ## A generator in Go
 
@@ -109,11 +109,11 @@ func main() {
 }
 ```
 
-Build it as `bowline-gen-kotlin`, put it on `PATH`, and `bowline gen` picks it up.
+Build this as `bowline-gen-kotlin`, put it on `PATH`, and `bowline gen` will use it.
 
 ## A generator in Node
 
-The same generator writing two files:
+The same generator, but writing two files:
 
 ```js
 #!/usr/bin/env node
@@ -139,8 +139,8 @@ process.stdin.on("end", () => {
 
 ## Getting it certified
 
-A generator that passes the checks in `docs/certification.md` can be listed in `docs/certified.md`. `bowline certify --target <name> --generator <command>` runs those checks against your command through this same protocol, so you can see the result before submitting.
+A generator that passes the checks in `docs/certification.md` can be added to `docs/certified.md`. `bowline certify --target <name> --generator <command>` runs those checks against your command using the same protocol, so you can check the result before submitting.
 
 ## What the contract document looks like
 
-`spec/contract.md` is the normative description of the document your generator reads, and `spec/mapping-table.md` is the normative mapping from Go types to it. Generate a document for your own module with `bowline gen` and read it alongside those two pages; every built-in generator is a reader of exactly that shape.
+`spec/contract.md` describes the document your generator reads, and `spec/mapping-table.md` describes how Go types map to it. A good way to get started is to generate a document for your own module with `bowline gen` and read it alongside those two pages. Every built-in generator reads exactly this shape.

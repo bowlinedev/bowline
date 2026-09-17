@@ -1,10 +1,10 @@
 # MCP server
 
-The `mcp` module serves the procedures you mark with `bowline.Tool()` to any Model Context Protocol client, in the same process as the API and through the same middleware. It speaks protocol version `2025-06-18` over the streamable HTTP transport and depends on nothing outside the standard library.
+The `mcp` module serves the procedures marked with `bowline.Tool()` to any Model Context Protocol client. It runs in the same process as the API and goes through the same middleware. It implements protocol version `2025-06-18` over the streamable HTTP transport and only depends on the standard library.
 
 ## Exposing procedures
 
-A procedure is a tool only when it says so. Queries become read-only tools; mutations are read-write, and `Destructive()` marks the ones a client should confirm before calling.
+A procedure is only a tool if its declaration says so. Queries become read-only tools. Mutations are read-write, and `Destructive()` marks the ones a client should confirm before calling.
 
 source: examples/ledger/api/invoices.go:46-46
 
@@ -18,9 +18,9 @@ source: examples/ledger/api/invoices.go:49-49
 		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive()), bowline.Use(voidLimit())),
 ```
 
-Subscriptions and uploads cannot be tools; `Tool()` on one panics at `NewRouter`. The tool name is the procedure path with dots replaced by underscores, so `invoices.get` is called `invoices_get`. The description is the procedure's doc comment followed by a final `Errors:` line naming the declared error variants, so a model knows which failures to expect.
+Subscriptions and uploads cannot be tools. `Tool()` on one of them panics in `NewRouter`. The tool name is the procedure path with dots replaced by underscores, so `invoices.get` becomes `invoices_get`. The description is the procedure's doc comment, followed by a final `Errors:` line that names the declared error variants, so a model knows which failures to expect.
 
-Tool schemas come from the contract. Set `"schemas": true` in `bowline.json` so `bowline gen` writes a JSON Schema for each exposed procedure's input and output into `bowline.contract.json`; `mcp.Handler` refuses a contract that carries none.
+Tool schemas come from the contract. Set `"schemas": true` in `bowline.json` so that `bowline gen` writes a JSON Schema for each exposed procedure's input and output into `bowline.contract.json`. `mcp.Handler` refuses a contract that has no schemas.
 
 ## Mounting the handler
 
@@ -35,7 +35,7 @@ source: examples/ledger/cmd/server/main.go:73-76
 	}
 ```
 
-then mount it beside the API:
+Then mount it next to the API:
 
 source: examples/ledger/cmd/server/main.go:79-81
 
@@ -45,7 +45,7 @@ source: examples/ledger/cmd/server/main.go:79-81
 	r.Handle("/mcp", tools)
 ```
 
-Every `tools/call` becomes an in-memory HTTP request against the router's own handler, so the call path is the one your HTTP clients use: decoding, validation, middleware, idempotency, and error mapping all run unchanged. Nothing goes through a socket.
+Every `tools/call` becomes an in-memory HTTP request against the router's own handler. The call path is the same one your HTTP clients use, so decoding, validation, middleware, idempotency, and error mapping all run as normal. Nothing goes through a socket.
 
 ## Options
 
@@ -58,25 +58,25 @@ Every `tools/call` becomes an in-memory HTTP request against the router's own ha
 | `Runtime(opts...)` | `bowline.HandlerOption` values for the router handler the server dispatches to |
 | `Logger(l)` | a `*slog.Logger` for dispatch failures |
 
-A tool hidden by `Scopes` or `ReadOnly` is not listed and a call to it fails with JSON-RPC error `-32602`, the same answer an unknown tool gets. An exhausted rate limit is not a protocol error; it is a tool result with `isError: true` and the text `RESOURCE_EXHAUSTED: rate limit exceeded`, so the model sees it and can back off.
+A tool that is hidden by `Scopes` or `ReadOnly` is not listed. A call to it fails with JSON-RPC error `-32602`, which is the same response an unknown tool gets. An exhausted rate limit is not a protocol error. It is returned as a tool result with `isError: true` and the text `RESOURCE_EXHAUSTED: rate limit exceeded`, so the model sees it and can back off.
 
-`mcp.NewServer(tools, dispatcher, opts...)` and `mcp.Serve(server, opts...)` are the pieces under `Handler`, for a process that builds its tool list another way or wants to dispatch to a remote Bowline API through its own `Dispatcher`.
+`mcp.NewServer(tools, dispatcher, opts...)` and `mcp.Serve(server, opts...)` are the building blocks under `Handler`. Use them if your process builds its tool list a different way, or if you want to dispatch to a remote Bowline API through your own `Dispatcher`.
 
 ## Without changing the app
 
-`bowline mcp` serves the same protocol from the CLI and forwards every call to a running API over HTTP, so an app that cannot add a dependency, or one written before tools existed, gets an MCP server from its contract alone:
+`bowline mcp` serves the same protocol from the CLI and forwards every call to a running API over HTTP. This gives an app that cannot add a dependency, or one written before tools existed, an MCP server from its contract alone:
 
 ```bash
 bowline mcp --url http://localhost:8080/api --header "Authorization: Bearer dev" --scope billing
 ```
 
-Stdio is the default, which is what desktop MCP clients spawn; `--listen 127.0.0.1:9090` serves streamable HTTP instead and forwards each caller's `Authorization` and `Cookie` headers upstream, where they override the static `--header` values. `--scope`, `--read-only`, and `--rate N --burst B` mirror the options above. Tools come from `bowline.contract.json` in the working directory, so the command needs no build of the app.
+Stdio is the default, which is what desktop MCP clients spawn. `--listen 127.0.0.1:9090` serves streamable HTTP instead, and forwards each caller's `Authorization` and `Cookie` headers upstream, where they take precedence over the static `--header` values. `--scope`, `--read-only`, and `--rate N --burst B` mirror the options above. Tools are read from `bowline.contract.json` in the working directory, so the command does not need to build the app.
 
 ## The wire
 
-The transport accepts `POST` with a JSON-RPC message or an array of them and answers with `application/json`; an array is answered with an array. A notification, a message without an `id`, gets `202 Accepted` and no body. `GET` is answered with `405` and an `Allow: POST` header, because the server never opens a server-sent event stream. A message that is not JSON gets `-32700`.
+The transport accepts `POST` with a JSON-RPC message, or an array of messages, and responds with `application/json`. An array gets an array back. A notification (a message without an `id`) gets `202 Accepted` and no body. `GET` gets a `405` with an `Allow: POST` header, because the server never opens a server-sent event stream. A message that is not JSON gets `-32700`.
 
-A call and its answer:
+A call and its response:
 
 ```json
 {"jsonrpc":"2.0","id":7,"method":"tools/call","params":{"name":"invoices_get","arguments":{"id":3}}}
@@ -89,7 +89,7 @@ A call and its answer:
 }}
 ```
 
-When the procedure fails, the Bowline error envelope is the structured content and the text is the code, the message, and one line per validation issue:
+When the procedure fails, the Bowline error envelope is used as the structured content, and the text is the code, the message, and one line per validation issue:
 
 ```json
 {"jsonrpc":"2.0","id":8,"result":{
@@ -103,7 +103,7 @@ When the procedure fails, the Bowline error envelope is the structured content a
 
 ## Authentication
 
-The MCP server adds no authentication of its own. The forwarded headers reach your middleware through `bowline.CallFrom(ctx).Request`, so the rule that guards the API guards the tools:
+The MCP server does not add any authentication of its own. The forwarded headers reach your middleware through `bowline.CallFrom(ctx).Request`, so whatever rule guards the API also guards the tools:
 
 source: examples/ledger/api/auth.go:24-42
 
@@ -129,6 +129,6 @@ func RequireToken(token string) bowline.Middleware {
 }
 ```
 
-A rejected call comes back as a tool result with `UNAUTHENTICATED: missing or invalid token`, which is what a model needs to ask its user for credentials. Put HTTP-level middleware that must see the raw request, such as a cookie session check, in front of the `/mcp` handler itself; it sees the JSON-RPC request before any tool is dispatched.
+A rejected call comes back as a tool result with `UNAUTHENTICATED: missing or invalid token`, which is what a model needs in order to ask its user for credentials. If you have HTTP-level middleware that needs to see the raw request, such as a cookie session check, put it in front of the `/mcp` handler itself. It will see the JSON-RPC request before any tool is dispatched.
 
-The tests in `mcp/handler_test.go` cover the transport rules, header forwarding, scoping, and the rate limit; `mcp/server_test.go` covers the handshake and the shape of every `tools/call` outcome.
+The tests in `mcp/handler_test.go` cover the transport rules, header forwarding, scoping, and the rate limit. `mcp/server_test.go` covers the handshake and the shape of every `tools/call` outcome.

@@ -177,7 +177,7 @@ func apply(r contract.Rule, c class, value any) string {
 	case "min", "max", "len":
 		return compareSize(r, c, value)
 	case "oneof":
-		s := ""
+		var s string
 		switch x := value.(type) {
 		case string:
 			s = x

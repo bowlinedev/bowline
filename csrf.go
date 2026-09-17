@@ -3,8 +3,8 @@ package bowline
 import (
 	"context"
 	"net/http"
-	"net/url"
-	"slices"
+
+	"github.com/bowlinedev/bowline/internal/csrf"
 )
 
 type CSRFOptions struct {
@@ -13,56 +13,12 @@ type CSRFOptions struct {
 }
 
 func CSRF(options CSRFOptions) HandlerOption {
-	guard := &csrf{
-		allowed:            slices.Clone(options.AllowedOrigins),
-		trustFetchMetadata: options.TrustFetchMetadata,
-	}
+	guard := csrf.New(options.AllowedOrigins, options.TrustFetchMetadata)
 	return func(h *handler) { h.csrf = guard }
 }
 
 func SecurityHeaders() HandlerOption {
 	return func(h *handler) { h.securityHeaders = true }
-}
-
-type csrf struct {
-	allowed            []string
-	trustFetchMetadata bool
-}
-
-func (c *csrf) allows(req *http.Request) bool {
-	if req.Method != http.MethodPost {
-		return true
-	}
-	if c.trustFetchMetadata {
-		switch req.Header.Get("Sec-Fetch-Site") {
-		case "same-origin", "none":
-			return true
-		case "same-site", "cross-site":
-			return c.listed(req.Header.Get("Origin"))
-		}
-	}
-	if origin := req.Header.Get("Origin"); origin != "" {
-		return c.sameHostOrListed(origin, req.Host)
-	}
-	if referer := req.Header.Get("Referer"); referer != "" {
-		u, err := url.Parse(referer)
-		if err != nil || u.Host == "" {
-			return false
-		}
-		return c.sameHostOrListed(u.Scheme+"://"+u.Host, req.Host)
-	}
-	return req.Header.Get("Sec-Fetch-Site") == ""
-}
-
-func (c *csrf) sameHostOrListed(origin, host string) bool {
-	if u, err := url.Parse(origin); err == nil && u.Host != "" && u.Host == host {
-		return true
-	}
-	return c.listed(origin)
-}
-
-func (c *csrf) listed(origin string) bool {
-	return origin != "" && slices.Contains(c.allowed, origin)
 }
 
 func (h *handler) secure(w http.ResponseWriter, method string) {

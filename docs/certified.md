@@ -4,9 +4,9 @@ Every row here passed `bowline certify` against the fidelity corpus: it generate
 
 | Target | Generator | Version certified | Bowline version | Date |
 |---|---|---|---|---|
-| `ts` | built in | 0.7.0 | 0.7.0 | 2026-09-16 |
-| `go` | built in | 0.7.0 | 0.7.0 | 2026-09-16 |
-| `dart` | built in | 0.7.0 | 0.7.0 | 2026-09-16 |
-| `python` | built in | 0.7.0 | 0.7.0 | 2026-09-16 |
-| `rust` | built in | 0.7.0 | 0.7.0 | 2026-09-16 |
-| `elixir` | built in | 0.7.0 | 0.7.0 | 2026-09-16 |
+| `ts` | built in | 1.0.0 | 1.0.0 | 2026-09-17 |
+| `go` | built in | 1.0.0 | 1.0.0 | 2026-09-17 |
+| `dart` | built in | 1.0.0 | 1.0.0 | 2026-09-17 |
+| `python` | built in | 1.0.0 | 1.0.0 | 2026-09-17 |
+| `rust` | built in | 1.0.0 | 1.0.0 | 2026-09-17 |
+| `elixir` | built in | 1.0.0 | 1.0.0 | 2026-09-17 |

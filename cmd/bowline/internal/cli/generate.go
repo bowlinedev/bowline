@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"maps"
@@ -179,7 +180,7 @@ func sortedTargets(cfg *Config) []string {
 
 func zodOutput(doc *contract.Document, name, out string) (string, []byte, error) {
 	if name != "ts" {
-		return "", nil, fmt.Errorf("zod is only available on the ts target")
+		return "", nil, errors.New("zod is only available on the ts target")
 	}
 	dir := path.Dir(out)
 	zodOut := "bowline.zod.ts"

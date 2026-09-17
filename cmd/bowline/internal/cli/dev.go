@@ -177,7 +177,7 @@ func servePlayground(opts DevOptions, cfg *Config, latest *atomic.Pointer[[]byte
 		return nil
 	}, pgOpts...)
 	srv := &http.Server{Handler: handler}
-	go srv.Serve(listener)
+	go func() { _ = srv.Serve(listener) }()
 	addr := listener.Addr().String()
 	fmt.Fprintf(opts.Stdout, "playground at http://%s/\n", addr)
 	if opts.Ready != nil {

@@ -1,13 +1,13 @@
 # Python
 
-The `python` target generates one module, `bowline.py`, with Pydantic models, an async client over `httpx.AsyncClient`, and a `SyncClient` mirror. The runtime is `bowline-client` on PyPI.
+The `python` target generates a single module, `bowline.py`, containing Pydantic models, an async client built on `httpx.AsyncClient`, and a `SyncClient` with the same methods. The runtime is `bowline-client` on PyPI.
 
 ```json
 { "targets": { "python": { "out": "python/bowline.py" } } }
 ```
 
 ```toml
-dependencies = ["bowline-client>=0.5"]
+dependencies = ["bowline-client>=1.0"]
 ```
 
 ## Calling
@@ -34,7 +34,7 @@ source: examples/ledger/python/ledger_cli.py:47-53
             show(client.invoices.create(CreateInvoiceInput(customerId=1, lines=[line])))
 ```
 
-The async `Client` has the same methods as coroutines; subscriptions are async iterators (iterators on the sync client) and uploads take a `BinaryIO` and a file name. Pydantic validates inputs before the request with the contract's rules, so a bad input raises a `ValidationError` locally.
+The async `Client` has the same methods as coroutines. Subscriptions are async iterators (plain iterators on the sync client). Uploads take a `BinaryIO` and a file name. Pydantic validates inputs before the request using the contract's rules, so a bad input raises a `ValidationError` locally.
 
 ## Errors
 
@@ -55,10 +55,10 @@ source: examples/ledger/python/ledger_cli.py:58-69
         return 1
 ```
 
-`BowlineError` carries `code`, `message`, `status`, the declared variant in `type`, raw `details` with a typed `details_as`, and `issues`. Network failures are `Code.UNAVAILABLE` with status 0; timeouts are `Code.DEADLINE_EXCEEDED`.
+`BowlineError` has `code`, `message`, `status`, the declared variant in `type`, raw `details` with a typed `details_as` helper, and `issues`. Network failures are `Code.UNAVAILABLE` with status 0. Timeouts are `Code.DEADLINE_EXCEEDED`.
 
 ## Types
 
-Field names are the JSON names, so `createdAt` stays `createdAt`; `,string` integers are `BigInt`; timestamps are aware `datetime` values; bytes are `Base64Bytes`; string enums subclass `str, Enum`; generic types are `Generic[T]` models. The full table is the Python column of `spec/mapping-table.md`.
+Field names are the JSON names, so `createdAt` stays `createdAt`. `,string` integers are `BigInt`. Timestamps are timezone-aware `datetime` values. Bytes are `Base64Bytes`. String enums subclass `str, Enum`. Generic types are `Generic[T]` models. The full table is the Python column of `spec/mapping-table.md`.
 
-Proof: `cd examples/ledger/python && uv run pytest` starts the Go server and drives list, create, validation, void, and a subscription; `scripts/check-goldens.sh python` type-checks and round-trips a golden for every fidelity row.
+To verify: `cd examples/ledger/python && uv run pytest` starts the Go server and runs list, create, validation, void, and a subscription. `scripts/check-goldens.sh python` type-checks and round-trips a golden for every fidelity row.

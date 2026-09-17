@@ -36,7 +36,7 @@ func subscriptionHandler(opts ...HandlerOption) http.Handler {
 	return NewRouter(Subscription("watch", watch, Description("Watch ticks."))).Handler(opts...)
 }
 
-func sse(h http.Handler, method, target string, accept string, ctx context.Context) *httptest.ResponseRecorder {
+func streamRequest(h http.Handler, method, target string, accept string, ctx context.Context) *httptest.ResponseRecorder {
 	req := httptest.NewRequest(method, target, nil)
 	if accept != "" {
 		req.Header.Set("Accept", accept)
@@ -50,7 +50,7 @@ func sse(h http.Handler, method, target string, accept string, ctx context.Conte
 }
 
 func TestSubscriptionStreamsEvents(t *testing.T) {
-	rec := sse(subscriptionHandler(), http.MethodGet, "/watch?input=%7B%22count%22%3A3%7D", "text/event-stream", nil)
+	rec := streamRequest(subscriptionHandler(), http.MethodGet, "/watch?input=%7B%22count%22%3A3%7D", "text/event-stream", nil)
 	if rec.Code != 200 || rec.Header().Get("Content-Type") != "text/event-stream" || rec.Header().Get("Cache-Control") != "no-store" {
 		t.Fatalf("status %d headers %v", rec.Code, rec.Header())
 	}
@@ -64,7 +64,7 @@ func TestSubscriptionStreamsEvents(t *testing.T) {
 }
 
 func TestSubscriptionErrorEvent(t *testing.T) {
-	rec := sse(subscriptionHandler(), http.MethodGet, "/watch?input=%7B%22count%22%3A2%7D", "text/event-stream", nil)
+	rec := streamRequest(subscriptionHandler(), http.MethodGet, "/watch?input=%7B%22count%22%3A2%7D", "text/event-stream", nil)
 	body := rec.Body.String()
 	if strings.Count(body, "event: message\n") != 2 || !strings.Contains(body, "event: error\ndata: {\"error\":{\"code\":\"NOT_FOUND\",\"message\":\"gone after 2\"}}\n\n") || strings.Contains(body, "event: done") {
 		t.Fatalf("body %q", body)
@@ -72,18 +72,18 @@ func TestSubscriptionErrorEvent(t *testing.T) {
 }
 
 func TestSubscriptionRequiresAccept(t *testing.T) {
-	rec := sse(subscriptionHandler(), http.MethodGet, "/watch?input=%7B%22count%22%3A1%7D", "", nil)
+	rec := streamRequest(subscriptionHandler(), http.MethodGet, "/watch?input=%7B%22count%22%3A1%7D", "", nil)
 	if rec.Code != 400 || errorCode(t, rec) != InvalidArgument || !strings.Contains(rec.Body.String(), "text/event-stream") {
 		t.Fatalf("status %d body %s", rec.Code, rec.Body.String())
 	}
-	rec = sse(subscriptionHandler(), http.MethodGet, "/watch?input=%7B%22count%22%3A1%7D", "*/*", nil)
+	rec = streamRequest(subscriptionHandler(), http.MethodGet, "/watch?input=%7B%22count%22%3A1%7D", "*/*", nil)
 	if rec.Code != 200 {
 		t.Fatalf("wildcard accept: status %d", rec.Code)
 	}
 }
 
 func TestSubscriptionValidatesInput(t *testing.T) {
-	rec := sse(subscriptionHandler(), http.MethodGet, "/watch?input=%7B%22count%22%3A0%7D", "text/event-stream", nil)
+	rec := streamRequest(subscriptionHandler(), http.MethodGet, "/watch?input=%7B%22count%22%3A0%7D", "text/event-stream", nil)
 	if rec.Code != 400 || errorCode(t, rec) != InvalidArgument {
 		t.Fatalf("status %d body %s", rec.Code, rec.Body.String())
 	}
@@ -107,7 +107,7 @@ func TestSubscriptionStopsOnDisconnect(t *testing.T) {
 	}()
 	done := make(chan struct{})
 	go func() {
-		sse(h, http.MethodGet, "/forever", "text/event-stream", ctx)
+		streamRequest(h, http.MethodGet, "/forever", "text/event-stream", ctx)
 		close(done)
 	}()
 	select {
@@ -126,7 +126,7 @@ func TestHeartbeat(t *testing.T) {
 		return nil
 	}
 	h := NewRouter(Subscription("slow", slow)).Handler(Heartbeat(20 * time.Millisecond))
-	rec := sse(h, http.MethodGet, "/slow", "text/event-stream", nil)
+	rec := streamRequest(h, http.MethodGet, "/slow", "text/event-stream", nil)
 	if strings.Count(rec.Body.String(), ": ping\n\n") < 2 {
 		t.Fatalf("expected heartbeats, got %q", rec.Body.String())
 	}

@@ -1,6 +1,6 @@
 # Ledger
 
-A small invoicing API that exercises every Bowline feature: queries, mutations, typed errors, validation, subscriptions over server-sent events and WebSocket, uploads, idempotency keys, OpenAPI and Zod export, tool exposure, and an MCP endpoint.
+A small invoicing API that uses every Bowline feature: queries, mutations, typed errors, validation, subscriptions over server-sent events and WebSocket, uploads, idempotency keys, OpenAPI and Zod export, tool exposure, and an MCP endpoint.
 
 ## Run it
 

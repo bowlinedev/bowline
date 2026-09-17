@@ -13,6 +13,8 @@ import (
 
 var update = flag.Bool("update", false, "rewrite golden files")
 
+const fixtureAPIVersion = "1.0.0"
+
 func fixtures(t *testing.T) []string {
 	t.Helper()
 	inputs, err := filepath.Glob(filepath.Join("..", "..", "analyzer", "testdata", "fidelity", "rows", "*", "expected.contract.json"))
@@ -42,7 +44,7 @@ func TestGoldens(t *testing.T) {
 	for _, input := range fixtures(t) {
 		row := filepath.Base(filepath.Dir(input))
 		t.Run(row, func(t *testing.T) {
-			got, err := Export(load(t, input), Info{Title: row, Version: "1.0.0", ServerURL: "http://localhost:8080/api"})
+			got, err := Export(load(t, input), Info{Title: row, Version: fixtureAPIVersion, ServerURL: "http://localhost:8080/api"})
 			if err != nil {
 				t.Fatal(err)
 			}

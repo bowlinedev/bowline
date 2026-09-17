@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/bowlinedev/bowline/internal/codec"
+	"github.com/bowlinedev/bowline/internal/csrf"
+	"github.com/bowlinedev/bowline/internal/reserved"
 	"github.com/bowlinedev/bowline/signing"
 )
 
@@ -45,12 +47,12 @@ type handler struct {
 	maxUpload  int64
 
 	contract   []byte
-	reserved   *reserved
+	reserved   *reserved.Set
 	signatures signing.SecretProvider
 	signedBody int64
 	replay     *signing.ReplayCache
 
-	csrf            *csrf
+	csrf            *csrf.Guard
 	securityHeaders bool
 
 	idempotency    IdempotencyStore
@@ -64,7 +66,7 @@ func (r *Router) Handler(opts ...HandlerOption) http.Handler {
 		opt(h)
 	}
 	if h.contract != nil {
-		h.reserved = mustReserved(h.contract)
+		h.reserved = reserved.MustNew(h.contract)
 	}
 	for _, rt := range r.routes() {
 		h.routes[rt.path] = &rt
@@ -77,7 +79,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if h.signatures != nil && !h.verifySignature(w, req) {
 		return
 	}
-	if name := reservedPath(req.URL.Path); name != "" {
+	if name := reserved.Path(req.URL.Path); name != "" {
 		h.serveReserved(w, req, name)
 		return
 	}
@@ -100,7 +102,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.writeError(w, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, rt.path, proc.Method()))
 		return
 	}
-	if h.csrf != nil && !h.csrf.allows(req) {
+	if h.csrf != nil && !h.csrf.Allows(req) {
 		h.writeError(w, nil, 0, Errorf(PermissionDenied, "cross-origin request rejected"))
 		return
 	}
@@ -138,7 +140,7 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route) {
 		return
 	}
 	if proc.Kind == KindSubscription {
-		h.serveSubscription(w, req, rt, ctx, in)
+		h.serveSubscription(w, rt, ctx, in)
 		return
 	}
 	out, err := h.invoke(ctx, rt, in)

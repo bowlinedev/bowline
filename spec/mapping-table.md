@@ -35,7 +35,7 @@ This table is normative. The analyzer implements exactly these rows, the fidelit
 | `encoding.TextMarshaler` type | `string` | `string` | `String` | `str` | `String` | `String.t()` |
 | `json.Marshaler` type without `WireAs` | reject | | | | |  |
 | `json.Marshaler` type with `bowline.WireAs[T, W]()` | shape of W | shape of W | shape of W | shape of W | shape of W | shape of W |
-| `any`, interface, `map[string]any` | reject, pointing at unions in M2 or `json.RawMessage` | | | | |  |
+| `any`, interface, `map[string]any` | reject, pointing at a concrete struct or `json.RawMessage` | | | | |  |
 | `map[K]V` with struct key | reject | | | | |  |
 | `**T`, `chan`, `func`, `complex`, `unsafe.Pointer`, `uintptr` | reject | | | | |  |
 | anonymous struct as `In` or `Out` | reject, except `struct{}` | | `Empty` | `Empty` | `Empty` | `BowlineClient.Empty` |

@@ -201,11 +201,10 @@ func (g *Generator) object(fields []*contract.Field, s scope) map[string]any {
 				owner = "field:" + f.Name
 			}
 			id := g.nextID(owner)
-			if idKind(g.doc, f.Type) == "string" {
+			switch {
+			case idKind(g.doc, f.Type) == "string", f.Type.Encoding == "string":
 				out[f.Name] = strconv.FormatInt(id, 10)
-			} else if f.Type.Encoding == "string" {
-				out[f.Name] = strconv.FormatInt(id, 10)
-			} else {
+			default:
 				out[f.Name] = id
 			}
 			continue
@@ -249,7 +248,7 @@ func (g *Generator) array(t *contract.Type, f *contract.Field, s scope) any {
 		return []any{}
 	}
 	r := g.stream(s)
-	count := 0
+	var count int
 	switch {
 	case t.Length > 0:
 		count = t.Length

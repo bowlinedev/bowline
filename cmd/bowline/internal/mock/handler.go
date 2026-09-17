@@ -3,6 +3,7 @@ package mock
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -189,7 +190,7 @@ func decodeInput(raw []byte) (map[string]any, error) {
 	}
 	obj, ok := value.(map[string]any)
 	if !ok {
-		return nil, fmt.Errorf("expected a JSON object")
+		return nil, errors.New("expected a JSON object")
 	}
 	return obj, nil
 }

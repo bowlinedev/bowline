@@ -7,6 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/bowlinedev/bowline/internal/codec"
+	"github.com/bowlinedev/bowline/internal/sse"
 )
 
 type StreamFailure struct {
@@ -55,7 +56,7 @@ func (r *Router) Subscribe(ctx context.Context, path string, input []byte, send 
 		return failure(e, h, nil)
 	}
 	emit := func(v any) error {
-		data, err := encodeMessage(frameCtx, proc.plan, v)
+		data, err := sse.EncodeMessage(frameCtx, proc.plan, v)
 		if err != nil {
 			return err
 		}

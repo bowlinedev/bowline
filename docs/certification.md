@@ -1,14 +1,14 @@
 # Target certification
 
-A client target is official when every check below is green in this repository's CI with a pinned toolchain. Community targets reach the same list by the same checks.
+A client target counts as official once all of the checks below pass in this repository's CI with a pinned toolchain. Community targets can be added to the same list by passing the same checks.
 
-Run them yourself with `bowline certify`:
+You can run the checks yourself with `bowline certify`:
 
 ```bash
 bowline certify --target kotlin --generator bowline-gen-kotlin --config certify.json
 ```
 
-It pipes every accepted fidelity row through the generator over the protocol in `docs/plugins.md`, scans for escape-hatch types, runs the generator twice to check determinism, and runs the compile and test commands your `certify.json` declares. `docs/certified.md` lists every generator that has passed; `--report` writes the row.
+This runs every accepted fidelity row through the generator using the protocol described in `docs/plugins.md`. It then scans the output for escape-hatch types, runs the generator a second time to check that the output is deterministic, and runs whatever compile and test commands are listed in `certify.json`. Generators that pass are listed in `docs/certified.md`. Pass `--report` to write the row for you.
 
 | Check | What it proves |
 |---|---|
@@ -33,7 +33,7 @@ It pipes every accepted fidelity row through the generator over the protocol in 
 
 ## certify.json
 
-The command reads a `certify.json` beside the module it is run in:
+The command looks for a `certify.json` file next to the module it is run from. The keys are:
 
 | Key | Meaning |
 |---|---|
@@ -47,12 +47,12 @@ The command reads a `certify.json` beside the module it is run in:
 | `test` | the command that runs the target's runtime test suite |
 | `conformance` | the client entry point a conformance run drives, recorded for the certified list |
 
-`compile` and `test` run in the module directory with `BOWLINE_CERTIFY_DIR` pointing at a directory holding one subdirectory of generated output per fidelity row. A target with no `compile` or no `test` is not certified: the run reports them as skipped and exits 1.
+The `compile` and `test` commands run in the module directory. The environment variable `BOWLINE_CERTIFY_DIR` points at a directory with one subdirectory of generated output per fidelity row. If either `compile` or `test` is missing, the target is not certified. The run reports the missing step as skipped and exits with status 1.
 
-Certification proves the generator: every fidelity row renders, compiles under the real toolchain, avoids escape-hatch types, and is byte-identical across two runs, and the target's runtime package still passes its own tests. It does not by itself drive a generated client against a live server; that evidence is the per-language end-to-end job, which runs each generated ledger client against the real ledger in CI.
+Certification checks the generator: every fidelity row renders, the output compiles with the real toolchain, no escape-hatch types are used, and the output is identical across two runs. It also checks that the target's runtime package still passes its own tests. It does not run a generated client against a live server. That is covered separately by the per-language end-to-end jobs, which run each generated ledger client against the real ledger in CI.
 
-Escape-hatch counting subtracts a baseline measured by generating an empty contract, so a language whose runtime code legitimately mentions the token — Go's `any` in a type parameter, Elixir's `term()` in a decoder spec — is not penalised for it. A row whose contract uses the `raw` primitive is exempt, which is how Rust's `serde_json::Value` is allowed exactly where `raw` appears.
+When counting escape-hatch tokens, the tool first generates an empty contract and uses that as a baseline. This is subtracted from the real count, so a language whose runtime code needs to mention the token (for example Go's `any` in a type parameter, or Elixir's `term()` in a decoder spec) is not penalised for it. Rows whose contract uses the `raw` primitive are exempt from the check. This is how Rust is allowed to use `serde_json::Value` in exactly the places where `raw` appears.
 
-The built-in targets are configured under `cmd/bowline/certify/` and certified by `scripts/certify-builtins.sh`, which regenerates `docs/certified.md`.
+The built-in targets are configured under `cmd/bowline/certify/`. Run `scripts/certify-builtins.sh` to certify them all and regenerate `docs/certified.md`.
 
-Client packages share the CLI's minor version and are bumped together by `scripts/bump-clients.sh`; the `release-clients` workflow publishes each on demand once the registry accounts exist.
+The client packages share the CLI's minor version number and are bumped together by `scripts/bump-clients.sh`. The `release-clients` workflow publishes each package on demand.

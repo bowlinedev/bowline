@@ -461,9 +461,10 @@ func (g *generator) writeClass(b *strings.Builder, name string, params []string,
 	b.WriteString("\n  List<Issue> validate(")
 	b.WriteString(strings.TrimPrefix(validateArgs.String(), ", "))
 	b.WriteString(")")
-	if len(checks) == 0 {
+	switch {
+	case len(checks) == 0:
 		b.WriteString(" => const [];\n")
-	} else if len(checkLocals) == 0 {
+	case len(checkLocals) == 0:
 		b.WriteString(" => [\n")
 		for _, c := range checks {
 			b.WriteString("        ")
@@ -471,7 +472,7 @@ func (g *generator) writeClass(b *strings.Builder, name string, params []string,
 			b.WriteString(",\n")
 		}
 		b.WriteString("      ];\n")
-	} else {
+	default:
 		b.WriteString(" {\n")
 		b.WriteString(locals(checkLocals))
 		b.WriteString("    return [\n")

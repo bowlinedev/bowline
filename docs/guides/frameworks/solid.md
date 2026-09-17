@@ -1,6 +1,6 @@
 # Solid
 
-`@bowlinedev/solid` wraps every query in `createResource` and every mutation in an action with a pending and error signal.
+`@bowlinedev/solid` wraps every query in `createResource` and every mutation in an action with a pending signal and an error signal.
 
 source: examples/astro/src/components/Invoices.tsx:5-9
 
@@ -12,8 +12,8 @@ export default function Invoices() {
   const [create, state] = ledger.invoices.create.action();
 ```
 
-`resource(input)` accepts a plain input or an accessor; with an accessor the resource refetches when the input changes. `action()` returns `[mutate, state]` where `mutate(input)` resolves with the output and `state()` carries `pending` and a `BowlineError` when the call failed.
+`resource(input)` accepts a plain input or an accessor. With an accessor, the resource refetches whenever the input changes. `action()` returns `[mutate, state]`. `mutate(input)` resolves with the output, and `state()` has `pending` and a `BowlineError` if the call failed.
 
-Proof: `pnpm --filter @bowlinedev/solid test`; the Astro example's island under `examples/astro` uses both helpers and its Playwright suite drives them, see `astro.md`.
+Tests: `pnpm --filter @bowlinedev/solid test`. The Astro example's island under `examples/astro` uses both helpers, and its Playwright suite drives them. See `astro.md`.
 
-Gotchas: a resource created during server rendering runs its fetcher on the server, where a relative URL such as `/api` has no origin; render the island client-only or give the server an absolute URL. `refetch()` after a mutation is explicit, because Solid resources have no invalidation registry; the key helper exists for apps that add one.
+Gotchas: a resource created during server rendering runs its fetcher on the server, where a relative URL like `/api` has no origin. Render the island client-only, or give the server an absolute URL. `refetch()` after a mutation is explicit, because Solid resources have no invalidation registry. The key helper exists for apps that add one.

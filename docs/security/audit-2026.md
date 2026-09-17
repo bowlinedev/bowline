@@ -58,11 +58,11 @@ Paths that quote the request URL do so with `%q`, which escapes the value, and t
 
 **F4. Body limits confirmed to apply before any read.** `readInput` wraps the body in `http.MaxBytesReader` before the first `Read`, `serveUpload` wraps the multipart reader's source, and `verifySignature` wraps before buffering for the signature. In every case the limit is enforced by the reader itself, so an oversized body is never fully buffered and the procedure never runs. `MaxBytesReader` is given the real `http.ResponseWriter`, so `net/http` marks the response and closes the connection instead of trying to drain a hostile body. Evidence: `TestBodyLimitAppliesBeforeDecode`, `TestBodyLimitClosesTheConnection`. No fix needed.
 
-**F5. Validation issues carry no request content.** Every message `internal/validate` produces is built from the rule and its parameter — `must be at least 3 characters`, `must be one of draft sent paid` — and never from the value under test. Issues are therefore safe to return at 400. They are still dropped on a 5xx by F1's `redact`. No fix needed.
+**F5. Validation issues carry no request content.** Every message `internal/validate` produces is built from the rule and its parameter (for example `must be at least 3 characters`, or `must be one of draft sent paid`) and never from the value under test. Issues are therefore safe to return at 400. They are still dropped on a 5xx by F1's `redact`. No fix needed.
 
 ## Open items
 
-- `MaxBodySize(0)` is taken literally and rejects every body. The default of 1 MiB is applied only when the option is absent. This is a footgun rather than a leak; it is left as is so that a zero limit stays meaningful, and is called out in `docs/guides/security.md`.
+- `MaxBodySize(0)` is taken literally and rejects every body. The default of 1 MiB is applied only when the option is absent. This is a usability hazard rather than a leak. It is left as is so that a zero limit keeps its meaning, and it is documented in `docs/guides/security.md`.
 - Redaction is keyed on the HTTP status, so an application that declares an error variant mapping to a 5xx code opts that variant out of redaction. That is the intended escape hatch: a declared variant is contract-visible by definition.
 
 ## Middleware overhead

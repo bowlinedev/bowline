@@ -1,7 +1,9 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -66,7 +68,7 @@ func DiffCommand(opts Options, args []string) int {
 			fmt.Fprintf(opts.Stderr, "bowline: %v\n", err)
 			return 1
 		}
-		opts.Stdout.Write(data)
+		_, _ = opts.Stdout.Write(data)
 	default:
 		fmt.Fprintf(opts.Stderr, "bowline: unknown format %q; use text, markdown, or json\n", format)
 		return 2
@@ -93,7 +95,7 @@ func consumerList(dir, explicit string) ([]consumers.Consumer, error) {
 	target := explicit
 	if target == "" {
 		target = DefaultConsumersDir
-		if _, err := os.Stat(filepath.Join(dir, filepath.FromSlash(target))); err != nil {
+		if _, err := os.Stat(filepath.Join(dir, filepath.FromSlash(target))); errors.Is(err, fs.ErrNotExist) {
 			return nil, nil
 		}
 	}

@@ -128,7 +128,7 @@ func (h *handler) serveIdempotent(w http.ResponseWriter, req *http.Request, rt *
 		if completed {
 			return
 		}
-		h.idempotency.Abort(ctx, key)
+		_ = h.idempotency.Abort(ctx, key)
 	}()
 	h.execute(rec, req, rt)
 	if rec.status >= 500 {

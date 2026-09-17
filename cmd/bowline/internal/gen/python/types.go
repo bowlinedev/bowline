@@ -436,7 +436,7 @@ type declaration struct {
 	kind contract.Kind
 }
 
-func (g *generator) declarations() (string, error) {
+func (g *generator) declarations() string {
 	var decls []*declaration
 	byName := map[string]*declaration{}
 	add := func(d *declaration) {
@@ -544,7 +544,7 @@ func (g *generator) declarations() (string, error) {
 		}
 		b.WriteString("\n\n")
 	}
-	return b.String(), nil
+	return b.String()
 }
 
 func (g *generator) depsOf(id string) []string {

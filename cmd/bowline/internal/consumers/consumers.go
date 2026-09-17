@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"slices"
@@ -117,7 +118,7 @@ func verifyInteraction(doc *contract.Document, procs map[string]*contract.Proced
 		return problems
 	}
 	if in.Method != "" && in.Method != p.Method {
-		if !(in.Method == "POST" && p.Method == "GET") {
+		if in.Method != http.MethodPost || p.Method != http.MethodGet {
 			problems = append(problems, Problem{consumer, in.Procedure, nil, fmt.Sprintf("method changed from %s to %s", in.Method, p.Method)})
 		}
 	}

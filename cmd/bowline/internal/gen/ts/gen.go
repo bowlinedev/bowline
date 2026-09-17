@@ -35,12 +35,13 @@ func (Generator) Generate(doc *contract.Document, out string) ([]byte, error) {
 }
 
 func (g *generator) imports() string {
-	names := []string{"createClient as create", "type ClientOptions", "type ContractRuntime"}
-	var extra []string
+	extra := make([]string, 0, len(g.needs))
 	for name := range g.needs {
 		extra = append(extra, "type "+name)
 	}
 	slices.Sort(extra)
+	names := make([]string, 0, 3+len(extra))
+	names = append(names, "createClient as create", "type ClientOptions", "type ContractRuntime")
 	names = append(names, extra...)
 	return "import { " + strings.Join(names, ", ") + " } from \"@bowlinedev/client\";\n\n"
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -50,12 +51,14 @@ func TestParsePath(t *testing.T) {
 	for in, want := range cases {
 		procedure, side, path := parsePath(in)
 		joined := ""
+		var joinedSb53 strings.Builder
 		for i, p := range path {
 			if i > 0 {
-				joined += ","
+				joinedSb53.WriteString(",")
 			}
-			joined += p
+			joinedSb53.WriteString(p)
 		}
+		joined += joinedSb53.String()
 		if procedure != want[0] || side != want[1] || joined != want[2] {
 			t.Fatalf("%q: got %s %s %q", in, procedure, side, joined)
 		}

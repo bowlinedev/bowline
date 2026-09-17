@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"bytes"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -93,7 +94,7 @@ func TestRecordThenReplay(t *testing.T) {
 func TestCanonicalInput(t *testing.T) {
 	a, ha, _ := CanonicalInput([]byte(`{ "b": 1, "a": [1, 2.50] }`))
 	b, hb, _ := CanonicalInput([]byte(`{"a":[1,2.50],"b":1}`))
-	if string(a) != `{"a":[1,2.50],"b":1}` || string(a) != string(b) || ha != hb {
+	if string(a) != `{"a":[1,2.50],"b":1}` || !bytes.Equal(a, b) || ha != hb {
 		t.Fatalf("%s %s", a, b)
 	}
 	empty, _, _ := CanonicalInput(nil)

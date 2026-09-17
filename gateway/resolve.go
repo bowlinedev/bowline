@@ -101,7 +101,7 @@ func resolveOne(ctx context.Context, cfg *Config, name string, fetcher Fetcher) 
 	case up.Contract != "":
 		data, err = os.ReadFile(filepath.FromSlash(up.Contract))
 		if err != nil {
-			return nil, fmt.Errorf("service %q: reading %s: %v", name, up.Contract, err)
+			return nil, fmt.Errorf("service %q: reading %s: %w", name, up.Contract, err)
 		}
 	default:
 		if fetcher == nil {
@@ -109,17 +109,17 @@ func resolveOne(ctx context.Context, cfg *Config, name string, fetcher Fetcher) 
 		}
 		data, err = fetcher.Fetch(ctx, up.Registry, name, up.Version)
 		if err != nil {
-			return nil, fmt.Errorf("service %q: fetching from %s: %v", name, up.Registry, err)
+			return nil, fmt.Errorf("service %q: fetching from %s: %w", name, up.Registry, err)
 		}
 	}
 	doc, err := contract.Parse(data)
 	if err != nil {
-		return nil, fmt.Errorf("service %q: %v", name, err)
+		return nil, fmt.Errorf("service %q: %w", name, err)
 	}
 	if strings.HasPrefix(up.Version, "sha256:") {
 		hash, err := doc.ComputeHash()
 		if err != nil {
-			return nil, fmt.Errorf("service %q: hashing the contract: %v", name, err)
+			return nil, fmt.Errorf("service %q: hashing the contract: %w", name, err)
 		}
 		if hash != up.Version {
 			return nil, fmt.Errorf("service %q is pinned to %s but its contract hashes to %s", name, up.Version, hash)

@@ -1,19 +1,23 @@
 # Changelog
 
+## Unreleased
+
+- Removed `GOVERNANCE.md`, `MAINTAINERS.md`, `CODE_OF_CONDUCT.md` and `SECURITY.md`. One person maintains this; the process they described does not exist. Vulnerabilities go through the repository's private security advisories.
+
 ## 1.0.0
 
 First stable release. `docs/stability.md` states what will not change inside 1.x: the Go API, the minimum Go version, the contract document format, generated code, the CLI and its machine-readable output, and the wire format. `docs/migration-0.x.md` lists everything a 0.x upgrade asks of you, and `docs/lts.md` gives the support windows.
 
 - Security: every error path in the runtime is audited in `docs/security/audit-2026.md`; production now redacts the message, details, and issues of every 5xx, including `bowline.Errorf(bowline.Internal, ...)` and panics, and decoder failures answer `invalid input` instead of echoing the request body.
 - Runtime: `bowline.CSRF` rejects cross-origin mutations by origin and fetch metadata, `bowline.SecurityHeaders` sets the header set, `bowline.MaxBody` sets a per-procedure body limit recorded in the contract, and `bowline.RateLimit` is a token bucket middleware with key eviction.
-- Benchmarks: `docs/benchmarks.md` reports handler overhead, regeneration latency, and generator throughput, regenerated from a run published on each `main` push with history and a five percent regression gate.
-- CLI: `check --json` and `diff --json` for machine-readable output, `docs/cli.md` documenting every command, flag, exit code and output shape with a test that keeps it honest, and `docs/stability.md` stating what does not change inside a major version.
+- Benchmarks: `docs/benchmarks.md` reports handler overhead, regeneration latency, and generator throughput, regenerated from a run published on each `main` push with history. Allocation counts gate the build because they are deterministic; wall-clock timings are reported but never enforced, since a shared runner varies by tens of percent between runs of the same commit.
+- CLI: `check --json` and `diff --json` for machine-readable output, `docs/cli.md` documenting every command, flag, exit code and output shape with a test that checks it against the binary, and `docs/stability.md` stating what does not change inside a major version.
 - Generators: an external generator protocol so a new language can be added without forking (`docs/plugins.md`), and `bowline certify`, which proves a generator against the fidelity corpus and writes `docs/certified.md`.
 - Signing: `Sign` draws a nonce into the canonical string and `bowline.Signed` rejects a replayed signature through a bounded `signing.ReplayCache`; a signature without a nonce still verifies, so 0.7.0 callers keep working.
 - Fuzzing: eleven Go fuzz targets and a client property test run nightly and for ten seconds in CI; they found and fixed a panic value reaching production clients, four generator panics on malformed documents, non-deterministic TypeScript output when two type IDs share a name, and `@bowlinedev/client` throwing a bare `SyntaxError` on a non-JSON 2xx body.
 - API: `docs/api-freeze.md` lists every exported identifier 1.x will guarantee, pinned by a test, and `scripts/apidiff.sh` reports incompatible changes against the previous tag on every pull request; it becomes a hard gate at the first 1.x tag.
 - Incompatible since 0.7.0, both deliberate: `bowline.Call` is no longer comparable, because it now carries the response headers a middleware can set, and `signing.Verify` takes variadic options for the replay cache. Calls are unaffected; comparing a `Call` value or assigning `Verify` to a function variable is not.
-- CSRF: a request carrying no `Origin`, `Referer`, or `Sec-Fetch-Site` is now allowed rather than rejected, matching `net/http.CrossOriginProtection`. Rejecting those protected nothing — an attacker not driving a victim's browser sends the request directly — while breaking every generated non-browser client, `curl`, and service-to-service call. A browser that announced itself through `Sec-Fetch-Site` but sent no `Origin` is still refused, so `CSRF` is now safe to mount on a route that serves both browsers and machines.
+- CSRF: a request carrying no `Origin`, `Referer`, or `Sec-Fetch-Site` is now allowed rather than rejected, matching `net/http.CrossOriginProtection`. Rejecting those protected nothing, since an attacker who is not driving a victim's browser can send the request directly, and it broke every generated non-browser client, `curl`, and service-to-service call. A browser that announced itself through `Sec-Fetch-Site` but sent no `Origin` is still refused, so `CSRF` is now safe to mount on a route that serves both browsers and machines.
 - Performance: the handler reads the `input` query parameter without parsing the whole query string and reads a request body of known length into an exactly sized buffer. Bowline now runs slightly faster than the equivalent hand-written `net/http` handler, with fewer allocations; a large request body costs 15% less memory.
 - Performance: the generators write string parts directly instead of concatenating them first, cutting Dart generation time by 10% and Elixir by 9%.
 

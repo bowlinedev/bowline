@@ -2,6 +2,7 @@ package goclient
 
 import (
 	"maps"
+	"net/http"
 	"slices"
 	"strconv"
 	"strings"
@@ -160,7 +161,7 @@ func (g *generator) inputParam(p *contract.Procedure) (param, arg string) {
 func (g *generator) writeCall(b *strings.Builder, n *node, name string, p *contract.Procedure) {
 	param, arg := g.inputParam(p)
 	method := "http.MethodPost"
-	if p.Method == "GET" {
+	if p.Method == http.MethodGet {
 		method = "http.MethodGet"
 	}
 	if isEmptyStruct(p.Output) {
@@ -211,7 +212,7 @@ func (g *generator) writeSubscription(b *strings.Builder, n *node, name string, 
 	g.uses["iter"] = true
 	param, arg := g.inputParam(p)
 	method := "http.MethodPost"
-	if p.Method == "GET" {
+	if p.Method == http.MethodGet {
 		method = "http.MethodGet"
 	}
 	out := g.goType(p.Output)

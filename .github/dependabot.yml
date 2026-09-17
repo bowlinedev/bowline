@@ -7,6 +7,11 @@ updates:
     groups:
       actions:
         patterns: ["*"]
+    ignore:
+      # The version here pins the crate's declared MSRV (rust-version in
+      # Cargo.toml), not an action release. Bumping it silently stops CI
+      # proving the MSRV, and Dependabot invents versions Rust never shipped.
+      - dependency-name: dtolnay/rust-toolchain
 
   - package-ecosystem: gomod
     directories:

@@ -82,7 +82,7 @@ func (g *generator) writeNominals(b *strings.Builder) {
 		b.WriteString("  @type ")
 		b.WriteString(nominalType(g.names[id]))
 		b.WriteString(" :: ")
-		b.WriteString(g.primitiveSpec(decl.Primitive, ""))
+		b.WriteString(g.primitiveSpec(decl.Primitive))
 		b.WriteString("\n")
 	}
 	b.WriteString("end\n\n")
@@ -100,13 +100,13 @@ func (g *generator) writeDecl(b *strings.Builder, id string, decl *contract.Type
 		if decl.Origin != "" {
 			doc = docOr(doc, g.names[id]+" is an instantiation of "+decl.Origin+".")
 		}
-		g.writeStruct(b, module, g.names[id], doc, decl.Fields, nil, "")
+		g.writeStruct(b, module, g.names[id], doc, decl.Fields, nil)
 	case contract.Generic:
 		var fields []*contract.Field
 		if decl.Body != nil {
 			fields = decl.Body.Fields
 		}
-		g.writeStruct(b, module, g.names[id], decl.Doc, fields, decl.Params, "")
+		g.writeStruct(b, module, g.names[id], decl.Doc, fields, decl.Params)
 	case contract.Enum:
 		g.writeEnum(b, module, g.names[id], decl)
 	}
@@ -182,14 +182,14 @@ func literalText(v any) string {
 	return literal(v)
 }
 
-func (g *generator) writeStruct(b *strings.Builder, module, name, doc string, fields []*contract.Field, params []string, keyPrefix string) {
+func (g *generator) writeStruct(b *strings.Builder, module, name, doc string, fields []*contract.Field, params []string) {
 	atoms := fieldAtoms(fields)
 	var inlines []inline
 	for i, f := range fields {
 		g.collectInlines(module, atoms[i], f.Type, &inlines)
 	}
 	for _, in := range inlines {
-		g.writeStruct(b, in.module, in.name, "", in.fields, params, "")
+		g.writeStruct(b, in.module, in.name, "", in.fields, params)
 	}
 	g.helpers = helperPool{names: map[string]bool{}, params: params}
 	specParams := make([]string, len(params))
@@ -236,7 +236,7 @@ func (g *generator) writeStruct(b *strings.Builder, module, name, doc string, fi
 		b.WriteString("          ")
 		b.WriteString(atoms[i])
 		b.WriteString(": ")
-		b.WriteString(g.fieldSpec(f, module, atoms[i], params))
+		b.WriteString(g.fieldSpec(f, module, atoms[i]))
 		b.WriteString(",\n")
 	}
 	trimComma(b)
@@ -370,7 +370,8 @@ func trimComma(b *strings.Builder) {
 }
 
 func specArgs(first string, n int, arg string) []string {
-	args := []string{first}
+	args := make([]string, 0, 1+n)
+	args = append(args, first)
 	for range n {
 		args = append(args, arg)
 	}
@@ -421,7 +422,7 @@ func inlineName(atom string) string {
 	return strings.Join(parts, "")
 }
 
-func (g *generator) fieldSpec(f *contract.Field, module, atom string, params []string) string {
+func (g *generator) fieldSpec(f *contract.Field, module, atom string) string {
 	spec := g.typeSpec(f.Type, module, atom)
 	if f.Nullable || f.Optional {
 		spec += " | nil"
@@ -433,7 +434,7 @@ func (g *generator) typeSpec(t *contract.Type, module, atom string) string {
 	var spec string
 	switch t.Kind {
 	case contract.Primitive:
-		spec = g.primitiveSpec(t.Name, t.Encoding)
+		spec = g.primitiveSpec(t.Name)
 	case contract.Ref:
 		decl, ok := g.doc.Types[t.ID]
 		if !ok {
@@ -473,7 +474,7 @@ func (g *generator) typeSpec(t *contract.Type, module, atom string) string {
 	return spec
 }
 
-func (g *generator) primitiveSpec(name, encoding string) string {
+func (g *generator) primitiveSpec(name string) string {
 	switch name {
 	case "string", "bytes":
 		if name == "bytes" {

@@ -1,6 +1,6 @@
 # Elixir
 
-The `elixir` target generates one file, `bowline.ex`, holding a module per type under `<Root>.Types`, a module per router node, and a `<Root>.Client` that builds the transport. The runtime is the `bowline_client` package.
+The `elixir` target generates a single file, `bowline.ex`, containing a module per type under `<Root>.Types`, a module per router node, and a `<Root>.Client` module that builds the transport. The runtime is the `bowline_client` package.
 
 ```json
 { "targets": { "elixir": { "out": "elixir/lib/bowline.ex", "package": "Ledger" } } }
@@ -8,11 +8,11 @@ The `elixir` target generates one file, `bowline.ex`, holding a module per type 
 
 ```elixir
   defp deps do
-    [{:bowline_client, "~> 0.5"}]
+    [{:bowline_client, "~> 1.0"}]
   end
 ```
 
-The `package` option names the root module, so `Ledger.Invoices.list/3` and `Ledger.Types.Invoice` come from a contract generated with `"package": "Ledger"`.
+The `package` option sets the root module name. With `"package": "Ledger"`, you get `Ledger.Invoices.list/3` and `Ledger.Types.Invoice`.
 
 ## Calling
 
@@ -32,7 +32,7 @@ source: examples/ledger/elixir/lib/ledger_cli.ex:9-19
   end
 ```
 
-Every procedure is a function on its mount's module taking the transport, an input struct, and optional call options, returning `{:ok, output}` or `{:error, %BowlineClient.Error{}}`; a bang variant raises instead. Subscriptions return a lazy stream of decoded messages, enumerated in the process that opened it, and uploads take an enumerable body and a file name.
+Every procedure is a function on its mount's module. It takes the transport, an input struct, and optional call options, and returns `{:ok, output}` or `{:error, %BowlineClient.Error{}}`. There is also a bang variant that raises. Subscriptions return a lazy stream of decoded messages, enumerated in the process that opened it. Uploads take an enumerable body and a file name.
 
 ## Errors
 
@@ -45,10 +45,10 @@ source: examples/ledger/elixir/lib/ledger_cli.ex:47-50
   end
 ```
 
-`BowlineClient.Error` is an exception struct with `code` as one of the sixteen code atoms plus `:unknown`, the message, the HTTP status, the declared variant, its raw `details`, and `issues` carrying the same paths and messages the server produces. A network failure is `:unavailable` with status 0 and a timeout is `:deadline_exceeded`.
+`BowlineClient.Error` is an exception struct. `code` is one of the sixteen code atoms, plus `:unknown`. It also has the message, the HTTP status, the declared variant, its raw `details`, and `issues` with the same paths and messages the server produces. A network failure is `:unavailable` with status 0. A timeout is `:deadline_exceeded`.
 
 ## Types
 
-Struct fields are `snake_case` atoms while the JSON name stays on the wire, so `createdAt` decodes into `:created_at`. Every integer is `integer()`, with string-encoded 64-bit values parsed from and serialized to decimal strings; timestamps are `DateTime` in UTC; durations are nanoseconds; bytes are binaries decoded from base64; string enums are atoms with `from_value/1` and `to_value/1`; generic types take decoder and encoder functions for their parameters. The full table is the Elixir column of `spec/mapping-table.md`.
+Struct fields are `snake_case` atoms, while the JSON name stays on the wire, so `createdAt` decodes into `:created_at`. Every integer is `integer()`. String-encoded 64-bit values are parsed from and serialized to decimal strings. Timestamps are `DateTime` in UTC. Durations are nanoseconds. Bytes are binaries decoded from base64. String enums are atoms with `from_value/1` and `to_value/1`. Generic types take decoder and encoder functions for their type parameters. The full table is the Elixir column of `spec/mapping-table.md`.
 
-Proof: `cd examples/ledger/elixir && mix test` starts the Go server and drives list, create, validation issues, void, and a live `invoices.watch` subscription; `scripts/check-goldens.sh elixir` compiles a golden for every fidelity row warnings-free.
+To verify: `cd examples/ledger/elixir && mix test` starts the Go server and runs list, create, validation issues, void, and a live `invoices.watch` subscription. `scripts/check-goldens.sh elixir` compiles a golden for every fidelity row with no warnings.

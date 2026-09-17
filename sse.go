@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/bowlinedev/bowline/internal/sse"
 )
 
 func Heartbeat(d time.Duration) HandlerOption {
@@ -22,7 +24,7 @@ func acceptsEventStream(req *http.Request) bool {
 	return false
 }
 
-func (h *handler) serveSubscription(w http.ResponseWriter, req *http.Request, rt *route, ctx context.Context, in any) {
+func (h *handler) serveSubscription(w http.ResponseWriter, rt *route, ctx context.Context, in any) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		h.writeError(w, nil, 0, Errorf(Internal, "response writer does not support streaming"))
@@ -36,9 +38,9 @@ func (h *handler) serveSubscription(w http.ResponseWriter, req *http.Request, rt
 		w.Header().Set("Deprecation", "true")
 	}
 	w.WriteHeader(http.StatusOK)
-	sink := &eventSink{w: w, flusher: flusher, ctx: ctx, plan: rt.proc.plan}
-	defer sink.close()
-	if err := sink.comment("open"); err != nil {
+	sink := sse.NewSink(w, flusher, ctx, rt.proc.plan)
+	defer sink.Close()
+	if err := sink.Comment("open"); err != nil {
 		return
 	}
 	if h.heartbeat > 0 {
@@ -50,14 +52,14 @@ func (h *handler) serveSubscription(w http.ResponseWriter, req *http.Request, rt
 				case <-ctx.Done():
 					return
 				case <-ticker.C:
-					if sink.comment("ping") != nil {
+					if sink.Comment("ping") != nil {
 						return
 					}
 				}
 			}
 		}()
 	}
-	_, err := h.invoke(ctx, rt, rt.proc.attach(in, sink.send))
+	_, err := h.invoke(ctx, rt, rt.proc.attach(in, sink.Send))
 	if err != nil {
 		status, env, undeclared := classify(err, h.production, rt.proc.variants)
 		if status >= 500 {
@@ -70,8 +72,8 @@ func (h *handler) serveSubscription(w http.ResponseWriter, req *http.Request, rt
 		if marshalErr != nil {
 			body = []byte(`{"error":{"code":"INTERNAL","message":"error encoding failed"}}`)
 		}
-		sink.write("error", body)
+		_ = sink.Write("error", body)
 		return
 	}
-	sink.write("done", []byte("{}"))
+	_ = sink.Write("done", []byte("{}"))
 }

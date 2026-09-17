@@ -92,7 +92,7 @@ func (g *generator) validatable(t *contract.Type) bool {
 	return false
 }
 
-func (g *generator) writeValidate(b *strings.Builder, name string, fields []*contract.Field, infos []fieldInfo, params []string, s scope) {
+func (g *generator) writeValidate(b *strings.Builder, name string, fields []*contract.Field, infos []fieldInfo, params []string) {
 	g.uses["Validate"] = true
 	g.uses["Issue"] = true
 	var body strings.Builder

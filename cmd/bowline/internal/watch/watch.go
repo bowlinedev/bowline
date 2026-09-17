@@ -47,7 +47,7 @@ func Run(ctx context.Context, root string, interval time.Duration, fn func([]Cha
 
 func snapshot(root string) map[string]stamp {
 	out := map[string]stamp{}
-	filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}

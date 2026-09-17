@@ -40,7 +40,7 @@ func (g Generator) Generate(doc *contract.Document, out string) ([]byte, error) 
 	}
 	for _, id := range gen.errorOrder {
 		decl := gen.doc.Errors[id]
-		gen.writeStruct(&b, gen.types+"."+gen.names[id], gen.names[id], docOr(decl.Doc, decl.Name+" is the details shape of the "+decl.Name+" error variant ("+decl.Code+")."), decl.Fields, nil, "")
+		gen.writeStruct(&b, gen.types+"."+gen.names[id], gen.names[id], docOr(decl.Doc, decl.Name+" is the details shape of the "+decl.Name+" error variant ("+decl.Code+")."), decl.Fields, nil)
 	}
 	gen.writeClients(&b)
 	return []byte(strings.TrimRight(b.String(), "\n") + "\n"), nil

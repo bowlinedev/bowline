@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -48,11 +49,11 @@ func (b *evalBackend) validate() error {
 	switch b.kind {
 	case "mock", "replay":
 		if b.url != "" {
-			return fmt.Errorf("--url is only used with --backend url")
+			return errors.New("--url is only used with --backend url")
 		}
 	case "url":
 		if b.url == "" {
-			return fmt.Errorf("--backend url needs --url")
+			return errors.New("--backend url needs --url")
 		}
 	default:
 		return fmt.Errorf("unknown backend %q; use mock, replay, or url", b.kind)

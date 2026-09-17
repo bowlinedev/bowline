@@ -234,7 +234,7 @@ func (g *generator) writeStruct(b *strings.Builder, name, doc string, fields []*
 	b.WriteString(generics(params, g.mapKeyParams(fields)))
 	b.WriteString(" {\n")
 	used := map[string]bool{}
-	var infos []fieldInfo
+	infos := make([]fieldInfo, 0, len(fields))
 	for _, f := range fields {
 		info := g.field(f, s)
 		for used[info.name] {
@@ -255,7 +255,7 @@ func (g *generator) writeStruct(b *strings.Builder, name, doc string, fields []*
 		b.WriteString(",\n")
 	}
 	b.WriteString("}\n\n")
-	g.writeValidate(b, name, fields, infos, params, s)
+	g.writeValidate(b, name, fields, infos, params)
 }
 
 func generics(params []string, keys map[string]bool) string {

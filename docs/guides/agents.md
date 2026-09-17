@@ -1,10 +1,10 @@
 # Agent SDKs
 
-Three thin packages read a contract, emit provider-shaped tool definitions, and forward tool calls to a running Bowline API. They never interpret types; the contract's embedded schemas are the source of truth, so the definitions a model sees are exactly what `bowline export tools` prints. All three need a contract generated with `"schemas": true`.
+There are three small packages that read a contract, produce provider-specific tool definitions, and forward tool calls to a running Bowline API. They do not interpret types themselves. The schemas embedded in the contract are the source of truth, so the definitions a model sees are the same as what `bowline export tools` prints. All three require a contract generated with `"schemas": true`.
 
 ## Go
 
-Module `github.com/bowlinedev/bowline/agent`, standard library only.
+Module `github.com/bowlinedev/bowline/agent`. Standard library only.
 
 sketch: a tour of the module's API in one block; error handling is elided so the sequence stays readable
 
@@ -25,7 +25,7 @@ if result.Error != nil {
 }
 ```
 
-`Encode` takes `agent.Anthropic`, `agent.OpenAI`, or `agent.Schema` and returns JSON, so no provider SDK is required and a new provider is one more format. `HandlerCaller(h, headers)` dispatches into an `http.Handler` in process, which is how the tests run against a router without a socket. `Result.Error` is a `*bowline.Error`, so callers switch on the code instead of parsing text. Connection failures come back as `UNAVAILABLE`, not as a Go error, so an agent loop treats them like any other tool failure.
+`Encode` takes `agent.Anthropic`, `agent.OpenAI`, or `agent.Schema` and returns JSON. No provider SDK is needed, and adding a new provider means adding one more format. `HandlerCaller(h, headers)` dispatches into an `http.Handler` in the same process. This is how the tests run against a router without opening a socket. `Result.Error` is a `*bowline.Error`, so callers can switch on the code rather than parsing text. Connection failures are returned as `UNAVAILABLE` rather than as a Go error, so an agent loop can treat them like any other tool failure.
 
 ## TypeScript
 
@@ -53,11 +53,11 @@ if (result.error) {
 }
 ```
 
-`ContractDocument` in `@bowlinedev/client` types the parsed contract. The dispatcher calls procedures through the client's own transport, so error mapping is the same one the browser client uses; `Tool.inputSchema` is `Record<string, unknown>`, never `any`.
+`ContractDocument` in `@bowlinedev/client` is the type of the parsed contract. The dispatcher calls procedures through the client's own transport, so the error mapping is the same one the browser client uses. `Tool.inputSchema` is `Record<string, unknown>`, not `any`.
 
 ## Python
 
-Package `bowline-agent`, import name `bowline_agent`, Python 3.11 or later, no runtime dependencies.
+Package `bowline-agent`, import name `bowline_agent`. Requires Python 3.11 or later and has no runtime dependencies.
 
 ```python
 from bowline_agent import Call, Dispatcher, RecordingTracer, load_contract, to_openai, tools
@@ -77,10 +77,10 @@ if result.error:
     print(result.error["code"])
 ```
 
-The dispatcher uses `urllib.request` with an injectable opener, which is how the tests run without a network. It sends every call as `POST`, which the runtime accepts for every procedure.
+The dispatcher uses `urllib.request` with an opener that can be injected. This is how the tests run without a network. It sends every call as `POST`, which the runtime accepts for every procedure.
 
 ## Parity
 
-The three packages are tested against the goldens in `cmd/bowline/internal/tools/testdata`, made from the ledger contract, so the Anthropic and OpenAI definitions they produce are identical to each other and to `bowline export tools`. Each package has a recording tracer that writes one JSON line per call, `{"id","tool","input","output","error","durationMs"}`, which `bowline eval record --agent` reads and replays against the mock server, recorded fixtures, or a live handler; see `evals.md`.
+The three packages are tested against the goldens in `cmd/bowline/internal/tools/testdata`, which are generated from the ledger contract. The Anthropic and OpenAI definitions they produce are identical to each other and to the output of `bowline export tools`. Each package has a recording tracer that writes one JSON line per call, in the form `{"id","tool","input","output","error","durationMs"}`. `bowline eval record --agent` reads these lines and replays them against the mock server, recorded fixtures, or a live handler. See `evals.md`.
 
 Sources: `agent/agent_test.go`, `packages/agent/src/tools.test.ts`, `python/bowline-agent/tests/test_encode.py`.

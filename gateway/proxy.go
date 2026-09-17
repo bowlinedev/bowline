@@ -102,7 +102,7 @@ func (g *Gateway) proxy(w http.ResponseWriter, req *http.Request, rt route) {
 		defer resp.Body.Close()
 		copyResponseHeaders(w.Header(), resp.Header)
 		w.WriteHeader(resp.StatusCode)
-		io.Copy(w, resp.Body)
+		_, _ = io.Copy(w, resp.Body)
 		return
 	}
 }

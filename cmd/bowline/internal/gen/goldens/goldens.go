@@ -56,7 +56,9 @@ func Run(t *testing.T, target, ext string, gen Generator) {
 func Compare(t *testing.T, target, golden string, got []byte) {
 	t.Helper()
 	if *Update {
-		os.MkdirAll(filepath.Dir(golden), 0o755)
+		if err := os.MkdirAll(filepath.Dir(golden), 0o755); err != nil {
+			t.Fatal(err)
+		}
 		if err := os.WriteFile(golden, got, 0o644); err != nil {
 			t.Fatal(err)
 		}

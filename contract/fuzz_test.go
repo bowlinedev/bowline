@@ -1,6 +1,7 @@
 package contract
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -54,7 +55,7 @@ func FuzzContractParse(f *testing.F) {
 		if err != nil {
 			t.Fatalf("the second marshal failed: %v", err)
 		}
-		if string(out) != string(third) {
+		if !bytes.Equal(out, third) {
 			t.Fatal("marshalling is not stable across two rounds")
 		}
 	})

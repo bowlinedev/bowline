@@ -1,6 +1,6 @@
 # Validation
 
-Input validation comes from `validate` struct tags. Rules are enforced on the server before the handler runs, recorded in the contract, and delivered to every client as `issues` with the failing path.
+Input validation is driven by `validate` struct tags. The rules are enforced on the server before the handler runs, recorded in the contract, and reported to clients as a list of `issues`, each with the path of the failing field.
 
 ## Rules
 
@@ -15,7 +15,7 @@ Input validation comes from `validate` struct tags. Rules are enforced on the se
 | `url` | strings | a URL with scheme and host |
 | `uuid` | strings | an RFC 4122 UUID |
 
-The syntax is the go-playground `validate` vocabulary, restricted to these eight terms. Any other term fails `bowline gen` with a diagnostic and makes `bowline.NewRouter` panic, so an application that starts is one whose contract can be generated.
+The syntax follows the go-playground `validate` vocabulary, but only these eight terms are supported. Any other term causes `bowline gen` to fail with a diagnostic, and also makes `bowline.NewRouter` panic. This means that if the application starts, its contract can be generated.
 
 From `examples/ledger/ledger/types.go`:
 
@@ -31,15 +31,15 @@ type Line struct {
 
 ## Examples
 
-An `example` tag beside the rules gives a sample wire value that the analyzer checks against the field's type: strings verbatim, numbers and booleans parsed, timestamps in RFC 3339, enum members only, JSON for structs and collections. Examples are carried in the contract, emitted into JSON Schemas for tools, used as initial form values in the playground, and preferred over generated data by the mock server. A bad example is a diagnostic from `bowline gen`.
+An `example` tag next to the rules provides a sample wire value. The analyzer checks it against the field's type: strings are taken as is, numbers and booleans are parsed, timestamps must be RFC 3339, enums must be a valid member, and structs and collections must be JSON. Examples are stored in the contract, emitted into the JSON Schemas for tools, used as initial form values in the playground, and preferred over generated data by the mock server. A bad example produces a diagnostic from `bowline gen`.
 
 ## Nested values
 
-Nested structs, slices, and maps are always validated; there is no `dive` term. Paths in issues use JSON names and indices, so a bad second line reports `lines.1.quantity`.
+Nested structs, slices, and maps are always validated. There is no `dive` term. Paths in issues use JSON names and indices, so a problem with the second line item is reported as `lines.1.quantity`.
 
 ## What the client sees
 
-A failing call returns `INVALID_ARGUMENT` with one issue per broken rule:
+A failing call returns `INVALID_ARGUMENT` with one issue for each broken rule:
 
 ```json
 {"error":{"code":"INVALID_ARGUMENT","message":"invalid input","issues":[
@@ -48,7 +48,7 @@ A failing call returns `INVALID_ARGUMENT` with one issue per broken rule:
 ]}}
 ```
 
-The ledger web app renders these:
+The ledger web app renders these like so:
 
 source: examples/ledger/web/src/invoices.tsx:82-90
 
@@ -66,12 +66,11 @@ source: examples/ledger/web/src/invoices.tsx:82-90
 
 ## Cost
 
-Rules are compiled once per procedure when the router is built. A valid input is checked in a single pass with no allocations; only an invalid input pays for building the issue list. The overhead benchmark in `handler_bench_test.go` includes a `required` rule and stays within the 5 percent budget against a hand-written handler.
-
+Rules are compiled once per procedure when the router is built. Checking a valid input is a single pass with no allocations. Only an invalid input pays for building the issue list. The overhead benchmark in `handler_bench_test.go` includes a `required` rule and stays within the 5 percent budget compared to a hand-written handler.
 
 ## Zod schemas
 
-Setting `"zod": true` on the TypeScript target writes `bowline.zod.ts` next to the client file. It exports `schemas` with one Zod schema per declared type, `inputs` keyed by procedure path, and `errors` keyed by variant name, all carrying the same rules the server enforces, so a form can validate before the request leaves the browser and the two can never disagree.
+Setting `"zod": true` on the TypeScript target writes a `bowline.zod.ts` file next to the client. It exports `schemas` (one Zod schema per declared type), `inputs` (keyed by procedure path), and `errors` (keyed by variant name). These carry the same rules the server enforces, so a form can validate before sending the request, and the client and server can never disagree.
 
 ```json
 { "entry": "./api.Routes", "targets": { "ts": { "out": "web/src/bowline.ts", "zod": true } } }
@@ -88,4 +87,4 @@ if (!parsed.success) {
 }
 ```
 
-Generic types become functions of their element schemas, for example `schemas.Page(schemas.Invoice)`, and recursive types use property getters, which is how Zod 4 defers a self-reference without a type annotation. The test `packages/client/src/zod.test.ts` shows an email rule rejecting an invalid value through a generated schema.
+Generic types become functions of their element schemas, for example `schemas.Page(schemas.Invoice)`. Recursive types use property getters, which is how Zod 4 handles a self-reference without a type annotation. The test `packages/client/src/zod.test.ts` shows an email rule rejecting an invalid value through a generated schema.

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -42,7 +43,7 @@ func run(input, history, runOut, reportOut, commit string, failOnRegression bool
 		return err
 	}
 	if len(results) == 0 {
-		return fmt.Errorf("no benchmark results found in the input")
+		return errors.New("no benchmark results found in the input")
 	}
 	current := bench.Run{
 		Commit:  commit,
@@ -93,8 +94,8 @@ func run(input, history, runOut, reportOut, commit string, failOnRegression bool
 	for _, regression := range regressions {
 		fmt.Fprintln(os.Stderr, regression)
 	}
-	if failOnRegression && len(regressions) > 0 {
-		return fmt.Errorf("%d benchmark(s) regressed beyond %.0f%%", len(regressions), bench.RegressionPercent)
+	if blocking := bench.Blocking(regressions); failOnRegression && len(blocking) > 0 {
+		return fmt.Errorf("%d benchmark(s) allocate more than the previous run", len(blocking))
 	}
 	return nil
 }
