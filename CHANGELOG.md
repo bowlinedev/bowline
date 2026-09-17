@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Removed `GOVERNANCE.md` and `MAINTAINERS.md`. One person maintains this; multi-maintainer process was describing something that does not exist.
+- Removed `GOVERNANCE.md`, `MAINTAINERS.md`, `CODE_OF_CONDUCT.md` and `SECURITY.md`. One person maintains this; the process they described does not exist. Vulnerabilities go through the repository's private security advisories.
 
 ## 1.0.0
 

@@ -72,4 +72,4 @@ Release cadence, how long each line receives security fixes, and what qualifies 
 
 ## Reporting a break
 
-If a release breaks something this page guarantees, that is a bug, not a migration. Open an issue with the two versions and the smallest reproduction you have. If the break has a security impact, follow `SECURITY.md` instead.
+If a release breaks something this page guarantees, that is a bug, not a migration. Open an issue with the two versions and the smallest reproduction you have. If the break has a security impact, report it privately through the repository's security advisories instead.

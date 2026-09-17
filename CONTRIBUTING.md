@@ -34,8 +34,4 @@ Every module and package in this repository shares one version number. `scripts/
 
 Changesets is used only to publish: `changeset publish` pushes the npm packages whose version is not on the registry yet. Do not add a changeset to bump a version; the release script owns versions.
 
-## Project documents
-
-- `CODE_OF_CONDUCT.md`: the Contributor Covenant 2.1, which applies to every space this project uses
-- `SECURITY.md`: how to report a vulnerability, and what to expect afterwards
-- `docs/lts.md`: release cadence, support windows, and what gets backported
+`docs/lts.md` covers release cadence, support windows, and what gets backported.
