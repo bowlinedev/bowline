@@ -2,7 +2,7 @@
 
 ## Release cadence
 
-Bowline releases a minor version when a milestone lands. Patch releases go out as needed and contain fixes only: no new exported identifiers, no contract format changes, no generator output changes beyond the fix.
+A minor version goes out when enough has landed to be worth one. Patch releases go out as needed and contain fixes only: no new exported identifiers, no contract format changes, no generator output changes beyond the fix.
 
 Every module in the repository shares one version number. A `vX.Y.Z` tag is accompanied by a `<module>/vX.Y.Z` tag for each Go module, so `go get github.com/bowlinedev/bowline/gateway@vX.Y.Z` resolves.
 

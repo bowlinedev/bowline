@@ -20,7 +20,7 @@ The server carries a browser UI at `/`, built into the binary. It lists every se
 bowline publish --registry "$REGISTRY" --service ledger --tag main --ref "$GITHUB_SHA"
 ```
 
-runs the analyzer in the current module and posts the fresh document. Publishing the same hash twice is a no-op, so re-running CI on a green commit changes nothing. A consumer registers what it uses with the file the M4 recorder already writes:
+runs the analyzer in the current module and posts the fresh document. Publishing the same hash twice is a no-op, so re-running CI on a green commit changes nothing. A consumer registers what it uses with the file the recorder already writes:
 
 ```bash
 bowline publish --registry "$REGISTRY" --consumer web --provider ledger --usage contracts/consumers/web.json
