@@ -1,6 +1,6 @@
 # Connect
 
-Connect handlers and Bowline handlers are both `http.Handler`, so one mux serves both: a Connect procedure path beside the Bowline prefix.
+Connect handlers and Bowline handlers are both `http.Handler`, so one mux can serve both. A Connect procedure path sits next to the Bowline prefix.
 
 source: examples/routers/connect/main.go:27-32
 
@@ -13,6 +13,6 @@ func Mount(h http.Handler) http.Handler {
 }
 ```
 
-Proof: `cd examples/routers/connect && go test ./...` runs the conformance suite and then calls the Connect endpoint and a Bowline procedure on the same server.
+Tests: `cd examples/routers/connect && go test ./...` runs the conformance suite, then calls the Connect endpoint and a Bowline procedure on the same server.
 
-Gotchas: Connect uses `POST` with its own content types under `/<package>.<Service>/<Method>`, and Bowline uses `/<prefix>/<dotted.path>`, so the two never collide as long as the prefix is not a Connect service name. A gradual migration keeps the Connect services and adds Bowline procedures beside them; the generated TypeScript client and the Connect client coexist in the same page because both are plain `fetch`.
+Gotchas: Connect uses `POST` with its own content types under `/<package>.<Service>/<Method>`, and Bowline uses `/<prefix>/<dotted.path>`. The two do not collide as long as the prefix is not a Connect service name. For a gradual migration, keep the Connect services and add Bowline procedures alongside them. The generated TypeScript client and the Connect client can coexist on the same page, since both use plain `fetch`.

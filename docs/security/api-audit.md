@@ -9,7 +9,7 @@ The surface is 269 identifiers: 135 in `bowline`, 109 in `contract`, 25 in `sign
 1. `go/doc` over each package's non-test files produced the candidate list, including struct fields and interface methods, since both are part of the promise.
 2. Each identifier was classified against one question: would a user of this library reasonably write it in their own code, or is it visible only because it had to be?
 3. Anything in the second group was checked for callers across every module in the workspace. An identifier used only by tests in its own package is a leak, because an unexported name would serve those tests equally well.
-4. `TestPublicIdentifiersMatchFreezeList` now compares the list with the real surface in both directions, so this audit cannot silently rot.
+4. `TestPublicIdentifiersMatchFreezeList` compares the list with the real surface in both directions, so this audit stays in sync with the code.
 
 ## Kept
 
@@ -43,7 +43,7 @@ Everything in this package is kept. The contract document is a published format:
 | `Transport` and its fields, `Transport.RoundTrip` | Dropped into an `http.Client` by every calling service. |
 | `Header`, `Skew` | Named in the guide and needed by anyone writing a non-Go client. |
 | `Option`, `WithReplayCache`, `NewReplayCache`, `ReplayCache`, `DefaultReplayCacheSize` | A deployment with more than one process supplies a shared cache instead of the per-process default. |
-| `ErrMissingSignature`, `ErrMalformedSignature`, `ErrUnknownKey`, `ErrSignatureMismatch`, `ErrSkew`, `ErrReplay` | Sentinels for `errors.Is`; distinguishing them is the point of having six. |
+| `ErrMissingSignature`, `ErrMalformedSignature`, `ErrUnknownKey`, `ErrSignatureMismatch`, `ErrSkew`, `ErrReplay` | Sentinels for `errors.Is`. There are six so that each check can be matched separately. |
 
 ## Unexported
 

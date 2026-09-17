@@ -23,9 +23,9 @@ You do not write the types. `bowline gen` writes them from your Go code.
 
 ## Entry points
 
-- `@bowlinedev/client` — in the browser or on the server
-- `@bowlinedev/client/server` — for server-side calls, forwards headers
-- `@bowlinedev/client/node` — writes a record of what your client uses
+- `@bowlinedev/client`: in the browser or on the server
+- `@bowlinedev/client/server`: for server-side calls, forwards headers
+- `@bowlinedev/client/node`: writes a record of what your client uses
 
 Docs: [bowlinedev/bowline](https://github.com/bowlinedev/bowline)
 

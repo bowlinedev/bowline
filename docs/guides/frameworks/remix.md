@@ -1,6 +1,6 @@
 # React Router
 
-In React Router's framework mode, a `loader` calls the API on the server through `createServerClient` with the incoming `Request`, and the component uses `@bowlinedev/react-query` for client-side updates.
+In React Router's framework mode, a `loader` calls the API on the server through `createServerClient` with the incoming `Request`. The component then uses `@bowlinedev/react-query` for client-side updates.
 
 source: examples/remix/src/ledger.ts:6-8
 
@@ -31,8 +31,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   });
 ```
 
-A resource route at `app/routes/api.ts` proxies `/api/*` to the Go server so the browser client stays same-origin in dev and production.
+A resource route at `app/routes/api.ts` proxies `/api/*` to the Go server, so the browser client stays same-origin in both dev and production.
 
-Proof: `cd examples/remix && pnpm build && pnpm test:e2e` asserts the server-rendered list, a client-side create, and validation issues.
+Tests: `cd examples/remix && pnpm build && pnpm test:e2e` checks the server-rendered list, a client-side create, and validation issues.
 
-Gotchas: React Router's default server entry treats bot user agents as non-hydrating and Playwright's headless Chrome is one of them; the example's Playwright config sets a browser user agent. Loader data and query data are two caches; after a mutation invalidate the query and revalidate the loader, as above.
+Gotchas: React Router's default server entry treats bot user agents as non-hydrating, and Playwright's headless Chrome is one of them. The example's Playwright config sets a browser user agent. Loader data and query data are two separate caches. After a mutation, invalidate the query and revalidate the loader, as shown above.

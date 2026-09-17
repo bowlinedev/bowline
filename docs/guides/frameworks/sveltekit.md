@@ -1,6 +1,6 @@
 # SvelteKit
 
-A SvelteKit page loads on the server through `serverClient`, which forwards `event.fetch` and the caller's `cookie` and `authorization` headers, and updates in the browser through `@bowlinedev/svelte` stores.
+A SvelteKit page loads on the server through `serverClient`, which forwards `event.fetch` and the caller's `cookie` and `authorization` headers. It updates in the browser through `@bowlinedev/svelte` stores.
 
 source: examples/sveltekit/src/routes/+page.server.ts:1-10
 
@@ -17,8 +17,8 @@ export const load: PageServerLoad = async (event) => {
 };
 ```
 
-In the browser the page uses the stores from `svelte.md` against a client at `/api`, which Vite proxies to the Go server in dev and preview.
+In the browser, the page uses the stores from `svelte.md` against a client at `/api`. Vite proxies that to the Go server in dev and preview.
 
-Proof: `cd examples/sveltekit && pnpm build && pnpm test:e2e` asserts the initial HTML already lists the seeded invoices, that a create adds a row without a reload, and that validation issues render.
+Tests: `cd examples/sveltekit && pnpm build && pnpm test:e2e` checks that the initial HTML already lists the seeded invoices, that a create adds a row without a reload, and that validation issues render.
 
-Gotchas: `event.fetch` is what makes server loads work behind SvelteKit's request handling and lets it inline the result for hydration; passing the global `fetch` loses both. Header forwarding is limited to `cookie` and `authorization` on purpose, so a load never leaks a browser's other headers to the API. Use adapter-node's server or a reverse proxy for `/api` in production, because the Vite proxy exists only in dev and preview.
+Gotchas: `event.fetch` is what makes server loads work behind SvelteKit's request handling and lets it inline the result for hydration. Passing the global `fetch` loses both. Header forwarding is limited to `cookie` and `authorization` on purpose, so that a load never leaks a browser's other headers to the API. In production, use adapter-node's server or a reverse proxy for `/api`, because the Vite proxy only exists in dev and preview.

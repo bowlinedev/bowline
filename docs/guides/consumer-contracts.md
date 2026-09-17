@@ -1,10 +1,10 @@
 # Consumer contracts
 
-A consumer contract records what one client actually uses: which procedures, with which inputs, and which fields of each response it read. The provider verifies those recordings on every change, so a backend change that breaks a real consumer fails CI with the consumer's name, not a generic breaking-change warning.
+A consumer contract records what a particular client actually uses: which procedures, with which inputs, and which fields of each response it read. The provider checks these recordings on every change. A backend change that would break a real consumer then fails CI with that consumer's name, rather than a generic breaking-change warning.
 
 ## Recording
 
-`@bowlinedev/client` records through the `record` option, a sink that receives every call's procedure, method, input, and raw response before hydration:
+`@bowlinedev/client` records via the `record` option. This is a sink that receives the procedure, method, input, and raw response (before hydration) for every call:
 
 source: examples/ledger/web/src/api.ts:49-51
 
@@ -14,9 +14,9 @@ if (record !== undefined) {
 }
 ```
 
-Under Node, `@bowlinedev/client/node` exports `fileSink(consumer, path, { provider })`, which deduplicates by procedure and canonical input and writes the consumer file on `flush()`. In a browser suite the app collects interactions on `window` and the test harness writes them; the ledger does exactly that in `examples/ledger/web/src/api.ts` and `examples/ledger/web/e2e/record.ts`, and `RECORD=1 pnpm test:e2e` refreshes `examples/ledger/contracts/consumers/ledger-web.json`.
+Under Node, `@bowlinedev/client/node` exports `fileSink(consumer, path, { provider })`. It deduplicates by procedure and canonical input and writes the consumer file when you call `flush()`. In a browser test suite the app collects interactions on `window` and the test harness writes them out. The ledger does this in `examples/ledger/web/src/api.ts` and `examples/ledger/web/e2e/record.ts`. Running `RECORD=1 pnpm test:e2e` refreshes `examples/ledger/contracts/consumers/ledger-web.json`.
 
-The file is plain JSON, one object per interaction, and lives in the provider repository under `contracts/consumers/`:
+The file is plain JSON with one object per interaction. It lives in the provider repository under `contracts/consumers/`:
 
 ```json
 {
@@ -40,17 +40,17 @@ The file is plain JSON, one object per interaction, and lives in the provider re
 bowline verify-consumers
 ```
 
-needs only the contract document and the consumer files. For every interaction it checks that the procedure still exists with the same method, that a successful interaction's input is still accepted by the input type and its rules, and that every field present in a recorded response still exists at the same path with a compatible node: same primitive class, recorded enum values still declared, arrays, maps, and structs matched structurally. Values are never compared, only shapes, so a consumer file does not go stale when data changes. A failure names the consumer, the procedure, the path, and the reason:
+This only needs the contract document and the consumer files. For each interaction it checks that the procedure still exists with the same method, that the input of a successful interaction is still accepted by the input type and its rules, and that every field present in a recorded response still exists at the same path with a compatible node. Compatible means the same primitive class, recorded enum values still declared, and arrays, maps, and structs matched structurally. Values are not compared, only shapes, so a consumer file does not go stale when the data changes. A failure names the consumer, the procedure, the path, and the reason:
 
 ```
 broken    consumer ledger-web: invoices.list → response.items.0.total: field removed
 ```
 
-The `ci` workflow runs it for the ledger; `cmd/bowline/internal/consumers/testdata` holds the reference report for each kind of break.
+The `ci` workflow runs this for the ledger. `cmd/bowline/internal/consumers/testdata` has a reference report for each kind of break.
 
 ## Dynamic verification
 
-`github.com/bowlinedev/bowline/contracttest` replays each interaction against the router in-process and requires the recorded status, the recorded error code and variant for error responses, and the shape rule on the live body. It catches what the contract cannot express, such as a procedure that now errors. From the ledger:
+`github.com/bowlinedev/bowline/contracttest` replays each interaction against the router in-process. It requires the recorded status, the recorded error code and variant for error responses, and applies the shape rule to the live body. This catches things the contract cannot express, for example a procedure that now returns an error. From the ledger:
 
 source: examples/ledger/api/consumers_test.go:12-17
 
@@ -63,10 +63,10 @@ func TestConsumers(t *testing.T) {
 }
 ```
 
-`WithHeaders` supplies credentials for guarded procedures, `WithSetup` runs before every interaction, and `WithHandler` replaces the router's handler when the app wraps it. Interactions run in file order, sorted by procedure and input, so a `create` precedes the `void` of the invoice it made.
+`WithHeaders` supplies credentials for guarded procedures. `WithSetup` runs before every interaction. `WithHandler` replaces the router's handler when the app wraps it. Interactions run in file order, sorted by procedure and input, so that a `create` runs before the `void` of the invoice it created.
 
 ## In the breaking-change gate
 
-`bowline check --against` and `bowline diff --consumers` annotate every breaking change with the consumers whose recordings touch the changed path and their interaction counts, or label it `unused by consumers`. A change to a shared type counts every consumer that reads that type through any procedure. The pull request comment therefore reads "removes field `total`; breaks `ledger-web` (1 interactions)", which is the sentence a reviewer needs.
+`bowline check --against` and `bowline diff --consumers` annotate every breaking change with the consumers whose recordings touch the changed path and their interaction counts, or label it `unused by consumers`. A change to a shared type counts every consumer that reads that type through any procedure. The pull request comment then reads something like "removes field `total`; breaks `ledger-web` (1 interactions)", which is what a reviewer needs to know.
 
-To see all three fail at once, rename `Total` in `examples/ledger/ledger/types.go`, regenerate, and run `bowline verify-consumers`, `go test ./api -run TestConsumers`, and `bowline check --against main` in `examples/ledger`.
+To see all three checks fail at once, rename `Total` in `examples/ledger/ledger/types.go`, regenerate, and run `bowline verify-consumers`, `go test ./api -run TestConsumers`, and `bowline check --against main` in `examples/ledger`.
