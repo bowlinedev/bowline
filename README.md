@@ -1,10 +1,10 @@
 # Bowline
 
-Bowline makes a Go codebase the single source of truth for an API contract and generates typed clients from it.
+Bowline generates typed API clients from Go code. You write Go functions and register them on a router. The CLI reads the Go code and writes a contract file plus a client for each language you configure. The contract file is committed and checked in CI, so the clients cannot drift from the server.
 
-## Three files
+## Example
 
-A procedure is a Go function. A router is a value.
+A procedure is a Go function. A router is a value that holds procedures.
 
 ```go
 type GreetInput struct {
@@ -24,55 +24,50 @@ func Routes() *bowline.Router {
 }
 ```
 
-`bowline.json` names the router and the targets.
+A config file points at the router and lists the targets:
 
 ```json
 { "entry": "./api.Routes", "targets": { "ts": { "out": "web/src/bowline.ts" } } }
 ```
 
-`bowline gen` writes `bowline.contract.json` and `web/src/bowline.ts`.
+Running `bowline gen` writes `bowline.contract.json` and `web/src/bowline.ts`. The generated client is typed:
 
 ```ts
 const client = createClient({ url: "http://localhost:8080/api" });
 const greeting = await client.greet({ name: "ada" });
 ```
 
-Rename `Name` in Go and TypeScript stops compiling.
+If you rename `Name` in the Go struct, the TypeScript code will fail to compile after regeneration.
 
-## What it does
+## Features
 
-The part you'll use on day one:
-
-- **Typed clients, never `any`.** `time.Time` becomes `Date`, 64-bit integers become `bigint`.
-- **Validation from struct tags**, enforced on the server, delivered to the client as structured issues, and emitted as Zod schemas.
-- **`bowline check`** fails CI the moment a generated file drifts from the Go code.
-- **`bowline dev`** regenerates in well under a second per save.
-
-The rest, when you need it:
-
-- Subscriptions as async iterables, over SSE or multiplexed on one WebSocket.
-- Typed uploads — your Go function gets the decoded input plus a streaming file.
-- One error envelope with sixteen codes, plus declared error variants clients narrow on by name.
+- Typed clients. `time.Time` maps to `Date`, 64-bit integers map to `bigint`. The generated code does not use `any`.
+- Validation from struct tags. The server enforces the rules and returns failures as a list of issues. The TypeScript target can also emit Zod schemas.
+- `bowline check` fails CI if any generated file is out of date.
+- `bowline dev` watches the module and regenerates on save.
+- Subscriptions, either over server-sent events or multiplexed over a WebSocket.
+- Multipart uploads. The Go function receives the decoded input and a streaming file.
+- A single error envelope with a fixed set of codes. Procedures can also declare named error variants that clients can switch on.
 - Idempotency keys for mutations.
-- OpenAPI 3.1, derived from the contract.
-- A mock server built from the contract alone, so the frontend keeps working with your Go server stopped. Deterministic data, record and replay.
-- A playground that browses the router and calls procedures through a same-origin proxy. Embed it, or let `bowline dev` serve it.
-- Mark a procedure `bowline.Tool()` and it's an MCP tool — schema derived from your Go types, still behind whatever middleware a browser request passes through.
-- Clients for TypeScript, Go, Dart, Python, Rust and Elixir. Bindings for React Query, SWR, Svelte, Solid and Vue on one shared key shape.
-- Consumer contracts: the client records what it uses, and the gate names who a breaking change would hit.
+- OpenAPI 3.1 export.
+- A mock server built from the contract. It produces deterministic data and can record and replay real responses, so frontend work can continue without the Go server running.
+- A playground that lists the procedures and lets you call them through a proxy. It can be embedded in your server or served by `bowline dev`.
+- MCP support. Mark a procedure with `bowline.Tool()` and it is exposed to MCP clients with a JSON Schema derived from the Go types. Calls go through the same middleware as normal requests.
+- Client generators for TypeScript, Go, Dart, Python, Rust and Elixir. Bindings for React Query, SWR, Svelte, Solid and Vue.
+- Consumer contracts. A client can record which procedures and fields it uses. `bowline check` then reports which consumers a change would break.
 
-The runtime is one `http.Handler` with nothing outside the standard library, and it stays under a 5% overhead budget against a hand-written handler. `docs/benchmarks.md` has the numbers and how they're measured — allocations gate the build, timings don't, because a shared CI runner varies by tens of percent between runs of the same commit.
+The runtime is a single `http.Handler` and only imports the standard library. Overhead compared to writing the handler by hand is under 5%. See `docs/benchmarks.md` for the measurements. Note that CI only fails on allocation regressions, not on timing, since timings on shared runners are too noisy to gate on.
 
-## Install
+## Installation
 
-The CLI, and the runtime your Go server imports:
+Install the CLI and add the runtime to your Go module:
 
 ```bash
 go install github.com/bowlinedev/bowline/cmd/bowline@latest
 go get github.com/bowlinedev/bowline
 ```
 
-The client runtime for whichever language you generate into:
+Then install the client runtime for the language you are generating:
 
 ```bash
 npm  install @bowlinedev/client     # plus @bowlinedev/react-query, swr, solid, svelte, vue
@@ -81,32 +76,28 @@ pip  install bowline-client
 dart pub add bowline
 ```
 
-## Docs
+## Documentation
 
-`docs/quickstart.md` gets you from an empty directory to a typed call in about five minutes. `docs/cli.md` covers every command, flag, exit code and JSON output.
+`docs/quickstart.md` walks through setting up a project from scratch. `docs/cli.md` documents each command, its flags, exit codes and JSON output.
 
-`docs/README.md` indexes the rest: guides for errors, validation, type fidelity, subscriptions, uploads, idempotency, the contract and its semantic diff, OpenAPI, tools and MCP, the agent SDKs, evals, the mock server, the playground, consumer contracts, federation, the registry, request signing and security — plus a page each for the generated Dart, Python, Rust and Elixir clients.
+`docs/README.md` is the index for the rest. There are guides on errors, validation, type mapping, subscriptions, uploads, idempotency, the contract format and diff, OpenAPI, tools and MCP, the agent SDKs, evals, the mock server, the playground, consumer contracts, federation, the registry, request signing and security. Each of the Dart, Python, Rust and Elixir clients has its own page.
 
-`spec/contract.md` is the contract document every generator reads. `spec/mapping-table.md` is the normative Go-to-TypeScript mapping.
+The normative specs are in `spec/`. `spec/contract.md` describes the contract document and `spec/mapping-table.md` describes how Go types map to TypeScript.
 
-Examples live under `examples/`. `ledger` is a Chi server with a React app and an end-to-end test, and it's the one most of the CI suite exercises. `nethttp-minimal` is a single procedure on the standard mux. `routers/*` mount the conformance suite on Chi, Gin, Echo, Connect, Fiber and the standard library. There are frontend apps for Next.js, Remix, SvelteKit, Astro and Expo, and `go-client` calls the ledger through the generated Go client.
+Example projects are in `examples/`. `ledger` is a Chi server with a React frontend and end-to-end tests, and it is what most of the CI suite runs against. `nethttp-minimal` is a single procedure on the standard library mux. `routers/` contains one example per supported Go router (Chi, Gin, Echo, Connect, Fiber, stdlib). There are also frontend examples for Next.js, Remix, SvelteKit, Astro and Expo, and `go-client` shows a Go program calling the ledger through the generated Go client.
 
 ## Status
 
-Version 1.0.0. The exported Go API is frozen for 1.x — `scripts/apidiff.sh` enforces it, and `docs/stability.md` states exactly what will not change. The contract document format is 1.2, an additive step over the frozen 1.0. Coming from 0.x, `docs/migration-0.x.md` lists everything the upgrade asks of you.
+Current version is 1.0.0. The exported Go API is frozen for the 1.x line. `scripts/apidiff.sh` checks this on every pull request and `docs/stability.md` lists what is covered. The contract format is at 1.2, which is backwards compatible with 1.0. If you are upgrading from a 0.x release, see `docs/migration-0.x.md`.
 
-## Layout
+## Repository layout
 
-The root module is the runtime, `github.com/bowlinedev/bowline`, and it has no dependencies. `cmd/bowline` is the CLI. Everything else is a separate module you only pull in if you use it: `transport/websocket`, `mcp`, `agent`, `playground`, `contracttest`, `gateway`, `registry`, `adapters/fiber`, and `conformance` for the wire suite every mount runs.
+The root module (`github.com/bowlinedev/bowline`) is the runtime and has no dependencies. `cmd/bowline` is the CLI. The remaining directories are separate Go modules that you only need if you use that feature: `transport/websocket`, `mcp`, `agent`, `playground`, `contracttest`, `gateway`, `registry`, `adapters/fiber`, and `conformance`.
 
-Client runtimes live in `packages/` — the npm packages, plus `packages/{dart,python,rust,elixir}` for the other generated clients. `python/bowline-agent` is the Python agent SDK.
+Client runtimes are under `packages/`. This includes the npm packages and the Dart, Python, Rust and Elixir runtime packages. `python/bowline-agent` is the Python agent SDK.
 
 ## License
 
 Apache-2.0. See `LICENSE`.
 
-### Generated code is yours
-
-Running `bowline gen` writes code into your project. That output is yours. Use it, change it, ship it under any licence you choose, with no attribution and no obligations from this one — including where the output contains parts copied from Bowline's generators.
-
-Apache-2.0 covers Bowline itself: the runtime, the CLI, the generators, and the client packages you install as dependencies.
+Code written by `bowline gen` into your project is yours. You can use it, change it and distribute it under whatever license you want, with no attribution requirement, even where the generated output includes fragments copied from Bowline's own generators. The Apache-2.0 license applies to Bowline itself: the runtime, the CLI, the generators and the client runtime packages.
