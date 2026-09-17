@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Removed `GOVERNANCE.md` and `MAINTAINERS.md`. One person maintains this; multi-maintainer process was describing something that does not exist.
+
 ## 1.0.0
 
 First stable release. `docs/stability.md` states what will not change inside 1.x: the Go API, the minimum Go version, the contract document format, generated code, the CLI and its machine-readable output, and the wire format. `docs/migration-0.x.md` lists everything a 0.x upgrade asks of you, and `docs/lts.md` gives the support windows.
