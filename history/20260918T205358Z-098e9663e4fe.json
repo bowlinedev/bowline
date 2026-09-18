@@ -1,0 +1,98 @@
+{
+  "commit": "098e9663e4fe1c7979a521014ad61ccfcb2329ec",
+  "ranAt": "2026-09-18T20:53:59Z",
+  "goos": "linux",
+  "goarch": "amd64",
+  "results": [
+    {
+      "name": "BenchmarkBowline",
+      "nsPerOp": 2741,
+      "bytesPerOp": 1425,
+      "allocsPerOp": 17
+    },
+    {
+      "name": "BenchmarkBowlinePost",
+      "nsPerOp": 4771,
+      "bytesPerOp": 7035,
+      "allocsPerOp": 32
+    },
+    {
+      "name": "BenchmarkBowlinePostLargeBody",
+      "nsPerOp": 289396,
+      "bytesPerOp": 269812,
+      "allocsPerOp": 2043
+    },
+    {
+      "name": "BenchmarkBowlineRESTPath",
+      "nsPerOp": 2238,
+      "bytesPerOp": 1280,
+      "allocsPerOp": 15
+    },
+    {
+      "name": "BenchmarkBowlineRESTQuery",
+      "nsPerOp": 3018,
+      "bytesPerOp": 1680,
+      "allocsPerOp": 18
+    },
+    {
+      "name": "BenchmarkDevLoopUpdate",
+      "nsPerOp": 11536802,
+      "bytesPerOp": 8387254,
+      "allocsPerOp": 68990
+    },
+    {
+      "name": "BenchmarkGenerators/dart",
+      "nsPerOp": 29683,
+      "bytesPerOp": 21038,
+      "allocsPerOp": 307,
+      "corpus": 65788
+    },
+    {
+      "name": "BenchmarkGenerators/elixir",
+      "nsPerOp": 42758,
+      "bytesPerOp": 46031,
+      "allocsPerOp": 304,
+      "corpus": 65788
+    },
+    {
+      "name": "BenchmarkGenerators/go",
+      "nsPerOp": 686718,
+      "bytesPerOp": 180686,
+      "allocsPerOp": 3917,
+      "corpus": 65788
+    },
+    {
+      "name": "BenchmarkGenerators/python",
+      "nsPerOp": 35816,
+      "bytesPerOp": 27016,
+      "allocsPerOp": 307,
+      "corpus": 65788
+    },
+    {
+      "name": "BenchmarkGenerators/rust",
+      "nsPerOp": 21804,
+      "bytesPerOp": 17698,
+      "allocsPerOp": 201,
+      "corpus": 65788
+    },
+    {
+      "name": "BenchmarkGenerators/ts",
+      "nsPerOp": 12317,
+      "bytesPerOp": 9758,
+      "allocsPerOp": 113,
+      "corpus": 65788
+    },
+    {
+      "name": "BenchmarkRateLimitMiddleware",
+      "nsPerOp": 96.3,
+      "bytesPerOp": 0,
+      "allocsPerOp": 0
+    },
+    {
+      "name": "BenchmarkRawNetHTTP",
+      "nsPerOp": 2805,
+      "bytesPerOp": 1778,
+      "allocsPerOp": 21
+    }
+  ]
+}
