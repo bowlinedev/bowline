@@ -29,6 +29,29 @@ func newHandler(routes *bowline.Router, production bool) (http.Handler, error) {
 | `Idempotency(store, ttl)` | Needed only if a mutation declares `Idempotent()`. See the store note below. |
 | `Logger(l)` | Where errors and panics go. The default is `slog.Default()`. |
 
+## Describing authentication
+
+Bowline does not authenticate anyone. Your middleware does. What the runtime can do is *describe* the scheme so that the contract, the OpenAPI export and every generated client agree on how a caller proves who they are:
+
+sketch: declare the scheme once, require it everywhere, opt the health check out
+
+```go
+func (a *API) Router() *bowline.Router {
+	return bowline.NewRouter(
+		bowline.Query("health", a.health, bowline.Public()),
+		bowline.Mount("invoices", a.invoices()),
+	).Use(a.requireToken).
+		Scheme("bearer", bowline.BearerAuth("opaque")).
+		Secure("bearer")
+}
+```
+
+`Scheme` declares a named scheme: `BearerAuth(format)`, `BasicAuth()` or `APIKeyAuth(in, name)` where `in` is `header`, `query` or `cookie`. `Secure` requires named schemes for every procedure under that router, inherited through mounts. `Public()` opts one procedure out, and `Requires("adminKey")` adds another scheme to one procedure on top of what it inherits. Requiring two schemes means both apply.
+
+This is a description, not a gate. A procedure that declares `bearer` still runs if the caller sends no token; only your middleware can refuse. `TestSecurityDeclarationDoesNotEnforce` pins that, because a declaration that looked like enforcement would be the worst kind of security bug.
+
+The payoff is in the export. `bowline export openapi` now emits `components.securitySchemes`, a `security` requirement on each operation, and `tags` from the mount name. That is what a documentation tool reads to show a lock icon, and what Fern, Speakeasy or openapi-generator read to put credentials into an SDK for a language Bowline does not generate itself.
+
 ## The HTTP server
 
 Bowline is an `http.Handler`, so the connection-level limits are the standard library's and Bowline cannot set them for you:

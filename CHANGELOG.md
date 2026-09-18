@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Security: a procedure can now describe how a caller authenticates. `Router.Scheme(name, scheme)` declares a `BearerAuth`, `BasicAuth` or `APIKeyAuth` scheme, `Router.Secure(names...)` requires schemes for everything beneath it, `Public()` opts a procedure out and `Requires(names...)` adds one. It describes and never enforces: middleware still decides who gets in, and a test pins that.
+- OpenAPI: the export now carries `components.securitySchemes`, a `security` requirement per operation, and `tags` taken from the mount name. Until now the export could not say an API was authenticated at all, so an SDK generated from it by Fern, Speakeasy or openapi-generator had no credentials and documentation tools showed the API as open. This is what makes the export a usable fallback for languages Bowline does not generate.
+- Contract format 1.4: adds the top-level `security` map and `security` on procedures. The schema's `$id` now tracks the format version, which it had stopped doing at 1.2.
+- Performance: matching a REST route no longer allocates. Segment kinds are resolved when the table is built rather than per comparison, path parameters travel in a small slice instead of a map, and the segments themselves stay on the stack. A literal route match went from 77ns and one allocation to 57ns and none; a route with a parameter from 189ns and 384 bytes to 75ns and 32. The empty request body for a call that carries none is no longer allocated per call.
+
 - Stores: three shared idempotency stores, each in its own module. `stores/sql` covers Postgres and SQLite and carries no third-party dependency at all, because it binds through `database/sql` and the application brings its own driver; it exposes `Migrate` to create the table and `Sweep` to delete expired rows. `stores/redis` covers Redis through `go-redis`, and needs no sweeping because Redis expires keys itself. Until now only the in-process store shipped, so any deployment with more than one replica had idempotency that silently did not work across them.
 - Stores: `idempotencytest.Verify` is the conformance suite all four stores are held to, exported so an application's own implementation can be checked against the same invariants, including that exactly one of sixteen concurrent callers is told a key is new.
 

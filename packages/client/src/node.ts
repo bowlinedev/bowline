@@ -27,7 +27,7 @@ export function fileSink(consumer: string, path: string, options: FileSinkOption
     },
     async flush() {
       const document: Record<string, unknown> = {
-        bowline: options.version ?? "1.3",
+        bowline: options.version ?? "1.4",
         consumer,
       };
       if (options.provider !== undefined) {

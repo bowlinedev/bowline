@@ -9,6 +9,14 @@
       "url": "http://localhost:8080/api"
     }
   ],
+  "tags": [
+    {
+      "name": "customers"
+    },
+    {
+      "name": "invoices"
+    }
+  ],
   "paths": {
     "/customers.get": {
       "get": {
@@ -44,7 +52,15 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "customers"
+        ]
       }
     },
     "/customers.search": {
@@ -78,7 +94,15 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "customers"
+        ]
       }
     },
     "/health": {
@@ -155,7 +179,15 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "invoices"
+        ]
       },
       "post": {
         "operationId": "invoices.create",
@@ -186,7 +218,15 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "invoices"
+        ]
       }
     },
     "/invoices.attach": {
@@ -238,7 +278,15 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "invoices"
+        ]
       }
     },
     "/invoices.attachments": {
@@ -275,7 +323,15 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "invoices"
+        ]
       }
     },
     "/invoices.watch": {
@@ -313,7 +369,15 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "invoices"
+        ]
       }
     },
     "/invoices/{id}": {
@@ -361,7 +425,15 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "invoices"
+        ]
       },
       "get": {
         "description": "Get returns one invoice by ID.",
@@ -394,7 +466,15 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "invoices"
+        ]
       }
     }
   },
@@ -1045,6 +1125,13 @@
           }
         },
         "description": "Error with code UNKNOWN."
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "bearerFormat": "opaque",
+        "scheme": "bearer",
+        "type": "http"
       }
     }
   }

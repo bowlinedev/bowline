@@ -143,6 +143,12 @@
         "schemas": {
           "$ref": "#/$defs/Schemas"
         },
+        "security": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "tool": {
           "$ref": "#/$defs/Tool"
         }
@@ -180,6 +186,33 @@
       "required": [
         "input",
         "output"
+      ],
+      "type": "object"
+    },
+    "SecurityScheme": {
+      "additionalProperties": true,
+      "properties": {
+        "bearerFormat": {
+          "type": "string"
+        },
+        "doc": {
+          "type": "string"
+        },
+        "in": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "scheme": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
       ],
       "type": "object"
     },
@@ -319,7 +352,7 @@
       "type": "object"
     }
   },
-  "$id": "https://bowline.dev/spec/contract/1.2/contract.schema.json",
+  "$id": "https://bowline.dev/spec/contract/1.4/contract.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": true,
   "properties": {
@@ -346,6 +379,12 @@
         "$ref": "#/$defs/Procedure"
       },
       "type": "array"
+    },
+    "security": {
+      "additionalProperties": {
+        "$ref": "#/$defs/SecurityScheme"
+      },
+      "type": "object"
     },
     "types": {
       "additionalProperties": {

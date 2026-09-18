@@ -1,8 +1,8 @@
 {
   "accepted": {
     "aliases": {
-      "bowline": "1.3",
-      "hash": "sha256:eff6f407e91581e12a3bbacb241508f3bdc4da635aaf9cb0b0792c15937e8b30",
+      "bowline": "1.4",
+      "hash": "sha256:d56fb53893c69c8f734fc9b6e62217b868c332566a7987e5112e7319f242779e",
       "types": {
         "fidelity.test/rows/aliases.Holder": {
           "kind": "struct",
@@ -75,8 +75,8 @@
       }
     },
     "basics": {
-      "bowline": "1.3",
-      "hash": "sha256:315baa392cbfbbdbdf44007503b5e5bfe49761f8541d06addb168240f82a952e",
+      "bowline": "1.4",
+      "hash": "sha256:31425d4965dd7dc3c3f4c2281cd9a5c93d830212ba31147a80e57be5d7357387",
       "types": {
         "fidelity.test/rows/basics.Input": {
           "kind": "struct",
@@ -174,8 +174,8 @@
       }
     },
     "collections": {
-      "bowline": "1.3",
-      "hash": "sha256:27be2f67e232ec82d23119513c1f555dbf9dd92c72ad053e55fd3f33458f1f30",
+      "bowline": "1.4",
+      "hash": "sha256:3e5b1df497f7ac860bef57a41f6007c37b13ad1e14be83de47f4156c6f1038ab",
       "types": {
         "fidelity.test/rows/collections.Cell": {
           "kind": "struct",
@@ -317,8 +317,8 @@
       }
     },
     "embedded": {
-      "bowline": "1.3",
-      "hash": "sha256:bb7b39f97e4719db1535fc33e56d8c43a87a149c7cca49e2e7ecd2d54f714ece",
+      "bowline": "1.4",
+      "hash": "sha256:5ef8d1f2b9be64f50ab9e0c48a452e717e8472f61a953fc2b3f97adafe2b26f5",
       "types": {
         "fidelity.test/rows/embedded.Audit": {
           "kind": "struct",
@@ -434,8 +434,8 @@
       }
     },
     "enums": {
-      "bowline": "1.3",
-      "hash": "sha256:f50c709bcff3aed5c98543f150d758fb99d93b83aeeb434f85b2a7155159fc9f",
+      "bowline": "1.4",
+      "hash": "sha256:fd5771436d00205040e982ec78007f428ef6572aafe7b1baaa10af0939a85cbe",
       "types": {
         "fidelity.test/rows/enums.Level": {
           "kind": "enum",
@@ -576,8 +576,8 @@
       }
     },
     "errors": {
-      "bowline": "1.3",
-      "hash": "sha256:ccd328cfbd424986bbb3c1e4574615366f76d5fe2f1c29d4e000e284699b7717",
+      "bowline": "1.4",
+      "hash": "sha256:a4dcd334fd89866d65c122dccd1a2e4d5f0f959e8ecc9df56bdad165f1eb501d",
       "types": {
         "fidelity.test/rows/errors.ID": {
           "kind": "struct",
@@ -735,8 +735,8 @@
       }
     },
     "examples": {
-      "bowline": "1.3",
-      "hash": "sha256:6cf807c77a8d99545cc9896732ffa7da5120a8e0442048e5347b9bb16386349a",
+      "bowline": "1.4",
+      "hash": "sha256:ccfd3fdd556b9e465f252dcfd9a468c10bac1ab1e4d76b030df60d06ce4dc012",
       "types": {
         "fidelity.test/rows/examples.Address": {
           "kind": "struct",
@@ -1022,8 +1022,8 @@
       }
     },
     "generics": {
-      "bowline": "1.3",
-      "hash": "sha256:34d177a879e6ce397429bb82bd7a258e0cebd29b5f9b42a60cf63b6492044d9d",
+      "bowline": "1.4",
+      "hash": "sha256:1e4212b7d24de396e31ee82ad61231225422a70f9c60cd6652228b4dda8edd53",
       "types": {
         "fidelity.test/rows/generics.Page": {
           "kind": "generic",
@@ -1357,8 +1357,8 @@
       }
     },
     "idempotent": {
-      "bowline": "1.3",
-      "hash": "sha256:cc15830df277a8818bfa0bae4a14cfd5f57a2ea77de3d86de34f77ad47ad3a2f",
+      "bowline": "1.4",
+      "hash": "sha256:24243fc5dc478eb4ee6cb662ed6df43e5e467f7cffcbe6fa50eb52dac81671e9",
       "types": {
         "fidelity.test/rows/idempotent.CreateInput": {
           "kind": "struct",
@@ -1427,8 +1427,8 @@
       }
     },
     "paths": {
-      "bowline": "1.3",
-      "hash": "sha256:25913ce4319f64ebf971b3086bca49f2d51f93412dd3b6e0833e82cbd4fa7f14",
+      "bowline": "1.4",
+      "hash": "sha256:ba5f59880eec60846be089f24ef932981b4f363e8eeca74092cdb4e63ed4770c",
       "types": {
         "fidelity.test/rows/paths.CreateInput": {
           "kind": "struct",
@@ -1637,8 +1637,8 @@
       }
     },
     "pointers": {
-      "bowline": "1.3",
-      "hash": "sha256:40420d40d0daca222cdeb488b507594874039528ecdc073453d5af06380715f2",
+      "bowline": "1.4",
+      "hash": "sha256:657cf3644d098234926767052051b0b29c65f87ca2433a8a6919d7458bc5d02a",
       "types": {
         "fidelity.test/rows/pointers.Doc": {
           "kind": "struct",
@@ -1752,8 +1752,8 @@
       }
     },
     "recursive": {
-      "bowline": "1.3",
-      "hash": "sha256:2ea630e7b30d7b899eb6522c1d85a3bc6c05b844fc369bf9ced72d7bc63240a7",
+      "bowline": "1.4",
+      "hash": "sha256:aa083bde00eac29a9a786a282750b3ec26841afcc1a871c690802e6f7efc47bd",
       "types": {
         "fidelity.test/rows/recursive.Node": {
           "kind": "struct",
@@ -1817,8 +1817,8 @@
       }
     },
     "rest": {
-      "bowline": "1.3",
-      "hash": "sha256:9c2d5a9abccf631b2d9ea9fab378e8a040bf6e01904aa452492c63d4f7973d68",
+      "bowline": "1.4",
+      "hash": "sha256:fac0ea082ce362ccb93556120f09e2afed8dd74f9bf60d0436b43425b65b51f0",
       "types": {
         "fidelity.test/rows/rest.IDInput": {
           "kind": "struct",
@@ -2068,8 +2068,8 @@
       }
     },
     "routing": {
-      "bowline": "1.3",
-      "hash": "sha256:302d793695d665d9c0524b650f0d85e1b3a3bec6365274908eb9fa0d019a5418",
+      "bowline": "1.4",
+      "hash": "sha256:55b3d18a36701fec10974aa34fcceab9ff131760a2208827192e613c78410fad",
       "types": {
         "fidelity.test/rows/routing.ID": {
           "kind": "struct",
@@ -2210,9 +2210,113 @@
         }
       }
     },
+    "security": {
+      "bowline": "1.4",
+      "hash": "sha256:3e7ca65dfe5696af167fb43fe7967755394c1a1daa67d3cb2803049cdf6bcfa3",
+      "security": {
+        "adminKey": {
+          "kind": "apiKey",
+          "in": "header",
+          "name": "X-Admin-Key"
+        },
+        "bearer": {
+          "kind": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      },
+      "types": {
+        "fidelity.test/rows/security.In": {
+          "kind": "struct",
+          "name": "In",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "admin",
+          "kind": "mutation",
+          "method": "POST",
+          "security": [
+            "adminKey",
+            "bearer"
+          ],
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/security.In"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/security.In"
+          },
+          "goInput": "fidelity.test/rows/security.In",
+          "goOutput": "fidelity.test/rows/security.In"
+        },
+        {
+          "path": "get",
+          "kind": "query",
+          "method": "GET",
+          "security": [
+            "bearer"
+          ],
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/security.In"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/security.In"
+          },
+          "goInput": "fidelity.test/rows/security.In",
+          "goOutput": "fidelity.test/rows/security.In"
+        },
+        {
+          "path": "ping",
+          "kind": "query",
+          "method": "GET",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/security.In"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/security.In"
+          },
+          "goInput": "fidelity.test/rows/security.In",
+          "goOutput": "fidelity.test/rows/security.In"
+        }
+      ],
+      "positions": {
+        "admin": {
+          "file": "rows/security/api.go",
+          "line": 23
+        },
+        "fidelity.test/rows/security.In": {
+          "file": "rows/security/api.go",
+          "line": 9
+        },
+        "get": {
+          "file": "rows/security/api.go",
+          "line": 22
+        },
+        "ping": {
+          "file": "rows/security/api.go",
+          "line": 21
+        }
+      }
+    },
     "stdlib": {
-      "bowline": "1.3",
-      "hash": "sha256:f15918842dba51be9b08d96b431a912cf454cc813987099058f78c278bc1e078",
+      "bowline": "1.4",
+      "hash": "sha256:5c128d637621a566b57821dcf9a6307d1f02759c490ef2c9d9e6667059127eda",
       "types": {
         "fidelity.test/rows/stdlib.Event": {
           "kind": "struct",
@@ -2294,8 +2398,8 @@
       }
     },
     "structs": {
-      "bowline": "1.3",
-      "hash": "sha256:4687bbd7ed53c7ba59d2bb8e228d014c0d95881b60ff62c6f06f3aa26d4377e0",
+      "bowline": "1.4",
+      "hash": "sha256:669c92cdf863fdb603870543cd4e89896f0511a99811f8de0db4ebd331060afe",
       "types": {
         "fidelity.test/rows/structs.Address": {
           "kind": "struct",
@@ -2443,8 +2547,8 @@
       }
     },
     "subscriptions": {
-      "bowline": "1.3",
-      "hash": "sha256:14f77a4ab462e20639995c2ed99ce970f14ce42eef4a61c6151690cb04d69e4a",
+      "bowline": "1.4",
+      "hash": "sha256:243398a1f32f74793edb46a6f0bda0e8c36ebc33f7f47813286a798fa6ac8567",
       "types": {
         "fidelity.test/rows/subscriptions.Change": {
           "kind": "struct",
@@ -2575,8 +2679,8 @@
       }
     },
     "tools": {
-      "bowline": "1.3",
-      "hash": "sha256:a565f65123aeba279d71de21a64172d79cc9e624ad6c0ea87896f9f4c9f07b15",
+      "bowline": "1.4",
+      "hash": "sha256:933aaef0fdeb92660234cdbb951ea6baacbca95fb24385c89f132c4762d39583",
       "types": {
         "fidelity.test/rows/tools.ID": {
           "kind": "struct",
@@ -2715,8 +2819,8 @@
       }
     },
     "uploads": {
-      "bowline": "1.3",
-      "hash": "sha256:41b4f28cfa9a2cf59d783f6c1ff57bfb670c4574b692a83359797c66598b78ab",
+      "bowline": "1.4",
+      "hash": "sha256:ab22ff2393203ba67bbcfbd677f137180a7650bfa1ae341870857d51853f0c5c",
       "types": {
         "fidelity.test/rows/uploads.AttachInput": {
           "kind": "struct",
@@ -2792,8 +2896,8 @@
       }
     },
     "wireas": {
-      "bowline": "1.3",
-      "hash": "sha256:c44448453ef7bebcdff658545a27805c82cec6bc457b78e6bd246079905d0b01",
+      "bowline": "1.4",
+      "hash": "sha256:799dd2e59ed09ecf053333f66cb308f3f88a5ecc869e7520296446c17c084978",
       "types": {
         "fidelity.test/rows/wireas.Envelope": {
           "kind": "struct",
@@ -2899,6 +3003,7 @@
     "reject-spread",
     "reject-tool-collision",
     "reject-tool-on-stream",
+    "reject-undeclared-scheme",
     "reject-wireas-conflict"
   ]
 }

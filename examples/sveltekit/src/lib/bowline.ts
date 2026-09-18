@@ -134,7 +134,7 @@ export interface Client {
 }
 
 export const contract = {
-  version: "1.3",
+  version: "1.4",
   hydrators: {
     "Attachment": [
       { path: ["createdAt"], kind: "timestamp" },

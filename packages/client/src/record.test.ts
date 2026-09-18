@@ -8,7 +8,7 @@ import { canonicalInput, type Interaction } from "./record.js";
 import type { ContractRuntime, Mutation, Query } from "./types.js";
 
 const contract: ContractRuntime = {
-  version: "1.3",
+  version: "1.4",
   hydrators: { Invoice: [{ path: ["createdAt"], kind: "timestamp" }] },
   procedures: {
     "invoices.get": { kind: "query", method: "GET", output: "Invoice" },
@@ -86,7 +86,7 @@ describe("record", () => {
       provider: string;
       interactions: Interaction[];
     };
-    expect(document.bowline).toBe("1.3");
+    expect(document.bowline).toBe("1.4");
     expect(document.consumer).toBe("ledger-web");
     expect(document.provider).toBe("ledger");
     expect(document.interactions.map((i) => i.procedure)).toEqual([

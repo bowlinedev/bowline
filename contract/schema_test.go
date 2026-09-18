@@ -52,10 +52,10 @@ func TestSchemaShape(t *testing.T) {
 	if s.Schema != "https://json-schema.org/draft/2020-12/schema" {
 		t.Fatalf("unexpected $schema %q", s.Schema)
 	}
-	if s.ID != "https://bowline.dev/spec/contract/1.2/contract.schema.json" {
+	if s.ID != "https://bowline.dev/spec/contract/"+Version+"/contract.schema.json" {
 		t.Fatalf("unexpected $id %q", s.ID)
 	}
-	for _, name := range []string{"TypeDecl", "Type", "Field", "Rule", "EnumValue", "ErrorDecl", "Tool", "Schemas", "Procedure", "Position"} {
+	for _, name := range []string{"TypeDecl", "Type", "Field", "Rule", "EnumValue", "ErrorDecl", "Tool", "Schemas", "Procedure", "Position", "SecurityScheme"} {
 		if _, ok := s.Defs[name]; !ok {
 			t.Fatalf("missing $defs.%s", name)
 		}

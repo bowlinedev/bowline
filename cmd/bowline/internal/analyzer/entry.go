@@ -30,6 +30,8 @@ type procedureSpec struct {
 	Deprecated  string
 	Sensitive   bool
 	Idempotent  bool
+	Public      bool
+	Security    []string
 	Tool        *contract.Tool
 	Meta        map[string]string
 	Errors      []errorRef
@@ -73,10 +75,65 @@ type evaluator struct {
 	prog     *Program
 	diags    []Diagnostic
 	visiting map[types.Object]bool
+	schemes  map[string]*contract.SecurityScheme
 }
 
 func newEvaluator(p *Program) *evaluator {
-	return &evaluator{prog: p, visiting: map[types.Object]bool{}}
+	return &evaluator{prog: p, visiting: map[types.Object]bool{}, schemes: map[string]*contract.SecurityScheme{}}
+}
+
+func (e *evaluator) securityScheme(pkg *packages.Package, call *ast.CallExpr, prefix string) string {
+	if len(call.Args) != 2 {
+		e.fail(call.Pos(), prefix, "Scheme takes a name and a security scheme", "call Scheme(\"bearer\", bowline.BearerAuth(\"JWT\"))")
+		return ""
+	}
+	name, ok := constString(pkg, call.Args[0])
+	if !ok || name == "" {
+		e.fail(call.Args[0].Pos(), prefix, "the security scheme name must be a string constant", "use a string literal or a const")
+		return ""
+	}
+	inner, ok := ast.Unparen(call.Args[1]).(*ast.CallExpr)
+	if !ok {
+		e.fail(call.Args[1].Pos(), prefix, "the security scheme must be a literal bowline constructor", "use bowline.BearerAuth, bowline.BasicAuth or bowline.APIKeyAuth")
+		return ""
+	}
+	scheme := &contract.SecurityScheme{}
+	switch bowlineFunc(pkg, inner) {
+	case "BearerAuth":
+		scheme.Kind, scheme.Scheme = "http", "bearer"
+		if len(inner.Args) == 1 {
+			scheme.BearerFormat, _ = constString(pkg, inner.Args[0])
+		}
+	case "BasicAuth":
+		scheme.Kind, scheme.Scheme = "http", "basic"
+	case "APIKeyAuth":
+		if len(inner.Args) != 2 {
+			e.fail(inner.Pos(), prefix, "APIKeyAuth takes a location and a parameter name", "call APIKeyAuth(\"header\", \"X-API-Key\")")
+			return ""
+		}
+		in, okIn := constString(pkg, inner.Args[0])
+		param, okName := constString(pkg, inner.Args[1])
+		if !okIn || !okName {
+			e.fail(inner.Pos(), prefix, "APIKeyAuth arguments must be string constants", "use string literals")
+			return ""
+		}
+		switch in {
+		case "header", "query", "cookie":
+		default:
+			e.fail(inner.Args[0].Pos(), prefix, fmt.Sprintf("an API key cannot live in %q", in), "use header, query or cookie")
+			return ""
+		}
+		scheme.Kind, scheme.In, scheme.Name = "apiKey", in, param
+	default:
+		e.fail(inner.Pos(), prefix, "unknown security scheme constructor", "use bowline.BearerAuth, bowline.BasicAuth or bowline.APIKeyAuth")
+		return ""
+	}
+	if existing, ok := e.schemes[name]; ok && *existing != *scheme {
+		e.fail(call.Pos(), prefix, fmt.Sprintf("security scheme %q is declared twice with different settings", name), "give one of them a different name")
+		return ""
+	}
+	e.schemes[name] = scheme
+	return name
 }
 
 func (e *evaluator) fail(pos token.Pos, path, message, fix string) {
@@ -164,6 +221,26 @@ func (e *evaluator) routerExpr(pkg *packages.Package, expr ast.Expr, prefix stri
 		if sel, ok := ast.Unparen(x.Fun).(*ast.SelectorExpr); ok {
 			if fn, ok := pkg.TypesInfo.Uses[sel.Sel].(*types.Func); ok && isBowlineMethod(fn, "Use") {
 				return e.routerExpr(pkg, sel.X, prefix)
+			}
+			if fn, ok := pkg.TypesInfo.Uses[sel.Sel].(*types.Func); ok && isBowlineMethod(fn, "Scheme") {
+				e.securityScheme(pkg, x, prefix)
+				return e.routerExpr(pkg, sel.X, prefix)
+			}
+			if fn, ok := pkg.TypesInfo.Uses[sel.Sel].(*types.Func); ok && isBowlineMethod(fn, "Secure") {
+				specs := e.routerExpr(pkg, sel.X, prefix)
+				for i := range x.Args {
+					name, ok := constString(pkg, x.Args[i])
+					if !ok || name == "" {
+						e.fail(x.Args[i].Pos(), prefix, "Secure takes the names of declared schemes", "pass string constants that match a Scheme declaration")
+						continue
+					}
+					for j := range specs {
+						if !specs[j].Public && !slices.Contains(specs[j].Security, name) {
+							specs[j].Security = append(specs[j].Security, name)
+						}
+					}
+				}
+				return specs
 			}
 		}
 		callee := bowlineFunc(pkg, x)
@@ -327,6 +404,18 @@ func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedure
 			return
 		}
 		spec.HTTPPath = raw
+	case "Public":
+		spec.Public = true
+	case "Requires":
+		for i := range call.Args {
+			name, ok := e.constArg(pkg, call, i, spec.Path)
+			if !ok {
+				return
+			}
+			if !slices.Contains(spec.Security, name) {
+				spec.Security = append(spec.Security, name)
+			}
+		}
 	case "Sensitive":
 		spec.Sensitive = true
 	case "Idempotent":

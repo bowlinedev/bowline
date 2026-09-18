@@ -1,0 +1,1 @@
+rows/reject-undeclared-scheme/api.go:16:27: get: security scheme "nope" is required but never declared. declare it with Secure("nope", ...) on a router, or drop the Requires option

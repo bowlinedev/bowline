@@ -26,6 +26,9 @@ func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
 	ev := newEvaluator(prog)
 	specs := ev.routerFunc(fn, "", fn.Pos())
 	diags := append([]Diagnostic{}, ev.diags...)
+	if len(ev.schemes) > 0 {
+		doc.Security = ev.schemes
+	}
 	seen := map[string]bool{}
 	toolNames := map[string]string{}
 	for _, spec := range specs {
@@ -51,6 +54,12 @@ func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
 			Idempotent: spec.Idempotent,
 			Tool:       spec.Tool,
 			Deprecated: spec.Deprecated,
+			Security:   sortedSecurity(spec.Security),
+		}
+		for _, name := range spec.Security {
+			if _, ok := ev.schemes[name]; !ok {
+				diags = append(diags, Diagnostic{Pos: prog.Position(spec.Pos), Path: spec.Path, Message: fmt.Sprintf("security scheme %q is required but never declared", name), Fix: "declare it with Secure(\"" + name + "\", ...) on a router, or drop the Requires option"})
+			}
 		}
 		if len(spec.Meta) > 0 {
 			proc.Meta = spec.Meta
@@ -145,6 +154,15 @@ func inputFields(doc *contract.Document, node *contract.Type) []*contract.Field 
 		}
 	}
 	return nil
+}
+
+func sortedSecurity(names []string) []string {
+	if len(names) == 0 {
+		return nil
+	}
+	out := slices.Clone(names)
+	slices.Sort(out)
+	return out
 }
 
 func sendsBody(method string) bool {

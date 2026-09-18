@@ -11,8 +11,13 @@ If you use one of these, pin a minor version and read the changelog before upgra
 ## github.com/bowlinedev/bowline
 
 ```
+func APIKeyAuth
+func BasicAuth
+func BearerAuth
 func CallTimeout
 func Drain
+func Public
+func Requires
 func Method
 func Observe
 func ObserveFunc
@@ -20,12 +25,16 @@ func OnHandlerReady
 func Path
 func Typed
 type Observer
+type SecurityScheme
+type SecuritySchemeKind
 type TypedNext
 ```
 
 `Path` and `Method` declare a REST route. The open questions are whether a route should be able to set a response status, how two services should resolve a collision when they are composed behind a gateway, and whether `Method` should accept a verb outside the five it takes today.
 
 `Observer`, `Observe`, `ObserveFunc` and `OnHandlerReady` are the lifecycle hooks. The open question is whether `CallFinished` should also see the response body and status, which it cannot today.
+
+`BearerAuth`, `BasicAuth`, `APIKeyAuth`, `SecurityScheme`, `Public` and `Requires`, with the `Scheme` and `Secure` methods on a router, describe how a caller authenticates. The open questions are whether alternative schemes should be expressible (today several schemes on one procedure all apply together, where OpenAPI can also express "either of these"), and whether OAuth2 flows and scopes belong here or alongside the existing tool scopes.
 
 `CallTimeout` and `Drain` bound a call and end streams at shutdown. The open questions are whether a per-procedure override belongs alongside the handler-wide deadline, and whether `Drain` should also refuse new calls rather than only ending open streams.
 

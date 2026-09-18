@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const schemaID = "https://bowline.dev/spec/contract/1.2/contract.schema.json"
+const schemaID = "https://bowline.dev/spec/contract/" + Version + "/contract.schema.json"
 
 var kindValues = []string{"primitive", "ref", "array", "map", "struct", "enum", "generic", "param"}
 

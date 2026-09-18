@@ -10,7 +10,7 @@ describe("ContractDocument", () => {
         "utf8",
       ),
     ) as ContractDocument;
-    expect(doc.bowline).toBe("1.3");
+    expect(doc.bowline).toBe("1.4");
     const get = doc.procedures.find((p) => p.path === "invoices.get");
     expect(get?.kind).toBe("query");
     expect(get?.tool?.scopes).toEqual(["billing"]);

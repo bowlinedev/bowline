@@ -44,10 +44,10 @@ func Clock() func() time.Time {
 
 func (a *API) Router() *bowline.Router {
 	return bowline.NewRouter(
-		bowline.Query("health", a.health),
+		bowline.Query("health", a.health, bowline.Public()),
 		bowline.Mount("invoices", a.invoices()),
 		bowline.Mount("customers", a.customers()),
-	).Use(a.logCalls)
+	).Use(a.logCalls).Scheme("bearer", bowline.BearerAuth("opaque")).Secure("bearer")
 }
 
 func (a *API) health(ctx context.Context, _ struct{}) (HealthOutput, error) {

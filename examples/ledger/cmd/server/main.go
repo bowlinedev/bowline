@@ -53,7 +53,7 @@ func browserOptions() []bowline.HandlerOption {
 
 func allowedOrigins() []string {
 	var origins []string
-	for _, origin := range strings.Split(os.Getenv("CSRF_ORIGINS"), ",") {
+	for origin := range strings.SplitSeq(os.Getenv("CSRF_ORIGINS"), ",") {
 		if trimmed := strings.TrimSpace(origin); trimmed != "" {
 			origins = append(origins, trimmed)
 		}

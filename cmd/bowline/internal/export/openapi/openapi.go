@@ -23,13 +23,58 @@ type document struct {
 	OpenAPI    string            `json:"openapi"`
 	Info       map[string]string `json:"info"`
 	Servers    []map[string]any  `json:"servers,omitempty"`
+	Tags       []schema          `json:"tags,omitempty"`
 	Paths      map[string]schema `json:"paths"`
 	Components components        `json:"components"`
 }
 
 type components struct {
-	Schemas   map[string]schema `json:"schemas"`
-	Responses map[string]schema `json:"responses"`
+	Schemas         map[string]schema `json:"schemas"`
+	Responses       map[string]schema `json:"responses"`
+	SecuritySchemes map[string]schema `json:"securitySchemes,omitempty"`
+}
+
+func securitySchemes(doc *contract.Document) map[string]schema {
+	if len(doc.Security) == 0 {
+		return nil
+	}
+	out := make(map[string]schema, len(doc.Security))
+	for name, declared := range doc.Security {
+		entry := schema{"type": declared.Kind}
+		switch declared.Kind {
+		case "http":
+			entry["scheme"] = declared.Scheme
+			if declared.BearerFormat != "" {
+				entry["bearerFormat"] = declared.BearerFormat
+			}
+		case "apiKey":
+			entry["in"] = declared.In
+			entry["name"] = declared.Name
+		}
+		if declared.Doc != "" {
+			entry["description"] = declared.Doc
+		}
+		out[name] = entry
+	}
+	return out
+}
+
+func requirement(names []string) []any {
+	if len(names) == 0 {
+		return nil
+	}
+	both := schema{}
+	for _, name := range names {
+		both[name] = []any{}
+	}
+	return []any{both}
+}
+
+func tagOf(path string) string {
+	if i := strings.LastIndex(path, "."); i > 0 {
+		return path[:i]
+	}
+	return ""
 }
 
 var codes = []struct {
@@ -83,10 +128,19 @@ func Export(doc *contract.Document, info Info) ([]byte, error) {
 		out.Components.Schemas[name+"Envelope"] = variantEnvelope(name)
 		out.Components.Responses[name] = errorResponse(decl.Code, name, decl.Doc)
 	}
+	out.Components.SecuritySchemes = securitySchemes(doc)
+	tags := map[string]bool{}
 	for _, p := range doc.Procedures {
 		op, err := s.operation(p)
 		if err != nil {
 			return nil, err
+		}
+		if names := requirement(p.Security); names != nil {
+			op["security"] = names
+		}
+		if tag := tagOf(p.Path); tag != "" {
+			op["tags"] = []any{tag}
+			tags[tag] = true
 		}
 		method := strings.ToLower(p.Method)
 		if method == "" {
@@ -106,6 +160,9 @@ func Export(doc *contract.Document, info Info) ([]byte, error) {
 			continue
 		}
 		out.Paths[route] = schema{method: op}
+	}
+	for _, name := range slices.Sorted(maps.Keys(tags)) {
+		out.Tags = append(out.Tags, schema{"name": name})
 	}
 	maps.Copy(out.Components.Schemas, s.defined)
 	var buf bytes.Buffer

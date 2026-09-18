@@ -31,11 +31,13 @@ type Procedure struct {
 	ReadOnly    bool
 	Destructive bool
 	Scopes      []string
+	Security    []string
 	MaxBody     int64
 	Meta        map[string]string
 	In          reflect.Type
 	Out         reflect.Type
 
+	public     bool
 	middleware []Middleware
 	call       func(ctx context.Context, in any) (any, error)
 	newFrame   func(parent context.Context, call Call) (context.Context, any)

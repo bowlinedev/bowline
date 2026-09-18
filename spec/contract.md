@@ -1,4 +1,4 @@
-# Bowline contract document, version 1.3
+# Bowline contract document, version 1.4
 
 `bowline.contract.json` is the language-neutral description of an API produced by `bowline gen`. Every generator, export, and tool reads this file and nothing else. It is a public specification; third parties may produce or consume it.
 
@@ -57,6 +57,12 @@ Any type node may carry `nullable: true`, meaning the value at that position may
 
 An entry in `errors` describes a typed error a procedure may return. `name` is the Go type name, `code` is one of the sixteen error codes and fixes the HTTP status, `fields` are the exported fields that travel under `details` on the wire, and `doc` is the type's doc comment. A procedure lists the keys of its variants in `errors`. A variant used by several procedures is declared once.
 
+## Security schemes
+
+The top-level `security` map names the authentication schemes the API accepts. Each entry has a `kind` of `http` or `apiKey`; an `http` scheme carries `scheme` (`bearer` or `basic`) and an optional `bearerFormat`; an `apiKey` scheme carries `in` (`header`, `query` or `cookie`) and `name`. A procedure lists the scheme names it requires under its own `security`.
+
+The document describes what the API expects. It does not enforce anything: the server's middleware does that, and a generator uses the map to shape a client's credentials.
+
 ## Procedures
 
 | Field | Meaning |
@@ -64,6 +70,7 @@ An entry in `errors` describes a typed error a procedure may return. `name` is t
 | `path` | Dotted path, mount names then the procedure name |
 | `kind` | `query`, `mutation`, `subscription`, or `upload` |
 | `method` | The HTTP method the procedure answers on. `GET` for queries and `POST` for everything else, unless the procedure declares its own; subscriptions follow query rules, uploads are always `POST` |
+| `security` | Names of the security schemes this procedure requires, sorted. Every name is a key of the document's top-level `security` map. All of them apply together. Absent means the procedure is public. |
 | `httpPath` | Optional URL template the procedure also answers on, relative and without surrounding slashes, with each parameter wrapping a whole segment as `{name}`. A parameter names an input field; on a method that carries no body the remaining fields travel in the query string. Absent means the procedure is reachable only at its RPC path. |
 | `input`, `output` | Type nodes, normally `ref` |
 | `goInput`, `goOutput` | Canonical Go names of the input and output types: full import path, a dot, the type name, generic arguments in square brackets spelled the same way, and `struct{}` for the empty struct. Used by the runtime to verify the committed document against the running router. |
@@ -93,4 +100,4 @@ Object keys are sorted, procedures are sorted by path, struct fields and enum va
 
 ## Versioning
 
-Additive changes increment the minor version. Removing or renaming a field increments the major version and ships with a migration command. Version 1.0 is the first frozen format, 1.1 added `tool` and `schemas` on procedures, 1.2 added `example` on fields, and 1.3 added `httpPath` on procedures and widened `method`; `bowline migrate-contract` rewrites a 0.x document, and readers reject 0.x documents with a message naming that command.
+Additive changes increment the minor version. Removing or renaming a field increments the major version and ships with a migration command. Version 1.0 is the first frozen format, 1.1 added `tool` and `schemas` on procedures, 1.2 added `example` on fields, 1.3 added `httpPath` on procedures and widened `method`, and 1.4 added the top-level `security` map and `security` on procedures; `bowline migrate-contract` rewrites a 0.x document, and readers reject 0.x documents with a message naming that command.

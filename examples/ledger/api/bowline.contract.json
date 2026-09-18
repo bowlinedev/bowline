@@ -1,6 +1,13 @@
 {
-  "bowline": "1.3",
-  "hash": "sha256:09d24f45282ca946ce7a4edf7ebe8c2c9a82f8cb0852a210430bac77e3ed319a",
+  "bowline": "1.4",
+  "hash": "sha256:56a7ed471eafcdb45e0db1912e19550a382efcee5eacc7891036df14dc59412a",
+  "security": {
+    "bearer": {
+      "kind": "http",
+      "scheme": "bearer",
+      "bearerFormat": "opaque"
+    }
+  },
   "types": {
     "github.com/bowlinedev/bowline/examples/ledger/api.AttachInput": {
       "kind": "struct",
@@ -543,6 +550,9 @@
       "path": "customers.get",
       "kind": "query",
       "method": "GET",
+      "security": [
+        "bearer"
+      ],
       "input": {
         "kind": "ref",
         "id": "github.com/bowlinedev/bowline/examples/ledger/api.GetCustomerInput"
@@ -558,6 +568,9 @@
       "path": "customers.search",
       "kind": "query",
       "method": "POST",
+      "security": [
+        "bearer"
+      ],
       "input": {
         "kind": "ref",
         "id": "github.com/bowlinedev/bowline/examples/ledger/api.SearchCustomersInput"
@@ -686,6 +699,9 @@
       "path": "invoices.attach",
       "kind": "upload",
       "method": "POST",
+      "security": [
+        "bearer"
+      ],
       "input": {
         "kind": "ref",
         "id": "github.com/bowlinedev/bowline/examples/ledger/api.AttachInput"
@@ -702,6 +718,9 @@
       "path": "invoices.attachments",
       "kind": "query",
       "method": "GET",
+      "security": [
+        "bearer"
+      ],
       "input": {
         "kind": "ref",
         "id": "github.com/bowlinedev/bowline/examples/ledger/api.ListAttachmentsInput"
@@ -724,6 +743,9 @@
       "kind": "mutation",
       "method": "POST",
       "httpPath": "invoices",
+      "security": [
+        "bearer"
+      ],
       "input": {
         "kind": "ref",
         "id": "github.com/bowlinedev/bowline/examples/ledger/api.CreateInvoiceInput"
@@ -741,6 +763,9 @@
       "kind": "query",
       "method": "GET",
       "httpPath": "invoices/{id}",
+      "security": [
+        "bearer"
+      ],
       "input": {
         "kind": "ref",
         "id": "github.com/bowlinedev/bowline/examples/ledger/api.GetInvoiceInput"
@@ -891,6 +916,9 @@
       "kind": "query",
       "method": "GET",
       "httpPath": "invoices",
+      "security": [
+        "bearer"
+      ],
       "input": {
         "kind": "ref",
         "id": "github.com/bowlinedev/bowline/examples/ledger/api.ListInvoicesInput"
@@ -1080,6 +1108,9 @@
       "kind": "mutation",
       "method": "DELETE",
       "httpPath": "invoices/{id}",
+      "security": [
+        "bearer"
+      ],
       "input": {
         "kind": "ref",
         "id": "github.com/bowlinedev/bowline/examples/ledger/api.VoidInvoiceInput"
@@ -1235,6 +1266,9 @@
       "path": "invoices.watch",
       "kind": "subscription",
       "method": "GET",
+      "security": [
+        "bearer"
+      ],
       "input": {
         "kind": "ref",
         "id": "github.com/bowlinedev/bowline/examples/ledger/api.WatchInput"

@@ -1,0 +1,104 @@
+{
+  "bowline": "1.4",
+  "hash": "sha256:3e7ca65dfe5696af167fb43fe7967755394c1a1daa67d3cb2803049cdf6bcfa3",
+  "security": {
+    "adminKey": {
+      "kind": "apiKey",
+      "in": "header",
+      "name": "X-Admin-Key"
+    },
+    "bearer": {
+      "kind": "http",
+      "scheme": "bearer",
+      "bearerFormat": "JWT"
+    }
+  },
+  "types": {
+    "fidelity.test/rows/security.In": {
+      "kind": "struct",
+      "name": "In",
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "primitive",
+            "name": "int64"
+          }
+        }
+      ]
+    }
+  },
+  "errors": {},
+  "procedures": [
+    {
+      "path": "admin",
+      "kind": "mutation",
+      "method": "POST",
+      "security": [
+        "adminKey",
+        "bearer"
+      ],
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/security.In"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/security.In"
+      },
+      "goInput": "fidelity.test/rows/security.In",
+      "goOutput": "fidelity.test/rows/security.In"
+    },
+    {
+      "path": "get",
+      "kind": "query",
+      "method": "GET",
+      "security": [
+        "bearer"
+      ],
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/security.In"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/security.In"
+      },
+      "goInput": "fidelity.test/rows/security.In",
+      "goOutput": "fidelity.test/rows/security.In"
+    },
+    {
+      "path": "ping",
+      "kind": "query",
+      "method": "GET",
+      "input": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/security.In"
+      },
+      "output": {
+        "kind": "ref",
+        "id": "fidelity.test/rows/security.In"
+      },
+      "goInput": "fidelity.test/rows/security.In",
+      "goOutput": "fidelity.test/rows/security.In"
+    }
+  ],
+  "positions": {
+    "admin": {
+      "file": "rows/security/api.go",
+      "line": 23
+    },
+    "fidelity.test/rows/security.In": {
+      "file": "rows/security/api.go",
+      "line": 9
+    },
+    "get": {
+      "file": "rows/security/api.go",
+      "line": 22
+    },
+    "ping": {
+      "file": "rows/security/api.go",
+      "line": 21
+    }
+  }
+}

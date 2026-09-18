@@ -9,6 +9,14 @@
       "url": "http://localhost:8080/api"
     }
   ],
+  "tags": [
+    {
+      "name": "admin"
+    },
+    {
+      "name": "sub"
+    }
+  ],
   "paths": {
     "/admin.purge": {
       "post": {
@@ -43,7 +51,10 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "tags": [
+          "admin"
+        ]
       }
     },
     "/get": {
@@ -150,7 +161,10 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "tags": [
+          "sub"
+        ]
       }
     }
   },

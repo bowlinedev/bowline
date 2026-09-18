@@ -9,6 +9,11 @@
       "url": "http://localhost:8080/api"
     }
   ],
+  "tags": [
+    {
+      "name": "invoices"
+    }
+  ],
   "paths": {
     "/invoices": {
       "get": {
@@ -44,7 +49,10 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "tags": [
+          "invoices"
+        ]
       }
     },
     "/invoices/{id}": {
@@ -88,7 +96,10 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "tags": [
+          "invoices"
+        ]
       },
       "get": {
         "operationId": "invoices.get",
@@ -120,7 +131,10 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "tags": [
+          "invoices"
+        ]
       },
       "put": {
         "operationId": "invoices.replace",
@@ -162,7 +176,10 @@
           "500": {
             "$ref": "#/components/responses/INTERNAL"
           }
-        }
+        },
+        "tags": [
+          "invoices"
+        ]
       }
     }
   },

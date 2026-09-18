@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"net/url"
 	"strings"
@@ -202,9 +203,7 @@ func (c *Client) applyHeaders(ctx context.Context, req *http.Request) error {
 	if err != nil {
 		return err
 	}
-	for k, vs := range h {
-		req.Header[k] = vs
-	}
+	maps.Copy(req.Header, h)
 	return nil
 }
 

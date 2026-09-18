@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const Version = "1.3"
+const Version = "1.4"
 
 type Kind string
 
@@ -24,12 +24,22 @@ const (
 )
 
 type Document struct {
-	Bowline    string                `json:"bowline"`
-	Hash       string                `json:"hash,omitempty"`
-	Types      map[string]*TypeDecl  `json:"types"`
-	Errors     map[string]*ErrorDecl `json:"errors"`
-	Procedures []*Procedure          `json:"procedures"`
-	Positions  map[string]Position   `json:"positions,omitempty"`
+	Bowline    string                     `json:"bowline"`
+	Hash       string                     `json:"hash,omitempty"`
+	Security   map[string]*SecurityScheme `json:"security,omitempty"`
+	Types      map[string]*TypeDecl       `json:"types"`
+	Errors     map[string]*ErrorDecl      `json:"errors"`
+	Procedures []*Procedure               `json:"procedures"`
+	Positions  map[string]Position        `json:"positions,omitempty"`
+}
+
+type SecurityScheme struct {
+	Kind         string `json:"kind"`
+	Scheme       string `json:"scheme,omitempty"`
+	BearerFormat string `json:"bearerFormat,omitempty"`
+	In           string `json:"in,omitempty"`
+	Name         string `json:"name,omitempty"`
+	Doc          string `json:"doc,omitempty"`
 }
 
 type ErrorDecl struct {
@@ -91,6 +101,7 @@ type Procedure struct {
 	Kind       string            `json:"kind"`
 	Method     string            `json:"method"`
 	HTTPPath   string            `json:"httpPath,omitempty"`
+	Security   []string          `json:"security,omitempty"`
 	Input      *Type             `json:"input"`
 	Output     *Type             `json:"output"`
 	GoInput    string            `json:"goInput,omitempty"`

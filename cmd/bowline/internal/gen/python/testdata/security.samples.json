@@ -1,0 +1,23 @@
+{
+  "admin": {
+    "input": "In",
+    "model": "In",
+    "output": {
+      "id": 1
+    }
+  },
+  "get": {
+    "input": "In",
+    "model": "In",
+    "output": {
+      "id": 2
+    }
+  },
+  "ping": {
+    "input": "In",
+    "model": "In",
+    "output": {
+      "id": 3
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
-  "bowline": "1.3",
-  "hash": "sha256:302d793695d665d9c0524b650f0d85e1b3a3bec6365274908eb9fa0d019a5418",
+  "bowline": "1.4",
+  "hash": "sha256:55b3d18a36701fec10974aa34fcceab9ff131760a2208827192e613c78410fad",
   "types": {
     "fidelity.test/rows/routing.ID": {
       "kind": "struct",

@@ -60,7 +60,7 @@ func (g Generator) Generate(doc *contract.Document, out string) ([]byte, error) 
 }
 
 func (g *generator) imports() string {
-	std := []string{"bytes", "context", "encoding/json", "errors", "fmt", "io", "net/http", "net/url", "strings"}
+	std := []string{"bytes", "context", "encoding/json", "errors", "fmt", "io", "maps", "net/http", "net/url", "strings"}
 	if g.uses["iter"] {
 		std = append(std, "bufio", "iter")
 	}
