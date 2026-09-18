@@ -131,6 +131,7 @@ func Public
 func Query
 func RateLimit
 func RequireIdempotencyKey
+func RequireIfMatch
 func Requires
 func Scope
 func SecurityHeaders
@@ -185,6 +186,7 @@ type Item
 type Middleware
 type Next
 type Observer
+type PatchOption
 type ProblemOption
 type ProcOption
 type Procedure

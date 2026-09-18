@@ -99,7 +99,7 @@ if !slices.Contains(bowline.IfMatch(ctx), current.Version) {
 
 ## PATCH without writing one
 
-`AutoPatch()` derives a `PATCH` route for every path that has both a `GET` query and a `PUT` mutation. A patch request reads the current value through the real query, applies the patch, and writes the result through the real mutation — so validation, middleware, authorisation and idempotency all run exactly as they would for a hand-written call. Both `application/merge-patch+json` (RFC 7386) and `application/json-patch+json` (RFC 6902, including `test`) are accepted.
+`AutoPatch()` derives a `PATCH` route for every path that has both a `GET` query and a `PUT` mutation. A patch request reads the current value through the real query, applies the patch, and writes the result through the real mutation — so validation, middleware, authorisation and idempotency all run exactly as they would for a hand-written call. Both `application/merge-patch+json` (RFC 7386) and `application/json-patch+json` (RFC 6902) are accepted. The JSON Patch support covers arrays as the RFC requires — `add` inserts and shifts, `-` appends, `remove` shifts left — and rejects what the RFC says to reject, including a `replace` on a location that does not exist, an out-of-range or leading-zero index, and a `move` into a location's own child.
 
 ```
 PATCH /invoices/3
@@ -108,7 +108,19 @@ Content-Type: application/merge-patch+json
 {"note": "net 60"}
 ```
 
-The read is a real call, so a `PATCH` to something that does not exist answers with the read's own `404`, and a failing `test` operation answers `400` without writing anything.
+The read is a real call, so a `PATCH` to something that does not exist answers with the read's own `404`, and a failing `test` operation answers `400` without writing anything. The write is a real call too: CSRF, an `Idempotency-Key`, validation and your middleware all apply exactly as they would to the `PUT`.
+
+One thing a generated `PATCH` cannot do on its own is make read-modify-write atomic. Two patches to different fields of the same resource can interleave — read, read, write, write — and the second write silently drops the first. That is inherent to the pattern, not specific to Bowline, and `TestConcurrentPatchLosesAnUpdateWithoutIfMatch` demonstrates it deliberately.
+
+The fix is the conditional-request machinery. A `PATCH` carrying `If-Match` is checked against the entity tag of the value that was just read, and a stale tag answers `412` without writing. That comparison is strong, as RFC 9110 requires, so a weak entity tag never satisfies `If-Match`; `If-None-Match` uses weak comparison and a match also answers `412`. If losing an update would be worse than rejecting a request, make that mandatory:
+
+sketch: every patch must say which version it is editing
+
+```go
+handler := routes.Handler(bowline.AutoPatch(bowline.RequireIfMatch()))
+```
+
+An unconditional `PATCH` then answers `428 Precondition Required` and includes the current `ETag`, so a client knows what to retry with. With `ETags()` also on, the tag a caller gets from the `GET` is the one the `PATCH` expects.
 
 ## The HTTP server
 

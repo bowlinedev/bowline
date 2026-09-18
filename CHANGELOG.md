@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- PATCH: a generated `PATCH` now runs through the CSRF guard and honours an `Idempotency-Key`, which it did not before. A forged cross-origin `PATCH` was accepted, and a repeated idempotency key ran the write twice; both are fixed and covered by tests.
+- PATCH: JSON Patch now supports arrays, which RFC 6902 requires and the first implementation did not have at all: `add` inserts and shifts, `-` appends, `remove` shifts left, and indices are checked against the array length. It also enforces the rules it was missing — `replace` and `remove` fail on a location that does not exist, an index may not have a leading zero or be negative, `-` only addresses the end when adding, and a location may not be moved into one of its own children. `add` onto an existing object member replaces it, which it should, while `replace` on an absent member now fails, which it did not.
+- Conditional requests: `If-Match` uses strong comparison and `If-None-Match` uses weak comparison, as RFC 9110 requires. Before, both stripped the weak prefix, so a weak entity tag wrongly satisfied `If-Match` — the one place where the distinction protects against a lost update. A `PATCH` whose `If-None-Match` matches is now refused with `412`.
+- Errors: an `about:blank` problem now uses the HTTP status phrase as its `title`, which RFC 9457 recommends. A type base still uses the Bowline code.
+- PATCH: `If-Match` is checked against the entity tag of the value just read, so a stale patch answers `412` without writing. `AutoPatch(RequireIfMatch())` refuses an unconditional patch with `428` and returns the current tag, which makes a lost update impossible. Without it, two patches to different fields can still interleave and drop one; that is inherent to read-modify-write and a test demonstrates it.
+
 ## 1.3.0
 
 - Errors: `ProblemDetails()` adds an RFC 9457 `application/problem+json` representation, chosen by content negotiation so a client that does not ask for it still gets the frozen envelope. Production redaction applies to both shapes. `ProblemTypeBase` sets the `type` URI prefix; without it the type is `about:blank`, as the RFC specifies.

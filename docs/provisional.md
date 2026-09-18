@@ -12,6 +12,7 @@ If you use one of these, pin a minor version and read the changelog before upgra
 
 ```
 func AutoPatch
+func RequireIfMatch
 func APIKeyAuth
 func BasicAuth
 func BearerAuth
@@ -31,6 +32,7 @@ func OnHandlerReady
 func Path
 func Typed
 type Observer
+type PatchOption
 type ProblemOption
 type SecurityScheme
 type SecuritySchemeKind
