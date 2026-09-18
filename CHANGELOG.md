@@ -13,6 +13,7 @@ Procedures can now answer on a URL and an HTTP method you choose, rather than on
 - Consumer contracts: `contracttest` replays each recorded interaction against the route and method it was recorded with, instead of posting to the RPC path. A recording made before this release still replays.
 - Mock server: `bowline mock` serves declared routes, binding path parameters and the query string against the contract's input type and answering `405` with `Allow` for a method a path does not take.
 - Playground: calls declared routes and shows the method and path next to each procedure.
+- Gateway: a composed contract no longer carries the services' declared routes, because the gateway serves each procedure at `service.procedure` and does not proxy those URLs. A client generated from a composed document therefore calls the gateway's own paths.
 - Contract format 1.3: adds `httpPath` on procedures and widens `method`. Every 1.x reader accepts it; a reader that does not know the field ignores it. `contract.Version` moves with the format, which is the one exported constant whose value is not frozen.
 
 ## 1.0.0

@@ -208,3 +208,26 @@ func TestComposeDoesNotMutateInputs(t *testing.T) {
 		t.Fatal("Compose mutated its input document")
 	}
 }
+
+func TestComposeDropsDeclaredRoutes(t *testing.T) {
+	ledger := load(t, "ledger.contract.json")
+	found := false
+	for _, p := range ledger.Procedures {
+		if p.Path == "invoices.get" {
+			p.HTTPPath = "invoices/{id}"
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("the ledger fixture has no invoices.get to give a route")
+	}
+	composed, diags := Compose(map[string]*contract.Document{"ledger": ledger})
+	if len(diags) > 0 {
+		t.Fatalf("diagnostics: %v", diags)
+	}
+	for _, p := range composed.Procedures {
+		if p.HTTPPath != "" {
+			t.Fatalf("%s kept the route %q; the gateway serves procedure paths only", p.Path, p.HTTPPath)
+		}
+	}
+}

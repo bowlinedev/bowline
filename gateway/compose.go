@@ -160,6 +160,7 @@ func copyError(decl *contract.ErrorDecl, service string) *contract.ErrorDecl {
 func copyProcedure(p *contract.Procedure, service string) *contract.Procedure {
 	copied := *p
 	copied.Path = service + "." + p.Path
+	copied.HTTPPath = ""
 	copied.Input = copyType(p.Input, service)
 	copied.Output = copyType(p.Output, service)
 	if len(p.Errors) > 0 {
