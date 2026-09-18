@@ -165,3 +165,51 @@ func TestVerifyPropagatesProviderFailures(t *testing.T) {
 		t.Fatalf("got %v", err)
 	}
 }
+
+func TestCanonicalStringDistinguishesEveryField(t *testing.T) {
+	type request struct {
+		method string
+		path   string
+		body   []byte
+		ts     int64
+		nonce  string
+	}
+	corpus := []request{
+		{"POST", "/api/pay", []byte(`{"amount":1}`), 1000, "n1"},
+		{"POST", "/api/pay", []byte(`{"amount":2}`), 1000, "n1"},
+		{"GET", "/api/pay", []byte(`{"amount":1}`), 1000, "n1"},
+		{"POST", "/api/refund", []byte(`{"amount":1}`), 1000, "n1"},
+		{"POST", "/api/pay", []byte(`{"amount":1}`), 1001, "n1"},
+		{"POST", "/api/pay", []byte(`{"amount":1}`), 1000, "n2"},
+		{"POST", "/api/pay", []byte(`{"amount":1}`), 1000, ""},
+		{"POST", "/api/pay\n/api/refund", nil, 1000, "n1"},
+		{"POST", "/api/pay", nil, 1000, "n1"},
+		{"POST", "/api", nil, 1000, "n1"},
+		{"POST", "/api/pay?to=a&amount=1", nil, 1000, "n1"},
+		{"POST", "/api/pay?to=a", nil, 1000, "n1"},
+		{"POST", "/api/pay?to=a%26amount=1", nil, 1000, "n1"},
+		{"POST", "/x", nil, 1000, "n1"},
+		{"POS", "T/x", nil, 1000, "n1"},
+		{"POST", "/x", nil, 1000, "1n"},
+		{"POST", "/x", nil, 10001, "n"},
+	}
+	seen := map[string]request{}
+	for _, r := range corpus {
+		signed := string(canonical(r.method, r.path, r.body, r.ts, r.nonce))
+		if previous, clash := seen[signed]; clash {
+			t.Fatalf("%+v and %+v sign the same bytes; a signature for one would verify the other", previous, r)
+		}
+		seen[signed] = r
+	}
+}
+
+func TestCanonicalStringIsCaseInsensitiveOnTheMethodOnly(t *testing.T) {
+	upper := string(canonical("POST", "/api/pay", nil, 1000, "n1"))
+	lower := string(canonical("post", "/api/pay", nil, 1000, "n1"))
+	if upper != lower {
+		t.Fatal("the method is uppercased before signing, so its case must not change the signed bytes")
+	}
+	if string(canonical("POST", "/API/PAY", nil, 1000, "n1")) == upper {
+		t.Fatal("the path is case-sensitive and must change the signed bytes")
+	}
+}

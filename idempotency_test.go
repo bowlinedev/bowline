@@ -129,3 +129,41 @@ func TestIdempotentPanicsOnQuery(t *testing.T) {
 	}()
 	NewRouter(Query("get", getUser, Idempotent()))
 }
+
+func TestIdempotencyKeysDistinguishEveryComponent(t *testing.T) {
+	type triple struct{ scope, path, header string }
+	corpus := []triple{
+		{"", "invoices.create", "k1"},
+		{"", "invoices.create", "k2"},
+		{"", "invoices.void", "k1"},
+		{"tenant-a", "invoices.create", "k1"},
+		{"tenant-b", "invoices.create", "k1"},
+		{"tenant-a", "invoices.void", "k1"},
+		{"tenant", "a.invoices.create", "k1"},
+		{"tenant-a", "invoices", "create.k1"},
+		{"tenant-ainvoices.create", "", "k1"},
+		{"", "", "tenant-ainvoices.createk1"},
+		{"a:b", "c", "d"},
+		{"a", "b:c", "d"},
+		{"a", "b", "c:d"},
+		{"a/b", "c", "d"},
+		{"a", "b/c", "d"},
+	}
+	seen := map[string]triple{}
+	for _, c := range corpus {
+		key := idempotencyKey(WithIdempotencyScope(context.Background(), c.scope), c.path, c.header)
+		if previous, clash := seen[key]; clash {
+			t.Fatalf("%+v and %+v share the idempotency key %q; one caller could replay another's response", previous, c, key)
+		}
+		seen[key] = c
+	}
+}
+
+func TestIdempotencyKeyIsStableForTheSameCaller(t *testing.T) {
+	ctx := WithIdempotencyScope(context.Background(), "tenant-a")
+	first := idempotencyKey(ctx, "invoices.create", "k1")
+	second := idempotencyKey(ctx, "invoices.create", "k1")
+	if first != second {
+		t.Fatalf("the same caller produced %q then %q; a retry would not replay", first, second)
+	}
+}
