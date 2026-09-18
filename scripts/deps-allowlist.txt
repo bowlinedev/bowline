@@ -2,7 +2,8 @@
 cmd/bowline = golang.org/x/tools
 transport/websocket = github.com/coder/websocket
 mcp =
-otel = go.opentelemetry.io/otel go.opentelemetry.io/otel/metric go.opentelemetry.io/otel/trace
+# otel/sdk is used only by otel's own tests; the shipped package imports the API packages
+otel = go.opentelemetry.io/otel go.opentelemetry.io/otel/metric go.opentelemetry.io/otel/trace go.opentelemetry.io/otel/sdk
 agent =
 playground =
 contracttest =
