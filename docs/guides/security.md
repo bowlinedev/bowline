@@ -90,7 +90,7 @@ If a query in your service does mutate state, that is a bug in the procedure and
 
 ## What `Sensitive()` does and does not do
 
-source: item.go:31-33
+source: item.go:35-37
 
 ```go
 func Sensitive() ProcOption {
@@ -142,7 +142,7 @@ The handler reads at most `MaxBodySize` bytes (1 MiB by default), and at most `M
 
 A single procedure can raise or lower its own limit:
 
-source: item.go:35-37
+source: item.go:39-41
 
 ```go
 func MaxBody(n int64) ProcOption {

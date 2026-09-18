@@ -157,6 +157,12 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route, p
 		h.writeError(w, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
 		return
 	}
+	if proc.HTTPPath != "" && !methodSendsBody(req.Method) {
+		if err := routing.BindQuery(ptr, req.URL.Query()); err != nil {
+			h.writeError(w, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
+			return
+		}
+	}
 	in := ptr
 	if issues := proc.checker.Check(in); len(issues) > 0 {
 		e := Errorf(InvalidArgument, "invalid input")
@@ -210,6 +216,9 @@ func (h *handler) writeOutput(w http.ResponseWriter, ctx context.Context, rt *ro
 }
 
 func methodAllowed(p *Procedure, method string) bool {
+	if p.HTTPMethod != "" {
+		return method == p.HTTPMethod
+	}
 	switch method {
 	case http.MethodPost:
 		return true
@@ -233,9 +242,20 @@ func (h *handler) bodyLimit(p *Procedure) int64 {
 	return h.maxBody
 }
 
+func methodSendsBody(method string) bool {
+	switch method {
+	case http.MethodGet, http.MethodDelete, http.MethodHead:
+		return false
+	}
+	return true
+}
+
 func (h *handler) readInput(w http.ResponseWriter, req *http.Request, limit int64) ([]byte, int, error) {
-	if req.Method == http.MethodGet {
-		return []byte(queryInput(req.URL.RawQuery)), 0, nil
+	if !methodSendsBody(req.Method) {
+		if raw := queryInput(req.URL.RawQuery); raw != "" {
+			return []byte(raw), 0, nil
+		}
+		return []byte("{}"), 0, nil
 	}
 	if ct := req.Header.Get("Content-Type"); ct != "" {
 		mediaType, _, err := mime.ParseMediaType(ct)

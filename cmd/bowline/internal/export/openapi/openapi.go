@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/bowlinedev/bowline/contract"
 )
@@ -87,11 +88,24 @@ func Export(doc *contract.Document, info Info) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		method := "get"
-		if p.Method == http.MethodPost {
-			method = "post"
+		method := strings.ToLower(p.Method)
+		if method == "" {
+			method = "get"
 		}
-		out.Paths["/"+p.Path] = schema{method: op}
+		route := "/" + p.Path
+		if p.HTTPPath != "" {
+			route = "/" + p.HTTPPath
+			if params := s.pathParameters(p); len(params) > 0 {
+				existing, _ := op["parameters"].([]any)
+				op["parameters"] = append(params, existing...)
+			}
+		}
+		if existing, ok := out.Paths[route]; ok {
+			existing[method] = op
+			out.Paths[route] = existing
+			continue
+		}
+		out.Paths[route] = schema{method: op}
 	}
 	maps.Copy(out.Components.Schemas, s.defined)
 	var buf bytes.Buffer
@@ -266,4 +280,57 @@ func errorResponse(code, variant, doc string) schema {
 		"description": description,
 		"content":     schema{"application/json": schema{"schema": body}},
 	}
+}
+
+func (s *schemas) pathParameters(p *contract.Procedure) []any {
+	names, err := contract.PathParams(p.HTTPPath)
+	if err != nil || len(names) == 0 {
+		return nil
+	}
+	fields := map[string]*contract.Field{}
+	for _, f := range s.procedureInputFields(p.Input) {
+		fields[f.Name] = f
+	}
+	out := make([]any, 0, len(names))
+	for _, name := range names {
+		param := map[string]any{"name": name, "in": "path", "required": true}
+		if f, ok := fields[name]; ok {
+			if f.Doc != "" {
+				param["description"] = f.Doc
+			}
+			if node, err := s.node(f.Type, nil); err == nil {
+				param["schema"] = node
+			}
+		}
+		out = append(out, param)
+	}
+	return out
+}
+
+func (s *schemas) procedureInputFields(t *contract.Type) []*contract.Field {
+	for range 8 {
+		if t == nil {
+			return nil
+		}
+		switch t.Kind {
+		case contract.Struct:
+			return t.Fields
+		case contract.Ref:
+			decl, ok := s.doc.Types[t.ID]
+			if !ok {
+				return nil
+			}
+			if decl.Kind == "struct" {
+				return decl.Fields
+			}
+			if decl.Kind == "generic" {
+				t = decl.Body
+				continue
+			}
+			return nil
+		default:
+			return nil
+		}
+	}
+	return nil
 }

@@ -56,6 +56,7 @@ field Procedure.Deprecated
 field Procedure.Description
 field Procedure.Destructive
 field Procedure.Exposed
+field Procedure.HTTPMethod
 field Procedure.HTTPPath
 field Procedure.Idempotent
 field Procedure.In
@@ -92,6 +93,7 @@ func MaxBodySize
 func MaxUploadSize
 func MemoryIdempotencyStore
 func Meta
+func Method
 func Mount
 func Mutation
 func NewRouter
@@ -122,6 +124,7 @@ method IdempotencyStore.Abort
 method IdempotencyStore.Begin
 method IdempotencyStore.Complete
 method Procedure.Method
+method Procedure.SendsBody
 method Router.Handler
 method Router.Procedures
 method Router.Subscribe

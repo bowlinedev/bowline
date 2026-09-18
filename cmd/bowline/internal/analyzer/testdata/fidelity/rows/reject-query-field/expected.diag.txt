@@ -1,0 +1,1 @@
+rows/reject-query-field/api.go:21:27: get: field "filter" cannot travel in a query string on a GET. a field on a path without a body must be a string, boolean, number, or a list of those; make it a path parameter, or use a method that sends a body

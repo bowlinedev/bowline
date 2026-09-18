@@ -70,6 +70,10 @@ func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
 				diags = append(diags, *d)
 				continue
 			}
+			if d := checkQueryFields(doc, proc, spec, prog); d != nil {
+				diags = append(diags, *d)
+				continue
+			}
 		}
 		seenErrors := map[string]bool{}
 		for _, ref := range spec.Errors {
@@ -138,6 +142,78 @@ func inputFields(doc *contract.Document, node *contract.Type) []*contract.Field 
 			return nil
 		default:
 			return nil
+		}
+	}
+	return nil
+}
+
+func sendsBody(method string) bool {
+	switch method {
+	case "GET", "DELETE", "HEAD":
+		return false
+	}
+	return true
+}
+
+func queryBindable(doc *contract.Document, t *contract.Type) bool {
+	if t == nil {
+		return false
+	}
+	node := t
+	if node.Kind == "array" {
+		node = node.Elem
+	}
+	if node == nil {
+		return false
+	}
+	if node.Kind == "ref" {
+		decl, ok := doc.Types[node.ID]
+		if !ok {
+			return false
+		}
+		switch decl.Kind {
+		case "enum":
+			return true
+		case "primitive":
+			return scalarPrimitive(decl.Primitive)
+		}
+		return false
+	}
+	if node.Kind != "primitive" {
+		return false
+	}
+	return scalarPrimitive(node.Name)
+}
+
+func scalarPrimitive(name string) bool {
+	switch name {
+	case "string", "bool", "int8", "int16", "int32", "int64",
+		"uint8", "uint16", "uint32", "uint64", "float32", "float64":
+		return true
+	}
+	return false
+}
+
+func checkQueryFields(doc *contract.Document, proc *contract.Procedure, spec procedureSpec, prog *Program) *Diagnostic {
+	if spec.HTTPPath == "" || sendsBody(proc.Method) {
+		return nil
+	}
+	params, err := contract.PathParams(spec.HTTPPath)
+	if err != nil {
+		return nil
+	}
+	consumed := map[string]bool{}
+	for _, name := range params {
+		consumed[name] = true
+	}
+	for _, f := range inputFields(doc, proc.Input) {
+		if consumed[f.Name] || queryBindable(doc, f.Type) {
+			continue
+		}
+		return &Diagnostic{
+			Pos: prog.Position(spec.Pos), Path: spec.Path,
+			Message: fmt.Sprintf("field %q cannot travel in a query string on a %s", f.Name, proc.Method),
+			Fix:     "a field on a path without a body must be a string, boolean, number, or a list of those; make it a path parameter, or use a method that sends a body",
 		}
 	}
 	return nil

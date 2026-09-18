@@ -1,0 +1,34 @@
+{
+  "invoices.get": {
+    "input": "IDInput",
+    "model": "Invoice",
+    "output": {
+      "id": 1,
+      "title": "ivory"
+    }
+  },
+  "invoices.list": {
+    "input": "ListInput",
+    "model": "Invoice",
+    "output": {
+      "id": 2,
+      "title": "hazel"
+    }
+  },
+  "invoices.remove": {
+    "input": "RemoveInput",
+    "model": "Invoice",
+    "output": {
+      "id": 3,
+      "title": "garnet velvet alpha"
+    }
+  },
+  "invoices.replace": {
+    "input": "ReplaceInput",
+    "model": "Invoice",
+    "output": {
+      "id": 4,
+      "title": "nova coral"
+    }
+  }
+}

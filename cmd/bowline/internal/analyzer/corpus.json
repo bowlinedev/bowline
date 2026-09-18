@@ -1816,6 +1816,257 @@
         }
       }
     },
+    "rest": {
+      "bowline": "1.2",
+      "hash": "sha256:13740f5a055ab92a723fe630998636f44f51f8c976b6ac8a942f1782fcab910d",
+      "types": {
+        "fidelity.test/rows/rest.IDInput": {
+          "kind": "struct",
+          "name": "IDInput",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                }
+              ]
+            }
+          ]
+        },
+        "fidelity.test/rows/rest.Invoice": {
+          "kind": "struct",
+          "name": "Invoice",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            },
+            {
+              "name": "title",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/rest.ListInput": {
+          "kind": "struct",
+          "name": "ListInput",
+          "fields": [
+            {
+              "name": "limit",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              },
+              "rules": [
+                {
+                  "rule": "min",
+                  "param": "1"
+                },
+                {
+                  "rule": "max",
+                  "param": "100"
+                }
+              ]
+            },
+            {
+              "name": "status",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            },
+            {
+              "name": "tags",
+              "type": {
+                "kind": "array",
+                "elem": {
+                  "kind": "primitive",
+                  "name": "string"
+                }
+              }
+            },
+            {
+              "name": "deep",
+              "type": {
+                "kind": "primitive",
+                "name": "bool"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/rest.RemoveInput": {
+          "kind": "struct",
+          "name": "RemoveInput",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                }
+              ]
+            },
+            {
+              "name": "force",
+              "type": {
+                "kind": "primitive",
+                "name": "bool"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/rest.ReplaceInput": {
+          "kind": "struct",
+          "name": "ReplaceInput",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                }
+              ]
+            },
+            {
+              "name": "title",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "invoices.get",
+          "kind": "query",
+          "method": "GET",
+          "httpPath": "invoices/{id}",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/rest.IDInput"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/rest.Invoice"
+          },
+          "goInput": "fidelity.test/rows/rest.IDInput",
+          "goOutput": "fidelity.test/rows/rest.Invoice"
+        },
+        {
+          "path": "invoices.list",
+          "kind": "query",
+          "method": "GET",
+          "httpPath": "invoices",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/rest.ListInput"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/rest.Invoice"
+          },
+          "goInput": "fidelity.test/rows/rest.ListInput",
+          "goOutput": "fidelity.test/rows/rest.Invoice"
+        },
+        {
+          "path": "invoices.remove",
+          "kind": "mutation",
+          "method": "DELETE",
+          "httpPath": "invoices/{id}",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/rest.RemoveInput"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/rest.Invoice"
+          },
+          "goInput": "fidelity.test/rows/rest.RemoveInput",
+          "goOutput": "fidelity.test/rows/rest.Invoice"
+        },
+        {
+          "path": "invoices.replace",
+          "kind": "mutation",
+          "method": "PUT",
+          "httpPath": "invoices/{id}",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/rest.ReplaceInput"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/rest.Invoice"
+          },
+          "goInput": "fidelity.test/rows/rest.ReplaceInput",
+          "goOutput": "fidelity.test/rows/rest.Invoice"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/rest.IDInput": {
+          "file": "rows/rest/api.go",
+          "line": 16
+        },
+        "fidelity.test/rows/rest.Invoice": {
+          "file": "rows/rest/api.go",
+          "line": 30
+        },
+        "fidelity.test/rows/rest.ListInput": {
+          "file": "rows/rest/api.go",
+          "line": 9
+        },
+        "fidelity.test/rows/rest.RemoveInput": {
+          "file": "rows/rest/api.go",
+          "line": 25
+        },
+        "fidelity.test/rows/rest.ReplaceInput": {
+          "file": "rows/rest/api.go",
+          "line": 20
+        },
+        "invoices.get": {
+          "file": "rows/rest/api.go",
+          "line": 44
+        },
+        "invoices.list": {
+          "file": "rows/rest/api.go",
+          "line": 43
+        },
+        "invoices.remove": {
+          "file": "rows/rest/api.go",
+          "line": 46
+        },
+        "invoices.replace": {
+          "file": "rows/rest/api.go",
+          "line": 45
+        }
+      }
+    },
     "routing": {
       "bowline": "1.2",
       "hash": "sha256:3db39f0390ec66b3ea0578d08e30014c5e1b8251b744d69f6d33ebf0cfb24cde",
@@ -2642,6 +2893,7 @@
     "reject-path-bad-type",
     "reject-path-optional-param",
     "reject-path-unknown-param",
+    "reject-query-field",
     "reject-shapes",
     "reject-spread",
     "reject-tool-collision",

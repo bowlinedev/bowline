@@ -24,6 +24,10 @@ func Deprecated(reason string) ProcOption {
 	return func(p *Procedure) { p.Deprecated = reason }
 }
 
+func Method(verb string) ProcOption {
+	return func(pr *Procedure) { pr.HTTPMethod = verb }
+}
+
 func Path(p string) ProcOption {
 	return func(pr *Procedure) { pr.HTTPPath = p }
 }
