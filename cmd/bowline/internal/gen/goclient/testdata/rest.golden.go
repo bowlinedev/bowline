@@ -82,21 +82,21 @@ type InvoicesClient struct {
 // Get calls invoices.get.
 func (c InvoicesClient) Get(ctx context.Context, in IDInput) (Invoice, error) {
 	var out Invoice
-	err := c.c.call(ctx, "invoices/"+url.PathEscape(fmt.Sprint(in.ID)), http.MethodGet, struct{}{}, &out)
+	err := c.c.rest(ctx, "invoices/"+url.PathEscape(fmt.Sprint(in.ID)), http.MethodGet, struct{}{}, &out)
 	return out, err
 }
 
 // List calls invoices.list.
 func (c InvoicesClient) List(ctx context.Context, in ListInput) (Invoice, error) {
 	var out Invoice
-	err := c.c.call(ctx, "invoices", http.MethodGet, in, &out)
+	err := c.c.rest(ctx, "invoices", http.MethodGet, in, &out)
 	return out, err
 }
 
 // Remove calls invoices.remove.
 func (c InvoicesClient) Remove(ctx context.Context, in RemoveInput) (Invoice, error) {
 	var out Invoice
-	err := c.c.call(ctx, "invoices/"+url.PathEscape(fmt.Sprint(in.ID)), http.MethodPost, struct {
+	err := c.c.rest(ctx, "invoices/"+url.PathEscape(fmt.Sprint(in.ID)), http.MethodDelete, struct {
 		Force bool `json:"force"`
 	}{Force: in.Force}, &out)
 	return out, err
@@ -105,7 +105,7 @@ func (c InvoicesClient) Remove(ctx context.Context, in RemoveInput) (Invoice, er
 // Replace calls invoices.replace.
 func (c InvoicesClient) Replace(ctx context.Context, in ReplaceInput) (Invoice, error) {
 	var out Invoice
-	err := c.c.call(ctx, "invoices/"+url.PathEscape(fmt.Sprint(in.ID)), http.MethodPost, struct {
+	err := c.c.call(ctx, "invoices/"+url.PathEscape(fmt.Sprint(in.ID)), http.MethodPut, struct {
 		Title string `json:"title"`
 	}{Title: in.Title}, &out)
 	return out, err
@@ -146,18 +146,64 @@ func DetailsAs[T any](err error) (T, bool) {
 	return out, true
 }
 
-func (c *Client) request(ctx context.Context, path, method string, in any, accept string) (*http.Request, error) {
+func sendsBody(method string) bool {
+	switch method {
+	case http.MethodGet, http.MethodDelete, http.MethodHead:
+		return false
+	}
+	return true
+}
+
+func queryString(body []byte) string {
+	decoder := json.NewDecoder(bytes.NewReader(body))
+	decoder.UseNumber()
+	var fields map[string]any
+	if decoder.Decode(&fields) != nil {
+		return ""
+	}
+	values := url.Values{}
+	for key, value := range fields {
+		switch v := value.(type) {
+		case nil:
+		case []any:
+			for _, item := range v {
+				if item != nil {
+					values.Add(key, queryValue(item))
+				}
+			}
+		default:
+			values.Add(key, queryValue(v))
+		}
+	}
+	if len(values) == 0 {
+		return ""
+	}
+	return "?" + values.Encode()
+}
+
+func queryValue(v any) string {
+	if s, ok := v.(string); ok {
+		return s
+	}
+	return fmt.Sprint(v)
+}
+
+func (c *Client) request(ctx context.Context, path, method string, in any, accept string, rest bool) (*http.Request, error) {
 	body, err := json.Marshal(in)
 	if err != nil {
 		return nil, &bowline.Error{Code: bowline.Internal, Message: fmt.Sprintf("encoding input for %s: %v", path, err)}
 	}
 	target := c.base + "/" + path
 	var req *http.Request
-	if method == http.MethodGet {
-		target += "?input=" + url.QueryEscape(string(body))
-		req, err = http.NewRequestWithContext(ctx, method, target, nil)
-	} else {
+	if sendsBody(method) {
 		req, err = http.NewRequestWithContext(ctx, method, target, bytes.NewReader(body))
+	} else {
+		if rest {
+			target += queryString(body)
+		} else {
+			target += "?input=" + url.QueryEscape(string(body))
+		}
+		req, err = http.NewRequestWithContext(ctx, method, target, nil)
 	}
 	if err != nil {
 		return nil, &bowline.Error{Code: bowline.Internal, Message: err.Error()}
@@ -166,7 +212,7 @@ func (c *Client) request(ctx context.Context, path, method string, in any, accep
 		return nil, err
 	}
 	req.Header.Set("Accept", accept)
-	if method != http.MethodGet {
+	if sendsBody(method) {
 		req.Header.Set("Content-Type", "application/json")
 	}
 	return req, nil
@@ -206,7 +252,15 @@ func (c *Client) do(ctx context.Context, req *http.Request, path string) (*http.
 }
 
 func (c *Client) call(ctx context.Context, path, method string, in, out any) error {
-	req, err := c.request(ctx, path, method, in, "application/json")
+	return c.send(ctx, path, method, in, out, false)
+}
+
+func (c *Client) rest(ctx context.Context, path, method string, in, out any) error {
+	return c.send(ctx, path, method, in, out, true)
+}
+
+func (c *Client) send(ctx context.Context, path, method string, in, out any, rest bool) error {
+	req, err := c.request(ctx, path, method, in, "application/json", rest)
 	if err != nil {
 		return err
 	}

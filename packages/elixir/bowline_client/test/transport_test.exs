@@ -44,6 +44,35 @@ defmodule BowlineClient.TransportTest do
     assert JSON.decode!(request.body) == %{"name" => "x"}
   end
 
+  test "rest calls without a body spread the input over query parameters" do
+    url = serve(fn _ -> {200, ~s({"id":3})} end)
+    transport = Transport.new(base_url: url)
+
+    input = %{"limit" => 20, "status" => "paid", "tags" => ["a", "b"], "cursor" => nil}
+    assert {:ok, %{"id" => 3}} = Transport.rest(transport, "invoices", :get, input, & &1)
+
+    assert_receive {:request, request}
+    assert request.method == "GET"
+    assert request.path == "/invoices"
+    assert request.raw_query == "limit=20&status=paid&tags=a&tags=b"
+  end
+
+  test "PUT sends a body and DELETE sends a query string" do
+    url = serve(fn _ -> {200, ~s({"id":3})} end)
+    transport = Transport.new(base_url: url)
+
+    assert {:ok, _} = Transport.rest(transport, "invoices/3", :put, %{"title" => "Q3"}, & &1)
+    assert_receive {:request, put}
+    assert put.method == "PUT"
+    assert JSON.decode!(put.body) == %{"title" => "Q3"}
+
+    assert {:ok, _} = Transport.rest(transport, "invoices/3", :delete, %{"force" => true}, & &1)
+    assert_receive {:request, delete}
+    assert delete.method == "DELETE"
+    assert delete.body == ""
+    assert delete.raw_query == "force=true"
+  end
+
   test "an error envelope becomes a BowlineClient.Error with code, status, details, and issues" do
     body =
       ~s({"error":{"code":"INVALID_ARGUMENT","message":"invalid input","issues":[{"path":["lines","0","quantity"],"rule":"min","message":"must be at least 1"}]}})

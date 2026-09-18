@@ -224,7 +224,7 @@ defmodule Golden.Rest.Invoices do
   @spec get(Transport.t(), Types.IdInput.t(), Transport.call_opts()) ::
           {:ok, Types.Invoice.t()} | {:error, BowlineClient.Error.t()}
   def get(transport, %Types.IdInput{} = input, opts \\ []) do
-    Transport.call(
+    Transport.rest(
       transport,
       "invoices/#{URI.encode_www_form(to_string(input.id))}",
       :get,
@@ -248,7 +248,7 @@ defmodule Golden.Rest.Invoices do
   @spec list(Transport.t(), Types.ListInput.t(), Transport.call_opts()) ::
           {:ok, Types.Invoice.t()} | {:error, BowlineClient.Error.t()}
   def list(transport, %Types.ListInput{} = input, opts \\ []) do
-    Transport.call(
+    Transport.rest(
       transport,
       "invoices",
       :get,
@@ -272,10 +272,10 @@ defmodule Golden.Rest.Invoices do
   @spec remove(Transport.t(), Types.RemoveInput.t(), Transport.call_opts()) ::
           {:ok, Types.Invoice.t()} | {:error, BowlineClient.Error.t()}
   def remove(transport, %Types.RemoveInput{} = input, opts \\ []) do
-    Transport.call(
+    Transport.rest(
       transport,
       "invoices/#{URI.encode_www_form(to_string(input.id))}",
-      :post,
+      :delete,
       Map.drop(Types.RemoveInput.to_map(input), ["id"]),
       &Types.Invoice.from_map/1,
       opts
@@ -299,7 +299,7 @@ defmodule Golden.Rest.Invoices do
     Transport.call(
       transport,
       "invoices/#{URI.encode_www_form(to_string(input.id))}",
-      :post,
+      :put,
       Map.drop(Types.ReplaceInput.to_map(input), ["id"]),
       &Types.Invoice.from_map/1,
       opts

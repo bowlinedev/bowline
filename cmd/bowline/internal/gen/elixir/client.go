@@ -231,9 +231,10 @@ func writeArgs(b *strings.Builder, call string, args []string) {
 }
 
 func (g *generator) writeCall(b *strings.Builder, name string, p *contract.Procedure) {
-	method := ":post"
-	if p.Method == http.MethodGet {
-		method = ":get"
+	method := methodAtom(p.Method)
+	call := "Transport.call"
+	if queryPath(p) {
+		call = "Transport.rest"
 	}
 	result := "{:ok, " + g.outputSpec(p) + "} | {:error, BowlineClient.Error.t()}"
 	if isEmptyStruct(p.Input) {
@@ -241,7 +242,7 @@ func (g *generator) writeCall(b *strings.Builder, name string, p *contract.Proce
 		b.WriteString("  def ")
 		b.WriteString(name)
 		b.WriteString("(transport, opts \\\\ []) do\n")
-		writeArgs(b, "Transport.call", []string{"transport", pathArg(p), method, "%{}", g.outputDecoder(p), "opts"})
+		writeArgs(b, call, []string{"transport", pathArg(p), method, "%{}", g.outputDecoder(p), "opts"})
 		b.WriteString("  end\n\n")
 		writeSpec(b, name+"!", []string{"Transport.t()", "Transport.call_opts()"}, g.outputSpec(p))
 		b.WriteString("  def ")
@@ -259,7 +260,7 @@ func (g *generator) writeCall(b *strings.Builder, name string, p *contract.Proce
 	b.WriteString("(transport, ")
 	b.WriteString(g.inputPattern(p))
 	b.WriteString(", opts \\\\ []) do\n")
-	writeArgs(b, "Transport.call", []string{"transport", pathArg(p), method, g.inputEncode(p), g.outputDecoder(p), "opts"})
+	writeArgs(b, call, []string{"transport", pathArg(p), method, g.inputEncode(p), g.outputDecoder(p), "opts"})
 	b.WriteString("  end\n\n")
 	writeSpec(b, name+"!", []string{"Transport.t()", g.inputSpec(p), "Transport.call_opts()"}, g.outputSpec(p))
 	b.WriteString("  def ")
@@ -310,6 +311,32 @@ func (g *generator) writeUpload(b *strings.Builder, name string, p *contract.Pro
 
 func isEmptyStruct(t *contract.Type) bool {
 	return t != nil && t.Kind == contract.Struct && len(t.Fields) == 0
+}
+
+func methodAtom(method string) string {
+	switch method {
+	case http.MethodGet:
+		return ":get"
+	case http.MethodPut:
+		return ":put"
+	case http.MethodPatch:
+		return ":patch"
+	case http.MethodDelete:
+		return ":delete"
+	}
+	return ":post"
+}
+
+func sendsBody(method string) bool {
+	switch method {
+	case http.MethodGet, http.MethodDelete, http.MethodHead:
+		return false
+	}
+	return true
+}
+
+func queryPath(p *contract.Procedure) bool {
+	return p.HTTPPath != "" && !sendsBody(p.Method)
 }
 
 func pathParams(p *contract.Procedure) []string {

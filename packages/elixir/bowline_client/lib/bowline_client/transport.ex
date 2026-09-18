@@ -4,13 +4,15 @@ defmodule BowlineClient.Transport do
   to `{:ok, value}` or `{:error, %BowlineClient.Error{}}`.
 
   Queries go out as `GET` with the input in the `input` query parameter;
-  mutations and sensitive queries go out as `POST` with a JSON body.
+  mutations and sensitive queries go out as `POST` with a JSON body. A
+  procedure mounted on a custom path uses `rest/6`, which spreads the input
+  over individual query parameters when the method carries no body.
   """
 
   alias BowlineClient.Error
   alias BowlineClient.SSE
 
-  @type method :: :get | :post
+  @type method :: :get | :post | :put | :patch | :delete
   @type headers ::
           %{optional(String.t()) => String.t()} | (-> %{optional(String.t()) => String.t()})
   @type call_opts :: [headers: %{optional(String.t()) => String.t()}, timeout: pos_integer()]
@@ -46,7 +48,23 @@ defmodule BowlineClient.Transport do
   @spec call(t(), String.t(), method(), map(), decoder(), call_opts()) ::
           {:ok, term()} | {:error, Error.t()}
   def call(%__MODULE__{} = transport, path, method, input, decode, opts \\ []) do
-    request = build(transport, path, method, input, "application/json", opts)
+    send_call(transport, path, method, input, decode, opts, :input)
+  end
+
+  @doc """
+  Calls a procedure mounted on a custom path.
+
+  A method that carries no body sends the input as individual query parameters
+  rather than as a single `input` parameter.
+  """
+  @spec rest(t(), String.t(), method(), map(), decoder(), call_opts()) ::
+          {:ok, term()} | {:error, Error.t()}
+  def rest(%__MODULE__{} = transport, path, method, input, decode, opts \\ []) do
+    send_call(transport, path, method, input, decode, opts, :query)
+  end
+
+  defp send_call(transport, path, method, input, decode, opts, style) do
+    request = build(transport, path, method, input, "application/json", opts, style)
 
     case run(request, path) do
       {:ok, %Req.Response{status: status, body: body}} when status in 200..299 ->
@@ -64,7 +82,7 @@ defmodule BowlineClient.Transport do
   @spec subscribe(t(), String.t(), map(), decoder(), call_opts()) ::
           {:ok, Enumerable.t()} | {:error, Error.t()}
   def subscribe(%__MODULE__{} = transport, path, input, decode, opts \\ []) do
-    request = build(transport, path, :get, input, "text/event-stream", opts)
+    request = build(transport, path, :get, input, "text/event-stream", opts, :input)
 
     case run(Req.merge(request, into: :self), path) do
       {:ok, %Req.Response{status: status} = response} when status in 200..299 ->
@@ -118,23 +136,44 @@ defmodule BowlineClient.Transport do
     end
   end
 
-  defp build(transport, path, method, input, accept, opts) do
+  defp build(transport, path, method, input, accept, opts, style) do
     url = transport.base_url <> "/" <> path
     headers = headers(transport, opts, accept)
 
     base =
-      case method do
-        :get ->
-          Req.merge(transport.req, method: :get, url: url, params: [input: JSON.encode!(input)])
+      cond do
+        sends_body?(method) ->
+          Req.merge(transport.req, method: method, url: url, json: input)
 
-        :post ->
-          Req.merge(transport.req, method: :post, url: url, json: input)
+        style == :query ->
+          Req.merge(transport.req, method: method, url: url <> query_string(input))
+
+        true ->
+          Req.merge(transport.req, method: method, url: url, params: [input: JSON.encode!(input)])
       end
 
     base
     |> Req.merge(headers: headers)
     |> with_timeout(opts)
   end
+
+  defp sends_body?(method), do: method not in [:get, :delete, :head]
+
+  defp query_string(input) when is_map(input) do
+    pairs =
+      Enum.flat_map(input, fn
+        {_key, nil} -> []
+        {key, value} when is_list(value) -> Enum.map(value, &{to_string(key), to_string(&1)})
+        {key, value} -> [{to_string(key), to_string(value)}]
+      end)
+
+    case pairs do
+      [] -> ""
+      pairs -> "?" <> URI.encode_query(pairs)
+    end
+  end
+
+  defp query_string(_input), do: ""
 
   defp with_timeout(request, opts) do
     case Keyword.get(opts, :timeout) do

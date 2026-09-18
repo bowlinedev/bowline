@@ -48,6 +48,51 @@ void main() {
     expect(seen.headers['content-type'], startsWith('application/json'));
   });
 
+  test('rest calls without a body spread the input over query parameters',
+      () async {
+    late http.Request seen;
+    final t = transport(MockClient((request) async {
+      seen = request;
+      return http.Response('{"id":3}', 200);
+    }));
+    await t.call(
+      'invoices',
+      Method.get,
+      {
+        'limit': 20,
+        'status': 'paid',
+        'tags': ['a', 'b'],
+        'cursor': null
+      },
+      asRaw,
+      rest: true,
+    );
+    expect(seen.method, 'GET');
+    expect(seen.url.path, '/api/invoices');
+    expect(seen.url.queryParametersAll, {
+      'limit': ['20'],
+      'status': ['paid'],
+      'tags': ['a', 'b']
+    });
+  });
+
+  test('PUT and DELETE reach the wire as themselves', () async {
+    late http.Request seen;
+    final t = transport(MockClient((request) async {
+      seen = request;
+      return http.Response('{"id":3}', 200);
+    }));
+    await t.call('invoices/3', Method.put, {'title': 'Q3'}, asRaw, rest: true);
+    expect(seen.method, 'PUT');
+    expect(seen.body, '{"title":"Q3"}');
+    expect(seen.headers['content-type'], startsWith('application/json'));
+    await t.call('invoices/3', Method.delete, {'force': true}, asRaw,
+        rest: true);
+    expect(seen.method, 'DELETE');
+    expect(seen.body, '');
+    expect(seen.url.query, 'force=true');
+  });
+
   test('error envelopes become BowlineException', () async {
     final t = transport(MockClient((request) async => http.Response(
           '{"error":{"code":"NOT_FOUND","message":"user 9 not found","issues":[{"path":["id"],"rule":"exists","message":"missing"}]}}',

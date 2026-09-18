@@ -161,9 +161,10 @@ func (g *generator) inputParam(p *contract.Procedure) (param, arg string) {
 func (g *generator) writeCall(b *strings.Builder, n *node, name string, p *contract.Procedure) {
 	param, arg := g.inputParam(p)
 	arg = g.payloadArg(p, arg)
-	method := "http.MethodPost"
-	if p.Method == http.MethodGet {
-		method = "http.MethodGet"
+	method := methodExpr(p.Method)
+	call := ".call(ctx, "
+	if queryPath(p) {
+		call = ".rest(ctx, "
 	}
 	if isEmptyStruct(p.Output) {
 		b.WriteString("func (")
@@ -175,7 +176,7 @@ func (g *generator) writeCall(b *strings.Builder, n *node, name string, p *contr
 		b.WriteString(") error {\n")
 		b.WriteString("\treturn ")
 		b.WriteString(n.client())
-		b.WriteString(".call(ctx, ")
+		b.WriteString(call)
 		b.WriteString(g.pathExpr(p))
 		b.WriteString(", ")
 		b.WriteString(method)
@@ -199,7 +200,7 @@ func (g *generator) writeCall(b *strings.Builder, n *node, name string, p *contr
 	b.WriteString("\n")
 	b.WriteString("\terr := ")
 	b.WriteString(n.client())
-	b.WriteString(".call(ctx, ")
+	b.WriteString(call)
 	b.WriteString(g.pathExpr(p))
 	b.WriteString(", ")
 	b.WriteString(method)
@@ -213,10 +214,7 @@ func (g *generator) writeSubscription(b *strings.Builder, n *node, name string, 
 	g.uses["iter"] = true
 	param, arg := g.inputParam(p)
 	arg = g.payloadArg(p, arg)
-	method := "http.MethodPost"
-	if p.Method == http.MethodGet {
-		method = "http.MethodGet"
-	}
+	method := methodExpr(p.Method)
 	out := g.goType(p.Output)
 	b.WriteString("func (")
 	b.WriteString(n.receiver())
@@ -338,18 +336,64 @@ func DetailsAs[T any](err error) (T, bool) {
 	return out, true
 }
 
-func (c *Client) request(ctx context.Context, path, method string, in any, accept string) (*http.Request, error) {
+func sendsBody(method string) bool {
+	switch method {
+	case http.MethodGet, http.MethodDelete, http.MethodHead:
+		return false
+	}
+	return true
+}
+
+func queryString(body []byte) string {
+	decoder := json.NewDecoder(bytes.NewReader(body))
+	decoder.UseNumber()
+	var fields map[string]any
+	if decoder.Decode(&fields) != nil {
+		return ""
+	}
+	values := url.Values{}
+	for key, value := range fields {
+		switch v := value.(type) {
+		case nil:
+		case []any:
+			for _, item := range v {
+				if item != nil {
+					values.Add(key, queryValue(item))
+				}
+			}
+		default:
+			values.Add(key, queryValue(v))
+		}
+	}
+	if len(values) == 0 {
+		return ""
+	}
+	return "?" + values.Encode()
+}
+
+func queryValue(v any) string {
+	if s, ok := v.(string); ok {
+		return s
+	}
+	return fmt.Sprint(v)
+}
+
+func (c *Client) request(ctx context.Context, path, method string, in any, accept string, rest bool) (*http.Request, error) {
 	body, err := json.Marshal(in)
 	if err != nil {
 		return nil, &bowline.Error{Code: bowline.Internal, Message: fmt.Sprintf("encoding input for %s: %v", path, err)}
 	}
 	target := c.base + "/" + path
 	var req *http.Request
-	if method == http.MethodGet {
-		target += "?input=" + url.QueryEscape(string(body))
-		req, err = http.NewRequestWithContext(ctx, method, target, nil)
-	} else {
+	if sendsBody(method) {
 		req, err = http.NewRequestWithContext(ctx, method, target, bytes.NewReader(body))
+	} else {
+		if rest {
+			target += queryString(body)
+		} else {
+			target += "?input=" + url.QueryEscape(string(body))
+		}
+		req, err = http.NewRequestWithContext(ctx, method, target, nil)
 	}
 	if err != nil {
 		return nil, &bowline.Error{Code: bowline.Internal, Message: err.Error()}
@@ -358,7 +402,7 @@ func (c *Client) request(ctx context.Context, path, method string, in any, accep
 		return nil, err
 	}
 	req.Header.Set("Accept", accept)
-	if method != http.MethodGet {
+	if sendsBody(method) {
 		req.Header.Set("Content-Type", "application/json")
 	}
 	return req, nil
@@ -398,7 +442,15 @@ func (c *Client) do(ctx context.Context, req *http.Request, path string) (*http.
 }
 
 func (c *Client) call(ctx context.Context, path, method string, in, out any) error {
-	req, err := c.request(ctx, path, method, in, "application/json")
+	return c.send(ctx, path, method, in, out, false)
+}
+
+func (c *Client) rest(ctx context.Context, path, method string, in, out any) error {
+	return c.send(ctx, path, method, in, out, true)
+}
+
+func (c *Client) send(ctx context.Context, path, method string, in, out any, rest bool) error {
+	req, err := c.request(ctx, path, method, in, "application/json", rest)
 	if err != nil {
 		return err
 	}
@@ -446,7 +498,7 @@ func decodeError(status int, data []byte, path string) error {
 `
 
 const streamRuntime = `func (c *Client) open(ctx context.Context, path, method string, in any) (*http.Response, error) {
-	req, err := c.request(ctx, path, method, in, "text/event-stream")
+	req, err := c.request(ctx, path, method, in, "text/event-stream", false)
 	if err != nil {
 		return nil, err
 	}
@@ -540,6 +592,32 @@ const uploadRuntime = `func (c *Client) upload(ctx context.Context, path string,
 	return decodeBody(resp.Body, path, out)
 }
 `
+
+func methodExpr(method string) string {
+	switch method {
+	case http.MethodGet:
+		return "http.MethodGet"
+	case http.MethodPut:
+		return "http.MethodPut"
+	case http.MethodPatch:
+		return "http.MethodPatch"
+	case http.MethodDelete:
+		return "http.MethodDelete"
+	}
+	return "http.MethodPost"
+}
+
+func sendsBody(method string) bool {
+	switch method {
+	case http.MethodGet, http.MethodDelete, http.MethodHead:
+		return false
+	}
+	return true
+}
+
+func queryPath(p *contract.Procedure) bool {
+	return p.HTTPPath != "" && !sendsBody(p.Method)
+}
 
 func pathParams(p *contract.Procedure) []string {
 	if p.HTTPPath == "" {
