@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/bowlinedev/bowline/internal/idempotency"
+	routing "github.com/bowlinedev/bowline/internal/route"
 )
 
 type IdempotencyState int
@@ -92,7 +93,7 @@ func idempotencyKey(ctx context.Context, path, header string) string {
 	return scope + "\x00" + path + "\x00" + header
 }
 
-func (h *handler) serveIdempotent(w http.ResponseWriter, req *http.Request, rt *route, params map[string]string) {
+func (h *handler) serveIdempotent(w http.ResponseWriter, req *http.Request, rt *route, params []routing.Param) {
 	header := req.Header.Get("Idempotency-Key")
 	if header == "" {
 		if h.requireKey {

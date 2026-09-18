@@ -47,7 +47,7 @@ type uploadInput[In any] struct {
 	file *File
 }
 
-func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *route, pathParams map[string]string) {
+func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *route, pathParams []routing.Param) {
 	proc := rt.proc
 	mediaType, params, err := mime.ParseMediaType(req.Header.Get("Content-Type"))
 	if err != nil || mediaType != "multipart/form-data" || params["boundary"] == "" {

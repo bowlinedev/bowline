@@ -15,13 +15,28 @@ type Entry struct {
 	Key     string
 }
 
+type Param struct {
+	Name  string
+	Value string
+}
+
 type Match struct {
 	Key    string
-	Params map[string]string
+	Params []Param
+}
+
+func (m Match) Get(name string) string {
+	for _, p := range m.Params {
+		if p.Name == name {
+			return p.Value
+		}
+	}
+	return ""
 }
 
 type pattern struct {
 	segments []string
+	names    []string
 	literals int
 	params   []string
 }
@@ -49,10 +64,11 @@ func compile(p string) (pattern, error) {
 	if err != nil {
 		return pattern{}, fmt.Errorf("route pattern %q: %w", p, err)
 	}
-	out := pattern{segments: make([]string, len(parsed)), params: nil}
+	out := pattern{segments: make([]string, len(parsed)), names: make([]string, len(parsed)), params: nil}
 	for i, seg := range parsed {
 		if seg.Param {
 			out.segments[i] = "{" + seg.Text + "}"
+			out.names[i] = seg.Text
 			out.params = append(out.params, seg.Text)
 			continue
 		}
@@ -63,7 +79,7 @@ func compile(p string) (pattern, error) {
 }
 
 func (p pattern) isParam(i int) bool {
-	return strings.HasPrefix(p.segments[i], "{")
+	return p.names[i] != ""
 }
 
 func (p pattern) sameShapeAs(other pattern) bool {
@@ -109,33 +125,36 @@ func New(entries []Entry) (*Table, error) {
 	return t, nil
 }
 
-func segmentsOf(escaped string) []string {
+const stackSegments = 12
+
+func segmentsInto(dst []string, escaped string) []string {
 	escaped = strings.TrimSuffix(escaped, "/")
 	escaped = strings.TrimPrefix(escaped, "/")
 	if escaped == "" {
 		return nil
 	}
-	parts := strings.Split(escaped, "/")
-	for i, part := range parts {
+	for escaped != "" {
+		var part string
+		part, escaped, _ = strings.Cut(escaped, "/")
 		decoded, err := url.PathUnescape(part)
 		if err != nil {
 			return nil
 		}
-		parts[i] = decoded
+		dst = append(dst, decoded)
 	}
-	return parts
+	return dst
 }
 
-func (c compiled) match(segs []string) (map[string]string, bool) {
+func (c compiled) match(segs []string) ([]Param, bool) {
 	if len(c.segments) > len(segs) {
 		return nil, false
 	}
 	offset := len(segs) - len(c.segments)
-	var params map[string]string
-	for i, seg := range c.segments {
+	var params []Param
+	for i, name := range c.names {
 		got := segs[offset+i]
-		if !c.isParam(i) {
-			if seg != got {
+		if name == "" {
+			if c.segments[i] != got {
 				return nil, false
 			}
 			continue
@@ -144,15 +163,16 @@ func (c compiled) match(segs []string) (map[string]string, bool) {
 			return nil, false
 		}
 		if params == nil {
-			params = make(map[string]string, len(c.params))
+			params = make([]Param, 0, len(c.params))
 		}
-		params[seg[1:len(seg)-1]] = got
+		params = append(params, Param{Name: name, Value: got})
 	}
 	return params, true
 }
 
 func (t *Table) Match(path, method string) (Match, bool) {
-	segs := segmentsOf(path)
+	var buf [stackSegments]string
+	segs := segmentsInto(buf[:0], path)
 	if len(segs) == 0 {
 		return Match{}, false
 	}
@@ -168,7 +188,8 @@ func (t *Table) Match(path, method string) (Match, bool) {
 }
 
 func (t *Table) Allowed(path string) []string {
-	segs := segmentsOf(path)
+	var buf [stackSegments]string
+	segs := segmentsInto(buf[:0], path)
 	if len(segs) == 0 {
 		return nil
 	}

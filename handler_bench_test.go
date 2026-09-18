@@ -138,3 +138,41 @@ func BenchmarkBowlinePostLargeBody(b *testing.B) {
 		}
 	}
 }
+
+type restInput struct {
+	ID    int64  `json:"id"`
+	Limit int32  `json:"limit"`
+	Sort  string `json:"sort"`
+}
+
+func restProc(ctx context.Context, in restInput) (benchOutput, error) {
+	return benchOutput{ID: in.ID, Names: []string{"ada"}, Total: in.Limit}, nil
+}
+
+func BenchmarkBowlineRESTPath(b *testing.B) {
+	h := NewRouter(Query("get", restProc, Path("invoices/{id}"))).Handler()
+	req := httptest.NewRequest(http.MethodGet, "/api/invoices/4821", nil)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		if rec.Code != 200 {
+			b.Fatalf("status %d: %s", rec.Code, rec.Body.String())
+		}
+	}
+}
+
+func BenchmarkBowlineRESTQuery(b *testing.B) {
+	h := NewRouter(Query("list", restProc, Path("invoices"))).Handler()
+	req := httptest.NewRequest(http.MethodGet, "/api/invoices?limit=20&sort=created", nil)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, req)
+		if rec.Code != 200 {
+			b.Fatalf("status %d: %s", rec.Code, rec.Body.String())
+		}
+	}
+}

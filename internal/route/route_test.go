@@ -2,6 +2,7 @@ package route
 
 import (
 	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -36,7 +37,7 @@ func TestWildcardCapturesTheSegment(t *testing.T) {
 	if m.Key != "invoices.get" {
 		t.Fatalf("key %q", m.Key)
 	}
-	if m.Params["id"] != "3" {
+	if m.Get("id") != "3" {
 		t.Fatalf("params %v", m.Params)
 	}
 }
@@ -51,7 +52,7 @@ func TestLiteralBeatsWildcardAtEqualLength(t *testing.T) {
 		t.Fatalf("got %+v ok=%v, want the literal route", m, ok)
 	}
 	m, ok = tbl.Match("/api/invoices/7", http.MethodGet)
-	if !ok || m.Key != "get" || m.Params["id"] != "7" {
+	if !ok || m.Key != "get" || m.Get("id") != "7" {
 		t.Fatalf("got %+v ok=%v, want the wildcard route", m, ok)
 	}
 }
@@ -123,7 +124,7 @@ func TestRestPairOfListAndGetIsAllowed(t *testing.T) {
 	if m, ok := tbl.Match("/api/invoices", http.MethodGet); !ok || m.Key != "list" {
 		t.Fatalf("list: %+v ok=%v", m, ok)
 	}
-	if m, ok := tbl.Match("/api/invoices/invoices", http.MethodGet); !ok || m.Key != "get" || m.Params["id"] != "invoices" {
+	if m, ok := tbl.Match("/api/invoices/invoices", http.MethodGet); !ok || m.Key != "get" || m.Get("id") != "invoices" {
 		t.Fatalf("the longer pattern must win even when the segment repeats the literal: %+v ok=%v", m, ok)
 	}
 }
@@ -179,11 +180,11 @@ func TestEncodedSegmentsAreDecodedAfterSplitting(t *testing.T) {
 	if !ok {
 		t.Fatal("an encoded slash must stay inside one segment")
 	}
-	if m.Params["slug"] != "a/b" {
-		t.Fatalf("slug %q, want %q", m.Params["slug"], "a/b")
+	if m.Get("slug") != "a/b" {
+		t.Fatalf("slug %q, want %q", m.Get("slug"), "a/b")
 	}
-	if m, ok := tbl.Match("/api/docs/caf%C3%A9", http.MethodGet); !ok || m.Params["slug"] != "café" {
-		t.Fatalf("utf-8 segment decoded to %q", m.Params["slug"])
+	if m, ok := tbl.Match("/api/docs/caf%C3%A9", http.MethodGet); !ok || m.Get("slug") != "café" {
+		t.Fatalf("utf-8 segment decoded to %q", m.Get("slug"))
 	}
 }
 
@@ -191,5 +192,20 @@ func TestMalformedEscapeDoesNotMatch(t *testing.T) {
 	tbl := mustTable(t, Entry{Pattern: "docs/{slug}", Method: http.MethodGet, Key: "docs.get"})
 	if _, ok := tbl.Match("/api/docs/%zz", http.MethodGet); ok {
 		t.Fatal("a malformed escape must not match")
+	}
+}
+
+func TestMatchHandlesPathsDeeperThanTheStackBuffer(t *testing.T) {
+	tbl, err := New([]Entry{{Pattern: "deep/{id}", Method: http.MethodGet, Key: "deep"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	prefix := strings.Repeat("a/", stackSegments*3)
+	m, ok := tbl.Match("/"+prefix+"deep/77", http.MethodGet)
+	if !ok || m.Key != "deep" || m.Get("id") != "77" {
+		t.Fatalf("a path with %d segments did not match: %+v %v", stackSegments*3+2, m, ok)
+	}
+	if _, ok := tbl.Match("/"+prefix+"other/77", http.MethodGet); ok {
+		t.Fatal("a deep path that does not end with the pattern must not match")
 	}
 }

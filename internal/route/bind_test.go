@@ -12,9 +12,17 @@ type bindInput struct {
 	Limit int32  `json:"limit"`
 }
 
+func params(pairs ...string) []Param {
+	out := make([]Param, 0, len(pairs)/2)
+	for i := 0; i+1 < len(pairs); i += 2 {
+		out = append(out, Param{Name: pairs[i], Value: pairs[i+1]})
+	}
+	return out
+}
+
 func TestBindSetsEveryKind(t *testing.T) {
 	var in bindInput
-	if err := Bind(&in, map[string]string{"id": "42", "slug": "ada", "count": "7"}); err != nil {
+	if err := Bind(&in, params("id", "42", "slug", "ada", "count", "7")); err != nil {
 		t.Fatal(err)
 	}
 	if in.ID != 42 || in.Slug != "ada" || in.Count != 7 {
@@ -24,7 +32,7 @@ func TestBindSetsEveryKind(t *testing.T) {
 
 func TestBindLeavesOtherFieldsAlone(t *testing.T) {
 	in := bindInput{Limit: 20, Slug: "keep"}
-	if err := Bind(&in, map[string]string{"id": "1"}); err != nil {
+	if err := Bind(&in, params("id", "1")); err != nil {
 		t.Fatal(err)
 	}
 	if in.Limit != 20 || in.Slug != "keep" {
@@ -33,22 +41,22 @@ func TestBindLeavesOtherFieldsAlone(t *testing.T) {
 }
 
 func TestBindRejectsBadValues(t *testing.T) {
-	for _, params := range []map[string]string{
-		{"id": "abc"},
-		{"id": ""},
-		{"count": "-1"},
-		{"limit": "99999999999999999999"},
+	for _, bad := range [][]Param{
+		params("id", "abc"),
+		params("id", ""),
+		params("count", "-1"),
+		params("limit", "99999999999999999999"),
 	} {
 		var in bindInput
-		if err := Bind(&in, params); err == nil {
-			t.Fatalf("%v was accepted", params)
+		if err := Bind(&in, bad); err == nil {
+			t.Fatalf("%v was accepted", bad)
 		}
 	}
 }
 
 func TestBindRejectsUnknownParam(t *testing.T) {
 	var in bindInput
-	if err := Bind(&in, map[string]string{"nope": "1"}); err == nil {
+	if err := Bind(&in, params("nope", "1")); err == nil {
 		t.Fatal("an unmatched parameter must be an error")
 	}
 }
@@ -58,11 +66,11 @@ func TestBindIgnoresUnexportedAndSkipped(t *testing.T) {
 		Secret string `json:"-"`
 	}
 	var s skipped
-	if err := Bind(&s, map[string]string{"-": "x"}); err == nil {
+	if err := Bind(&s, params("-", "x")); err == nil {
 		t.Fatal("a json:\"-\" field must not be bindable")
 	}
 	var in bindInput
-	if err := Bind(&in, map[string]string{"Slug": "x"}); err == nil {
+	if err := Bind(&in, params("Slug", "x")); err == nil {
 		t.Fatal("the Go field name must not bind when a json tag renames it")
 	}
 }

@@ -46,7 +46,7 @@ func FieldByWireName(t reflect.Type, name string) (reflect.StructField, bool) {
 	return reflect.StructField{}, false
 }
 
-func Bind(ptr any, params map[string]string) error {
+func Bind(ptr any, params []Param) error {
 	if len(params) == 0 {
 		return nil
 	}
@@ -58,7 +58,8 @@ func Bind(ptr any, params map[string]string) error {
 	if v.Kind() != reflect.Struct {
 		return errors.New("binding path parameters: input is not a struct")
 	}
-	for name, raw := range params {
+	for _, param := range params {
+		name, raw := param.Name, param.Value
 		field, ok := FieldByWireName(v.Type(), name)
 		if !ok {
 			return fmt.Errorf("path parameter %q has no matching input field", name)

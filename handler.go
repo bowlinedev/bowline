@@ -123,7 +123,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		path = path[i+1:]
 	}
 	rt, ok := h.routes[path]
-	var params map[string]string
+	var params []routing.Param
 	if !ok && h.table != nil {
 		if m, matched := h.table.Match(req.URL.EscapedPath(), req.Method); matched {
 			rt, ok = h.routes[m.Key], true
@@ -159,7 +159,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	h.execute(w, req, rt, params)
 }
 
-func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route, params map[string]string) {
+func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route, params []routing.Param) {
 	proc := rt.proc
 	if proc.Kind == KindUpload {
 		h.serveUpload(w, req, rt, params)
@@ -185,7 +185,7 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route, p
 		h.writeError(w, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
 		return
 	}
-	if proc.HTTPPath != "" && !methodSendsBody(req.Method) {
+	if proc.HTTPPath != "" && req.URL.RawQuery != "" && !methodSendsBody(req.Method) {
 		if err := routing.BindQuery(ptr, req.URL.Query()); err != nil {
 			h.writeError(w, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
 			return
