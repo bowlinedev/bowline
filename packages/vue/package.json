@@ -1,6 +1,6 @@
 {
   "name": "@bowlinedev/vue",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Vue composables and TanStack Vue Query option builders for Bowline clients",
   "keywords": [
     "bowline",

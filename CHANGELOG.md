@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.0
 
 - Runtime: `bowline.CallTimeout(d)` bounds how long one procedure may run and answers `DEADLINE_EXCEEDED`; subscriptions are exempt because they are long-lived by design. `bowline.Drain(ctx)` ends in-flight subscriptions when that context is cancelled, so `http.Server.Shutdown` does not wait on an idle stream for its whole grace period. Both are provisional; see `docs/provisional.md`.
 - Idempotency: the in-memory store is now bounded. It was the only in-memory store without a limit, so a caller sending a fresh `Idempotency-Key` on every request grew the process without bound, and its sweep scanned the whole map under the lock on every call. It now holds at most ten thousand keys, evicts the ones closest to expiry, never evicts a key whose request is still running, and sweeps at most once a second. Under enough unique-key traffic an older key is dropped early and a retry re-runs the mutation rather than replaying.
