@@ -11,13 +11,11 @@ test("the app still lists and creates with CSRF enabled", async ({ page }) => {
 });
 
 test("a mutation forged from another origin is rejected", async ({ request }) => {
-  const response = await request.post("http://localhost:8080/api/invoices.void", {
+  const response = await request.delete("http://localhost:8080/api/invoices/3", {
     headers: {
-      "Content-Type": "application/json",
       Origin: "https://evil.example",
       "Sec-Fetch-Site": "cross-site",
     },
-    data: { id: 3 },
     failOnStatusCode: false,
   });
   expect(response.status()).toBe(403);

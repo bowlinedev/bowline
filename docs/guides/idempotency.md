@@ -7,7 +7,7 @@ When a client retries a mutation after a timeout, it cannot know whether the fir
 source: examples/ledger/api/invoices.go:48-48
 
 ```go
-		bowline.Mutation("create", a.createInvoice, bowline.Idempotent()),
+		bowline.Mutation("create", a.createInvoice, bowline.Path("invoices"), bowline.Idempotent()),
 ```
 
 Using `Idempotent()` on anything other than a mutation panics in `NewRouter`. The handler also needs a store:

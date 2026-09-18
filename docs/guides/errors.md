@@ -70,7 +70,7 @@ The procedure declares the variant with `bowline.Errors`:
 source: examples/ledger/api/invoices.go:49-49
 
 ```go
-		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive()), bowline.Use(voidLimit())),
+		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Path("invoices/{id}"), bowline.Method("DELETE"), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive()), bowline.Use(voidLimit())),
 ```
 
 If the handler returns `InvoiceLocked{ID: 4, Status: "paid"}`, wrapped or not, the response is:

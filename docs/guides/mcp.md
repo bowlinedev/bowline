@@ -9,13 +9,13 @@ A procedure is only a tool if its declaration says so. Queries become read-only 
 source: examples/ledger/api/invoices.go:46-46
 
 ```go
-		bowline.Query("get", a.getInvoice, bowline.Description("Get returns one invoice by ID."), bowline.Tool(bowline.Scope("billing"))),
+		bowline.Query("get", a.getInvoice, bowline.Description("Get returns one invoice by ID."), bowline.Path("invoices/{id}"), bowline.Tool(bowline.Scope("billing"))),
 ```
 
 source: examples/ledger/api/invoices.go:49-49
 
 ```go
-		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive()), bowline.Use(voidLimit())),
+		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Path("invoices/{id}"), bowline.Method("DELETE"), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive()), bowline.Use(voidLimit())),
 ```
 
 Subscriptions and uploads cannot be tools. `Tool()` on one of them panics in `NewRouter`. The tool name is the procedure path with dots replaced by underscores, so `invoices.get` becomes `invoices_get`. The description is the procedure's doc comment, followed by a final `Errors:` line that names the declared error variants, so a model knows which failures to expect.

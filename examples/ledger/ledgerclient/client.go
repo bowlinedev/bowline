@@ -202,28 +202,28 @@ func (c InvoicesClient) Attachments(ctx context.Context, in ListAttachmentsInput
 // Create calls invoices.create.
 func (c InvoicesClient) Create(ctx context.Context, in CreateInvoiceInput) (Invoice, error) {
 	var out Invoice
-	err := c.c.call(ctx, "invoices.create", http.MethodPost, in, &out)
+	err := c.c.call(ctx, "invoices", http.MethodPost, in, &out)
 	return out, err
 }
 
 // Get returns one invoice by ID.
 func (c InvoicesClient) Get(ctx context.Context, in GetInvoiceInput) (Invoice, error) {
 	var out Invoice
-	err := c.c.call(ctx, "invoices.get", http.MethodGet, in, &out)
+	err := c.c.rest(ctx, "invoices/"+url.PathEscape(fmt.Sprint(in.ID)), http.MethodGet, struct{}{}, &out)
 	return out, err
 }
 
 // List returns a page of invoices, optionally filtered by status.
 func (c InvoicesClient) List(ctx context.Context, in ListInvoicesInput) (Page[Invoice], error) {
 	var out Page[Invoice]
-	err := c.c.call(ctx, "invoices.list", http.MethodGet, in, &out)
+	err := c.c.rest(ctx, "invoices", http.MethodGet, in, &out)
 	return out, err
 }
 
 // Void cancels a draft or sent invoice.
 func (c InvoicesClient) Void(ctx context.Context, in VoidInvoiceInput) (Invoice, error) {
 	var out Invoice
-	err := c.c.call(ctx, "invoices.void", http.MethodPost, in, &out)
+	err := c.c.rest(ctx, "invoices/"+url.PathEscape(fmt.Sprint(in.ID)), http.MethodDelete, struct{}{}, &out)
 	return out, err
 }
 
