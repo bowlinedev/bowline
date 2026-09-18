@@ -29,6 +29,7 @@ type Options struct {
 type handler struct {
 	doc      *contract.Document
 	routes   map[string]*contract.Procedure
+	rest     []restRoute
 	gen      *fake.Generator
 	state    *state
 	fixtures *fixtureSet
@@ -45,6 +46,7 @@ func New(doc *contract.Document, opts Options) http.Handler {
 	for _, p := range doc.Procedures {
 		h.routes[p.Path] = p
 	}
+	h.rest = restRoutes(doc)
 	if opts.Fixtures != nil {
 		set, err := loadFixtures(opts.Fixtures)
 		if err != nil {
@@ -78,9 +80,20 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		path = path[i+1:]
 	}
 	p, ok := h.routes[path]
+	var params map[string]string
 	if !ok {
-		writeError(w, http.StatusNotFound, "UNIMPLEMENTED", fmt.Sprintf("unknown procedure %q", path), nil)
-		return
+		matched, bound, allowed := h.matchREST(req.URL.EscapedPath(), req.Method)
+		switch {
+		case matched != nil:
+			p, params = matched, bound
+		case len(allowed) > 0:
+			w.Header().Set("Allow", strings.Join(allowed, ", "))
+			writeError(w, http.StatusMethodNotAllowed, "INVALID_ARGUMENT", fmt.Sprintf("method %s not allowed for %s; use %s", req.Method, req.URL.Path, strings.Join(allowed, " or ")), nil)
+			return
+		default:
+			writeError(w, http.StatusNotFound, "UNIMPLEMENTED", fmt.Sprintf("unknown procedure %q", path), nil)
+			return
+		}
 	}
 	if p.Kind == "subscription" || p.Kind == "upload" {
 		writeError(w, http.StatusNotFound, "UNIMPLEMENTED", fmt.Sprintf("the mock server does not serve %s procedures", p.Kind), nil)
@@ -95,6 +108,14 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if message != "" {
 		writeError(w, status, code, message, nil)
 		return
+	}
+	if p.HTTPPath != "" {
+		merged, err := h.mergeREST(p, raw, params, req.URL.Query())
+		if err != nil {
+			writeError(w, http.StatusBadRequest, "INVALID_ARGUMENT", "invalid input: "+err.Error(), nil)
+			return
+		}
+		raw = merged
 	}
 	if h.fixtures != nil {
 		if fx, ok := h.fixtures.lookup(p.Path, raw); ok {
@@ -152,6 +173,9 @@ func (h *handler) respond(p *contract.Procedure, input map[string]any) any {
 }
 
 func methodAllowed(p *contract.Procedure, method string) bool {
+	if p.HTTPPath != "" {
+		return method == p.Method
+	}
 	switch method {
 	case http.MethodPost:
 		return true
@@ -162,7 +186,7 @@ func methodAllowed(p *contract.Procedure, method string) bool {
 }
 
 func readInput(w http.ResponseWriter, req *http.Request) ([]byte, int, string, string) {
-	if req.Method == http.MethodGet {
+	if !sendsBody(req.Method) {
 		return []byte(req.URL.Query().Get("input")), 0, "", ""
 	}
 	if ct := req.Header.Get("Content-Type"); ct != "" {

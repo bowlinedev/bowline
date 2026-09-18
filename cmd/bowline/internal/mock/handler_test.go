@@ -45,7 +45,11 @@ func row(t *testing.T, name string) *contract.Document {
 func call(h http.Handler, method, path, body string) *httptest.ResponseRecorder {
 	var req *http.Request
 	if method == http.MethodGet {
-		req = httptest.NewRequest(method, "/"+path+"?input="+body, nil)
+		query := ""
+		if body != "" {
+			query = "?input=" + body
+		}
+		req = httptest.NewRequest(method, "/"+path+query, nil)
 	} else {
 		req = httptest.NewRequest(method, "/"+path, strings.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
@@ -79,7 +83,7 @@ func TestCreateThenGetThenList(t *testing.T) {
 	if got.Code != 200 || decode(t, got)["customerId"] != float64(42) {
 		t.Fatalf("get %d %s", got.Code, got.Body.String())
 	}
-	list := decode(t, call(h, http.MethodPost, "invoices.list", `{"limit":10}`))
+	list := decode(t, call(h, http.MethodGet, "invoices?limit=10", ""))
 	items, _ := list["items"].([]any)
 	found := false
 	for _, item := range items {
@@ -123,7 +127,7 @@ func TestMethodsAndSensitive(t *testing.T) {
 	if rec := call(h, http.MethodPost, "invoices.watch", `{}`); rec.Code != 404 || !strings.Contains(rec.Body.String(), "subscription") {
 		t.Fatalf("subscription: %d %s", rec.Code, rec.Body.String())
 	}
-	bad := httptest.NewRequest(http.MethodPost, "/invoices.get", strings.NewReader("{}"))
+	bad := httptest.NewRequest(http.MethodPost, "/invoices.create", strings.NewReader("{}"))
 	bad.Header.Set("Content-Type", "text/plain")
 	rec = httptest.NewRecorder()
 	h.ServeHTTP(rec, bad)
@@ -199,7 +203,7 @@ func TestConcurrentCreates(t *testing.T) {
 		}
 		seen[id] = true
 	}
-	list := decode(t, call(h, http.MethodPost, "invoices.list", `{"limit":100}`))
+	list := decode(t, call(h, http.MethodGet, "invoices?limit=100", ""))
 	if items, _ := list["items"].([]any); len(items) != 50 {
 		t.Fatalf("expected 50 stored invoices, got %d", len(items))
 	}
@@ -208,7 +212,7 @@ func TestConcurrentCreates(t *testing.T) {
 func TestMutationWithIDUpdatesTheStoredObject(t *testing.T) {
 	h := New(ledger(t), Options{Seed: 1})
 	before := decode(t, call(h, http.MethodGet, "invoices.get", `{"id":3}`))
-	voided := decode(t, call(h, http.MethodPost, "invoices.void", `{"id":3}`))
+	voided := decode(t, call(h, http.MethodDelete, "invoices/3", ""))
 	if voided["id"] != float64(3) || voided["customerId"] != before["customerId"] {
 		t.Fatalf("void must return the stored invoice 3: %v vs %v", voided, before)
 	}
@@ -216,7 +220,7 @@ func TestMutationWithIDUpdatesTheStoredObject(t *testing.T) {
 	if after["updatedAt"] != voided["updatedAt"] {
 		t.Fatalf("stored object not updated: %v vs %v", after, voided)
 	}
-	list := decode(t, call(h, http.MethodPost, "invoices.list", `{"limit":10}`))
+	list := decode(t, call(h, http.MethodGet, "invoices?limit=10", ""))
 	items, _ := list["items"].([]any)
 	count := 0
 	for _, item := range items {
@@ -226,5 +230,23 @@ func TestMutationWithIDUpdatesTheStoredObject(t *testing.T) {
 	}
 	if count != 1 {
 		t.Fatalf("invoice 3 appears %d times after void", count)
+	}
+}
+
+func TestRESTRoutes(t *testing.T) {
+	h := New(ledger(t), Options{Seed: 1})
+	got := decode(t, call(h, http.MethodGet, "invoices/3", ""))
+	if got["id"] != float64(3) {
+		t.Fatalf("GET invoices/3: %v", got)
+	}
+	if rec := call(h, http.MethodGet, "invoices?limit=2", ""); rec.Code != 200 {
+		t.Fatalf("GET invoices?limit=2: %d %s", rec.Code, rec.Body.String())
+	}
+	if rec := call(h, http.MethodGet, "invoices?limit=notanumber", ""); rec.Code != 400 {
+		t.Fatalf("the query string did not reach validation: %d %s", rec.Code, rec.Body.String())
+	}
+	rec := call(h, http.MethodPost, "invoices/3", "{}")
+	if rec.Code != 405 || rec.Header().Get("Allow") == "" {
+		t.Fatalf("POST invoices/3: %d %q", rec.Code, rec.Header().Get("Allow"))
 	}
 }
