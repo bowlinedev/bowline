@@ -60,8 +60,22 @@ func BenchmarkGenerators(b *testing.B) {
 				}
 			}
 			b.ReportMetric(float64(len(usable)), "contracts")
+			b.ReportMetric(corpusSize(b, usable), "corpusbytes")
 		})
 	}
+}
+
+func corpusSize(tb testing.TB, docs []*contract.Document) float64 {
+	tb.Helper()
+	total := 0
+	for _, doc := range docs {
+		data, err := doc.Marshal()
+		if err != nil {
+			tb.Fatal(err)
+		}
+		total += len(data)
+	}
+	return float64(total)
 }
 
 func generatorExtension(target string) string {

@@ -1,6 +1,7 @@
 package bench
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -286,5 +287,28 @@ func TestBenchmarksWithoutACorpusAreUnaffected(t *testing.T) {
 	current := Run{Results: []Result{{Name: "BenchmarkRateLimitAllow", NsPerOp: 70, AllocsPerOp: 12}}}
 	if len(Blocking(Regressions(current, []Run{previous}))) != 1 {
 		t.Fatal("a benchmark with no corpus metric must still be gated")
+	}
+}
+
+func TestCorpusSizeSuppressesTheComparison(t *testing.T) {
+	line := func(corpusBytes int, allocs int) string {
+		return fmt.Sprintf("BenchmarkGenerators/go-8\t1000\t500 ns/op\t100 B/op\t%d allocs/op\t21 contracts\t%d corpusbytes\n", allocs, corpusBytes)
+	}
+	parse := func(text string) Run {
+		results, err := Parse(strings.NewReader(text))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return Run{Results: results}
+	}
+	grown := parse(line(9000, 4000))
+	same := parse(line(8000, 4000))
+	baseline := parse(line(8000, 3000))
+
+	if got := Regressions(grown, []Run{baseline}); len(got) != 0 {
+		t.Fatalf("a corpus that changed size must suppress the comparison, got %v", got)
+	}
+	if got := Regressions(same, []Run{baseline}); len(got) == 0 {
+		t.Fatal("an unchanged corpus must still report the allocation growth")
 	}
 }

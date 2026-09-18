@@ -93,6 +93,7 @@ func Parse(r io.Reader) ([]Result, error) {
 		}
 		result := Result{Name: trimProcs(fields[0])}
 		seen := false
+		corpusSized := false
 		for i := 1; i+1 < len(fields); i++ {
 			value, err := strconv.ParseFloat(fields[i], 64)
 			if err != nil {
@@ -107,7 +108,12 @@ func Parse(r io.Reader) ([]Result, error) {
 			case "allocs/op":
 				result.AllocsPerOp = int64(value)
 			case "contracts":
+				if !corpusSized {
+					result.Corpus = value
+				}
+			case "corpusbytes":
 				result.Corpus = value
+				corpusSized = true
 			}
 		}
 		if !seen {
