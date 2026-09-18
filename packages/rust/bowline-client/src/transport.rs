@@ -16,6 +16,44 @@ use std::time::Duration;
 pub enum Method {
     Get,
     Post,
+    Put,
+    Patch,
+    Delete,
+}
+
+impl Method {
+    pub fn sends_body(self) -> bool {
+        !matches!(self, Method::Get | Method::Delete)
+    }
+
+    fn verb(self) -> reqwest::Method {
+        match self {
+            Method::Get => reqwest::Method::GET,
+            Method::Post => reqwest::Method::POST,
+            Method::Put => reqwest::Method::PUT,
+            Method::Patch => reqwest::Method::PATCH,
+            Method::Delete => reqwest::Method::DELETE,
+        }
+    }
+}
+
+pub fn encode_segment(value: &impl std::fmt::Display) -> String {
+    const HEX: &[u8; 16] = b"0123456789ABCDEF";
+    let raw = value.to_string();
+    let mut out = String::with_capacity(raw.len());
+    for byte in raw.bytes() {
+        match byte {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                out.push(byte as char)
+            }
+            _ => {
+                out.push('%');
+                out.push(HEX[usize::from(byte >> 4)] as char);
+                out.push(HEX[usize::from(byte & 0x0f)] as char);
+            }
+        }
+    }
+    out
 }
 
 #[derive(Clone, Debug, Default)]
@@ -213,13 +251,34 @@ impl Transport {
         }
         let body = serde_json::to_string(input)?;
         let url = format!("{}/{}", self.base, path);
-        let mut request = match method {
-            Method::Get => self.client.get(url).query(&[("input", body.as_str())]),
-            Method::Post => self
-                .client
-                .post(url)
+        let request = self.client.request(method.verb(), url);
+        let mut request = if method.sends_body() {
+            request.header(CONTENT_TYPE, "application/json").body(body)
+        } else {
+            request.query(&[("input", body.as_str())])
+        };
+        request = request.header(ACCEPT, accept);
+        Ok(self.apply(request, options))
+    }
+
+    fn prepare_rest<I: Serialize + Validate>(
+        &self,
+        path: &str,
+        method: Method,
+        input: &I,
+        drop: &[&str],
+        options: Option<&CallOptions>,
+        accept: &'static str,
+    ) -> Result<reqwest::RequestBuilder, Error> {
+        let payload = rest_payload(input, drop)?;
+        let url = format!("{}/{}", self.base, path);
+        let request = self.client.request(method.verb(), url);
+        let mut request = if method.sends_body() {
+            request
                 .header(CONTENT_TYPE, "application/json")
-                .body(body),
+                .body(serde_json::to_string(&payload)?)
+        } else {
+            request.query(&query_pairs(&payload))
         };
         request = request.header(ACCEPT, accept);
         Ok(self.apply(request, options))
@@ -265,6 +324,20 @@ impl Transport {
         decode_body(&body)
     }
 
+    pub async fn call_rest<I: Serialize + Validate, O: DeserializeOwned>(
+        &self,
+        path: &str,
+        method: Method,
+        input: &I,
+        drop: &[&str],
+        options: Option<&CallOptions>,
+    ) -> Result<O, Error> {
+        let request = self.prepare_rest(path, method, input, drop, options, "application/json")?;
+        let response = Transport::send(request).await?;
+        let body = response.bytes().await.map_err(map_transport)?;
+        decode_body(&body)
+    }
+
     pub fn subscribe<I: Serialize + Validate, O: DeserializeOwned + Send + 'static>(
         &self,
         path: &str,
@@ -272,77 +345,18 @@ impl Transport {
         input: &I,
         options: Option<&CallOptions>,
     ) -> impl Stream<Item = Result<O, Error>> + Send + 'static {
-        let prepared = self.prepare(path, method, input, options, "text/event-stream");
-        futures_util::stream::unfold(SubscribeState::Start(prepared), |state| async move {
-            let mut state = state;
-            loop {
-                match state {
-                    SubscribeState::Start(Err(err)) => {
-                        return Some((Err(err), SubscribeState::Done))
-                    }
-                    SubscribeState::Start(Ok(request)) => match Transport::send(request).await {
-                        Ok(response) => {
-                            state = SubscribeState::Reading {
-                                body: Some(Box::pin(response.bytes_stream())),
-                                parser: sse::Parser::new(),
-                                queue: VecDeque::new(),
-                            };
-                        }
-                        Err(err) => return Some((Err(err), SubscribeState::Done)),
-                    },
-                    SubscribeState::Reading {
-                        mut body,
-                        mut parser,
-                        mut queue,
-                    } => {
-                        if let Some(item) = queue.pop_front() {
-                            let next = if item.is_err() {
-                                SubscribeState::Done
-                            } else {
-                                SubscribeState::Reading {
-                                    body,
-                                    parser,
-                                    queue,
-                                }
-                            };
-                            return Some((item, next));
-                        }
-                        let stream = body.as_mut()?;
-                        match stream.next().await {
-                            Some(Ok(chunk)) => {
-                                for event in parser.push(&chunk) {
-                                    match shape_event::<O>(&event) {
-                                        Some(item) => queue.push_back(item),
-                                        None => {
-                                            body = None;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            Some(Err(err)) => {
-                                queue.push_back(Err(map_transport(err)));
-                                body = None;
-                            }
-                            None => {
-                                if let Some(event) = parser.finish() {
-                                    if let Some(item) = shape_event::<O>(&event) {
-                                        queue.push_back(item);
-                                    }
-                                }
-                                body = None;
-                            }
-                        }
-                        state = SubscribeState::Reading {
-                            body,
-                            parser,
-                            queue,
-                        };
-                    }
-                    SubscribeState::Done => return None,
-                }
-            }
-        })
+        events(self.prepare(path, method, input, options, "text/event-stream"))
+    }
+
+    pub fn subscribe_rest<I: Serialize + Validate, O: DeserializeOwned + Send + 'static>(
+        &self,
+        path: &str,
+        method: Method,
+        input: &I,
+        drop: &[&str],
+        options: Option<&CallOptions>,
+    ) -> impl Stream<Item = Result<O, Error>> + Send + 'static {
+        events(self.prepare_rest(path, method, input, drop, options, "text/event-stream"))
     }
 
     pub async fn upload<I: Serialize + Validate, O: DeserializeOwned>(
@@ -358,6 +372,30 @@ impl Transport {
             return Err(Error::Invalid(issues));
         }
         let body = serde_json::to_string(input)?;
+        self.post_form(path, body, file, filename, options).await
+    }
+
+    pub async fn upload_rest<I: Serialize + Validate, O: DeserializeOwned>(
+        &self,
+        path: &str,
+        input: &I,
+        drop: &[&str],
+        file: reqwest::Body,
+        filename: &str,
+        options: Option<&CallOptions>,
+    ) -> Result<O, Error> {
+        let body = serde_json::to_string(&rest_payload(input, drop)?)?;
+        self.post_form(path, body, file, filename, options).await
+    }
+
+    async fn post_form<O: DeserializeOwned>(
+        &self,
+        path: &str,
+        body: String,
+        file: reqwest::Body,
+        filename: &str,
+        options: Option<&CallOptions>,
+    ) -> Result<O, Error> {
         let input_part = reqwest::multipart::Part::text(body)
             .mime_str("application/json")
             .map_err(map_transport)?;
@@ -373,6 +411,122 @@ impl Transport {
         let response = Transport::send(self.apply(request, options)).await?;
         let bytes = response.bytes().await.map_err(map_transport)?;
         decode_body(&bytes)
+    }
+}
+
+fn events<O: DeserializeOwned + Send + 'static>(
+    prepared: Result<reqwest::RequestBuilder, Error>,
+) -> impl Stream<Item = Result<O, Error>> + Send + 'static {
+    futures_util::stream::unfold(SubscribeState::Start(prepared), |state| async move {
+        let mut state = state;
+        loop {
+            match state {
+                SubscribeState::Start(Err(err)) => return Some((Err(err), SubscribeState::Done)),
+                SubscribeState::Start(Ok(request)) => match Transport::send(request).await {
+                    Ok(response) => {
+                        state = SubscribeState::Reading {
+                            body: Some(Box::pin(response.bytes_stream())),
+                            parser: sse::Parser::new(),
+                            queue: VecDeque::new(),
+                        };
+                    }
+                    Err(err) => return Some((Err(err), SubscribeState::Done)),
+                },
+                SubscribeState::Reading {
+                    mut body,
+                    mut parser,
+                    mut queue,
+                } => {
+                    if let Some(item) = queue.pop_front() {
+                        let next = if item.is_err() {
+                            SubscribeState::Done
+                        } else {
+                            SubscribeState::Reading {
+                                body,
+                                parser,
+                                queue,
+                            }
+                        };
+                        return Some((item, next));
+                    }
+                    let stream = body.as_mut()?;
+                    match stream.next().await {
+                        Some(Ok(chunk)) => {
+                            for event in parser.push(&chunk) {
+                                match shape_event::<O>(&event) {
+                                    Some(item) => queue.push_back(item),
+                                    None => {
+                                        body = None;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        Some(Err(err)) => {
+                            queue.push_back(Err(map_transport(err)));
+                            body = None;
+                        }
+                        None => {
+                            if let Some(event) = parser.finish() {
+                                if let Some(item) = shape_event::<O>(&event) {
+                                    queue.push_back(item);
+                                }
+                            }
+                            body = None;
+                        }
+                    }
+                    state = SubscribeState::Reading {
+                        body,
+                        parser,
+                        queue,
+                    };
+                }
+                SubscribeState::Done => return None,
+            }
+        }
+    })
+}
+
+fn rest_payload<I: Serialize + Validate>(
+    input: &I,
+    drop: &[&str],
+) -> Result<serde_json::Value, Error> {
+    let issues = input.issues();
+    if !issues.is_empty() {
+        return Err(Error::Invalid(issues));
+    }
+    let mut payload = serde_json::to_value(input)?;
+    if let Some(fields) = payload.as_object_mut() {
+        for name in drop {
+            fields.remove(*name);
+        }
+    }
+    Ok(payload)
+}
+
+fn query_pairs(payload: &serde_json::Value) -> Vec<(String, String)> {
+    let Some(fields) = payload.as_object() else {
+        return Vec::new();
+    };
+    let mut pairs = Vec::new();
+    for (name, value) in fields {
+        match value {
+            serde_json::Value::Null => {}
+            serde_json::Value::Array(items) => {
+                for item in items.iter().filter(|item| !item.is_null()) {
+                    pairs.push((name.clone(), query_value(item)));
+                }
+            }
+            _ => pairs.push((name.clone(), query_value(value))),
+        }
+    }
+    pairs
+}
+
+fn query_value(value: &serde_json::Value) -> String {
+    match value {
+        serde_json::Value::String(text) => text.clone(),
+        other => other.to_string(),
     }
 }
 

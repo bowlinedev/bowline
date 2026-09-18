@@ -1,6 +1,6 @@
 use bowline_client::{
-    rules, Base64Bytes, CallOptions, Code, Empty, Error, Issue, Method, StringInt, Transport,
-    Validate,
+    encode_segment, rules, Base64Bytes, CallOptions, Code, Empty, Error, Issue, Method, StringInt,
+    Transport, Validate,
 };
 use futures::StreamExt;
 use reqwest::header::HeaderMap;
@@ -39,6 +39,32 @@ struct Encoded {
 
 impl Validate for Encoded {
     fn validate(&self, _path: &mut Vec<String>, _issues: &mut Vec<Issue>) {}
+}
+
+#[derive(Serialize)]
+struct ListInput {
+    id: i64,
+    limit: i32,
+    status: String,
+    tags: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    note: Option<String>,
+}
+
+impl Validate for ListInput {
+    fn validate(&self, path: &mut Vec<String>, issues: &mut Vec<Issue>) {
+        rules::required_int(self.id, path, "id", issues);
+    }
+}
+
+fn listing(id: i64) -> ListInput {
+    ListInput {
+        id,
+        limit: 20,
+        status: "paid".into(),
+        tags: vec!["a".into(), "b".into()],
+        note: None,
+    }
 }
 
 fn transport(server: &MockServer) -> Transport {
@@ -336,4 +362,71 @@ fn rules_produce_the_runtime_messages() {
     assert!(rules::is_email("ada@example.com") && !rules::is_email("ada@"));
     assert!(rules::is_url("https://example.com/x") && !rules::is_url("example.com"));
     assert!(rules::is_uuid("123e4567-e89b-12d3-a456-426614174000"));
+}
+
+#[tokio::test]
+async fn a_rest_call_drops_path_fields_and_sends_the_rest_as_query_parameters() {
+    let server = MockServer::start().await;
+    Mock::given(method("DELETE"))
+        .and(path("/api/invoices/7"))
+        .and(|req: &Request| req.url.query() == Some("limit=20&status=paid&tags=a&tags=b"))
+        .respond_with(ResponseTemplate::new(200).set_body_string("{\"id\":7,\"name\":\"Ada\"}"))
+        .mount(&server)
+        .await;
+    let user: User = transport(&server)
+        .call_rest(
+            &format!("invoices/{}", encode_segment(&7)),
+            Method::Delete,
+            &listing(7),
+            &["id"],
+            None,
+        )
+        .await
+        .unwrap();
+    assert_eq!(user.id, 7);
+}
+
+#[tokio::test]
+async fn a_rest_call_on_a_body_method_drops_path_fields_from_the_json() {
+    let server = MockServer::start().await;
+    Mock::given(method("PUT"))
+        .and(path("/api/invoices/7"))
+        .and(header("content-type", "application/json"))
+        .and(|req: &Request| {
+            req.body == br#"{"limit":20,"status":"paid","tags":["a","b"]}"#
+                && req.url.query().is_none()
+        })
+        .respond_with(ResponseTemplate::new(200).set_body_string("{\"id\":7,\"name\":\"Ada\"}"))
+        .mount(&server)
+        .await;
+    let user: User = transport(&server)
+        .call_rest("invoices/7", Method::Put, &listing(7), &["id"], None)
+        .await
+        .unwrap();
+    assert_eq!(user.name, "Ada");
+}
+
+#[tokio::test]
+async fn a_rest_call_validates_the_fields_it_drops() {
+    let server = MockServer::start().await;
+    let err = transport(&server)
+        .call_rest::<_, User>("invoices/0", Method::Get, &listing(0), &["id"], None)
+        .await
+        .unwrap_err();
+    match err {
+        Error::Invalid(issues) => {
+            assert_eq!(
+                issues,
+                vec![Issue::new(vec!["id".into()], "required", "is required")]
+            );
+        }
+        other => panic!("unexpected {other:?}"),
+    }
+    assert!(server.received_requests().await.unwrap().is_empty());
+}
+
+#[test]
+fn encode_segment_keeps_a_value_inside_one_path_segment() {
+    assert_eq!(encode_segment(&"acme/2026 q1"), "acme%2F2026%20q1");
+    assert_eq!(encode_segment(&7), "7");
 }
