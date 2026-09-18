@@ -95,7 +95,7 @@ export interface HydrateEntry {
 
 export interface ProcedureRuntime {
   kind: "query" | "mutation" | "subscription" | "upload";
-  method: "GET" | "POST";
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   output?: string;
   errors?: string[];
   path?: string;

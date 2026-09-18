@@ -1,0 +1,18 @@
+{
+  "invoices.get": {
+    "id": 1,
+    "title": "ivory"
+  },
+  "invoices.list": {
+    "id": 2,
+    "title": "hazel"
+  },
+  "invoices.remove": {
+    "id": 3,
+    "title": "garnet velvet alpha"
+  },
+  "invoices.replace": {
+    "id": 4,
+    "title": "nova coral"
+  }
+}

@@ -18,6 +18,7 @@ import (
 type procedureSpec struct {
 	Path        string
 	HTTPPath    string
+	HTTPMethod  string
 	Kind        string
 	Method      string
 	In          types.Type
@@ -280,6 +281,9 @@ func (e *evaluator) procedure(pkg *packages.Package, call *ast.CallExpr, prefix 
 	if (kind == "query" || kind == "subscription") && !spec.Sensitive {
 		spec.Method = "GET"
 	}
+	if spec.HTTPMethod != "" {
+		spec.Method = spec.HTTPMethod
+	}
 	return []procedureSpec{spec}
 }
 
@@ -294,6 +298,22 @@ func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedure
 		spec.Description, _ = e.constArg(pkg, call, 0, spec.Path)
 	case "Deprecated":
 		spec.Deprecated, _ = e.constArg(pkg, call, 0, spec.Path)
+	case "Method":
+		verb, ok := e.constArg(pkg, call, 0, spec.Path)
+		if !ok {
+			return
+		}
+		switch verb {
+		case "GET", "POST", "PUT", "PATCH", "DELETE":
+		default:
+			e.fail(call.Args[0].Pos(), spec.Path, fmt.Sprintf("%q is not a supported HTTP method", verb), "use GET, POST, PUT, PATCH, or DELETE")
+			return
+		}
+		if spec.Kind == "subscription" || spec.Kind == "upload" {
+			e.fail(call.Pos(), spec.Path, "subscriptions and uploads cannot choose their HTTP method", "drop the Method option")
+			return
+		}
+		spec.HTTPMethod = verb
 	case "Path":
 		raw, ok := e.constArg(pkg, call, 0, spec.Path)
 		if !ok {

@@ -76,7 +76,7 @@ export interface ContractSchemas {
 export interface ContractProcedure {
   path: string;
   kind: "query" | "mutation" | "subscription" | "upload";
-  method: "GET" | "POST";
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   doc?: string;
   deprecated?: string;
   idempotent?: boolean;

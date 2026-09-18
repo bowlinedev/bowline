@@ -99,6 +99,31 @@ export function createClient(contract: ContractRuntime, options: ClientOptions):
   return root;
 }
 
+export function sendsBody(method: string): boolean {
+  return method !== "GET" && method !== "DELETE" && method !== "HEAD";
+}
+
+export function queryString(payload: unknown): string {
+  if (payload === null || typeof payload !== "object") {
+    return "";
+  }
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(payload as Record<string, unknown>)) {
+    if (value === undefined || value === null) {
+      continue;
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        params.append(key, String(item));
+      }
+      continue;
+    }
+    params.append(key, String(value));
+  }
+  const encoded = params.toString();
+  return encoded === "" ? "" : `?${encoded}`;
+}
+
 export function resolvePath(
   procedurePath: string,
   proc: ProcedureRuntime,
@@ -158,9 +183,9 @@ async function prepare(
   const body = serialize(payload ?? {});
   let url = `${base}/${resolved}`;
   const init: RequestInit = { method: proc.method, headers, signal: callOptions?.signal ?? null };
-  if (proc.method === "GET") {
+  if (!sendsBody(proc.method)) {
     if (payload !== undefined) {
-      url += `?input=${encodeURIComponent(body)}`;
+      url += proc.path === undefined ? `?input=${encodeURIComponent(body)}` : queryString(payload);
     }
   } else {
     headers.set("content-type", "application/json");

@@ -21,6 +21,7 @@ type Procedure struct {
 	Name        string
 	Path        string
 	HTTPPath    string
+	HTTPMethod  string
 	Kind        ProcedureKind
 	Description string
 	Deprecated  string
@@ -46,8 +47,19 @@ type Procedure struct {
 }
 
 func (p Procedure) Method() string {
+	if p.HTTPMethod != "" {
+		return p.HTTPMethod
+	}
 	if (p.Kind == KindQuery || p.Kind == KindSubscription) && !p.Sensitive {
 		return "GET"
 	}
 	return "POST"
+}
+
+func (p Procedure) SendsBody() bool {
+	switch p.Method() {
+	case "GET", "DELETE", "HEAD":
+		return false
+	}
+	return true
 }

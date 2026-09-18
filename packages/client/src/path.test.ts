@@ -132,12 +132,10 @@ describe("a generated client calling custom paths", () => {
     expect(first(seen).init.method).toBe("GET");
   });
 
-  it("keeps unconsumed fields in the query string", async () => {
+  it("sends unconsumed fields as real query parameters", async () => {
     const seen: { url: string; init: RequestInit }[] = [];
     await restClient(seen).invoices.list({ limit: 20 });
-    expect(first(seen).url).toBe(
-      `http://api.test/api/invoices?input=${encodeURIComponent('{"limit":20}')}`,
-    );
+    expect(first(seen).url).toBe("http://api.test/api/invoices?limit=20");
   });
 
   it("sends a POST body to the resolved path", async () => {
@@ -151,5 +149,30 @@ describe("a generated client calling custom paths", () => {
     const seen: { url: string; init: RequestInit }[] = [];
     await restClient(seen).invoices.line({ invoiceId: 3, lineId: "abc" });
     expect(first(seen).url).toBe("http://api.test/api/invoices/3/lines/abc");
+  });
+});
+
+import { queryString, sendsBody } from "./client.js";
+
+describe("query strings and methods", () => {
+  it("knows which methods carry a body", () => {
+    expect(sendsBody("GET")).toBe(false);
+    expect(sendsBody("DELETE")).toBe(false);
+    expect(sendsBody("POST")).toBe(true);
+    expect(sendsBody("PUT")).toBe(true);
+    expect(sendsBody("PATCH")).toBe(true);
+  });
+
+  it("encodes scalars, repeats arrays, and skips nullish", () => {
+    expect(queryString({ limit: 20, status: "paid", deep: true })).toBe(
+      "?limit=20&status=paid&deep=true",
+    );
+    expect(queryString({ tags: ["a", "b"] })).toBe("?tags=a&tags=b");
+    expect(queryString({ a: 1, b: undefined, c: null })).toBe("?a=1");
+    expect(queryString({})).toBe("");
+  });
+
+  it("percent-encodes values", () => {
+    expect(queryString({ q: "a b&c" })).toBe("?q=a+b%26c");
   });
 });
