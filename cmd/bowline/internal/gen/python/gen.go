@@ -25,7 +25,7 @@ var moduleNames = []string{
 	"Annotated", "AnyUrl", "AsyncIterator", "Base64Bytes", "BaseModel", "BigInt", "BinaryIO", "CallOptions",
 	"Client", "ConfigDict", "DurationNs", "Empty", "Enum", "Field", "Generic", "IntEnum", "Iterator",
 	"JsonValue", "Literal", "Method", "NewType", "SyncClient", "SyncTransport", "Transport", "TypeVar",
-	"UUID", "annotations", "datetime",
+	"UUID", "annotations", "datetime", "quote",
 }
 
 type generator struct {
@@ -93,6 +93,7 @@ func (g *generator) imports() string {
 		{"datetime", g.pick("datetime")},
 		{"enum", g.pick("Enum", "IntEnum")},
 		{"typing", g.pick("Annotated", "BinaryIO", "Generic", "Literal", "NewType", "TypeVar")},
+		{"urllib.parse", g.pick("quote")},
 		{"uuid", g.pick("UUID")},
 	}
 	wrote := false

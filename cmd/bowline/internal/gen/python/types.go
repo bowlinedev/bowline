@@ -126,13 +126,20 @@ type fieldSpec struct {
 	default_ bool
 }
 
+func attrName(name string) string {
+	if isIdentifier(name) && !keywords[name] && !strings.HasPrefix(name, "model_") {
+		return name
+	}
+	out := identifier(name)
+	if strings.HasPrefix(out, "model_") {
+		out = "field_" + out
+	}
+	return out
+}
+
 func (g *generator) field(f *contract.Field, owner string) fieldSpec {
-	spec := fieldSpec{name: f.Name}
-	if !isIdentifier(f.Name) || keywords[f.Name] || strings.HasPrefix(f.Name, "model_") {
-		spec.name = identifier(f.Name)
-		if strings.HasPrefix(spec.name, "model_") {
-			spec.name = "field_" + spec.name
-		}
+	spec := fieldSpec{name: attrName(f.Name)}
+	if spec.name != f.Name {
 		spec.kwargs = append(spec.kwargs, "alias="+strconv.Quote(f.Name))
 	}
 	typ := g.pyType(f.Type, owner+"_"+naming.UpperCamel(f.Name))

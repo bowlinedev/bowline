@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Annotated
+from urllib.parse import quote
 
 from bowline_client import CallOptions, Method, SyncTransport, Transport
 from pydantic import BaseModel, ConfigDict, Field
@@ -51,16 +52,42 @@ class InvoicesClient:
         self._transport = transport
 
     async def get(self, input: IDInput, options: CallOptions | None = None) -> Invoice:
-        return await self._transport.call("invoices.get", Method.GET, input, Invoice, options)
+        return await self._transport.call(
+            f"invoices/{quote(str(input.id), safe='')}",
+            Method.GET,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("id",),
+        )
 
     async def list(self, input: ListInput, options: CallOptions | None = None) -> Invoice:
-        return await self._transport.call("invoices.list", Method.GET, input, Invoice, options)
+        return await self._transport.call(
+            "invoices", Method.GET, input, Invoice, options, rest=True
+        )
 
     async def remove(self, input: RemoveInput, options: CallOptions | None = None) -> Invoice:
-        return await self._transport.call("invoices.remove", Method.POST, input, Invoice, options)
+        return await self._transport.call(
+            f"invoices/{quote(str(input.id), safe='')}",
+            Method.DELETE,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("id",),
+        )
 
     async def replace(self, input: ReplaceInput, options: CallOptions | None = None) -> Invoice:
-        return await self._transport.call("invoices.replace", Method.POST, input, Invoice, options)
+        return await self._transport.call(
+            f"invoices/{quote(str(input.id), safe='')}",
+            Method.PUT,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("id",),
+        )
 
 
 class Client:
@@ -78,16 +105,40 @@ class SyncInvoicesClient:
         self._transport = transport
 
     def get(self, input: IDInput, options: CallOptions | None = None) -> Invoice:
-        return self._transport.call("invoices.get", Method.GET, input, Invoice, options)
+        return self._transport.call(
+            f"invoices/{quote(str(input.id), safe='')}",
+            Method.GET,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("id",),
+        )
 
     def list(self, input: ListInput, options: CallOptions | None = None) -> Invoice:
-        return self._transport.call("invoices.list", Method.GET, input, Invoice, options)
+        return self._transport.call("invoices", Method.GET, input, Invoice, options, rest=True)
 
     def remove(self, input: RemoveInput, options: CallOptions | None = None) -> Invoice:
-        return self._transport.call("invoices.remove", Method.POST, input, Invoice, options)
+        return self._transport.call(
+            f"invoices/{quote(str(input.id), safe='')}",
+            Method.DELETE,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("id",),
+        )
 
     def replace(self, input: ReplaceInput, options: CallOptions | None = None) -> Invoice:
-        return self._transport.call("invoices.replace", Method.POST, input, Invoice, options)
+        return self._transport.call(
+            f"invoices/{quote(str(input.id), safe='')}",
+            Method.PUT,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("id",),
+        )
 
 
 class SyncClient:
