@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const Version = "1.2"
+const Version = "1.3"
 
 type Kind string
 

@@ -59,7 +59,7 @@ export interface Client {
 }
 
 export const contract = {
-  version: "1.2",
+  version: "1.3",
   hydrators: {
     "Charge": [
       { path: ["createdAt"], kind: "timestamp" },

@@ -134,7 +134,7 @@ func TestExternalGeneratorSingleFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(body), "// version 1.2 out out/client.txt") {
+	if !strings.Contains(string(body), "// version 1.3 out out/client.txt") {
 		t.Fatalf("the generator did not see the environment: %q", body)
 	}
 	if !strings.Contains(string(body), "call ") {

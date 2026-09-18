@@ -5,7 +5,7 @@ import { createServerClient } from "./server.js";
 import type { ContractRuntime, Query } from "./types.js";
 
 const contract: ContractRuntime = {
-  version: "1.2",
+  version: "1.3",
   hydrators: {},
   procedures: { "users.get": { kind: "query", method: "GET" } },
 };

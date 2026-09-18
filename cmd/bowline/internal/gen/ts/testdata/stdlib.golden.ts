@@ -22,7 +22,7 @@ export interface Client {
 }
 
 export const contract = {
-  version: "1.2",
+  version: "1.3",
   hydrators: {
     "Event": [
       { path: ["at"], kind: "timestamp" },

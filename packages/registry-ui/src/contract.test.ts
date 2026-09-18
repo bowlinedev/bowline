@@ -4,7 +4,7 @@ import { indexContract, shortName, typeLabel } from "./contract.js";
 import { renderDeclarations } from "./types-pane.js";
 
 const doc: ContractDocument = {
-  bowline: "1.2",
+  bowline: "1.3",
   hash: "sha256:fixture",
   types: {
     "example.com/ledger.Invoice": {

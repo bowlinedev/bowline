@@ -59,7 +59,7 @@ func TestMarshalIsCanonical(t *testing.T) {
 	if !bytes.HasSuffix(first, []byte("\n")) {
 		t.Fatal("output must end with a newline")
 	}
-	if !strings.HasPrefix(string(first), "{\n  \"bowline\": \"1.2\"") {
+	if !strings.HasPrefix(string(first), "{\n  \"bowline\": \""+Version+"\"") {
 		t.Fatalf("unexpected prefix: %q", first[:40])
 	}
 	getIdx := bytes.Index(first, []byte(`"path": "users.get"`))

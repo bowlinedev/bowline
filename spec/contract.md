@@ -1,4 +1,4 @@
-# Bowline contract document, version 1.2
+# Bowline contract document, version 1.3
 
 `bowline.contract.json` is the language-neutral description of an API produced by `bowline gen`. Every generator, export, and tool reads this file and nothing else. It is a public specification; third parties may produce or consume it.
 
@@ -63,7 +63,8 @@ An entry in `errors` describes a typed error a procedure may return. `name` is t
 |---|---|
 | `path` | Dotted path, mount names then the procedure name |
 | `kind` | `query`, `mutation`, `subscription`, or `upload` |
-| `method` | `GET` or `POST`; subscriptions follow query rules, uploads are always `POST` |
+| `method` | The HTTP method the procedure answers on. `GET` for queries and `POST` for everything else, unless the procedure declares its own; subscriptions follow query rules, uploads are always `POST` |
+| `httpPath` | Optional URL template the procedure also answers on, relative and without surrounding slashes, with each parameter wrapping a whole segment as `{name}`. A parameter names an input field; on a method that carries no body the remaining fields travel in the query string. Absent means the procedure is reachable only at its RPC path. |
 | `input`, `output` | Type nodes, normally `ref` |
 | `goInput`, `goOutput` | Canonical Go names of the input and output types: full import path, a dot, the type name, generic arguments in square brackets spelled the same way, and `struct{}` for the empty struct. Used by the runtime to verify the committed document against the running router. |
 | `errors` | Keys into the top-level `errors` map for the variants this procedure declares |
@@ -92,4 +93,4 @@ Object keys are sorted, procedures are sorted by path, struct fields and enum va
 
 ## Versioning
 
-Additive changes increment the minor version. Removing or renaming a field increments the major version and ships with a migration command. Version 1.0 is the first frozen format, 1.1 added `tool` and `schemas` on procedures, and 1.2 added `example` on fields; `bowline migrate-contract` rewrites a 0.x document, and readers reject 0.x documents with a message naming that command.
+Additive changes increment the minor version. Removing or renaming a field increments the major version and ships with a migration command. Version 1.0 is the first frozen format, 1.1 added `tool` and `schemas` on procedures, 1.2 added `example` on fields, and 1.3 added `httpPath` on procedures and widened `method`; `bowline migrate-contract` rewrites a 0.x document, and readers reject 0.x documents with a message naming that command.
