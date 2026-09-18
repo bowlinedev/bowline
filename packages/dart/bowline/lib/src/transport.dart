@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'error.dart';
 import 'sse.dart';
 
-enum Method { get, post }
+enum Method { get, post, put, patch, delete }
 
 class CallOptions {
   const CallOptions({this.headers, this.timeout});
@@ -34,8 +34,10 @@ class Transport {
     Map<String, Object?> input,
     T Function(Object?) decode, {
     CallOptions? options,
+    bool rest = false,
   }) async {
-    final request = _request(path, method, input, options, 'application/json');
+    final request =
+        _request(path, method, input, options, 'application/json', rest);
     final response = await _send(request, path, options);
     final body = await _read(response, path, options);
     if (response.statusCode >= 400) {
@@ -67,8 +69,8 @@ class Transport {
 
     controller.onListen = () async {
       try {
-        final request =
-            _request(path, Method.get, input, options, 'text/event-stream');
+        final request = _request(
+            path, Method.get, input, options, 'text/event-stream', false);
         final response = await _send(request, path, options);
         if (response.statusCode >= 400) {
           finish(_failure(
@@ -144,21 +146,43 @@ class Transport {
     Map<String, Object?> input,
     CallOptions? options,
     String accept,
+    bool rest,
   ) {
-    final body = jsonEncode(input);
+    final verb = method.name.toUpperCase();
+    final url = Uri.parse('$_base/$path');
     final http.Request request;
-    if (method == Method.get) {
-      final url =
-          Uri.parse('$_base/$path').replace(queryParameters: {'input': body});
-      request = http.Request('GET', url);
+    if (_sendsBody(method)) {
+      request = http.Request(verb, url)..body = jsonEncode(input);
+    } else if (rest) {
+      request = http.Request(verb, _withQuery(url, input));
     } else {
-      request = http.Request('POST', Uri.parse('$_base/$path'))..body = body;
+      request = http.Request(
+          verb, url.replace(queryParameters: {'input': jsonEncode(input)}));
     }
     request.headers.addAll(_mergedHeaders(options, accept));
-    if (method == Method.post) {
+    if (_sendsBody(method)) {
       request.headers['content-type'] = 'application/json';
     }
     return request;
+  }
+
+  static bool _sendsBody(Method method) =>
+      method != Method.get && method != Method.delete;
+
+  static Uri _withQuery(Uri url, Map<String, Object?> input) {
+    final params = <String, List<String>>{};
+    input.forEach((key, value) {
+      if (value == null) {
+        return;
+      }
+      final values = value is Iterable
+          ? [for (final item in value) item.toString()]
+          : [value.toString()];
+      if (values.isNotEmpty) {
+        params[key] = values;
+      }
+    });
+    return params.isEmpty ? url : url.replace(queryParameters: params);
   }
 
   Future<http.StreamedResponse> _send(

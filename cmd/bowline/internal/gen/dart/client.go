@@ -146,10 +146,7 @@ func (g *generator) writeMethod(b *strings.Builder, p *contract.Procedure, name 
 		b.WriteString(quote(p.Deprecated))
 		b.WriteString(")\n")
 	}
-	method := "Method.post"
-	if p.Method == http.MethodGet {
-		method = "Method.get"
-	}
+	method := dartMethod(p.Method)
 	emptyIn := isEmptyStruct(p.Input)
 	emptyOut := isEmptyStruct(p.Output)
 	out := "void"
@@ -214,8 +211,38 @@ func (g *generator) writeMethod(b *strings.Builder, p *contract.Procedure, name 
 	b.WriteString(typeArg)
 	b.WriteString("(")
 	b.WriteString(strings.Join(args, ", "))
-	b.WriteString(", options: options);\n")
+	b.WriteString(", options: options")
+	if call == "call" && queryPath(p) {
+		b.WriteString(", rest: true")
+	}
+	b.WriteString(");\n")
 	b.WriteString("  }\n")
+}
+
+func dartMethod(method string) string {
+	switch method {
+	case http.MethodGet:
+		return "Method.get"
+	case http.MethodPut:
+		return "Method.put"
+	case http.MethodPatch:
+		return "Method.patch"
+	case http.MethodDelete:
+		return "Method.delete"
+	}
+	return "Method.post"
+}
+
+func sendsBody(method string) bool {
+	switch method {
+	case http.MethodGet, http.MethodDelete, http.MethodHead:
+		return false
+	}
+	return true
+}
+
+func queryPath(p *contract.Procedure) bool {
+	return p.HTTPPath != "" && !sendsBody(p.Method)
 }
 
 func (g *generator) toJsonArgs(t *contract.Type) string {
