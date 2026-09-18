@@ -10,6 +10,10 @@ on:
         type: choice
         default: npm
         options: [npm, pypi, all]
+      tag:
+        description: Re-run the binary release for an existing tag, such as v1.1.0
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -18,12 +22,15 @@ permissions:
 
 jobs:
   cli:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || inputs.tag != ''
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-go@v7
         with:
           go-version: stable
@@ -36,25 +43,33 @@ jobs:
       - run: pnpm --filter @bowlinedev/client build
       - name: embed the playground bundle in the playground module tag
         run: |
+          if git ls-remote --exit-code --tags origin "playground/${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "playground/${RELEASE_TAG} already exists; leaving it alone"
+            exit 0
+          fi
           pnpm --filter @bowlinedev/playground build
           git add -f playground/ui/dist
           git -c user.name=bowline-release -c user.email=release@bowline.dev commit -s -m "chore(playground): embed the release bundle"
-          git tag -f "playground/${GITHUB_REF_NAME}"
-          git push -f origin "playground/${GITHUB_REF_NAME}"
-          git checkout -q "${GITHUB_SHA}"
+          git tag -f "playground/${RELEASE_TAG}"
+          git push -f origin "playground/${RELEASE_TAG}"
+          git checkout -q "$(git rev-parse "${RELEASE_TAG}")"
       - name: embed the registry bundle in the registry module tag
         run: |
+          if git ls-remote --exit-code --tags origin "registry/${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "registry/${RELEASE_TAG} already exists; leaving it alone"
+            exit 0
+          fi
           pnpm --filter @bowlinedev/registry-ui build
           git add -f registry/ui/dist
           git -c user.name=bowline-release -c user.email=release@bowline.dev commit -s -m "chore(registry): embed the release bundle"
-          git tag -f "registry/${GITHUB_REF_NAME}"
-          git push -f origin "registry/${GITHUB_REF_NAME}"
-          git checkout -q "${GITHUB_SHA}"
+          git tag -f "registry/${RELEASE_TAG}"
+          git push -f origin "registry/${RELEASE_TAG}"
+          git checkout -q "$(git rev-parse "${RELEASE_TAG}")"
       - name: ensure module tags exist
         run: |
-          for tag in "cmd/bowline/${GITHUB_REF_NAME}" "transport/websocket/${GITHUB_REF_NAME}" "mcp/${GITHUB_REF_NAME}" "agent/${GITHUB_REF_NAME}" "contracttest/${GITHUB_REF_NAME}" "adapters/fiber/${GITHUB_REF_NAME}" "gateway/${GITHUB_REF_NAME}" "otel/${GITHUB_REF_NAME}"; do
+          for tag in "cmd/bowline/${RELEASE_TAG}" "transport/websocket/${RELEASE_TAG}" "mcp/${RELEASE_TAG}" "agent/${RELEASE_TAG}" "contracttest/${RELEASE_TAG}" "adapters/fiber/${RELEASE_TAG}" "gateway/${RELEASE_TAG}" "otel/${RELEASE_TAG}"; do
             if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
-              git tag "$tag" "$GITHUB_SHA"
+              git tag "$tag" "$(git rev-parse "${RELEASE_TAG}")"
               git push origin "$tag"
             fi
           done
