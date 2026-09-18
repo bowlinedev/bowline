@@ -8,5 +8,6 @@ pub use error::{Code, Error, Issue, RemoteError};
 pub use futures_core::Stream;
 pub use reqwest::Body;
 pub use transport::{
-    Base64Bytes, CallOptions, DurationNs, Empty, Method, StringInt, StringUint, Transport, Validate,
+    encode_segment, Base64Bytes, CallOptions, DurationNs, Empty, Method, StringInt, StringUint,
+    Transport, Validate,
 };

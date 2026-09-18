@@ -155,10 +155,82 @@ func (g *generator) inputParam(p *contract.Procedure) (param, arg string) {
 
 func (g *generator) method(p *contract.Procedure) string {
 	g.uses["Method"] = true
-	if p.Method == http.MethodGet {
+	switch p.Method {
+	case http.MethodGet:
 		return "Method::Get"
+	case http.MethodPut:
+		return "Method::Put"
+	case http.MethodPatch:
+		return "Method::Patch"
+	case http.MethodDelete:
+		return "Method::Delete"
 	}
 	return "Method::Post"
+}
+
+func pathParams(p *contract.Procedure) []string {
+	if p.HTTPPath == "" {
+		return nil
+	}
+	names, err := contract.PathParams(p.HTTPPath)
+	if err != nil {
+		return nil
+	}
+	return names
+}
+
+func dropped(p *contract.Procedure) string {
+	params := pathParams(p)
+	names := make([]string, len(params))
+	for i, name := range params {
+		names[i] = strconv.Quote(name)
+	}
+	return "&[" + strings.Join(names, ", ") + "]"
+}
+
+func (g *generator) pathExpr(p *contract.Procedure) (string, bool) {
+	if p.HTTPPath == "" {
+		return strconv.Quote(p.Path), false
+	}
+	segments, err := contract.ParsePath(p.HTTPPath)
+	if err != nil {
+		return strconv.Quote(p.Path), false
+	}
+	var template strings.Builder
+	var args []string
+	for i, seg := range segments {
+		if i > 0 {
+			template.WriteString("/")
+		}
+		if !seg.Param {
+			template.WriteString(seg.Text)
+			continue
+		}
+		template.WriteString("{}")
+		g.uses["encode_segment"] = true
+		args = append(args, "encode_segment(&input."+fieldName(seg.Text)+")")
+	}
+	if len(args) == 0 {
+		return strconv.Quote(template.String()), true
+	}
+	return "&format!(" + strconv.Quote(template.String()) + ", " + strings.Join(args, ", ") + ")", true
+}
+
+func writeTransportCall(b *strings.Builder, fn string, args []string) {
+	b.WriteString("        self.transport\n            .")
+	b.WriteString(fn)
+	line := "(" + strings.Join(args, ", ") + ")"
+	if len("            ."+fn+line) <= 100 {
+		b.WriteString(line)
+		return
+	}
+	b.WriteString("(\n")
+	for _, arg := range args {
+		b.WriteString("                ")
+		b.WriteString(arg)
+		b.WriteString(",\n")
+	}
+	b.WriteString("            )")
 }
 
 func (g *generator) output(p *contract.Procedure) (typ, mapping string) {
@@ -179,13 +251,13 @@ func (g *generator) writeCall(b *strings.Builder, name string, p *contract.Proce
 	b.WriteString("options: Option<&CallOptions>) -> Result<")
 	b.WriteString(out)
 	b.WriteString(", Error> {\n")
-	b.WriteString("        self.transport\n            .call(")
-	b.WriteString(strconv.Quote(p.Path))
-	b.WriteString(", ")
-	b.WriteString(g.method(p))
-	b.WriteString(", ")
-	b.WriteString(arg)
-	b.WriteString(", options)\n            .await")
+	path, rest := g.pathExpr(p)
+	if rest {
+		writeTransportCall(b, "call_rest", []string{path, g.method(p), arg, dropped(p), "options"})
+	} else {
+		writeTransportCall(b, "call", []string{path, g.method(p), arg, "options"})
+	}
+	b.WriteString("\n            .await")
 	b.WriteString(mapping)
 	b.WriteString("\n    }\n")
 }
@@ -201,13 +273,13 @@ func (g *generator) writeSubscription(b *strings.Builder, name string, p *contra
 	b.WriteString("options: Option<&CallOptions>) -> impl Stream<Item = Result<")
 	b.WriteString(out)
 	b.WriteString(", Error>> + Send + 'static {\n")
-	b.WriteString("        self.transport\n            .subscribe(")
-	b.WriteString(strconv.Quote(p.Path))
-	b.WriteString(", ")
-	b.WriteString(g.method(p))
-	b.WriteString(", ")
-	b.WriteString(arg)
-	b.WriteString(", options)\n    }\n")
+	path, rest := g.pathExpr(p)
+	if rest {
+		writeTransportCall(b, "subscribe_rest", []string{path, g.method(p), arg, dropped(p), "options"})
+	} else {
+		writeTransportCall(b, "subscribe", []string{path, g.method(p), arg, "options"})
+	}
+	b.WriteString("\n    }\n")
 }
 
 func (g *generator) writeUpload(b *strings.Builder, name string, p *contract.Procedure) {
@@ -221,11 +293,13 @@ func (g *generator) writeUpload(b *strings.Builder, name string, p *contract.Pro
 	b.WriteString("file: Body, filename: &str, options: Option<&CallOptions>) -> Result<")
 	b.WriteString(out)
 	b.WriteString(", Error> {\n")
-	b.WriteString("        self.transport\n            .upload(")
-	b.WriteString(strconv.Quote(p.Path))
-	b.WriteString(", ")
-	b.WriteString(arg)
-	b.WriteString(", file, filename, options)\n            .await")
+	path, rest := g.pathExpr(p)
+	if rest {
+		writeTransportCall(b, "upload_rest", []string{path, arg, dropped(p), "file", "filename", "options"})
+	} else {
+		writeTransportCall(b, "upload", []string{path, arg, "file", "filename", "options"})
+	}
+	b.WriteString("\n            .await")
 	b.WriteString(mapping)
 	b.WriteString("\n    }\n")
 }

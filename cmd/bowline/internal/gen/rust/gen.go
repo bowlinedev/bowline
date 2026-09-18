@@ -113,7 +113,7 @@ func methodName(segment string) string {
 
 func (g *generator) imports() string {
 	var items []string
-	for _, item := range []string{"Body", "CallOptions", "Empty", "Error", "Issue", "Method", "Stream", "Transport", "Validate", "rules"} {
+	for _, item := range []string{"Body", "CallOptions", "Empty", "Error", "Issue", "Method", "Stream", "Transport", "Validate", "encode_segment", "rules"} {
 		if g.uses[item] {
 			items = append(items, item)
 		}
