@@ -41,6 +41,14 @@ type PathSegment
 
 These are public only because the runtime, the analyzer and every generator parse the same path templates and must agree. If the route syntax gains a feature, such as a wildcard or a typed parameter, this is where it lands.
 
+## github.com/bowlinedev/bowline/idempotencytest
+
+The whole package is provisional. It is the conformance suite an `IdempotencyStore` implementation is held to, and the set of invariants it checks will grow as the stores meet real deployments.
+
+## github.com/bowlinedev/bowline/stores/sql and .../stores/redis
+
+Both modules are provisional. The open questions are whether the SQL store should sweep on its own timer rather than leaving `Sweep` to the application, and whether the Redis store should use a Lua script to make claim-and-read a single round trip rather than the two it takes today.
+
 ## github.com/bowlinedev/bowline/otel
 
 The whole module is provisional. It is not in `api-freeze.md` at all, because only the root, `contract` and `signing` packages are frozen. The attribute and metric names it reports follow OpenTelemetry semantic conventions that are themselves still moving.

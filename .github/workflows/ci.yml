@@ -102,6 +102,14 @@ jobs:
         if: matrix.go == 'stable'
         working-directory: registry
         run: go vet ./... && go test -race ./...
+      - name: vet and test the sql idempotency store
+        if: matrix.go == 'stable'
+        working-directory: stores/sql
+        run: go vet ./... && go test -race ./...
+      - name: vet and test the redis idempotency store
+        if: matrix.go == 'stable'
+        working-directory: stores/redis
+        run: go vet ./... && go test -race ./...
       - name: vet and test federation billing service
         if: matrix.go == 'stable'
         working-directory: examples/federation/billing
@@ -340,6 +348,38 @@ jobs:
             echo "== $m"
             (cd "$m" && govulncheck ./...)
           done
+
+  stores:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: bowline
+          POSTGRES_DB: bowline
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - name: the sql store against a real Postgres
+        working-directory: stores/sql
+        env:
+          BOWLINE_POSTGRES_URL: postgres://postgres:bowline@localhost:5432/bowline?sslmode=disable
+        run: go test -race ./...
+      - name: the redis store against a real Redis
+        working-directory: stores/redis
+        env:
+          BOWLINE_REDIS_ADDR: localhost:6379
+        run: go test -race ./...
 
   apidiff:
     runs-on: ubuntu-latest

@@ -72,7 +72,30 @@ Cancelling the drain context ends every in-flight subscription, so `Shutdown` on
 
 `MemoryIdempotencyStore` keeps at most ten thousand keys in the process and evicts the ones closest to expiry when full. It never evicts a key whose request is still running. That bound exists so a caller sending a fresh `Idempotency-Key` on every request cannot grow the process without limit, and it has a consequence: under enough unique-key traffic an older key is dropped early, and a retry of that request runs the mutation again instead of replaying.
 
-For anything with more than one process, or where a dropped replay is not acceptable, implement `IdempotencyStore` against a shared store with a real TTL. Three methods: `Begin` claims a key or reports it in flight or stored, `Complete` stores a response, `Abort` releases a claim after a failure.
+For anything with more than one process, or where a dropped replay is not acceptable, use a shared store. Three ship with Bowline, each in its own module so the runtime keeps its standard-library-only dependency list:
+
+| Module | Backend | Dependencies |
+|---|---|---|
+| `stores/sql` | Postgres | none; it binds through `database/sql`, so you bring your own driver |
+| `stores/sql` | SQLite | none; same |
+| `stores/redis` | Redis | `github.com/redis/go-redis/v9` |
+
+sketch: Postgres, with the driver your application already imports
+
+```go
+db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
+store, err := bowlinesql.New(db, bowlinesql.Postgres)
+if err := store.Migrate(ctx); err != nil {
+	return err
+}
+handler := routes.Handler(bowline.Idempotency(store, 24*time.Hour))
+```
+
+`Migrate` creates the table and its expiry index, and is safe to call on every boot. `Sweep` deletes expired rows; run it from a periodic job, because a SQL store has no background timer of its own. The Redis store needs neither: Redis expires keys itself.
+
+All three pass the same conformance suite, `idempotencytest.Verify`, which is exported so your own implementation can be held to the identical invariants: a fresh key is new, a claimed key is in flight, a completed key replays byte for byte, an aborted key is claimable again, and exactly one of sixteen concurrent callers is told the key is new.
+
+To write your own, implement the three methods: `Begin` claims a key or reports it in flight or stored, `Complete` stores a response, `Abort` releases a claim after a failure. The claim must be atomic, or two processes will both run the mutation.
 
 A store that returns an error fails closed: `Begin` failing answers `UNAVAILABLE` and the mutation never runs. A `Complete` that fails leaves the caller with its response and releases the key, so a retry re-runs the mutation rather than replaying a response that was never stored.
 

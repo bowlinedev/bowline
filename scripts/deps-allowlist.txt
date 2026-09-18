@@ -10,3 +10,7 @@ contracttest =
 gateway =
 registry =
 adapters/fiber = github.com/gofiber/fiber/v2 github.com/valyala/fasthttp
+# the sql store binds through database/sql, so the application brings its own driver; modernc.org/sqlite is used only by its tests
+stores/sql = modernc.org/sqlite github.com/jackc/pgx/v5
+# miniredis is used only by the redis store's own tests
+stores/redis = github.com/redis/go-redis/v9 github.com/alicebob/miniredis/v2

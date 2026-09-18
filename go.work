@@ -10,6 +10,8 @@ use (
 	./agent
 	./playground
 	./contracttest
+	./stores/sql
+	./stores/redis
 	./registry
 	./adapters/fiber
 	./examples/routers/fiber

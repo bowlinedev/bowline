@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Stores: three shared idempotency stores, each in its own module. `stores/sql` covers Postgres and SQLite and carries no third-party dependency at all, because it binds through `database/sql` and the application brings its own driver; it exposes `Migrate` to create the table and `Sweep` to delete expired rows. `stores/redis` covers Redis through `go-redis`, and needs no sweeping because Redis expires keys itself. Until now only the in-process store shipped, so any deployment with more than one replica had idempotency that silently did not work across them.
+- Stores: `idempotencytest.Verify` is the conformance suite all four stores are held to, exported so an application's own implementation can be checked against the same invariants, including that exactly one of sixteen concurrent callers is told a key is new.
+
 ## 1.2.0
 
 - Runtime: `bowline.CallTimeout(d)` bounds how long one procedure may run and answers `DEADLINE_EXCEEDED`; subscriptions are exempt because they are long-lived by design. `bowline.Drain(ctx)` ends in-flight subscriptions when that context is cancelled, so `http.Server.Shutdown` does not wait on an idle stream for its whole grace period. Both are provisional; see `docs/provisional.md`.

@@ -67,7 +67,7 @@ jobs:
           git checkout -q "$(git rev-parse "${RELEASE_TAG}")"
       - name: ensure module tags exist
         run: |
-          for tag in "cmd/bowline/${RELEASE_TAG}" "transport/websocket/${RELEASE_TAG}" "mcp/${RELEASE_TAG}" "agent/${RELEASE_TAG}" "contracttest/${RELEASE_TAG}" "adapters/fiber/${RELEASE_TAG}" "gateway/${RELEASE_TAG}" "otel/${RELEASE_TAG}"; do
+          for tag in "cmd/bowline/${RELEASE_TAG}" "transport/websocket/${RELEASE_TAG}" "mcp/${RELEASE_TAG}" "agent/${RELEASE_TAG}" "contracttest/${RELEASE_TAG}" "adapters/fiber/${RELEASE_TAG}" "gateway/${RELEASE_TAG}" "otel/${RELEASE_TAG}" "stores/sql/${RELEASE_TAG}" "stores/redis/${RELEASE_TAG}"; do
             if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
               git tag "$tag" "$(git rev-parse "${RELEASE_TAG}")"
               git push origin "$tag"
