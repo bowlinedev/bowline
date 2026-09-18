@@ -16,6 +16,7 @@ import (
 	"github.com/bowlinedev/bowline/internal/codec"
 	"github.com/bowlinedev/bowline/internal/csrf"
 	"github.com/bowlinedev/bowline/internal/reserved"
+	routing "github.com/bowlinedev/bowline/internal/route"
 	"github.com/bowlinedev/bowline/signing"
 )
 
@@ -39,6 +40,7 @@ func StrictInput() HandlerOption {
 
 type handler struct {
 	routes     map[string]*route
+	table      *routing.Table
 	maxBody    int64
 	log        *slog.Logger
 	production bool
@@ -68,8 +70,19 @@ func (r *Router) Handler(opts ...HandlerOption) http.Handler {
 	if h.contract != nil {
 		h.reserved = reserved.MustNew(h.contract)
 	}
+	var entries []routing.Entry
 	for _, rt := range r.routes() {
 		h.routes[rt.path] = &rt
+		if rt.procedure.HTTPPath != "" {
+			entries = append(entries, routing.Entry{Pattern: rt.procedure.HTTPPath, Method: rt.procedure.Method(), Key: rt.path})
+		}
+	}
+	if len(entries) > 0 {
+		table, err := routing.New(entries)
+		if err != nil {
+			panic("bowline: " + err.Error())
+		}
+		h.table = table
 	}
 	h.signedBody = signingLimit(h)
 	return h
@@ -88,6 +101,17 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		path = path[i+1:]
 	}
 	rt, ok := h.routes[path]
+	var params map[string]string
+	if !ok && h.table != nil {
+		if m, matched := h.table.Match(req.URL.EscapedPath(), req.Method); matched {
+			rt, ok = h.routes[m.Key], true
+			params = m.Params
+		} else if allowed := h.table.Allowed(req.URL.EscapedPath()); len(allowed) > 0 {
+			w.Header().Set("Allow", strings.Join(allowed, ", "))
+			h.writeError(w, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, req.URL.Path, strings.Join(allowed, " or ")))
+			return
+		}
+	}
 	if !ok {
 		h.writeError(w, nil, 0, Errorf(Unimplemented, "unknown procedure %q", path))
 		return
@@ -107,16 +131,16 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if proc.Kind == KindMutation && proc.Idempotent && h.idempotency != nil {
-		h.serveIdempotent(w, req, rt)
+		h.serveIdempotent(w, req, rt, params)
 		return
 	}
-	h.execute(w, req, rt)
+	h.execute(w, req, rt, params)
 }
 
-func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route) {
+func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route, params map[string]string) {
 	proc := rt.proc
 	if proc.Kind == KindUpload {
-		h.serveUpload(w, req, rt)
+		h.serveUpload(w, req, rt, params)
 		return
 	}
 	raw, status, err := h.readInput(w, req, h.bodyLimit(proc))
@@ -127,6 +151,10 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route) {
 	ctx, ptr := proc.newFrame(req.Context(), Call{Procedure: &rt.procedure, Request: req})
 	if err := codec.Decode(raw, ptr, h.strict); err != nil {
 		h.writeError(w, nil, 0, h.invalidInput(err))
+		return
+	}
+	if err := routing.Bind(ptr, params); err != nil {
+		h.writeError(w, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
 		return
 	}
 	in := ptr

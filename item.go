@@ -24,6 +24,10 @@ func Deprecated(reason string) ProcOption {
 	return func(p *Procedure) { p.Deprecated = reason }
 }
 
+func Path(p string) ProcOption {
+	return func(pr *Procedure) { pr.HTTPPath = p }
+}
+
 func Sensitive() ProcOption {
 	return func(p *Procedure) { p.Sensitive = true }
 }

@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/bowlinedev/bowline/internal/codec"
+	routing "github.com/bowlinedev/bowline/internal/route"
 )
 
 type File struct {
@@ -45,7 +46,7 @@ type uploadInput[In any] struct {
 	file *File
 }
 
-func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *route) {
+func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *route, pathParams map[string]string) {
 	proc := rt.proc
 	mediaType, params, err := mime.ParseMediaType(req.Header.Get("Content-Type"))
 	if err != nil || mediaType != "multipart/form-data" || params["boundary"] == "" {
@@ -77,6 +78,10 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 	ctx, ptr := proc.newFrame(req.Context(), Call{Procedure: &rt.procedure, Request: req})
 	if err := codec.Decode(raw, ptr, h.strict); err != nil {
 		h.writeError(w, nil, 0, h.invalidInput(err))
+		return
+	}
+	if err := routing.Bind(ptr, pathParams); err != nil {
+		h.writeError(w, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
 		return
 	}
 	if issues := proc.checker.Check(ptr); len(issues) > 0 {

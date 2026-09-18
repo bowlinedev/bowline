@@ -92,14 +92,14 @@ func idempotencyKey(ctx context.Context, path, header string) string {
 	return scope + "\x00" + path + "\x00" + header
 }
 
-func (h *handler) serveIdempotent(w http.ResponseWriter, req *http.Request, rt *route) {
+func (h *handler) serveIdempotent(w http.ResponseWriter, req *http.Request, rt *route, params map[string]string) {
 	header := req.Header.Get("Idempotency-Key")
 	if header == "" {
 		if h.requireKey {
 			h.writeError(w, nil, 0, Errorf(InvalidArgument, "the Idempotency-Key header is required for %s", rt.path))
 			return
 		}
-		h.execute(w, req, rt)
+		h.execute(w, req, rt, params)
 		return
 	}
 	ctx := req.Context()
@@ -130,7 +130,7 @@ func (h *handler) serveIdempotent(w http.ResponseWriter, req *http.Request, rt *
 		}
 		_ = h.idempotency.Abort(ctx, key)
 	}()
-	h.execute(rec, req, rt)
+	h.execute(rec, req, rt, params)
 	if rec.status >= 500 {
 		return
 	}

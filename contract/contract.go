@@ -90,6 +90,7 @@ type Procedure struct {
 	Path       string            `json:"path"`
 	Kind       string            `json:"kind"`
 	Method     string            `json:"method"`
+	HTTPPath   string            `json:"httpPath,omitempty"`
 	Input      *Type             `json:"input"`
 	Output     *Type             `json:"output"`
 	GoInput    string            `json:"goInput,omitempty"`

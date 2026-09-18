@@ -113,6 +113,9 @@
         "goOutput": {
           "type": "string"
         },
+        "httpPath": {
+          "type": "string"
+        },
         "idempotent": {
           "type": "boolean"
         },
