@@ -98,6 +98,7 @@ export interface ProcedureRuntime {
   method: "GET" | "POST";
   output?: string;
   errors?: string[];
+  path?: string;
 }
 
 export interface ContractRuntime {
