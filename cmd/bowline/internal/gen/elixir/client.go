@@ -149,7 +149,16 @@ func (g *generator) inputEncode(p *contract.Procedure) string {
 	if isEmptyStruct(p.Input) {
 		return "%{}"
 	}
-	return g.encodeBare(p.Input, g.types, "input", "input")
+	encoded := g.encodeBare(p.Input, g.types, "input", "input")
+	params := pathParams(p)
+	if len(params) == 0 {
+		return encoded
+	}
+	quoted := make([]string, len(params))
+	for i, name := range params {
+		quoted[i] = quote(name)
+	}
+	return "Map.drop(" + encoded + ", [" + strings.Join(quoted, ", ") + "])"
 }
 
 func (g *generator) outputDecoder(p *contract.Procedure) string {
@@ -232,7 +241,7 @@ func (g *generator) writeCall(b *strings.Builder, name string, p *contract.Proce
 		b.WriteString("  def ")
 		b.WriteString(name)
 		b.WriteString("(transport, opts \\\\ []) do\n")
-		writeArgs(b, "Transport.call", []string{"transport", quote(p.Path), method, "%{}", g.outputDecoder(p), "opts"})
+		writeArgs(b, "Transport.call", []string{"transport", pathArg(p), method, "%{}", g.outputDecoder(p), "opts"})
 		b.WriteString("  end\n\n")
 		writeSpec(b, name+"!", []string{"Transport.t()", "Transport.call_opts()"}, g.outputSpec(p))
 		b.WriteString("  def ")
@@ -250,7 +259,7 @@ func (g *generator) writeCall(b *strings.Builder, name string, p *contract.Proce
 	b.WriteString("(transport, ")
 	b.WriteString(g.inputPattern(p))
 	b.WriteString(", opts \\\\ []) do\n")
-	writeArgs(b, "Transport.call", []string{"transport", quote(p.Path), method, g.inputEncode(p), g.outputDecoder(p), "opts"})
+	writeArgs(b, "Transport.call", []string{"transport", pathArg(p), method, g.inputEncode(p), g.outputDecoder(p), "opts"})
 	b.WriteString("  end\n\n")
 	writeSpec(b, name+"!", []string{"Transport.t()", g.inputSpec(p), "Transport.call_opts()"}, g.outputSpec(p))
 	b.WriteString("  def ")
@@ -301,4 +310,41 @@ func (g *generator) writeUpload(b *strings.Builder, name string, p *contract.Pro
 
 func isEmptyStruct(t *contract.Type) bool {
 	return t != nil && t.Kind == contract.Struct && len(t.Fields) == 0
+}
+
+func pathParams(p *contract.Procedure) []string {
+	if p.HTTPPath == "" {
+		return nil
+	}
+	names, err := contract.PathParams(p.HTTPPath)
+	if err != nil {
+		return nil
+	}
+	return names
+}
+
+func pathArg(p *contract.Procedure) string {
+	if p.HTTPPath == "" {
+		return quote(p.Path)
+	}
+	segments, err := contract.ParsePath(p.HTTPPath)
+	if err != nil {
+		return quote(p.Path)
+	}
+	var b strings.Builder
+	b.WriteString("\"")
+	for i, seg := range segments {
+		if i > 0 {
+			b.WriteString("/")
+		}
+		if !seg.Param {
+			b.WriteString(seg.Text)
+			continue
+		}
+		b.WriteString("#{URI.encode_www_form(to_string(input.")
+		b.WriteString(fieldAtom(seg.Text))
+		b.WriteString("))}")
+	}
+	b.WriteString("\"")
+	return b.String()
 }

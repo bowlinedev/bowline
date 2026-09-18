@@ -189,7 +189,14 @@ func (g *generator) writeMethod(b *strings.Builder, p *contract.Procedure, name 
 		b.WriteString(g.validateArgs(p.Input))
 		b.WriteString("));\n")
 	}
-	args := []string{quote(p.Path)}
+	args := []string{g.pathArg(p)}
+	if params := pathParams(p); len(params) > 0 && !emptyIn {
+		removals := make([]string, len(params))
+		for i, name := range params {
+			removals[i] = "..remove(" + quote(name) + ")"
+		}
+		input = "(" + input + strings.Join(removals, "") + ")"
+	}
 	switch p.Kind {
 	case "subscription":
 		args = append(args, input, decode)
@@ -240,4 +247,41 @@ func (g *generator) validateArgs(t *contract.Type) string {
 
 func isEmptyStruct(t *contract.Type) bool {
 	return t != nil && t.Kind == contract.Struct && len(t.Fields) == 0
+}
+
+func pathParams(p *contract.Procedure) []string {
+	if p.HTTPPath == "" {
+		return nil
+	}
+	names, err := contract.PathParams(p.HTTPPath)
+	if err != nil {
+		return nil
+	}
+	return names
+}
+
+func (g *generator) pathArg(p *contract.Procedure) string {
+	if p.HTTPPath == "" {
+		return quote(p.Path)
+	}
+	segments, err := contract.ParsePath(p.HTTPPath)
+	if err != nil {
+		return quote(p.Path)
+	}
+	var b strings.Builder
+	b.WriteString("'")
+	for i, seg := range segments {
+		if i > 0 {
+			b.WriteString("/")
+		}
+		if !seg.Param {
+			b.WriteString(seg.Text)
+			continue
+		}
+		b.WriteString("${Uri.encodeComponent(input.")
+		b.WriteString(fieldName(seg.Text))
+		b.WriteString(".toString())}")
+	}
+	b.WriteString("'")
+	return b.String()
 }

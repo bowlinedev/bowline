@@ -104,22 +104,22 @@ class InvoicesClient {
 
   Future<Invoice> create(CreateInput input, {CallOptions? options}) {
     ensureValid(input.validate());
-    return _transport.call('invoices.create', Method.post, input.toJson(), (json) => Invoice.fromJson(asObject(json)), options: options);
+    return _transport.call('invoices', Method.post, input.toJson(), (json) => Invoice.fromJson(asObject(json)), options: options);
   }
 
   Future<Invoice> get(GetInput input, {CallOptions? options}) {
     ensureValid(input.validate());
-    return _transport.call('invoices.get', Method.get, input.toJson(), (json) => Invoice.fromJson(asObject(json)), options: options);
+    return _transport.call('invoices/${Uri.encodeComponent(input.id.toString())}', Method.get, (input.toJson()..remove('id')), (json) => Invoice.fromJson(asObject(json)), options: options);
   }
 
   Future<Invoice> line(LineInput input, {CallOptions? options}) {
     ensureValid(input.validate());
-    return _transport.call('invoices.line', Method.get, input.toJson(), (json) => Invoice.fromJson(asObject(json)), options: options);
+    return _transport.call('invoices/${Uri.encodeComponent(input.invoiceId.toString())}/lines/${Uri.encodeComponent(input.lineId.toString())}', Method.get, (input.toJson()..remove('invoiceId')..remove('lineId')), (json) => Invoice.fromJson(asObject(json)), options: options);
   }
 
   Future<Invoice> list(ListInput input, {CallOptions? options}) {
     ensureValid(input.validate());
-    return _transport.call('invoices.list', Method.get, input.toJson(), (json) => Invoice.fromJson(asObject(json)), options: options);
+    return _transport.call('invoices', Method.get, input.toJson(), (json) => Invoice.fromJson(asObject(json)), options: options);
   }
 }
 
