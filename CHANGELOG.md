@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.1.0
+
+Procedures can now answer on a URL and an HTTP method you choose, rather than only on their RPC path. Everything that reads the contract follows: all six generated clients, the OpenAPI export, the mock server, the playground, and the consumer-contract verifier.
+
+- REST routes: `bowline.Path("invoices/{id}")` gives a procedure a URL template and `bowline.Method("DELETE")` gives it a method. Path parameters bind to input fields by their JSON name, and on a method that carries no body the remaining fields bind from the query string. `bowline gen` rejects a template whose parameters do not match the input type, a parameter carried by anything but a string or integer, an optional parameter, and a field that cannot travel in a query string. `docs/guides/routing.md` covers it. The RPC path stays reachable, on the declared method.
+- Clients: the TypeScript, Go, Dart, Python, Rust and Elixir clients build the declared URL, with path parameters and query strings. The contract carries the route as `httpPath`.
+- Typed middleware: `bowline.Typed[In, Out]` gives a middleware the procedure's real input and output types instead of `any`, accepting a handler that takes either a value or a pointer.
+- Lifecycle observers: `bowline.Observe`, `bowline.ObserveFunc` and `bowline.OnHandlerReady` watch calls from outside the middleware chain. `CallStarted` returns a context the call then sees, and `CallFinished` gets the error the procedure returned, before it is mapped to a status or redacted. A handler with no observers skips the path entirely.
+- Observability: the new `otel` module turns each call into an OpenTelemetry server span named after the procedure, with `bowline.procedure`, `bowline.kind`, `http.request.method` and `bowline.code` attributes, plus `bowline.call.duration` and `bowline.call.count`. It extracts W3C trace context from the request. The runtime itself keeps its standard-library-only dependency list. See `docs/guides/observability.md`.
+- Security: the CSRF guard now checks every unsafe method, not only `POST`. Before custom methods every mutation was a `POST`, so guarding `POST` was equivalent to guarding every state-changing request; once a procedure could declare `DELETE`, a forged cross-site `DELETE` reached it. `GET`, `HEAD`, `OPTIONS` and `TRACE` are exempt, everything else is checked.
+- Consumer contracts: `contracttest` replays each recorded interaction against the route and method it was recorded with, instead of posting to the RPC path. A recording made before this release still replays.
+- Mock server: `bowline mock` serves declared routes, binding path parameters and the query string against the contract's input type and answering `405` with `Allow` for a method a path does not take.
+- Playground: calls declared routes and shows the method and path next to each procedure.
+- Contract format 1.3: adds `httpPath` on procedures and widens `method`. Every 1.x reader accepts it; a reader that does not know the field ignores it. `contract.Version` moves with the format, which is the one exported constant whose value is not frozen.
+
 ## 1.0.0
 
 First stable release. `docs/stability.md` states what will not change inside 1.x: the Go API, the minimum Go version, the contract document format, generated code, the CLI and its machine-readable output, and the wire format. `docs/migration-0.x.md` lists everything a 0.x upgrade asks of you, and `docs/lts.md` gives the support windows.

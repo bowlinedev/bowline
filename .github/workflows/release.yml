@@ -51,7 +51,7 @@ jobs:
           git checkout -q "${GITHUB_SHA}"
       - name: ensure module tags exist
         run: |
-          for tag in "cmd/bowline/${GITHUB_REF_NAME}" "transport/websocket/${GITHUB_REF_NAME}" "mcp/${GITHUB_REF_NAME}" "agent/${GITHUB_REF_NAME}" "contracttest/${GITHUB_REF_NAME}" "adapters/fiber/${GITHUB_REF_NAME}" "gateway/${GITHUB_REF_NAME}"; do
+          for tag in "cmd/bowline/${GITHUB_REF_NAME}" "transport/websocket/${GITHUB_REF_NAME}" "mcp/${GITHUB_REF_NAME}" "agent/${GITHUB_REF_NAME}" "contracttest/${GITHUB_REF_NAME}" "adapters/fiber/${GITHUB_REF_NAME}" "gateway/${GITHUB_REF_NAME}" "otel/${GITHUB_REF_NAME}"; do
             if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
               git tag "$tag" "$GITHUB_SHA"
               git push origin "$tag"

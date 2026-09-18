@@ -186,7 +186,7 @@ export interface Client {
 }
 
 export const contract = {
-  version: "1.2",
+  version: "1.3",
   hydrators: {
     "Attachment": [
       { path: ["createdAt"], kind: "timestamp" },
@@ -226,10 +226,10 @@ export const contract = {
     "ledger.health": { kind: "query", method: "GET" },
     "ledger.invoices.attach": { kind: "upload", method: "POST", output: "Attachment" },
     "ledger.invoices.attachments": { kind: "query", method: "GET", output: "Ledger_Page<Attachment>" },
-    "ledger.invoices.create": { kind: "mutation", method: "POST", output: "Invoice" },
-    "ledger.invoices.get": { kind: "query", method: "GET", output: "Invoice" },
-    "ledger.invoices.list": { kind: "query", method: "GET", output: "Ledger_Page<Invoice>" },
-    "ledger.invoices.void": { kind: "mutation", method: "POST", output: "Invoice", errors: ["InvoiceLocked"] },
+    "ledger.invoices.create": { kind: "mutation", method: "POST", output: "Invoice", path: "invoices" },
+    "ledger.invoices.get": { kind: "query", method: "GET", output: "Invoice", path: "invoices/{id}" },
+    "ledger.invoices.list": { kind: "query", method: "GET", output: "Ledger_Page<Invoice>", path: "invoices" },
+    "ledger.invoices.void": { kind: "mutation", method: "DELETE", output: "Invoice", errors: ["InvoiceLocked"], path: "invoices/{id}" },
     "ledger.invoices.watch": { kind: "subscription", method: "GET", output: "Invoice" },
   },
 } satisfies ContractRuntime;

@@ -40,9 +40,7 @@ for pkg in "${packages[@]}"; do
   (cd "$work/old" && GOWORK=off "$apidiff" -w "$work/old$name.api" "$pkg")
   printf -- '-- %s against %s\n' "$pkg" "$baseline"
   out="$(GOWORK=off "$apidiff" -incompatible "$work/old$name.api" "$pkg")"
-  if [ "$pkg" = "./contract" ]; then
-    out="$(printf '%s\n' "$out" | grep -v '^- Version: value changed from ' || true)"
-  fi
+  out="$(printf '%s\n' "$out" | grep -v '^- Version: value changed from ' || true)"
   if [ -n "$out" ]; then
     echo "$out"
     status=1

@@ -32,7 +32,7 @@ The document has its own format version, separate from the library version.
 - every 1.x reader can read every 1.x document
 - new optional fields are a minor format bump, and a reader that does not know a field ignores it
 - no field is removed or changes meaning within 1.x
-- `contract.Version` carries that format version, so its value moves with a minor format bump. It is the one exported constant whose value is not frozen, and `scripts/apidiff.sh` exempts it for that reason.
+- `contract.Version` carries that format version, so its value moves with a minor format bump
 - if a 2.0 format is ever released, `bowline migrate-contract` will convert 1.x documents forward, and readers will keep accepting 1.x documents for the life of the 1.x library line
 
 `spec/contract.md` is the normative description and `spec/contract.schema.json` validates it.
@@ -53,6 +53,10 @@ Human-readable output is not stable and should not be parsed. The machine-readab
 - `bowline diff --json`, or equivalently `bowline diff --format json`
 
 Within 1.x these documents may gain fields but do not lose them or change a field's type. Exit codes are also stable: `0` means success, `1` means the command ran and the answer was no, `2` means the command line was wrong.
+
+### Version constants
+
+`bowline.Version` is the library version and `contract.Version` is the document format version. Both are expected to change, so their values are the only exported values not frozen; `scripts/apidiff.sh` exempts them, and everything else about them, including their existence and type, is frozen as usual.
 
 ## 5. The wire format
 

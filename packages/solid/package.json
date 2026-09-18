@@ -1,6 +1,6 @@
 {
   "name": "@bowlinedev/solid",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Solid resource and action bindings for Bowline clients",
   "license": "Apache-2.0",
   "repository": {
