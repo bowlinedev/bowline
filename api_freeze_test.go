@@ -57,7 +57,12 @@ func TestPublicIdentifiersMatchFreezeList(t *testing.T) {
 
 func parseFreezeList(t *testing.T) map[string][]string {
 	t.Helper()
-	data, err := os.ReadFile(freezeList)
+	return parseIdentifierLists(t, freezeList)
+}
+
+func parseIdentifierLists(t *testing.T, path string) map[string][]string {
+	t.Helper()
+	data, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -212,4 +217,33 @@ Every identifier below is guaranteed for the life of the major version, as ` + "
 ` + "`scripts/apidiff.sh`" + ` is the other half: it compares the working tree against the previous release tag and fails on an incompatible change. This file says what is promised; the script says whether the promise was kept.
 
 Packages under ` + "`internal/`" + ` are absent by design and carry no guarantee. ` + "`docs/security/api-audit.md`" + ` records why each identifier is here.
+
+One carve-out: the identifiers named in ` + "`docs/provisional.md`" + ` are listed below but are not yet covered by the guarantee. They arrived in 1.1.0 and may still change.
 `
+
+const provisionalList = "docs/provisional.md"
+
+func TestProvisionalSurfaceIsExported(t *testing.T) {
+	listed := parseIdentifierLists(t, provisionalList)
+	if len(listed) == 0 {
+		t.Fatalf("%s lists no identifiers", provisionalList)
+	}
+	for _, pkg := range frozenPackages {
+		want := listed[pkg.Import]
+		if want == nil {
+			continue
+		}
+		have := exportedIdentifiers(t, pkg.Dir)
+		for _, id := range diff(want, have) {
+			t.Errorf("%s: %s is listed as provisional in %s but is not exported; remove it there", pkg.Import, id, provisionalList)
+		}
+	}
+	frozen := parseFreezeList(t)
+	for pkg, ids := range listed {
+		for _, id := range ids {
+			if !slices.Contains(frozen[pkg], id) {
+				t.Errorf("%s: %s is provisional but missing from %s; both lists describe the same surface", pkg, id, freezeList)
+			}
+		}
+	}
+}

@@ -1,5 +1,7 @@
 # Middleware and lifecycle
 
+`Typed`, `Observer` and the `Observe` options are provisional: they arrived in 1.1.0 and `docs/provisional.md` explains what may still change about them. `Middleware`, `Next` and `Use` are frozen.
+
 Middleware wraps a procedure call. It runs after the request has been decoded and validated, and it sees the input value the procedure is about to receive, not the raw HTTP request.
 
 source: middleware.go:8-10

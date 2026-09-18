@@ -1,5 +1,7 @@
 # REST routes
 
+`Path` and `Method` are provisional: they arrived in 1.1.0 and `docs/provisional.md` explains what may still change about them.
+
 Every procedure is reachable at its own RPC path without any configuration: `POST /api/invoices.create`, or `GET /api/invoices.get?input={...}` for a query. That is enough for a client that was generated from the contract, because it knows where everything lives.
 
 It is not enough when something else has to call the API: a webhook that only sends `DELETE`, a partner who was promised `/v1/invoices/{id}`, or a CDN rule that caches by path. For those, a procedure can declare the route it answers on.

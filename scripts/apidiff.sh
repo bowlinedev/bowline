@@ -34,6 +34,15 @@ trap 'rm -rf "$work"' EXIT
 git worktree add -q --detach "$work/old" "$baseline"
 trap 'git worktree remove -f "$work/old" >/dev/null 2>&1 || true; rm -rf "$work"' EXIT
 
+provisional() {
+  awk -v want="$1" '
+    /^## / { pkg = substr($0, 4); next }
+    /^```/ { inside = !inside; next }
+    inside && pkg == want && NF { names = names sep $NF; sep = "|" }
+    END { print names }
+  ' "$repo/docs/provisional.md"
+}
+
 status=0
 for pkg in "${packages[@]}"; do
   name="$(printf '%s' "$pkg" | tr './' '_')"
@@ -41,6 +50,13 @@ for pkg in "${packages[@]}"; do
   printf -- '-- %s against %s\n' "$pkg" "$baseline"
   out="$(GOWORK=off "$apidiff" -incompatible "$work/old$name.api" "$pkg")"
   out="$(printf '%s\n' "$out" | grep -v '^- Version: value changed from ' || true)"
+  import_path="github.com/bowlinedev/bowline"
+  [ "$pkg" = "." ] || import_path="$import_path/${pkg#./}"
+  names="$(provisional "$import_path")"
+  if [ -n "$names" ]; then
+    printf '%s\n' "$out" | grep -E "^- [(]?[*]?($names)\\b" | sed 's/^- /provisional: /' || true
+    out="$(printf '%s\n' "$out" | grep -vE "^- [(]?[*]?($names)\\b" || true)"
+  fi
   if [ -n "$out" ]; then
     echo "$out"
     status=1

@@ -1,5 +1,7 @@
 # Observability
 
+The `otel` module is provisional as a whole; see `docs/provisional.md`.
+
 The `otel` module turns every procedure call into an OpenTelemetry span and two metrics. It is a separate module, so the runtime keeps its standard-library-only dependency list:
 
 ```bash

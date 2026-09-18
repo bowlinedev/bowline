@@ -12,6 +12,8 @@ go test -run TestPublicIdentifiersMatchFreezeList -update-api
 
 Packages under `internal/` are absent by design and carry no guarantee. `docs/security/api-audit.md` records why each identifier is here.
 
+One carve-out: the identifiers named in `docs/provisional.md` are listed below but are not yet covered by the guarantee. They arrived in 1.1.0 and may still change.
+
 ## github.com/bowlinedev/bowline
 
 ```

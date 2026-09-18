@@ -19,6 +19,12 @@ Adding a field to an exported struct is a minor change, so you should construct 
 
 Packages under `internal/` in any module are not part of the API and are not covered. This includes every generator. Third parties should use the external generator protocol in `docs/plugins.md` rather than importing the generator packages.
 
+### Provisional identifiers
+
+`docs/provisional.md` names the one carve-out from the promise above. The identifiers it lists arrived in 1.1.0, have not been used outside this repository yet, and may change or be removed in a later 1.x minor release. 1.0.0 froze the API three days after the first commit, which is a promise made before any evidence; naming the parts that are still settling is better than quietly breaking them later or carrying a shape that turns out wrong for the rest of the major version.
+
+`TestProvisionalSurfaceIsExported` keeps that list from rotting, and `scripts/apidiff.sh` reports a change to one of those identifiers as `provisional:` rather than failing. Everything not on that list is covered in full. The `otel` module is provisional as a whole, and is not in `docs/api-freeze.md` at all: only the root, `contract` and `signing` packages are frozen.
+
 ### Minimum Go version
 
 `apidiff` cannot check the minimum Go version, so it has its own rule. The minimum may go up in a minor release, never in a patch, and never beyond the oldest release that Go itself still supports. A minor release that raises it says so in the first line of its changelog entry.
