@@ -78,28 +78,28 @@ type InvoicesClient struct {
 // Create calls invoices.create.
 func (c InvoicesClient) Create(ctx context.Context, in CreateInput) (Invoice, error) {
 	var out Invoice
-	err := c.c.call(ctx, "invoices.create", http.MethodPost, in, &out)
+	err := c.c.call(ctx, "invoices", http.MethodPost, in, &out)
 	return out, err
 }
 
 // Get calls invoices.get.
 func (c InvoicesClient) Get(ctx context.Context, in GetInput) (Invoice, error) {
 	var out Invoice
-	err := c.c.call(ctx, "invoices.get", http.MethodGet, in, &out)
+	err := c.c.call(ctx, "invoices/"+url.PathEscape(fmt.Sprint(in.ID)), http.MethodGet, struct{}{}, &out)
 	return out, err
 }
 
 // Line calls invoices.line.
 func (c InvoicesClient) Line(ctx context.Context, in LineInput) (Invoice, error) {
 	var out Invoice
-	err := c.c.call(ctx, "invoices.line", http.MethodGet, in, &out)
+	err := c.c.call(ctx, "invoices/"+url.PathEscape(fmt.Sprint(in.InvoiceId))+"/lines/"+url.PathEscape(fmt.Sprint(in.LineId)), http.MethodGet, struct{}{}, &out)
 	return out, err
 }
 
 // List calls invoices.list.
 func (c InvoicesClient) List(ctx context.Context, in ListInput) (Invoice, error) {
 	var out Invoice
-	err := c.c.call(ctx, "invoices.list", http.MethodGet, in, &out)
+	err := c.c.call(ctx, "invoices", http.MethodGet, in, &out)
 	return out, err
 }
 
