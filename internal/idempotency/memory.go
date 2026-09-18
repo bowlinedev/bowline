@@ -14,6 +14,11 @@ const (
 	Stored
 )
 
+const (
+	DefaultMaxKeys = 10000
+	sweepInterval  = time.Second
+)
+
 type entry struct {
 	inFlight bool
 	status   int
@@ -22,24 +27,40 @@ type entry struct {
 }
 
 type Memory struct {
-	mu      sync.Mutex
-	now     func() time.Time
-	entries map[string]*entry
+	mu        sync.Mutex
+	now       func() time.Time
+	entries   map[string]*entry
+	maxKeys   int
+	nextSweep time.Time
 }
 
 func NewMemory(now func() time.Time) *Memory {
+	return NewMemoryWithLimit(now, DefaultMaxKeys)
+}
+
+func NewMemoryWithLimit(now func() time.Time, maxKeys int) *Memory {
 	if now == nil {
 		now = time.Now
 	}
-	return &Memory{now: now, entries: map[string]*entry{}}
+	if maxKeys <= 0 {
+		maxKeys = DefaultMaxKeys
+	}
+	return &Memory{now: now, entries: map[string]*entry{}, maxKeys: maxKeys}
+}
+
+func (m *Memory) Len() int {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return len(m.entries)
 }
 
 func (m *Memory) Begin(ctx context.Context, key string) (State, int, []byte, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.sweep()
+	m.sweep(false)
 	e, ok := m.entries[key]
 	if !ok {
+		m.reserve()
 		m.entries[key] = &entry{inFlight: true, expires: m.now().Add(time.Minute)}
 		return New, 0, nil, nil
 	}
@@ -52,6 +73,9 @@ func (m *Memory) Begin(ctx context.Context, key string) (State, int, []byte, err
 func (m *Memory) Complete(ctx context.Context, key string, status int, body []byte, ttl time.Duration) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if _, ok := m.entries[key]; !ok {
+		m.reserve()
+	}
 	m.entries[key] = &entry{status: status, body: body, expires: m.now().Add(ttl)}
 	return nil
 }
@@ -63,8 +87,34 @@ func (m *Memory) Abort(ctx context.Context, key string) error {
 	return nil
 }
 
-func (m *Memory) sweep() {
+func (m *Memory) reserve() {
+	if len(m.entries) < m.maxKeys {
+		return
+	}
+	m.sweep(true)
+	for len(m.entries) >= m.maxKeys {
+		oldest, found := "", time.Time{}
+		for key, e := range m.entries {
+			if e.inFlight {
+				continue
+			}
+			if found.IsZero() || e.expires.Before(found) {
+				oldest, found = key, e.expires
+			}
+		}
+		if found.IsZero() {
+			return
+		}
+		delete(m.entries, oldest)
+	}
+}
+
+func (m *Memory) sweep(force bool) {
 	now := m.now()
+	if !force && now.Before(m.nextSweep) {
+		return
+	}
+	m.nextSweep = now.Add(sweepInterval)
 	for key, e := range m.entries {
 		if !e.inFlight && now.After(e.expires) {
 			delete(m.entries, key)
