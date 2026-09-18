@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.3.0
 
 - Errors: `ProblemDetails()` adds an RFC 9457 `application/problem+json` representation, chosen by content negotiation so a client that does not ask for it still gets the frozen envelope. Production redaction applies to both shapes. `ProblemTypeBase` sets the `type` URI prefix; without it the type is `about:blank`, as the RFC specifies.
 - Conditional requests: `ETags()` hashes the body of a cacheable read, sets an `ETag` and answers `304 Not Modified` for a matching `If-None-Match`. A procedure can set its own tag with `Call.SetETag`, which is what you want when the store already has a version. `IfMatch` and `IfNoneMatch` hand the caller's tags to a procedure so it can refuse a stale write itself; the runtime does not guess, because only the store knows the current version.

@@ -88,7 +88,7 @@ Example projects are in `examples/`. `ledger` is a Chi server with a React front
 
 ## Status
 
-Current version is 1.2.0. The exported Go API is frozen for the 1.x line. `scripts/apidiff.sh` checks this on every pull request and `docs/stability.md` lists what is covered. The contract format is at 1.2, which is backwards compatible with 1.0. If you are upgrading from a 0.x release, see `docs/migration-0.x.md`.
+Current version is 1.3.0. The exported Go API is frozen for the 1.x line. `scripts/apidiff.sh` checks this on every pull request and `docs/stability.md` lists what is covered. The contract format is at 1.2, which is backwards compatible with 1.0. If you are upgrading from a 0.x release, see `docs/migration-0.x.md`.
 
 ## Repository layout
 

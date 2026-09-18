@@ -2,5 +2,5 @@ import { expect, test } from "vitest";
 import { version } from "./index.js";
 
 test("exports a version", () => {
-  expect(version).toBe("1.2.0");
+  expect(version).toBe("1.3.0");
 });

@@ -25,12 +25,12 @@ source: examples/federation/gateway/bowline.gateway.json:1-17
     "ledger": {
       "url": "http://127.0.0.1:8080/api",
       "contract": "../../ledger/api/bowline.contract.json",
-      "version": "sha256:56a7ed471eafcdb45e0db1912e19550a382efcee5eacc7891036df14dc59412a"
+      "version": "sha256:c65cf6a6789878413cc36ccbce0325c05f86291a9d4d548ccb81e0a70ae84b57"
     },
     "billing": {
       "url": "http://127.0.0.1:8081/api",
       "contract": "../billing/api/bowline.contract.json",
-      "version": "sha256:ff1002af9f37795dccd0a12f7b07f9459cde536f319424b1839ede72f01f7996"
+      "version": "sha256:71b496c50f39a3084e68b0cd838a50eaeb4ed0fe6fdf17e7effc0212163add2f"
     }
   }
 }
