@@ -73,13 +73,20 @@ jobs:
               git push origin "$tag"
             fi
           done
+      - name: count the binaries already attached to the release
+        id: published
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "assets=$(gh release view "$RELEASE_TAG" --json assets -q '.assets | length' 2>/dev/null || echo 0)" >> "$GITHUB_OUTPUT"
       - uses: goreleaser/goreleaser-action@v7
+        if: steps.published.outputs.assets == '0'
         with:
           version: "~> v2"
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/attest-build-provenance@v4
+        if: steps.published.outputs.assets == '0'
         with:
           subject-path: |
             dist/*.tar.gz
