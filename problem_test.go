@@ -110,3 +110,13 @@ func TestProblemTitleReadsWell(t *testing.T) {
 		}
 	}
 }
+
+func TestAboutBlankUsesTheStatusPhrase(t *testing.T) {
+	_, _, body := problemOf(t, problemHandler(t, ProblemDetails()), ProblemMediaType)
+	if body["type"] != "about:blank" {
+		t.Fatalf("type = %#v", body["type"])
+	}
+	if body["title"] != "Not Found" {
+		t.Fatalf("title = %#v; RFC 9457 says an about:blank problem SHOULD use the HTTP status phrase", body["title"])
+	}
+}

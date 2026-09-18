@@ -71,12 +71,17 @@ func problemTitle(code Code) string {
 
 func (h *handler) problemBody(status int, env wireEnvelope, req *http.Request) map[string]any {
 	kind := "about:blank"
+	title := http.StatusText(status)
 	if h.problem.typeBase != "" {
 		kind = h.problem.typeBase + string(env.Error.Code)
+		title = problemTitle(env.Error.Code)
+	}
+	if title == "" {
+		title = problemTitle(env.Error.Code)
 	}
 	out := map[string]any{
 		"type":   kind,
-		"title":  problemTitle(env.Error.Code),
+		"title":  title,
 		"status": status,
 		"code":   string(env.Error.Code),
 	}

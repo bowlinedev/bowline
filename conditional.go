@@ -25,21 +25,7 @@ func IfNoneMatch(ctx context.Context) []string {
 }
 
 func conditionHeader(ctx context.Context, name string) []string {
-	req := requestFrom(ctx)
-	if req == nil {
-		return nil
-	}
-	raw := req.Header.Get(name)
-	if raw == "" {
-		return nil
-	}
-	var out []string
-	for value := range strings.SplitSeq(raw, ",") {
-		if tag := strings.TrimSpace(value); tag != "" {
-			out = append(out, unquoteETag(tag))
-		}
-	}
-	return out
+	return requestConditions(requestFrom(ctx), name)
 }
 
 func quoteETag(tag string) string {
@@ -63,15 +49,57 @@ func etagOf(body []byte) string {
 }
 
 func matchesETag(candidates []string, tag string) bool {
-	unquoted := unquoteETag(tag)
+	want := unquoteETag(tag)
 	for _, candidate := range candidates {
-		if candidate == "*" || candidate == unquoted {
+		if candidate == "*" || unquoteETag(candidate) == want {
 			return true
 		}
 	}
 	return false
 }
 
+func matchesETagStrongly(candidates []string, tag string) bool {
+	if isWeak(tag) {
+		for _, candidate := range candidates {
+			if candidate == "*" {
+				return true
+			}
+		}
+		return false
+	}
+	want := unquoteETag(tag)
+	for _, candidate := range candidates {
+		if candidate == "*" {
+			return true
+		}
+		if !isWeak(candidate) && unquoteETag(candidate) == want {
+			return true
+		}
+	}
+	return false
+}
+
+func isWeak(tag string) bool {
+	return strings.HasPrefix(strings.TrimSpace(tag), "W/")
+}
+
 func cacheableMethod(method string) bool {
 	return method == http.MethodGet || method == http.MethodHead
+}
+
+func requestConditions(req *http.Request, name string) []string {
+	if req == nil {
+		return nil
+	}
+	raw := req.Header.Get(name)
+	if raw == "" {
+		return nil
+	}
+	var out []string
+	for value := range strings.SplitSeq(raw, ",") {
+		if tag := strings.TrimSpace(value); tag != "" {
+			out = append(out, tag)
+		}
+	}
+	return out
 }
