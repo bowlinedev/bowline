@@ -42,6 +42,7 @@ To add a language, see `plugins.md` for the external generator protocol and `cer
 
 ## Running it in production
 
+- `guides/production.md`: the checklist for a first deployment — which handler options are mandatory, the `http.Server` timeouts Bowline cannot set, draining subscriptions on shutdown, and what to watch.
 - `guides/security.md`: CSRF, security headers, what `Sensitive()` actually does, and the reverse proxy checklist.
 - `guides/signing.md`: signed service-to-service calls.
 - `guides/federation.md`: composing several services into one client behind a gateway.

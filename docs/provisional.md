@@ -11,6 +11,8 @@ If you use one of these, pin a minor version and read the changelog before upgra
 ## github.com/bowlinedev/bowline
 
 ```
+func CallTimeout
+func Drain
 func Method
 func Observe
 func ObserveFunc
@@ -24,6 +26,8 @@ type TypedNext
 `Path` and `Method` declare a REST route. The open questions are whether a route should be able to set a response status, how two services should resolve a collision when they are composed behind a gateway, and whether `Method` should accept a verb outside the five it takes today.
 
 `Observer`, `Observe`, `ObserveFunc` and `OnHandlerReady` are the lifecycle hooks. The open question is whether `CallFinished` should also see the response body and status, which it cannot today.
+
+`CallTimeout` and `Drain` bound a call and end streams at shutdown. The open questions are whether a per-procedure override belongs alongside the handler-wide deadline, and whether `Drain` should also refuse new calls rather than only ending open streams.
 
 `Typed` and `TypedNext` give a middleware the procedure's real input and output types. The open question is whether the same should be expressed as a generic `Procedure` wrapper instead, which would remove the runtime type assertion.
 

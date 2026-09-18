@@ -81,9 +81,11 @@ field StreamFailure.Err
 field StreamFailure.Status
 func CSRF
 func CallFrom
+func CallTimeout
 func Deprecated
 func Description
 func Destructive
+func Drain
 func Errorf
 func Errors
 func Heartbeat

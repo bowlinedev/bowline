@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Runtime: `bowline.CallTimeout(d)` bounds how long one procedure may run and answers `DEADLINE_EXCEEDED`; subscriptions are exempt because they are long-lived by design. `bowline.Drain(ctx)` ends in-flight subscriptions when that context is cancelled, so `http.Server.Shutdown` does not wait on an idle stream for its whole grace period. Both are provisional; see `docs/provisional.md`.
+- Idempotency: the in-memory store is now bounded. It was the only in-memory store without a limit, so a caller sending a fresh `Idempotency-Key` on every request grew the process without bound, and its sweep scanned the whole map under the lock on every call. It now holds at most ten thousand keys, evicts the ones closest to expiry, never evicts a key whose request is still running, and sweeps at most once a second. Under enough unique-key traffic an older key is dropped early and a retry re-runs the mutation rather than replaying.
+- Docs: `docs/guides/production.md` is the first-deployment checklist — the handler options that are off by default, the `http.Server` timeouts Bowline cannot set, the shutdown order for subscriptions, and what to watch.
+- Testing: a soak harness (`scripts/soak.sh`) that runs the handler under concurrency and fails if goroutines, heap or the idempotency store grow; fault-injection tests for a failing idempotency store and a subscriber that stops reading; and a goroutine-leak assertion for subscriptions.
+
 ## 1.1.0
 
 Procedures can now answer on a URL and an HTTP method you choose, rather than only on their RPC path. Everything that reads the contract follows: all six generated clients, the OpenAPI export, the mock server, the playground, and the consumer-contract verifier.
