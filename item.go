@@ -79,6 +79,7 @@ func Subscription[In, Out any](name string, fn func(context.Context, In, *Stream
 	for _, opt := range opts {
 		opt(p)
 	}
+	checkOptions(p)
 	return procItem{p}
 }
 
@@ -98,7 +99,14 @@ func newProcedure[In, Out any](kind ProcedureKind, name string, fn func(context.
 	for _, opt := range opts {
 		opt(p)
 	}
+	checkOptions(p)
 	return p
+}
+
+func checkOptions(p *Procedure) {
+	if p.Sensitive && p.HTTPMethod != "" && !methodSendsBody(p.HTTPMethod) {
+		panic(fmt.Sprintf("bowline: %s %q: Sensitive input cannot travel in a %s, which has no body", p.Kind, p.Name, p.HTTPMethod))
+	}
 }
 
 func prepare[In, Out any](kind ProcedureKind, name string) *Procedure {

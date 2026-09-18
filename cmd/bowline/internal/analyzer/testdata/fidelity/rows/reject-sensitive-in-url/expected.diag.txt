@@ -1,0 +1,1 @@
+rows/reject-sensitive-in-url/api.go:16:27: lookup: a sensitive procedure cannot answer on GET, which carries no body. drop the Method option so the input travels in a body, or drop Sensitive if the input is safe in a URL

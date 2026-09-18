@@ -38,6 +38,7 @@ func Upload[In, Out any](name string, fn func(context.Context, In, *File) (Out, 
 	for _, opt := range opts {
 		opt(p)
 	}
+	checkOptions(p)
 	return procItem{p}
 }
 

@@ -284,6 +284,9 @@ func (e *evaluator) procedure(pkg *packages.Package, call *ast.CallExpr, prefix 
 	if spec.HTTPMethod != "" {
 		spec.Method = spec.HTTPMethod
 	}
+	if spec.Sensitive && !sendsBody(spec.Method) {
+		e.fail(spec.Pos, spec.Path, fmt.Sprintf("a sensitive procedure cannot answer on %s, which carries no body", spec.Method), "drop the Method option so the input travels in a body, or drop Sensitive if the input is safe in a URL")
+	}
 	return []procedureSpec{spec}
 }
 
