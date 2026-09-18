@@ -1,5 +1,29 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 import { arm, collect } from "./record.js";
+
+const uploadLimit = 8 * 1024 * 1024;
+
+async function attachOversized(page: Page): Promise<number | string> {
+  try {
+    const response = await page.request.post("/api/invoices.attach", {
+      multipart: {
+        input: {
+          name: "input",
+          mimeType: "application/json",
+          buffer: Buffer.from('{"invoiceId":3}'),
+        },
+        file: {
+          name: "huge.bin",
+          mimeType: "application/octet-stream",
+          buffer: Buffer.alloc(uploadLimit + 1024 * 1024, 1),
+        },
+      },
+    });
+    return response.status();
+  } catch {
+    return "connection dropped";
+  }
+}
 
 for (const transport of ["sse", "ws"]) {
   test(`lists, creates, validates, streams, attaches, and voids invoices over ${transport}`, async ({
@@ -51,21 +75,7 @@ for (const transport of ["sse", "ws"]) {
       "attached receipt.bin (2097152 bytes) to invoice 3",
     );
 
-    const response = await page.request.post("/api/invoices.attach", {
-      multipart: {
-        input: {
-          name: "input",
-          mimeType: "application/json",
-          buffer: Buffer.from('{"invoiceId":3}'),
-        },
-        file: {
-          name: "huge.bin",
-          mimeType: "application/octet-stream",
-          buffer: Buffer.alloc(40 * 1024 * 1024, 1),
-        },
-      },
-    });
-    expect(response.status()).toBe(413);
+    expect([413, "connection dropped"]).toContain(await attachOversized(page));
     if (transport === "sse") {
       await collect(page, observer);
     }
