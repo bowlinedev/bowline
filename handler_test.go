@@ -195,3 +195,16 @@ func TestTrailingSlashAndPrefix(t *testing.T) {
 		t.Fatalf("status %d body %s", rec.Code, rec.Body.String())
 	}
 }
+
+func TestTheSharedEmptyInputIsNeverMutated(t *testing.T) {
+	h := NewRouter(Query("get", getUser, Path("things/{id}"))).Handler(Logger(discardLogger()))
+	for range 5 {
+		rec := do(h, http.MethodGet, "/api/things/3", "", nil)
+		if rec.Code != http.StatusOK {
+			t.Fatalf("status %d: %s", rec.Code, rec.Body.String())
+		}
+	}
+	if string(emptyInput) != "{}" {
+		t.Fatalf("the shared empty input became %q; a decoder wrote through it", emptyInput)
+	}
+}

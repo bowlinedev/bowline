@@ -76,25 +76,25 @@ func TestBindIgnoresUnexportedAndSkipped(t *testing.T) {
 }
 
 func TestBindableKinds(t *testing.T) {
-	ok := []any{"", int64(0), int32(0), uint64(0), 0}
+	ok := []reflect.Type{reflect.TypeFor[string](), reflect.TypeFor[int64](), reflect.TypeFor[int32](), reflect.TypeFor[uint64](), reflect.TypeFor[int]()}
 	for _, v := range ok {
-		if !Bindable(reflect.TypeOf(v)) {
+		if !Bindable(v) {
 			t.Fatalf("%T should be bindable", v)
 		}
 	}
-	bad := []any{1.5, true, []string{}, map[string]string{}, struct{}{}}
+	bad := []reflect.Type{reflect.TypeFor[float64](), reflect.TypeFor[bool](), reflect.TypeFor[[]string](), reflect.TypeFor[map[string]string](), reflect.TypeFor[struct{}]()}
 	for _, v := range bad {
-		if Bindable(reflect.TypeOf(v)) {
+		if Bindable(v) {
 			t.Fatalf("%T should not be bindable", v)
 		}
 	}
 }
 
 func TestFieldByWireNameUsesTheJSONName(t *testing.T) {
-	if _, ok := FieldByWireName(reflect.TypeOf(bindInput{}), "id"); !ok {
+	if _, ok := FieldByWireName(reflect.TypeFor[bindInput](), "id"); !ok {
 		t.Fatal("id not found")
 	}
-	if _, ok := FieldByWireName(reflect.TypeOf(bindInput{}), "ID"); ok {
+	if _, ok := FieldByWireName(reflect.TypeFor[bindInput](), "ID"); ok {
 		t.Fatal("the Go name must not match when a json tag renames the field")
 	}
 }

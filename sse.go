@@ -81,5 +81,5 @@ func (h *handler) serveSubscription(w http.ResponseWriter, rt *route, ctx contex
 		_ = sink.Write("error", body)
 		return
 	}
-	_ = sink.Write("done", []byte("{}"))
+	_ = sink.Write("done", emptyInput)
 }

@@ -270,6 +270,8 @@ func (h *handler) bodyLimit(p *Procedure) int64 {
 	return h.maxBody
 }
 
+var emptyInput = []byte("{}")
+
 func methodSendsBody(method string) bool {
 	switch method {
 	case http.MethodGet, http.MethodDelete, http.MethodHead:
@@ -283,7 +285,7 @@ func (h *handler) readInput(w http.ResponseWriter, req *http.Request, limit int6
 		if raw := queryInput(req.URL.RawQuery); len(raw) > 0 {
 			return raw, 0, nil
 		}
-		return []byte("{}"), 0, nil
+		return emptyInput, 0, nil
 	}
 	if ct := req.Header.Get("Content-Type"); ct != "" {
 		mediaType, _, err := mime.ParseMediaType(ct)
