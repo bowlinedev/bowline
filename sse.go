@@ -25,6 +25,12 @@ func acceptsEventStream(req *http.Request) bool {
 }
 
 func (h *handler) serveSubscription(w http.ResponseWriter, rt *route, ctx context.Context, in any) {
+	if h.drain != nil {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithCancel(ctx)
+		defer cancel()
+		defer context.AfterFunc(h.drain, cancel)()
+	}
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		h.writeError(w, nil, 0, Errorf(Internal, "response writer does not support streaming"))

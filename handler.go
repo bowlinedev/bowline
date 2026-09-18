@@ -40,16 +40,26 @@ func StrictInput() HandlerOption {
 	return func(h *handler) { h.strict = true }
 }
 
+func CallTimeout(d time.Duration) HandlerOption {
+	return func(h *handler) { h.callTimeout = d }
+}
+
+func Drain(ctx context.Context) HandlerOption {
+	return func(h *handler) { h.drain = ctx }
+}
+
 type handler struct {
-	routes     map[string]*route
-	observers  []Observer
-	table      *routing.Table
-	maxBody    int64
-	log        *slog.Logger
-	production bool
-	strict     bool
-	heartbeat  time.Duration
-	maxUpload  int64
+	routes      map[string]*route
+	observers   []Observer
+	table       *routing.Table
+	maxBody     int64
+	callTimeout time.Duration
+	drain       context.Context
+	log         *slog.Logger
+	production  bool
+	strict      bool
+	heartbeat   time.Duration
+	maxUpload   int64
 
 	contract   []byte
 	reserved   *reserved.Set
@@ -160,7 +170,13 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route, p
 		h.writeError(w, nil, status, err)
 		return
 	}
-	ctx, ptr := proc.newFrame(req.Context(), Call{Procedure: &rt.procedure, Request: req})
+	base := req.Context()
+	if h.callTimeout > 0 && proc.Kind != KindSubscription {
+		var cancel context.CancelFunc
+		base, cancel = context.WithTimeout(base, h.callTimeout)
+		defer cancel()
+	}
+	ctx, ptr := proc.newFrame(base, Call{Procedure: &rt.procedure, Request: req})
 	if err := codec.Decode(raw, ptr, h.strict); err != nil {
 		h.writeError(w, nil, 0, h.invalidInput(err))
 		return
