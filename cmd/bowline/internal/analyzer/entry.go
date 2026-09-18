@@ -17,6 +17,7 @@ import (
 
 type procedureSpec struct {
 	Path        string
+	HTTPPath    string
 	Kind        string
 	Method      string
 	In          types.Type
@@ -285,7 +286,7 @@ func (e *evaluator) procedure(pkg *packages.Package, call *ast.CallExpr, prefix 
 func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedureSpec) {
 	call, ok := ast.Unparen(expr).(*ast.CallExpr)
 	if !ok {
-		e.fail(expr.Pos(), spec.Path, "procedure options must be literal bowline option calls", "use bowline.Description, Deprecated, Sensitive, MaxBody, Meta, or Use")
+		e.fail(expr.Pos(), spec.Path, "procedure options must be literal bowline option calls", "use bowline.Description, Deprecated, Path, Sensitive, MaxBody, Meta, or Use")
 		return
 	}
 	switch bowlineFunc(pkg, call) {
@@ -293,6 +294,16 @@ func (e *evaluator) option(pkg *packages.Package, expr ast.Expr, spec *procedure
 		spec.Description, _ = e.constArg(pkg, call, 0, spec.Path)
 	case "Deprecated":
 		spec.Deprecated, _ = e.constArg(pkg, call, 0, spec.Path)
+	case "Path":
+		raw, ok := e.constArg(pkg, call, 0, spec.Path)
+		if !ok {
+			return
+		}
+		if _, err := contract.ParsePath(raw); err != nil {
+			e.fail(call.Args[0].Pos(), spec.Path, err.Error(), "use segments separated by slashes, with parameters wrapped in braces, as in invoices/{id}")
+			return
+		}
+		spec.HTTPPath = raw
 	case "Sensitive":
 		spec.Sensitive = true
 	case "Idempotent":

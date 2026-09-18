@@ -99,6 +99,42 @@ export function createClient(contract: ContractRuntime, options: ClientOptions):
   return root;
 }
 
+export function resolvePath(
+  procedurePath: string,
+  proc: ProcedureRuntime,
+  input: unknown,
+): { path: string; payload: unknown } {
+  if (proc.path === undefined) {
+    return { path: procedurePath, payload: input };
+  }
+  const consumed: string[] = [];
+  const segments = proc.path.split("/").map((segment) => {
+    if (!segment.startsWith("{") || !segment.endsWith("}")) {
+      return segment;
+    }
+    const name = segment.slice(1, -1);
+    const value = (input as Record<string, unknown> | undefined)?.[name];
+    if (value === undefined || value === null) {
+      throw new TypeError(`bowline: path parameter "${name}" is missing from the input`);
+    }
+    consumed.push(name);
+    return encodeURIComponent(String(value));
+  });
+  if (consumed.length === 0 || input === undefined || input === null) {
+    return { path: segments.join("/"), payload: input };
+  }
+  const rest: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
+    if (!consumed.includes(key)) {
+      rest[key] = value;
+    }
+  }
+  return {
+    path: segments.join("/"),
+    payload: Object.keys(rest).length === 0 ? undefined : rest,
+  };
+}
+
 async function prepare(
   base: string,
   path: string,
@@ -118,11 +154,12 @@ async function prepare(
   if (callOptions?.idempotencyKey !== undefined) {
     headers.set("idempotency-key", callOptions.idempotencyKey);
   }
-  const body = serialize(input ?? {});
-  let url = `${base}/${path}`;
+  const { path: resolved, payload } = resolvePath(path, proc, input);
+  const body = serialize(payload ?? {});
+  let url = `${base}/${resolved}`;
   const init: RequestInit = { method: proc.method, headers, signal: callOptions?.signal ?? null };
   if (proc.method === "GET") {
-    if (input !== undefined) {
+    if (payload !== undefined) {
       url += `?input=${encodeURIComponent(body)}`;
     }
   } else {

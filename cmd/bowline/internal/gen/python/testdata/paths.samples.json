@@ -1,0 +1,34 @@
+{
+  "invoices.create": {
+    "input": "CreateInput",
+    "model": "Invoice",
+    "output": {
+      "id": 1,
+      "total": "ember"
+    }
+  },
+  "invoices.get": {
+    "input": "GetInput",
+    "model": "Invoice",
+    "output": {
+      "id": 2,
+      "total": "meadow willow lantern"
+    }
+  },
+  "invoices.line": {
+    "input": "LineInput",
+    "model": "Invoice",
+    "output": {
+      "id": 3,
+      "total": "grove mesa river"
+    }
+  },
+  "invoices.list": {
+    "input": "ListInput",
+    "model": "Invoice",
+    "output": {
+      "id": 4,
+      "total": "saffron nova umber"
+    }
+  }
+}

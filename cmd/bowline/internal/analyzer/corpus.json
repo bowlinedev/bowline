@@ -1426,6 +1426,216 @@
         }
       }
     },
+    "paths": {
+      "bowline": "1.2",
+      "hash": "sha256:352e140d3e242a4ef0ec56249af9df266602351415f45bc2980e739e1e68b8b3",
+      "types": {
+        "fidelity.test/rows/paths.CreateInput": {
+          "kind": "struct",
+          "name": "CreateInput",
+          "fields": [
+            {
+              "name": "total",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                }
+              ]
+            }
+          ]
+        },
+        "fidelity.test/rows/paths.GetInput": {
+          "kind": "struct",
+          "name": "GetInput",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                }
+              ]
+            }
+          ]
+        },
+        "fidelity.test/rows/paths.Invoice": {
+          "kind": "struct",
+          "name": "Invoice",
+          "fields": [
+            {
+              "name": "id",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              }
+            },
+            {
+              "name": "total",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "fidelity.test/rows/paths.LineInput": {
+          "kind": "struct",
+          "name": "LineInput",
+          "fields": [
+            {
+              "name": "invoiceId",
+              "type": {
+                "kind": "primitive",
+                "name": "int64"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                }
+              ]
+            },
+            {
+              "name": "lineId",
+              "type": {
+                "kind": "primitive",
+                "name": "string"
+              },
+              "rules": [
+                {
+                  "rule": "required"
+                }
+              ]
+            }
+          ]
+        },
+        "fidelity.test/rows/paths.ListInput": {
+          "kind": "struct",
+          "name": "ListInput",
+          "fields": [
+            {
+              "name": "limit",
+              "type": {
+                "kind": "primitive",
+                "name": "int32"
+              }
+            }
+          ]
+        }
+      },
+      "errors": {},
+      "procedures": [
+        {
+          "path": "invoices.create",
+          "kind": "mutation",
+          "method": "POST",
+          "httpPath": "invoices",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/paths.CreateInput"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/paths.Invoice"
+          },
+          "goInput": "fidelity.test/rows/paths.CreateInput",
+          "goOutput": "fidelity.test/rows/paths.Invoice"
+        },
+        {
+          "path": "invoices.get",
+          "kind": "query",
+          "method": "GET",
+          "httpPath": "invoices/{id}",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/paths.GetInput"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/paths.Invoice"
+          },
+          "goInput": "fidelity.test/rows/paths.GetInput",
+          "goOutput": "fidelity.test/rows/paths.Invoice"
+        },
+        {
+          "path": "invoices.line",
+          "kind": "query",
+          "method": "GET",
+          "httpPath": "invoices/{invoiceId}/lines/{lineId}",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/paths.LineInput"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/paths.Invoice"
+          },
+          "goInput": "fidelity.test/rows/paths.LineInput",
+          "goOutput": "fidelity.test/rows/paths.Invoice"
+        },
+        {
+          "path": "invoices.list",
+          "kind": "query",
+          "method": "GET",
+          "httpPath": "invoices",
+          "input": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/paths.ListInput"
+          },
+          "output": {
+            "kind": "ref",
+            "id": "fidelity.test/rows/paths.Invoice"
+          },
+          "goInput": "fidelity.test/rows/paths.ListInput",
+          "goOutput": "fidelity.test/rows/paths.Invoice"
+        }
+      ],
+      "positions": {
+        "fidelity.test/rows/paths.CreateInput": {
+          "file": "rows/paths/api.go",
+          "line": 17
+        },
+        "fidelity.test/rows/paths.GetInput": {
+          "file": "rows/paths/api.go",
+          "line": 9
+        },
+        "fidelity.test/rows/paths.Invoice": {
+          "file": "rows/paths/api.go",
+          "line": 26
+        },
+        "fidelity.test/rows/paths.LineInput": {
+          "file": "rows/paths/api.go",
+          "line": 21
+        },
+        "fidelity.test/rows/paths.ListInput": {
+          "file": "rows/paths/api.go",
+          "line": 13
+        },
+        "invoices.create": {
+          "file": "rows/paths/api.go",
+          "line": 43
+        },
+        "invoices.get": {
+          "file": "rows/paths/api.go",
+          "line": 41
+        },
+        "invoices.line": {
+          "file": "rows/paths/api.go",
+          "line": 44
+        },
+        "invoices.list": {
+          "file": "rows/paths/api.go",
+          "line": 42
+        }
+      }
+    },
     "pointers": {
       "bowline": "1.2",
       "hash": "sha256:5384eb4ea009e234a70fc7399f3f0591a99633dd5e78c0610bd18c29e7808227",
@@ -2429,6 +2639,9 @@
     "reject-example",
     "reject-interface",
     "reject-marshaler",
+    "reject-path-bad-type",
+    "reject-path-optional-param",
+    "reject-path-unknown-param",
     "reject-shapes",
     "reject-spread",
     "reject-tool-collision",

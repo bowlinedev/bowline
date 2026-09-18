@@ -1,0 +1,190 @@
+{
+  "invoices.create": {
+    "input": {
+      "$defs": {
+        "CreateInput": {
+          "additionalProperties": false,
+          "properties": {
+            "total": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "total"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/CreateInput",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Invoice": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            },
+            "total": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "total"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Invoice",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  },
+  "invoices.get": {
+    "input": {
+      "$defs": {
+        "GetInput": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/GetInput",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Invoice": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            },
+            "total": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "total"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Invoice",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  },
+  "invoices.line": {
+    "input": {
+      "$defs": {
+        "LineInput": {
+          "additionalProperties": false,
+          "properties": {
+            "invoiceId": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            },
+            "lineId": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "invoiceId",
+            "lineId"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/LineInput",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Invoice": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            },
+            "total": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "total"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Invoice",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  },
+  "invoices.list": {
+    "input": {
+      "$defs": {
+        "ListInput": {
+          "additionalProperties": false,
+          "properties": {
+            "limit": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "limit"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/ListInput",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    },
+    "output": {
+      "$defs": {
+        "Invoice": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maximum": 9007199254740991,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            },
+            "total": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "total"
+          ],
+          "type": "object"
+        }
+      },
+      "$ref": "#/$defs/Invoice",
+      "$schema": "https://json-schema.org/draft/2020-12/schema"
+    }
+  }
+}

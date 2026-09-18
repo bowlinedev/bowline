@@ -1,0 +1,1 @@
+rows/reject-path-unknown-param/api.go:16:27: get: path parameter "missing" has no matching input field. add a field with the JSON name "missing" to the input struct, or rename the parameter

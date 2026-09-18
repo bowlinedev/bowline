@@ -91,18 +91,34 @@ func (g *generator) writeClient(b *strings.Builder, n *node) {
 			inits = append(inits, members[k]+" = "+child.name+"(transport)")
 		}
 	}
-	if len(inits) == 0 {
+	callsTransport := false
+	for _, k := range sortedKeys(n) {
+		if n.children[k].proc != nil {
+			callsTransport = true
+			break
+		}
+	}
+	switch {
+	case len(inits) == 0:
 		b.WriteString("  ")
 		b.WriteString(n.name)
 		b.WriteString("(this._transport);\n")
-	} else {
+	case callsTransport:
 		b.WriteString("  ")
 		b.WriteString(n.name)
 		b.WriteString("(Transport transport)\n      : _transport = transport,\n        ")
 		b.WriteString(strings.Join(inits, ",\n        "))
 		b.WriteString(";\n")
+	default:
+		b.WriteString("  ")
+		b.WriteString(n.name)
+		b.WriteString("(Transport transport)\n      : ")
+		b.WriteString(strings.Join(inits, ",\n        "))
+		b.WriteString(";\n")
 	}
-	b.WriteString("\n  final Transport _transport;\n")
+	if callsTransport {
+		b.WriteString("\n  final Transport _transport;\n")
+	}
 	for _, k := range sortedKeys(n) {
 		child := n.children[k]
 		if child.proc == nil {

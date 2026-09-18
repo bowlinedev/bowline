@@ -213,6 +213,9 @@ func (g *generator) runtimeTable() string {
 			}
 			line += ", errors: [" + strings.Join(names, ", ") + "]"
 		}
+		if p.HTTPPath != "" {
+			line += ", path: " + strconv.Quote(p.HTTPPath)
+		}
 		b.WriteString(line)
 		b.WriteString(" },\n")
 	}
