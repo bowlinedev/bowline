@@ -225,3 +225,55 @@ func TestBodyLimitClosesTheConnection(t *testing.T) {
 		t.Fatal("the 413 response never asked net/http to close the connection")
 	}
 }
+
+func TestProductionRedactionFollowsTheStatusOfEveryCode(t *testing.T) {
+	for code, status := range httpStatus {
+		t.Run(string(code), func(t *testing.T) {
+			failure := Errorf(code, "dialing %s", secretMarker).WithDetails(map[string]any{"host": secretMarker})
+			rec := do(routerReturning(failure), http.MethodPost, "/api/boom", `{"id":1}`, nil)
+			if rec.Code != status {
+				t.Fatalf("status %d, want %d", rec.Code, status)
+			}
+			env := envelopeOf(t, rec)
+			if env.Code != code {
+				t.Fatalf("code %q, want %q", env.Code, code)
+			}
+			if status >= 500 {
+				if strings.Contains(rec.Body.String(), secretMarker) {
+					t.Fatalf("a %d body leaked the underlying detail: %s", status, rec.Body.String())
+				}
+				if env.Message != "internal error" {
+					t.Fatalf("message %q, want %q", env.Message, "internal error")
+				}
+				if env.Details != nil || len(env.Issues) > 0 {
+					t.Fatalf("a %d response kept details or issues: %s", status, rec.Body.String())
+				}
+				return
+			}
+			if !strings.Contains(env.Message, secretMarker) {
+				t.Fatalf("a %d message is meant for the caller and must survive redaction: %q", status, env.Message)
+			}
+		})
+	}
+}
+
+func TestSensitiveInputNeverTravelsInAURL(t *testing.T) {
+	for _, method := range []string{http.MethodGet, http.MethodDelete, http.MethodHead} {
+		t.Run(method, func(t *testing.T) {
+			defer func() {
+				if recover() == nil {
+					t.Fatalf("declaring Sensitive with %s was accepted; the input would travel in the URL", method)
+				}
+			}()
+			NewRouter(Query("secret", getUser, Sensitive(), Path("secret/{id}"), Method(method)))
+		})
+	}
+}
+
+func TestSensitiveQueryIsNotReachableOverGET(t *testing.T) {
+	h := NewRouter(Query("secret", getUser, Sensitive())).Handler(Logger(discardLogger()))
+	rec := do(h, http.MethodGet, "/api/secret?input=%7B%22id%22%3A1%7D", "", nil)
+	if rec.Code != http.StatusMethodNotAllowed {
+		t.Fatalf("status %d, want 405; a sensitive input must not be reachable through the URL", rec.Code)
+	}
+}

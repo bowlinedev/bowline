@@ -213,14 +213,19 @@ func TestSecurityHeadersAreAbsentWithoutTheOption(t *testing.T) {
 	}
 }
 
-func TestCSRFProtectsCustomMethods(t *testing.T) {
-	h := NewRouter(Mutation("remove", createUser, Path("users/{id}"), Method("DELETE"))).Handler(CSRF(CSRFOptions{}), Logger(discardLogger()))
-	req := httptest.NewRequest(http.MethodDelete, "/api/users/1", nil)
-	req.Host = "app.example.com"
-	req.Header.Set("Origin", "https://evil.example")
-	rec := httptest.NewRecorder()
-	h.ServeHTTP(rec, req)
-	if rec.Code != http.StatusForbidden {
-		t.Fatalf("status %d, want 403, body %s", rec.Code, rec.Body.String())
+func TestCSRFProtectsEveryDeclaredUnsafeMethod(t *testing.T) {
+	for _, method := range []string{http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete} {
+		t.Run(method, func(t *testing.T) {
+			h := NewRouter(Mutation("remove", createUser, Path("users/{id}"), Method(method))).Handler(CSRF(CSRFOptions{}), Logger(discardLogger()))
+			req := httptest.NewRequest(method, "/api/users/1", strings.NewReader(`{"id":1}`))
+			req.Header.Set("Content-Type", "application/json")
+			req.Host = "app.example.com"
+			req.Header.Set("Origin", "https://evil.example")
+			rec := httptest.NewRecorder()
+			h.ServeHTTP(rec, req)
+			if rec.Code != http.StatusForbidden {
+				t.Fatalf("a forged %s reached the procedure: status %d, body %s", method, rec.Code, rec.Body.String())
+			}
+		})
 	}
 }
