@@ -33,6 +33,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @bowlinedev/client build
       - name: embed the playground bundle in the playground module tag
         run: |
           pnpm --filter @bowlinedev/playground build
