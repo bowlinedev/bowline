@@ -49,4 +49,4 @@ export type { WebSocketTransportOptions } from "./ws.js";
 export { websocketTransport } from "./ws.js";
 
 export const version = "1.0.0";
-export { createClient } from "./client.js";
+export { createClient, queryString, resolvePath, sendsBody } from "./client.js";

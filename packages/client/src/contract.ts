@@ -77,6 +77,7 @@ export interface ContractProcedure {
   path: string;
   kind: "query" | "mutation" | "subscription" | "upload";
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  httpPath?: string;
   doc?: string;
   deprecated?: string;
   idempotent?: boolean;
