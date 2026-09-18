@@ -263,3 +263,28 @@ func TestBlockingKeepsAllocationsAndDropsTimings(t *testing.T) {
 		t.Fatalf("blocking = %v, want only the allocation regression", blocking)
 	}
 }
+
+func TestAChangedCorpusDoesNotCountAsAnAllocationRegression(t *testing.T) {
+	previous := Run{Results: []Result{{Name: "BenchmarkGenerators/dart", NsPerOp: 100, AllocsPerOp: 284, Corpus: 20}}}
+	current := Run{Results: []Result{{Name: "BenchmarkGenerators/dart", NsPerOp: 100, AllocsPerOp: 297, Corpus: 21}}}
+	if got := Regressions(current, []Run{previous}); len(got) != 0 {
+		t.Fatalf("a corpus change must not be reported as a regression: %v", got)
+	}
+}
+
+func TestAnAllocationRegressionOnTheSameCorpusStillFails(t *testing.T) {
+	previous := Run{Results: []Result{{Name: "BenchmarkGenerators/dart", NsPerOp: 100, AllocsPerOp: 284, Corpus: 21}}}
+	current := Run{Results: []Result{{Name: "BenchmarkGenerators/dart", NsPerOp: 100, AllocsPerOp: 297, Corpus: 21}}}
+	got := Regressions(current, []Run{previous})
+	if len(Blocking(got)) != 1 {
+		t.Fatalf("an allocation rise on an unchanged corpus must still block: %v", got)
+	}
+}
+
+func TestBenchmarksWithoutACorpusAreUnaffected(t *testing.T) {
+	previous := Run{Results: []Result{{Name: "BenchmarkRateLimitAllow", NsPerOp: 70, AllocsPerOp: 10}}}
+	current := Run{Results: []Result{{Name: "BenchmarkRateLimitAllow", NsPerOp: 70, AllocsPerOp: 12}}}
+	if len(Blocking(Regressions(current, []Run{previous}))) != 1 {
+		t.Fatal("a benchmark with no corpus metric must still be gated")
+	}
+}

@@ -59,6 +59,7 @@ func BenchmarkGenerators(b *testing.B) {
 					b.Fatal(err)
 				}
 			}
+			b.ReportMetric(float64(len(usable)), "contracts")
 		})
 	}
 }

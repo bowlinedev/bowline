@@ -36,6 +36,7 @@ type Result struct {
 	NsPerOp     float64 `json:"nsPerOp"`
 	BytesPerOp  int64   `json:"bytesPerOp"`
 	AllocsPerOp int64   `json:"allocsPerOp"`
+	Corpus      float64 `json:"corpus,omitempty"`
 }
 
 type Run struct {
@@ -105,6 +106,8 @@ func Parse(r io.Reader) ([]Result, error) {
 				result.BytesPerOp = int64(value)
 			case "allocs/op":
 				result.AllocsPerOp = int64(value)
+			case "contracts":
+				result.Corpus = value
 			}
 		}
 		if !seen {
@@ -165,6 +168,9 @@ func Regressions(current Run, history []Run) []Regression {
 	for _, result := range current.Results {
 		before, ok := previous.Lookup(result.Name)
 		if !ok {
+			continue
+		}
+		if before.Corpus != result.Corpus {
 			continue
 		}
 		if before.AllocsPerOp > 0 && result.AllocsPerOp > before.AllocsPerOp {
