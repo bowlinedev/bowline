@@ -56,6 +56,7 @@ field Procedure.Deprecated
 field Procedure.Description
 field Procedure.Destructive
 field Procedure.Exposed
+field Procedure.HTTPPath
 field Procedure.Idempotent
 field Procedure.In
 field Procedure.Kind
@@ -94,6 +95,7 @@ func Meta
 func Mount
 func Mutation
 func NewRouter
+func Path
 func Production
 func Query
 func RateLimit
@@ -191,6 +193,8 @@ field Field.Nullable
 field Field.Optional
 field Field.Rules
 field Field.Type
+field PathSegment.Param
+field PathSegment.Text
 field Position.File
 field Position.Line
 field Procedure.Deprecated
@@ -198,6 +202,7 @@ field Procedure.Doc
 field Procedure.Errors
 field Procedure.GoInput
 field Procedure.GoOutput
+field Procedure.HTTPPath
 field Procedure.Idempotent
 field Procedure.Input
 field Procedure.Kind
@@ -242,6 +247,8 @@ func FormatText
 func GoTypeName
 func Migrate
 func Parse
+func ParsePath
+func PathParams
 func Schema
 method Changes.Breaking
 method Document.ComputeHash
@@ -257,6 +264,7 @@ type EnumValue
 type ErrorDecl
 type Field
 type Kind
+type PathSegment
 type Position
 type Procedure
 type Rule

@@ -20,6 +20,7 @@ const (
 type Procedure struct {
 	Name        string
 	Path        string
+	HTTPPath    string
 	Kind        ProcedureKind
 	Description string
 	Deprecated  string
