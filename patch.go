@@ -9,6 +9,7 @@ import (
 	"maps"
 	"mime"
 	"net/http"
+	"strconv"
 	"strings"
 
 	routing "github.com/bowlinedev/bowline/internal/route"
@@ -19,8 +20,19 @@ const (
 	JSONPatchMediaType  = "application/json-patch+json"
 )
 
-func AutoPatch() HandlerOption {
-	return func(h *handler) { h.autoPatch = true }
+type PatchOption func(*handler)
+
+func RequireIfMatch() PatchOption {
+	return func(h *handler) { h.patchRequiresIfMatch = true }
+}
+
+func AutoPatch(opts ...PatchOption) HandlerOption {
+	return func(h *handler) {
+		h.autoPatch = true
+		for _, opt := range opts {
+			opt(h)
+		}
+	}
 }
 
 type patchRoute struct {
@@ -117,30 +129,39 @@ func applyJSONPatch(target, patch []byte) ([]byte, error) {
 
 func applyOperation(doc any, op patchOperation) (any, error) {
 	switch op.Op {
-	case "add", "replace":
+	case "add":
 		var value any
 		if err := json.Unmarshal(op.Value, &value); err != nil {
 			return nil, fmt.Errorf("value is not JSON: %w", err)
 		}
-		return setPointer(doc, op.Path, value)
+		return addAt(doc, op.Path, value)
+	case "replace":
+		var value any
+		if err := json.Unmarshal(op.Value, &value); err != nil {
+			return nil, fmt.Errorf("value is not JSON: %w", err)
+		}
+		return replaceAt(doc, op.Path, value)
 	case "remove":
-		return removePointer(doc, op.Path)
+		return removeAt(doc, op.Path)
 	case "copy":
 		value, err := readPointer(doc, op.From)
 		if err != nil {
 			return nil, err
 		}
-		return setPointer(doc, op.Path, value)
+		return addAt(doc, op.Path, value)
 	case "move":
+		if op.From != op.Path && strings.HasPrefix(op.Path, op.From+"/") {
+			return nil, errors.New("a location cannot be moved into one of its children")
+		}
 		value, err := readPointer(doc, op.From)
 		if err != nil {
 			return nil, err
 		}
-		doc, err = removePointer(doc, op.From)
+		doc, err = removeAt(doc, op.From)
 		if err != nil {
 			return nil, err
 		}
-		return setPointer(doc, op.Path, value)
+		return addAt(doc, op.Path, value)
 	case "test":
 		value, err := readPointer(doc, op.Path)
 		if err != nil {
@@ -175,75 +196,180 @@ func pointerTokens(pointer string) ([]string, error) {
 	return parts, nil
 }
 
+func arrayIndex(token string, length int, allowEnd bool) (int, error) {
+	if token == "-" {
+		if !allowEnd {
+			return 0, errors.New("\"-\" only addresses the end of an array when adding")
+		}
+		return length, nil
+	}
+	if token == "" || (len(token) > 1 && token[0] == '0') {
+		return 0, fmt.Errorf("%q is not an array index", token)
+	}
+	n, err := strconv.Atoi(token)
+	if err != nil || n < 0 {
+		return 0, fmt.Errorf("%q is not an array index", token)
+	}
+	if n > length || (n == length && !allowEnd) {
+		return 0, fmt.Errorf("index %d is outside an array of %d", n, length)
+	}
+	return n, nil
+}
+
+func childOf(parent any, token string) (any, error) {
+	switch container := parent.(type) {
+	case map[string]any:
+		value, ok := container[token]
+		if !ok {
+			return nil, fmt.Errorf("%q does not exist", token)
+		}
+		return value, nil
+	case []any:
+		i, err := arrayIndex(token, len(container), false)
+		if err != nil {
+			return nil, err
+		}
+		return container[i], nil
+	}
+	return nil, fmt.Errorf("%q has no member %q", parent, token)
+}
+
+func walkTo(doc any, tokens []string) (any, error) {
+	current := doc
+	for _, token := range tokens {
+		next, err := childOf(current, token)
+		if err != nil {
+			return nil, err
+		}
+		current = next
+	}
+	return current, nil
+}
+
 func readPointer(doc any, pointer string) (any, error) {
 	tokens, err := pointerTokens(pointer)
 	if err != nil {
 		return nil, err
 	}
-	current := doc
-	for _, token := range tokens {
-		object, ok := current.(map[string]any)
-		if !ok {
-			return nil, fmt.Errorf("%q does not exist", pointer)
-		}
-		current, ok = object[token]
-		if !ok {
-			return nil, fmt.Errorf("%q does not exist", pointer)
-		}
+	value, err := walkTo(doc, tokens)
+	if err != nil {
+		return nil, fmt.Errorf("%q does not exist: %w", pointer, err)
 	}
-	return current, nil
+	return value, nil
 }
 
-func setPointer(doc any, pointer string, value any) (any, error) {
+func editParent(doc any, pointer string, edit func(parent any, token string) (any, error)) (any, error) {
 	tokens, err := pointerTokens(pointer)
 	if err != nil {
 		return nil, err
 	}
+	if len(tokens) == 0 {
+		return edit(nil, "")
+	}
+	parent, err := walkTo(doc, tokens[:len(tokens)-1])
+	if err != nil {
+		return nil, fmt.Errorf("%q does not exist: %w", pointer, err)
+	}
+	replaced, err := edit(parent, tokens[len(tokens)-1])
+	if err != nil {
+		return nil, err
+	}
+	if len(tokens) == 1 {
+		return replaced, nil
+	}
+	return setChild(doc, tokens[:len(tokens)-1], replaced)
+}
+
+func setChild(doc any, tokens []string, value any) (any, error) {
 	if len(tokens) == 0 {
 		return value, nil
 	}
-	object, ok := doc.(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("%q has no parent object", pointer)
-	}
-	parent := object
-	for _, token := range tokens[:len(tokens)-1] {
-		next, ok := parent[token].(map[string]any)
-		if !ok {
-			return nil, fmt.Errorf("%q does not exist", pointer)
-		}
-		parent = next
-	}
-	parent[tokens[len(tokens)-1]] = value
-	return object, nil
-}
-
-func removePointer(doc any, pointer string) (any, error) {
-	tokens, err := pointerTokens(pointer)
+	parent, err := walkTo(doc, tokens[:len(tokens)-1])
 	if err != nil {
 		return nil, err
 	}
-	if len(tokens) == 0 {
+	last := tokens[len(tokens)-1]
+	switch container := parent.(type) {
+	case map[string]any:
+		container[last] = value
+	case []any:
+		i, err := arrayIndex(last, len(container), false)
+		if err != nil {
+			return nil, err
+		}
+		container[i] = value
+	default:
+		return nil, fmt.Errorf("%q cannot hold a member", last)
+	}
+	return doc, nil
+}
+
+func addAt(doc any, pointer string, value any) (any, error) {
+	return editParent(doc, pointer, func(parent any, token string) (any, error) {
+		switch container := parent.(type) {
+		case nil:
+			return value, nil
+		case map[string]any:
+			container[token] = value
+			return container, nil
+		case []any:
+			i, err := arrayIndex(token, len(container), true)
+			if err != nil {
+				return nil, err
+			}
+			grown := append(container, nil)
+			copy(grown[i+1:], grown[i:])
+			grown[i] = value
+			return grown, nil
+		}
+		return nil, fmt.Errorf("%q cannot hold a member", token)
+	})
+}
+
+func replaceAt(doc any, pointer string, value any) (any, error) {
+	if _, err := readPointer(doc, pointer); err != nil {
+		return nil, err
+	}
+	return editParent(doc, pointer, func(parent any, token string) (any, error) {
+		switch container := parent.(type) {
+		case nil:
+			return value, nil
+		case map[string]any:
+			container[token] = value
+			return container, nil
+		case []any:
+			i, err := arrayIndex(token, len(container), false)
+			if err != nil {
+				return nil, err
+			}
+			container[i] = value
+			return container, nil
+		}
+		return nil, fmt.Errorf("%q cannot hold a member", token)
+	})
+}
+
+func removeAt(doc any, pointer string) (any, error) {
+	if pointer == "" {
 		return nil, errors.New("the whole document cannot be removed")
 	}
-	object, ok := doc.(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("%q has no parent object", pointer)
+	if _, err := readPointer(doc, pointer); err != nil {
+		return nil, err
 	}
-	parent := object
-	for _, token := range tokens[:len(tokens)-1] {
-		next, ok := parent[token].(map[string]any)
-		if !ok {
-			return nil, fmt.Errorf("%q does not exist", pointer)
+	return editParent(doc, pointer, func(parent any, token string) (any, error) {
+		switch container := parent.(type) {
+		case map[string]any:
+			delete(container, token)
+			return container, nil
+		case []any:
+			i, err := arrayIndex(token, len(container), false)
+			if err != nil {
+				return nil, err
+			}
+			return append(container[:i:i], container[i+1:]...), nil
 		}
-		parent = next
-	}
-	last := tokens[len(tokens)-1]
-	if _, ok := parent[last]; !ok {
-		return nil, fmt.Errorf("%q does not exist", pointer)
-	}
-	delete(parent, last)
-	return object, nil
+		return nil, fmt.Errorf("%q cannot hold a member", token)
+	})
 }
 
 func (h *handler) patchRouteFor(req *http.Request) (*patchRoute, []routing.Param, bool) {
@@ -262,6 +388,10 @@ func (h *handler) servePatch(w http.ResponseWriter, req *http.Request) bool {
 	pair, params, ok := h.patchRouteFor(req)
 	if !ok {
 		return false
+	}
+	if h.csrf != nil && !h.csrf.Allows(req) {
+		h.writeError(w, req, nil, 0, Errorf(PermissionDenied, "cross-origin request rejected"))
+		return true
 	}
 	apply, err := patchApplier(req.Header.Get("Content-Type"))
 	if err != nil {
@@ -289,6 +419,26 @@ func (h *handler) servePatch(w http.ResponseWriter, req *http.Request) bool {
 		current.flushTo(w)
 		return true
 	}
+	tag := current.header.Get("ETag")
+	if tag == "" {
+		tag = etagOf(current.body.Bytes())
+	}
+	conditions := requestConditions(req, "If-Match")
+	switch {
+	case len(conditions) == 0 && h.patchRequiresIfMatch:
+		w.Header().Set("ETag", tag)
+		h.writeError(w, req, nil, http.StatusPreconditionRequired, Errorf(FailedPrecondition, "this PATCH needs an If-Match header; the current entity tag is %s", tag))
+		return true
+	case len(conditions) > 0 && !matchesETagStrongly(conditions, tag):
+		w.Header().Set("ETag", tag)
+		h.writeError(w, req, nil, 0, Errorf(FailedPrecondition, "the resource has changed since %s", strings.Join(conditions, ", ")))
+		return true
+	}
+	if absent := requestConditions(req, "If-None-Match"); len(absent) > 0 && matchesETag(absent, tag) {
+		w.Header().Set("ETag", tag)
+		h.writeError(w, req, nil, 0, Errorf(FailedPrecondition, "the resource already matches %s", strings.Join(absent, ", ")))
+		return true
+	}
 	merged, err := apply(current.body.Bytes(), patch)
 	if err != nil {
 		h.writeError(w, req, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
@@ -299,7 +449,7 @@ func (h *handler) servePatch(w http.ResponseWriter, req *http.Request) bool {
 	write.Body = io.NopCloser(bytes.NewReader(merged))
 	write.ContentLength = int64(len(merged))
 	write.Header.Set("Content-Type", "application/json")
-	h.execute(w, write, pair.write, params)
+	h.dispatch(w, write, pair.write, params)
 	return true
 }
 

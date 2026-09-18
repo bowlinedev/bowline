@@ -67,12 +67,13 @@ type handler struct {
 	signedBody int64
 	replay     *signing.ReplayCache
 
-	problem         problemOptions
-	etags           bool
-	autoPatch       bool
-	patches         map[string]*patchRoute
-	csrf            *csrf.Guard
-	securityHeaders bool
+	problem              problemOptions
+	etags                bool
+	autoPatch            bool
+	patchRequiresIfMatch bool
+	patches              map[string]*patchRoute
+	csrf                 *csrf.Guard
+	securityHeaders      bool
 
 	idempotency    IdempotencyStore
 	idempotencyTTL time.Duration
@@ -159,7 +160,11 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.writeError(w, req, nil, 0, Errorf(PermissionDenied, "cross-origin request rejected"))
 		return
 	}
-	if proc.Kind == KindMutation && proc.Idempotent && h.idempotency != nil {
+	h.dispatch(w, req, rt, params)
+}
+
+func (h *handler) dispatch(w http.ResponseWriter, req *http.Request, rt *route, params []routing.Param) {
+	if rt.proc.Kind == KindMutation && rt.proc.Idempotent && h.idempotency != nil {
 		h.serveIdempotent(w, req, rt, params)
 		return
 	}
