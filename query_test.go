@@ -28,7 +28,7 @@ func TestQueryInputMatchesParseQuery(t *testing.T) {
 		if values, err := url.ParseQuery(raw); err == nil || len(values) > 0 {
 			want = values.Get("input")
 		}
-		if got := queryInput(raw); got != want {
+		if got := queryInput(raw); string(got) != want {
 			t.Errorf("queryInput(%q) = %q, url.ParseQuery gives %q", raw, got, want)
 		}
 	}
@@ -41,7 +41,7 @@ func FuzzQueryInputMatchesParseQuery(f *testing.F) {
 	f.Fuzz(func(t *testing.T, raw string) {
 		values, _ := url.ParseQuery(raw)
 		want := values.Get("input")
-		if got := queryInput(raw); got != want {
+		if got := queryInput(raw); string(got) != want {
 			t.Fatalf("queryInput(%q) = %q, url.ParseQuery gives %q", raw, got, want)
 		}
 	})

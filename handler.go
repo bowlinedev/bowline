@@ -280,8 +280,8 @@ func methodSendsBody(method string) bool {
 
 func (h *handler) readInput(w http.ResponseWriter, req *http.Request, limit int64) ([]byte, int, error) {
 	if !methodSendsBody(req.Method) {
-		if raw := queryInput(req.URL.RawQuery); raw != "" {
-			return []byte(raw), 0, nil
+		if raw := queryInput(req.URL.RawQuery); len(raw) > 0 {
+			return raw, 0, nil
 		}
 		return []byte("{}"), 0, nil
 	}
