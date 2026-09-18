@@ -2,6 +2,15 @@
   "name": "@bowlinedev/react-query",
   "version": "1.1.0",
   "description": "TanStack Query bindings for Bowline clients",
+  "keywords": [
+    "bowline",
+    "api-client",
+    "react",
+    "react-query",
+    "tanstack",
+    "typed",
+    "hooks"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

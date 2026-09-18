@@ -2,6 +2,15 @@
   "name": "@bowlinedev/solid",
   "version": "1.1.0",
   "description": "Solid resource and action bindings for Bowline clients",
+  "keywords": [
+    "bowline",
+    "api-client",
+    "solid",
+    "solidjs",
+    "typed",
+    "resource",
+    "signals"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

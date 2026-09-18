@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 dependencies = []
+keywords = ["bowline", "api", "llm", "tools", "agent", "mcp", "typed", "json-schema"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",

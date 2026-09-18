@@ -2,6 +2,14 @@
   "name": "@bowlinedev/swr",
   "version": "1.1.0",
   "description": "SWR bindings for Bowline clients",
+  "keywords": [
+    "bowline",
+    "api-client",
+    "swr",
+    "react",
+    "typed",
+    "hooks"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

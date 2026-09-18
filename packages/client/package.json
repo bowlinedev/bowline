@@ -2,6 +2,16 @@
   "name": "@bowlinedev/client",
   "version": "1.1.0",
   "description": "Runtime client for Bowline generated TypeScript contracts",
+  "keywords": [
+    "bowline",
+    "api",
+    "api-client",
+    "contract",
+    "codegen",
+    "typed",
+    "rpc",
+    "typescript"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

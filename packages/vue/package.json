@@ -2,6 +2,14 @@
   "name": "@bowlinedev/vue",
   "version": "1.1.0",
   "description": "Vue composables and TanStack Vue Query option builders for Bowline clients",
+  "keywords": [
+    "bowline",
+    "api-client",
+    "vue",
+    "composables",
+    "typed",
+    "reactivity"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
