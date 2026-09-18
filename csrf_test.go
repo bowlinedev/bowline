@@ -212,3 +212,15 @@ func TestSecurityHeadersAreAbsentWithoutTheOption(t *testing.T) {
 		t.Fatalf("X-Content-Type-Options %q, want none", got)
 	}
 }
+
+func TestCSRFProtectsCustomMethods(t *testing.T) {
+	h := NewRouter(Mutation("remove", createUser, Path("users/{id}"), Method("DELETE"))).Handler(CSRF(CSRFOptions{}), Logger(discardLogger()))
+	req := httptest.NewRequest(http.MethodDelete, "/api/users/1", nil)
+	req.Host = "app.example.com"
+	req.Header.Set("Origin", "https://evil.example")
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	if rec.Code != http.StatusForbidden {
+		t.Fatalf("status %d, want 403, body %s", rec.Code, rec.Body.String())
+	}
+}

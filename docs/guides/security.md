@@ -17,11 +17,11 @@ type CSRFOptions struct {
 
 The check runs inside `ServeHTTP`, after the method is validated and before any of the body is read. A rejected request never reaches the decoder or the procedure.
 
-source: internal/csrf/csrf.go:18-40
+source: internal/csrf/csrf.go:26-48
 
 ```go
 func (c *Guard) Allows(req *http.Request) bool {
-	if req.Method != http.MethodPost {
+	if safe(req.Method) {
 		return true
 	}
 	if c.trustFetchMetadata {
@@ -47,7 +47,7 @@ func (c *Guard) Allows(req *http.Request) bool {
 
 In words:
 
-1. Only `POST` is checked.
+1. Only unsafe methods are checked. `GET`, `HEAD`, `OPTIONS` and `TRACE` pass untouched; every other method, including the `PUT`, `PATCH` and `DELETE` a custom route can declare, is checked.
 2. With `TrustFetchMetadata`, a `Sec-Fetch-Site` of `same-origin` or `none` passes and nothing else is looked at. `same-site` and `cross-site` pass only if `Origin` is in `AllowedOrigins`. An unrecognized value falls through to the next rule, so a future value cannot accidentally fail open or closed.
 3. Otherwise `Origin` must be the same host as the request, or be in `AllowedOrigins`.
 4. Otherwise the origin from `Referer` must satisfy the same rule.

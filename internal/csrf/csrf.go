@@ -15,8 +15,16 @@ func New(allowedOrigins []string, trustFetchMetadata bool) *Guard {
 	return &Guard{allowed: slices.Clone(allowedOrigins), trustFetchMetadata: trustFetchMetadata}
 }
 
+func safe(method string) bool {
+	switch method {
+	case http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodTrace:
+		return true
+	}
+	return false
+}
+
 func (c *Guard) Allows(req *http.Request) bool {
-	if req.Method != http.MethodPost {
+	if safe(req.Method) {
 		return true
 	}
 	if c.trustFetchMetadata {
