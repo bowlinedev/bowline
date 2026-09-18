@@ -47,7 +47,7 @@ The whole package is provisional. It is the conformance suite an `IdempotencySto
 
 ## github.com/bowlinedev/bowline/stores/sql and .../stores/redis
 
-Both modules are provisional. The open questions are whether the SQL store should sweep on its own timer rather than leaving `Sweep` to the application, and whether the Redis store should use a Lua script to make claim-and-read a single round trip rather than the two it takes today.
+Both modules are provisional. The open questions are whether the SQL store should sweep on its own timer rather than leaving `Sweep` to the application, and whether the Redis store should use a Lua script so that claiming a key that already exists takes one round trip rather than two. Claiming a fresh key, which is the common case, already takes one.
 
 ## github.com/bowlinedev/bowline/otel
 

@@ -77,14 +77,21 @@ func decode(raw []byte) (bowline.IdempotencyState, int, []byte, error) {
 
 func (s *Store) Begin(ctx context.Context, key string) (bowline.IdempotencyState, int, []byte, error) {
 	name := s.name(key)
-	claimed, err := s.client.SetArgs(ctx, name, []byte{markerInFlight}, redis.SetArgs{Mode: "NX", TTL: s.claimTTL, Get: true}).Result()
+	claimed, err := s.client.SetNX(ctx, name, []byte{markerInFlight}, s.claimTTL).Result()
+	if err != nil {
+		return bowline.IdempotencyNew, 0, nil, fmt.Errorf("bowline redis store: claiming %s: %w", key, err)
+	}
+	if claimed {
+		return bowline.IdempotencyNew, 0, nil, nil
+	}
+	held, err := s.client.Get(ctx, name).Bytes()
 	switch {
 	case errors.Is(err, redis.Nil):
 		return bowline.IdempotencyNew, 0, nil, nil
 	case err != nil:
-		return bowline.IdempotencyNew, 0, nil, fmt.Errorf("bowline redis store: claiming %s: %w", key, err)
+		return bowline.IdempotencyNew, 0, nil, fmt.Errorf("bowline redis store: reading %s: %w", key, err)
 	}
-	return decode([]byte(claimed))
+	return decode(held)
 }
 
 func (s *Store) Complete(ctx context.Context, key string, status int, body []byte, ttl time.Duration) error {
