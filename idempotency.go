@@ -97,7 +97,7 @@ func (h *handler) serveIdempotent(w http.ResponseWriter, req *http.Request, rt *
 	header := req.Header.Get("Idempotency-Key")
 	if header == "" {
 		if h.requireKey {
-			h.writeError(w, nil, 0, Errorf(InvalidArgument, "the Idempotency-Key header is required for %s", rt.path))
+			h.writeError(w, req, nil, 0, Errorf(InvalidArgument, "the Idempotency-Key header is required for %s", rt.path))
 			return
 		}
 		h.execute(w, req, rt, params)
@@ -108,7 +108,7 @@ func (h *handler) serveIdempotent(w http.ResponseWriter, req *http.Request, rt *
 	state, status, body, err := h.idempotency.Begin(ctx, key)
 	if err != nil {
 		h.log.ErrorContext(ctx, "bowline: idempotency store failed", "procedure", rt.path, "error", err)
-		h.writeError(w, nil, 0, Errorf(Unavailable, "idempotency store unavailable"))
+		h.writeError(w, req, nil, 0, Errorf(Unavailable, "idempotency store unavailable"))
 		return
 	}
 	switch state {
@@ -120,7 +120,7 @@ func (h *handler) serveIdempotent(w http.ResponseWriter, req *http.Request, rt *
 		w.Write(body)
 		return
 	case IdempotencyInFlight:
-		h.writeError(w, nil, 0, Errorf(Aborted, "a request with this idempotency key is still in flight"))
+		h.writeError(w, req, nil, 0, Errorf(Aborted, "a request with this idempotency key is still in flight"))
 		return
 	}
 	rec := &recorder{ResponseWriter: w, status: http.StatusOK}

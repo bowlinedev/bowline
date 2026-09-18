@@ -33,7 +33,7 @@ func (h *handler) serveSubscription(w http.ResponseWriter, rt *route, ctx contex
 	}
 	flusher, ok := w.(http.Flusher)
 	if !ok {
-		h.writeError(w, nil, 0, Errorf(Internal, "response writer does not support streaming"))
+		h.writeError(w, requestFrom(ctx), nil, 0, Errorf(Internal, "response writer does not support streaming"))
 		return
 	}
 	h.secure(w, http.MethodGet)

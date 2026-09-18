@@ -12,12 +12,12 @@ func WithContract(document []byte) HandlerOption {
 
 func (h *handler) serveReserved(w http.ResponseWriter, req *http.Request, name string) {
 	if h.reserved == nil {
-		h.writeError(w, nil, 0, Errorf(Unimplemented, "unknown procedure %q", name))
+		h.writeError(w, req, nil, 0, Errorf(Unimplemented, "unknown procedure %q", name))
 		return
 	}
 	if req.Method != http.MethodGet {
 		w.Header().Set("Allow", http.MethodGet)
-		h.writeError(w, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use GET", req.Method, name))
+		h.writeError(w, req, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use GET", req.Method, name))
 		return
 	}
 	body := h.reserved.Document

@@ -51,7 +51,7 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 	proc := rt.proc
 	mediaType, params, err := mime.ParseMediaType(req.Header.Get("Content-Type"))
 	if err != nil || mediaType != "multipart/form-data" || params["boundary"] == "" {
-		h.writeError(w, nil, http.StatusUnsupportedMediaType, Errorf(InvalidArgument, "uploads require multipart/form-data with an input part followed by a file part"))
+		h.writeError(w, req, nil, http.StatusUnsupportedMediaType, Errorf(InvalidArgument, "uploads require multipart/form-data with an input part followed by a file part"))
 		return
 	}
 	limit := h.maxUpload
@@ -64,25 +64,25 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 	reader := multipart.NewReader(http.MaxBytesReader(w, req.Body, limit), params["boundary"])
 	inputPart, err := reader.NextPart()
 	if err != nil || inputPart.FormName() != "input" {
-		h.writeError(w, nil, 0, Errorf(InvalidArgument, "the first multipart part must be named input"))
+		h.writeError(w, req, nil, 0, Errorf(InvalidArgument, "the first multipart part must be named input"))
 		return
 	}
 	raw, err := io.ReadAll(io.LimitReader(inputPart, h.maxBody+1))
 	if err != nil {
-		h.writeError(w, nil, 0, h.invalidInput(fmt.Errorf("reading input part: %w", err)))
+		h.writeError(w, req, nil, 0, h.invalidInput(fmt.Errorf("reading input part: %w", err)))
 		return
 	}
 	if int64(len(raw)) > h.maxBody {
-		h.writeError(w, nil, http.StatusRequestEntityTooLarge, Errorf(InvalidArgument, "input part exceeds %d bytes", h.maxBody))
+		h.writeError(w, req, nil, http.StatusRequestEntityTooLarge, Errorf(InvalidArgument, "input part exceeds %d bytes", h.maxBody))
 		return
 	}
 	ctx, ptr := proc.newFrame(req.Context(), Call{Procedure: &rt.procedure, Request: req})
 	if err := codec.Decode(raw, ptr, h.strict); err != nil {
-		h.writeError(w, nil, 0, h.invalidInput(err))
+		h.writeError(w, req, nil, 0, h.invalidInput(err))
 		return
 	}
 	if err := routing.Bind(ptr, pathParams); err != nil {
-		h.writeError(w, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
+		h.writeError(w, req, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
 		return
 	}
 	if issues := proc.checker.Check(ptr); len(issues) > 0 {
@@ -91,12 +91,12 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 		for i, issue := range issues {
 			e.Issues[i] = Issue{Path: issue.Path, Rule: issue.Rule, Message: issue.Message}
 		}
-		h.writeError(w, nil, 0, e)
+		h.writeError(w, req, nil, 0, e)
 		return
 	}
 	filePart, err := reader.NextPart()
 	if err != nil || filePart.FormName() != "file" {
-		h.writeError(w, nil, 0, Errorf(InvalidArgument, "the second multipart part must be named file"))
+		h.writeError(w, req, nil, 0, Errorf(InvalidArgument, "the second multipart part must be named file"))
 		return
 	}
 	file := &File{Name: filePart.FileName(), ContentType: filePart.Header.Get("Content-Type"), Reader: filePart}
@@ -105,7 +105,7 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 	if err != nil {
 		var tooLarge *http.MaxBytesError
 		if errors.As(err, &tooLarge) {
-			h.writeError(w, nil, http.StatusRequestEntityTooLarge, Errorf(InvalidArgument, "upload exceeds %d bytes", limit))
+			h.writeError(w, req, nil, http.StatusRequestEntityTooLarge, Errorf(InvalidArgument, "upload exceeds %d bytes", limit))
 			return
 		}
 		status, _, undeclared := classify(err, h.production, proc.variants)
@@ -115,7 +115,7 @@ func (h *handler) serveUpload(w http.ResponseWriter, req *http.Request, rt *rout
 		if undeclared && !h.production {
 			h.log.WarnContext(ctx, "bowline: undeclared error variant", "procedure", rt.path, "error", err)
 		}
-		h.writeError(w, proc, 0, err)
+		h.writeError(w, req, proc, 0, err)
 		return
 	}
 	h.writeOutput(w, ctx, rt, out)

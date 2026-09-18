@@ -67,6 +67,10 @@ type handler struct {
 	signedBody int64
 	replay     *signing.ReplayCache
 
+	problem         problemOptions
+	etags           bool
+	autoPatch       bool
+	patches         map[string]*patchRoute
 	csrf            *csrf.Guard
 	securityHeaders bool
 
@@ -97,6 +101,7 @@ func (r *Router) Handler(opts ...HandlerOption) http.Handler {
 		}
 		h.table = table
 	}
+	h.patches = h.buildPatchRoutes()
 	h.signedBody = signingLimit(h)
 	if len(h.observers) > 0 {
 		ready := make([]*Procedure, 0, len(h.routes))
@@ -128,28 +133,30 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if m, matched := h.table.Match(req.URL.EscapedPath(), req.Method); matched {
 			rt, ok = h.routes[m.Key], true
 			params = m.Params
+		} else if h.servePatch(w, req) {
+			return
 		} else if allowed := h.table.Allowed(req.URL.EscapedPath()); len(allowed) > 0 {
 			w.Header().Set("Allow", strings.Join(allowed, ", "))
-			h.writeError(w, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, req.URL.Path, strings.Join(allowed, " or ")))
+			h.writeError(w, req, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, req.URL.Path, strings.Join(allowed, " or ")))
 			return
 		}
 	}
 	if !ok {
-		h.writeError(w, nil, 0, Errorf(Unimplemented, "unknown procedure %q", path))
+		h.writeError(w, req, nil, 0, Errorf(Unimplemented, "unknown procedure %q", path))
 		return
 	}
 	proc := rt.proc
 	if proc.Kind == KindSubscription && !acceptsEventStream(req) {
-		h.writeError(w, nil, 0, Errorf(InvalidArgument, "subscriptions are served as text/event-stream; send Accept: text/event-stream"))
+		h.writeError(w, req, nil, 0, Errorf(InvalidArgument, "subscriptions are served as text/event-stream; send Accept: text/event-stream"))
 		return
 	}
 	if !methodAllowed(proc, req.Method) {
 		w.Header().Set("Allow", proc.Method())
-		h.writeError(w, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, rt.path, proc.Method()))
+		h.writeError(w, req, nil, http.StatusMethodNotAllowed, Errorf(InvalidArgument, "method %s not allowed for %s; use %s", req.Method, rt.path, proc.Method()))
 		return
 	}
 	if h.csrf != nil && !h.csrf.Allows(req) {
-		h.writeError(w, nil, 0, Errorf(PermissionDenied, "cross-origin request rejected"))
+		h.writeError(w, req, nil, 0, Errorf(PermissionDenied, "cross-origin request rejected"))
 		return
 	}
 	if proc.Kind == KindMutation && proc.Idempotent && h.idempotency != nil {
@@ -167,7 +174,7 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route, p
 	}
 	raw, status, err := h.readInput(w, req, h.bodyLimit(proc))
 	if err != nil {
-		h.writeError(w, nil, status, err)
+		h.writeError(w, req, nil, status, err)
 		return
 	}
 	base := req.Context()
@@ -178,16 +185,16 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route, p
 	}
 	ctx, ptr := proc.newFrame(base, Call{Procedure: &rt.procedure, Request: req})
 	if err := codec.Decode(raw, ptr, h.strict); err != nil {
-		h.writeError(w, nil, 0, h.invalidInput(err))
+		h.writeError(w, req, nil, 0, h.invalidInput(err))
 		return
 	}
 	if err := routing.Bind(ptr, params); err != nil {
-		h.writeError(w, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
+		h.writeError(w, req, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
 		return
 	}
 	if proc.HTTPPath != "" && req.URL.RawQuery != "" && !methodSendsBody(req.Method) {
 		if err := routing.BindQuery(ptr, req.URL.Query()); err != nil {
-			h.writeError(w, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
+			h.writeError(w, req, nil, 0, Errorf(InvalidArgument, "%s", err.Error()))
 			return
 		}
 	}
@@ -198,7 +205,7 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route, p
 		for i, issue := range issues {
 			e.Issues[i] = Issue{Path: issue.Path, Rule: issue.Rule, Message: issue.Message}
 		}
-		h.writeError(w, nil, 0, e)
+		h.writeError(w, req, nil, 0, e)
 		return
 	}
 	if proc.Kind == KindSubscription {
@@ -215,32 +222,50 @@ func (h *handler) execute(w http.ResponseWriter, req *http.Request, rt *route, p
 		if undeclared && !h.production {
 			h.log.WarnContext(ctx, "bowline: undeclared error variant", "procedure", rt.path, "error", err)
 		}
-		h.writeError(w, proc, 0, err)
+		h.writeError(w, req, proc, 0, err)
 		return
 	}
 	h.writeOutput(w, ctx, rt, out)
 }
 
 func (h *handler) writeOutput(w http.ResponseWriter, ctx context.Context, rt *route, out any) {
+	req := requestFrom(ctx)
 	out, err := rt.proc.plan.Normalize(out)
 	if err != nil {
 		h.log.ErrorContext(ctx, "bowline: output normalization failed", "procedure", rt.path, "error", err)
-		h.writeError(w, nil, 0, Errorf(Internal, "output normalization failed: %w", err))
+		h.writeError(w, req, nil, 0, Errorf(Internal, "output normalization failed: %w", err))
 		return
 	}
 	body, err := json.Marshal(out)
 	if err != nil {
 		h.log.ErrorContext(ctx, "bowline: output encoding failed", "procedure", rt.path, "error", err)
-		h.writeError(w, nil, 0, Errorf(Internal, "output encoding failed: %w", err))
+		h.writeError(w, req, nil, 0, Errorf(Internal, "output encoding failed: %w", err))
 		return
 	}
 	if rt.proc.Deprecated != "" {
 		w.Header().Set("Deprecation", "true")
 	}
 	h.secure(w, methodOf(ctx))
+	if tag := h.conditionalTag(w, req, body); tag != "" {
+		w.Header().Set("ETag", tag)
+		if matchesETag(IfNoneMatch(ctx), tag) {
+			w.WriteHeader(http.StatusNotModified)
+			return
+		}
+	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(body)
+}
+
+func (h *handler) conditionalTag(w http.ResponseWriter, req *http.Request, body []byte) string {
+	if supplied := w.Header().Get("ETag"); supplied != "" {
+		return supplied
+	}
+	if !h.etags || req == nil || !cacheableMethod(req.Method) {
+		return ""
+	}
+	return etagOf(body)
 }
 
 func methodAllowed(p *Procedure, method string) bool {
@@ -329,7 +354,7 @@ func (h *handler) invoke(ctx context.Context, rt *route, in any) (out any, err e
 	return out, err
 }
 
-func (h *handler) writeError(w http.ResponseWriter, proc *Procedure, statusOverride int, err error) {
+func (h *handler) writeError(w http.ResponseWriter, req *http.Request, proc *Procedure, statusOverride int, err error) {
 	var variants []variant
 	if proc != nil {
 		variants = proc.variants
@@ -338,13 +363,20 @@ func (h *handler) writeError(w http.ResponseWriter, proc *Procedure, statusOverr
 	if statusOverride != 0 {
 		status = statusOverride
 	}
-	body, marshalErr := json.Marshal(env)
+	mediaType := "application/json; charset=utf-8"
+	var payload any = env
+	if h.problem.enabled && acceptsProblem(req) {
+		mediaType = ProblemMediaType + "; charset=utf-8"
+		payload = h.problemBody(status, env, req)
+	}
+	body, marshalErr := json.Marshal(payload)
 	if marshalErr != nil {
 		body = fmt.Appendf(nil, `{"error":{"code":"INTERNAL","message":%q}}`, "error encoding failed")
+		mediaType = "application/json; charset=utf-8"
 		status = http.StatusInternalServerError
 	}
 	h.secure(w, http.MethodPost)
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Content-Type", mediaType)
 	w.WriteHeader(status)
 	w.Write(body)
 }
