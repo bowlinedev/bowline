@@ -225,7 +225,7 @@ defmodule Golden.Paths.Invoices do
   @spec get(Transport.t(), Types.GetInput.t(), Transport.call_opts()) ::
           {:ok, Types.Invoice.t()} | {:error, BowlineClient.Error.t()}
   def get(transport, %Types.GetInput{} = input, opts \\ []) do
-    Transport.call(
+    Transport.rest(
       transport,
       "invoices/#{URI.encode_www_form(to_string(input.id))}",
       :get,
@@ -249,7 +249,7 @@ defmodule Golden.Paths.Invoices do
   @spec line(Transport.t(), Types.LineInput.t(), Transport.call_opts()) ::
           {:ok, Types.Invoice.t()} | {:error, BowlineClient.Error.t()}
   def line(transport, %Types.LineInput{} = input, opts \\ []) do
-    Transport.call(
+    Transport.rest(
       transport,
       "invoices/#{URI.encode_www_form(to_string(input.invoice_id))}/lines/#{URI.encode_www_form(to_string(input.line_id))}",
       :get,
@@ -273,7 +273,7 @@ defmodule Golden.Paths.Invoices do
   @spec list(Transport.t(), Types.ListInput.t(), Transport.call_opts()) ::
           {:ok, Types.Invoice.t()} | {:error, BowlineClient.Error.t()}
   def list(transport, %Types.ListInput{} = input, opts \\ []) do
-    Transport.call(
+    Transport.rest(
       transport,
       "invoices",
       :get,

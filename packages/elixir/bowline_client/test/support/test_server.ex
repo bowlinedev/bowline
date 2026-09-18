@@ -52,6 +52,7 @@ defmodule BowlineClient.TestServer do
           method: method,
           path: uri.path,
           query: URI.decode_query(uri.query || ""),
+          raw_query: uri.query || "",
           headers: headers,
           body: body
         }
