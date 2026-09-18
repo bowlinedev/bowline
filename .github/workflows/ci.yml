@@ -344,7 +344,7 @@ jobs:
         env:
           GOWORK: "off"
         run: |
-          for m in . cmd/bowline transport/websocket mcp otel agent playground contracttest gateway registry adapters/fiber; do
+          for m in . cmd/bowline transport/websocket mcp otel agent playground contracttest gateway registry adapters/fiber stores/sql stores/redis; do
             echo "== $m"
             (cd "$m" && govulncheck ./...)
           done

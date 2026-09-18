@@ -3,7 +3,7 @@ module github.com/bowlinedev/bowline/stores/redis
 go 1.24
 
 require (
-	github.com/bowlinedev/bowline v1.2.0
+	github.com/bowlinedev/bowline v1.2.1-0.20260918192852-5b5ffccde772
 	github.com/redis/go-redis/v9 v9.7.0
 )
 
