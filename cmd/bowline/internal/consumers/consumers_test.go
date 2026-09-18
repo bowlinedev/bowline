@@ -36,7 +36,7 @@ const consumerFile = `{
      "response": {"status": 200, "body": {"items": [{"id": 3, "customerId": 1, "status": "sent", "total": "USD 1500.00", "lines": [{"description": "Consulting", "quantity": 10, "unitPrice": "USD 150.00"}], "note": "net 30", "createdAt": "2026-01-01T00:00:00Z", "updatedAt": "2026-01-01T00:00:00Z"}]}}},
     {"procedure": "invoices.get", "method": "GET", "input": {"id": 999},
      "response": {"status": 404, "body": {"error": {"code": "NOT_FOUND", "message": "invoice 999 not found"}}}},
-    {"procedure": "invoices.void", "method": "POST", "input": {"id": 4},
+    {"procedure": "invoices.void", "method": "DELETE", "input": {"id": 4},
      "response": {"status": 412, "body": {"error": {"code": "FAILED_PRECONDITION", "message": "invoice 4 is paid", "type": "InvoiceLocked", "details": {"id": 4, "status": "paid"}}}}},
     {"procedure": "customers.search", "method": "POST", "input": {"query": "ada"},
      "response": {"status": 200, "body": {"items": [{"id": 1, "name": "Ada Lovelace", "email": "ada@example.com", "createdAt": "2026-01-01T00:00:00Z", "updatedAt": "2026-01-01T00:00:00Z"}]}}}

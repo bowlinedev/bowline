@@ -41,8 +41,7 @@ func TestRoutesServeInvoices(t *testing.T) {
 
 func TestVoidPaidInvoiceFails(t *testing.T) {
 	h := Routes().Handler()
-	req := httptest.NewRequest(http.MethodPost, "/invoices.void", strings.NewReader(`{"id":4}`))
-	req.Header.Set("Content-Type", "application/json")
+	req := httptest.NewRequest(http.MethodDelete, "/invoices/4", nil)
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)
 	if rec.Code != 412 || !strings.Contains(rec.Body.String(), `"type":"InvoiceLocked"`) || !strings.Contains(rec.Body.String(), `"status":"paid"`) {

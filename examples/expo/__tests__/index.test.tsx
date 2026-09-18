@@ -51,7 +51,7 @@ describe("invoices screen", () => {
     expect(view.getByTestId("status-3")).toHaveTextContent("sent");
     expect(view.getByText("USD 9999.00")).toBeTruthy();
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining("/api/invoices.list?input="),
+      expect.stringContaining("/api/invoices?limit=20"),
       expect.objectContaining({ method: "GET" }),
     );
   });

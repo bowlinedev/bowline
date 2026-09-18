@@ -120,6 +120,75 @@
         }
       }
     },
+    "/invoices": {
+      "get": {
+        "description": "List returns a page of invoices, optionally filtered by status.",
+        "operationId": "invoices.list",
+        "parameters": [
+          {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListInvoicesInput"
+                }
+              }
+            },
+            "in": "query",
+            "name": "input",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_Invoice"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/INVALID_ARGUMENT"
+          },
+          "500": {
+            "$ref": "#/components/responses/INTERNAL"
+          }
+        }
+      },
+      "post": {
+        "operationId": "invoices.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInvoiceInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invoice"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/INVALID_ARGUMENT"
+          },
+          "500": {
+            "$ref": "#/components/responses/INTERNAL"
+          }
+        }
+      }
+    },
     "/invoices.attach": {
       "post": {
         "description": "Attach stores a file against an invoice.",
@@ -209,49 +278,16 @@
         }
       }
     },
-    "/invoices.create": {
-      "post": {
-        "operationId": "invoices.create",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateInvoiceInput"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Invoice"
-                }
-              }
-            },
-            "description": "Success"
-          },
-          "400": {
-            "$ref": "#/components/responses/INVALID_ARGUMENT"
-          },
-          "500": {
-            "$ref": "#/components/responses/INTERNAL"
-          }
-        }
-      }
-    },
-    "/invoices.get": {
+    "/invoices.watch": {
       "get": {
-        "description": "Get returns one invoice by ID.",
-        "operationId": "invoices.get",
+        "description": "Watch streams every invoice change.",
+        "operationId": "invoices.watch",
         "parameters": [
           {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetInvoiceInput"
+                  "$ref": "#/components/schemas/WatchInput"
                 }
               }
             },
@@ -263,13 +299,13 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
+              "text/event-stream": {
                 "schema": {
                   "$ref": "#/components/schemas/Invoice"
                 }
               }
             },
-            "description": "Success"
+            "description": "A stream of server-sent events. Each message event carries one value; an error event carries the error envelope; a done event ends the stream."
           },
           "400": {
             "$ref": "#/components/responses/INVALID_ARGUMENT"
@@ -280,48 +316,21 @@
         }
       }
     },
-    "/invoices.list": {
-      "get": {
-        "description": "List returns a page of invoices, optionally filtered by status.",
-        "operationId": "invoices.list",
-        "parameters": [
-          {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ListInvoicesInput"
-                }
-              }
-            },
-            "in": "query",
-            "name": "input",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Page_Invoice"
-                }
-              }
-            },
-            "description": "Success"
-          },
-          "400": {
-            "$ref": "#/components/responses/INVALID_ARGUMENT"
-          },
-          "500": {
-            "$ref": "#/components/responses/INTERNAL"
-          }
-        }
-      }
-    },
-    "/invoices.void": {
-      "post": {
+    "/invoices/{id}": {
+      "delete": {
         "description": "Void cancels a draft or sent invoice.",
         "operationId": "invoices.void",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -353,36 +362,31 @@
             "$ref": "#/components/responses/INTERNAL"
           }
         }
-      }
-    },
-    "/invoices.watch": {
+      },
       "get": {
-        "description": "Watch streams every invoice change.",
-        "operationId": "invoices.watch",
+        "description": "Get returns one invoice by ID.",
+        "operationId": "invoices.get",
         "parameters": [
           {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WatchInput"
-                }
-              }
-            },
-            "in": "query",
-            "name": "input",
-            "required": true
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
           }
         ],
         "responses": {
           "200": {
             "content": {
-              "text/event-stream": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Invoice"
                 }
               }
             },
-            "description": "A stream of server-sent events. Each message event carries one value; an error event carries the error envelope; a done event ends the stream."
+            "description": "Success"
           },
           "400": {
             "$ref": "#/components/responses/INVALID_ARGUMENT"

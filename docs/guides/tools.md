@@ -9,7 +9,7 @@ A read-only query with a scope:
 source: examples/ledger/api/invoices.go:46-46
 
 ```go
-		bowline.Query("get", a.getInvoice, bowline.Description("Get returns one invoice by ID."), bowline.Tool(bowline.Scope("billing"))),
+		bowline.Query("get", a.getInvoice, bowline.Description("Get returns one invoice by ID."), bowline.Path("invoices/{id}"), bowline.Tool(bowline.Scope("billing"))),
 ```
 
 A mutation that a client should confirm before calling:
@@ -17,7 +17,7 @@ A mutation that a client should confirm before calling:
 source: examples/ledger/api/invoices.go:49-49
 
 ```go
-		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive()), bowline.Use(voidLimit())),
+		bowline.Mutation("void", a.voidInvoice, bowline.Description("Void cancels a draft or sent invoice."), bowline.Path("invoices/{id}"), bowline.Method("DELETE"), bowline.Meta("auth", "admin"), bowline.Errors(InvoiceLocked{}), bowline.Tool(bowline.Scope("billing"), bowline.Destructive()), bowline.Use(voidLimit())),
 ```
 
 `bowline.Tool(...)` marks the procedure as exposed. `bowline.Scope(names...)` attaches scope names that consumers can filter on. `bowline.Destructive()` sets a hint that a client should confirm before calling. Queries get a read-only hint automatically, mutations do not. Using `Tool()` on a subscription or an upload panics in `NewRouter`, and `bowline gen` reports it as a diagnostic, because neither has a request and response shape that a tool call can carry.

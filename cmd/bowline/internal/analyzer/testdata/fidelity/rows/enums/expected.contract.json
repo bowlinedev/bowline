@@ -1,6 +1,6 @@
 {
-  "bowline": "1.2",
-  "hash": "sha256:c0120e1bf4686b8a2167f27c1bca6aad744fe466a608cf3f0d1999c4bd29e112",
+  "bowline": "1.3",
+  "hash": "sha256:f50c709bcff3aed5c98543f150d758fb99d93b83aeeb434f85b2a7155159fc9f",
   "types": {
     "fidelity.test/rows/enums.Level": {
       "kind": "enum",

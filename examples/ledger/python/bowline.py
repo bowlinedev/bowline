@@ -6,6 +6,7 @@ from collections.abc import AsyncIterator, Iterator
 from datetime import datetime
 from enum import Enum
 from typing import Annotated, BinaryIO, Generic, TypeVar
+from urllib.parse import quote
 
 from bowline_client import CallOptions, Empty, Method, SyncTransport, Transport
 from pydantic import BaseModel, ConfigDict, Field
@@ -197,11 +198,21 @@ class InvoicesClient:
         input: CreateInvoiceInput,
         options: CallOptions | None = None,
     ) -> Invoice:
-        return await self._transport.call("invoices.create", Method.POST, input, Invoice, options)
+        return await self._transport.call(
+            "invoices", Method.POST, input, Invoice, options, rest=True
+        )
 
     async def get(self, input: GetInvoiceInput, options: CallOptions | None = None) -> Invoice:
         """Get returns one invoice by ID."""
-        return await self._transport.call("invoices.get", Method.GET, input, Invoice, options)
+        return await self._transport.call(
+            f"invoices/{quote(str(input.id), safe='')}",
+            Method.GET,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("id",),
+        )
 
     async def list(
         self,
@@ -210,12 +221,20 @@ class InvoicesClient:
     ) -> Page[Invoice]:
         """List returns a page of invoices, optionally filtered by status."""
         return await self._transport.call(
-            "invoices.list", Method.GET, input, Page[Invoice], options
+            "invoices", Method.GET, input, Page[Invoice], options, rest=True
         )
 
     async def void(self, input: VoidInvoiceInput, options: CallOptions | None = None) -> Invoice:
         """Void cancels a draft or sent invoice."""
-        return await self._transport.call("invoices.void", Method.POST, input, Invoice, options)
+        return await self._transport.call(
+            f"invoices/{quote(str(input.id), safe='')}",
+            Method.DELETE,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("id",),
+        )
 
     def watch(
         self,
@@ -288,19 +307,37 @@ class SyncInvoicesClient:
         )
 
     def create(self, input: CreateInvoiceInput, options: CallOptions | None = None) -> Invoice:
-        return self._transport.call("invoices.create", Method.POST, input, Invoice, options)
+        return self._transport.call("invoices", Method.POST, input, Invoice, options, rest=True)
 
     def get(self, input: GetInvoiceInput, options: CallOptions | None = None) -> Invoice:
         """Get returns one invoice by ID."""
-        return self._transport.call("invoices.get", Method.GET, input, Invoice, options)
+        return self._transport.call(
+            f"invoices/{quote(str(input.id), safe='')}",
+            Method.GET,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("id",),
+        )
 
     def list(self, input: ListInvoicesInput, options: CallOptions | None = None) -> Page[Invoice]:
         """List returns a page of invoices, optionally filtered by status."""
-        return self._transport.call("invoices.list", Method.GET, input, Page[Invoice], options)
+        return self._transport.call(
+            "invoices", Method.GET, input, Page[Invoice], options, rest=True
+        )
 
     def void(self, input: VoidInvoiceInput, options: CallOptions | None = None) -> Invoice:
         """Void cancels a draft or sent invoice."""
-        return self._transport.call("invoices.void", Method.POST, input, Invoice, options)
+        return self._transport.call(
+            f"invoices/{quote(str(input.id), safe='')}",
+            Method.DELETE,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("id",),
+        )
 
     def watch(self, input: WatchInput, options: CallOptions | None = None) -> Iterator[Invoice]:
         """Watch streams every invoice change."""

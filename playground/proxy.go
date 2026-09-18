@@ -28,10 +28,7 @@ func (h *handler) proxy(w http.ResponseWriter, req *http.Request, procedure stri
 		return
 	}
 	target.Path = strings.TrimSuffix(target.Path, "/") + "/" + procedure
-	target.RawQuery = ""
-	if input := req.URL.Query().Get("input"); input != "" {
-		target.RawQuery = url.Values{"input": {input}}.Encode()
-	}
+	target.RawQuery = req.URL.RawQuery
 	out, err := http.NewRequestWithContext(req.Context(), req.Method, target.String(), req.Body)
 	if err != nil {
 		writeUnavailable(w, err.Error())

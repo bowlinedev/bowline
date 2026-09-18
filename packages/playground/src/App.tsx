@@ -1,4 +1,10 @@
-import type { ContractDocument, ContractProcedure } from "@bowlinedev/client";
+import {
+  type ContractDocument,
+  type ContractProcedure,
+  queryString,
+  resolvePath,
+  sendsBody,
+} from "@bowlinedev/client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   type ContractIndex,
@@ -131,10 +137,18 @@ export function App() {
       method: procedure.method,
       headers: { accept: "application/json", ...headers },
     };
-    let url = `./proxy/${procedure.path}`;
-    const body = JSON.stringify(input ?? {});
-    if (procedure.method === "GET") {
-      url += `?input=${encodeURIComponent(body)}`;
+    const { path: resolved, payload } = resolvePath(
+      procedure.path,
+      { path: procedure.httpPath },
+      input ?? {},
+    );
+    let url = `./proxy/${resolved}`;
+    const body = JSON.stringify(procedure.httpPath === undefined ? (input ?? {}) : (payload ?? {}));
+    if (!sendsBody(procedure.method)) {
+      url +=
+        procedure.httpPath === undefined
+          ? `?input=${encodeURIComponent(body)}`
+          : queryString(payload);
     } else {
       init.headers = {
         ...(init.headers as Record<string, string>),
@@ -229,7 +243,10 @@ export function App() {
             <header>
               <h2>
                 {procedure.path} <span className={`badge ${procedure.kind}`}>{procedure.kind}</span>{" "}
-                <span className="muted">{procedure.method}</span>
+                <span className="muted">
+                  {procedure.method}
+                  {procedure.httpPath !== undefined && ` /${procedure.httpPath}`}
+                </span>
               </h2>
               {procedure.doc !== undefined && procedure.doc !== "" && (
                 <p className="doc">{procedure.doc}</p>

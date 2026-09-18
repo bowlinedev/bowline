@@ -31,6 +31,6 @@ The rules follow variance. Inputs are contravariant, so adding a required input 
     base-ref: origin/${{ github.base_ref }}
 ```
 
-If you push again with the change reverted, the comment is updated to say `no contract changes`. An intentional break should be shipped with `allow-breaking: "true"` and a version bump, so that it is visible.
+If you push again with the change reverted, the comment is updated to say `no contract changes`. An intentional break should be shipped with `allow-breaking: "true"` and a version bump, so that it is visible. The workflow in this repository reads that from a `breaking` label on the pull request, so the gate still reports the change and posts the comment, but does not block a break someone has decided to take.
 
 If the repository has recorded consumer contracts under `contracts/consumers`, the report gets an extra Consumers column. Each breaking change lists the consumers whose recorded interactions read the changed field, with their interaction counts. A breaking change that no consumer uses is labeled `unused by consumers`. `bowline diff --consumers <dir>` does the same for two documents on disk. See `consumer-contracts.md`.

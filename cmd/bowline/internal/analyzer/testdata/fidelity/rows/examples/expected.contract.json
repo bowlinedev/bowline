@@ -1,6 +1,6 @@
 {
-  "bowline": "1.2",
-  "hash": "sha256:8e275f7f8176b03371ff272e7758cc594f957165df423047a62d953c02846ac2",
+  "bowline": "1.3",
+  "hash": "sha256:6cf807c77a8d99545cc9896732ffa7da5120a8e0442048e5347b9bb16386349a",
   "types": {
     "fidelity.test/rows/examples.Address": {
       "kind": "struct",

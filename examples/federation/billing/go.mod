@@ -3,7 +3,7 @@ module github.com/bowlinedev/bowline/examples/federation/billing
 go 1.24
 
 require (
-	github.com/bowlinedev/bowline v0.5.1-0.20260915223516-4d7c7a13fdd1
+	github.com/bowlinedev/bowline v1.0.1-0.20260918121552-87a9d0280421
 	github.com/bowlinedev/bowline/examples/ledger v0.0.0
 )
 

@@ -126,7 +126,7 @@ export function queryString(payload: unknown): string {
 
 export function resolvePath(
   procedurePath: string,
-  proc: ProcedureRuntime,
+  proc: { path?: string | undefined },
   input: unknown,
 ): { path: string; payload: unknown } {
   if (proc.path === undefined) {

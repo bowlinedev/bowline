@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -96,6 +97,85 @@ func VerifyConsumers(t testing.TB, r *bowline.Router, dir string, opts ...Option
 	}
 }
 
+func sendsBody(method string) bool {
+	switch method {
+	case http.MethodGet, http.MethodDelete, http.MethodHead:
+		return false
+	}
+	return true
+}
+
+func resolve(proc *contract.Procedure, name, method string, input json.RawMessage) (string, io.Reader, error) {
+	if proc == nil || proc.HTTPPath == "" {
+		if !sendsBody(method) {
+			return "/" + name + "?input=" + url.QueryEscape(string(input)), nil, nil
+		}
+		return "/" + name, bytes.NewReader(input), nil
+	}
+	fields := map[string]json.RawMessage{}
+	if err := json.Unmarshal(input, &fields); err != nil {
+		return "", nil, fmt.Errorf("input is not a JSON object: %w", err)
+	}
+	segments, err := contract.ParsePath(proc.HTTPPath)
+	if err != nil {
+		return "", nil, err
+	}
+	var path strings.Builder
+	for i, seg := range segments {
+		if i > 0 {
+			path.WriteByte('/')
+		}
+		if !seg.Param {
+			path.WriteString(seg.Text)
+			continue
+		}
+		raw, ok := fields[seg.Text]
+		if !ok {
+			return "", nil, fmt.Errorf("path parameter %q is missing from the recorded input", seg.Text)
+		}
+		path.WriteString(url.PathEscape(literal(raw)))
+		delete(fields, seg.Text)
+	}
+	target := "/" + path.String()
+	if sendsBody(method) {
+		rest, err := json.Marshal(fields)
+		if err != nil {
+			return "", nil, err
+		}
+		return target, bytes.NewReader(rest), nil
+	}
+	if query := values(fields).Encode(); query != "" {
+		target += "?" + query
+	}
+	return target, nil, nil
+}
+
+func values(fields map[string]json.RawMessage) url.Values {
+	out := make(url.Values, len(fields))
+	for key, raw := range fields {
+		var list []json.RawMessage
+		if json.Unmarshal(raw, &list) == nil {
+			for _, item := range list {
+				out.Add(key, literal(item))
+			}
+			continue
+		}
+		if string(raw) == "null" {
+			continue
+		}
+		out.Set(key, literal(raw))
+	}
+	return out
+}
+
+func literal(raw json.RawMessage) string {
+	var text string
+	if json.Unmarshal(raw, &text) == nil {
+		return text
+	}
+	return string(raw)
+}
+
 func verify(t testing.TB, handler http.Handler, procs map[string]*contract.Procedure, doc *contract.Document, headers http.Header, name string, in interaction) bool {
 	t.Helper()
 	label := fmt.Sprintf("consumer %s: %s", name, in.Procedure)
@@ -127,11 +207,13 @@ func verify(t testing.TB, handler http.Handler, procs map[string]*contract.Proce
 			}
 		}
 	}
-	var req *http.Request
-	if method == http.MethodGet {
-		req = httptest.NewRequest(http.MethodGet, "/"+in.Procedure+"?input="+url.QueryEscape(string(input)), nil)
-	} else {
-		req = httptest.NewRequest(http.MethodPost, "/"+in.Procedure, bytes.NewReader(input))
+	target, body, err := resolve(proc, in.Procedure, method, input)
+	if err != nil {
+		t.Errorf("%s: %v", label, err)
+		return false
+	}
+	req := httptest.NewRequest(method, target, body)
+	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
 	for k, values := range headers {

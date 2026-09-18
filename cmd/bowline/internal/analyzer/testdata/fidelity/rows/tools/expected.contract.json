@@ -1,6 +1,6 @@
 {
-  "bowline": "1.2",
-  "hash": "sha256:384edb2e12c62065ade370dac1306f7fe96c7cc59082eb2c725892da80205f61",
+  "bowline": "1.3",
+  "hash": "sha256:a565f65123aeba279d71de21a64172d79cc9e624ad6c0ea87896f9f4c9f07b15",
   "types": {
     "fidelity.test/rows/tools.ID": {
       "kind": "struct",

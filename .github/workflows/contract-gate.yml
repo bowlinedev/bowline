@@ -25,3 +25,4 @@ jobs:
         with:
           working-directory: ${{ matrix.directory }}
           base-ref: origin/${{ github.base_ref }}
+          allow-breaking: ${{ contains(github.event.pull_request.labels.*.name, 'breaking') }}

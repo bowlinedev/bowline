@@ -1,6 +1,6 @@
 {
-  "bowline": "1.2",
-  "hash": "sha256:799740014f85e7e8c4cdd606d2105a3b3cbe2a52d1003546b553400c8c425e98",
+  "bowline": "1.3",
+  "hash": "sha256:41b4f28cfa9a2cf59d783f6c1ff57bfb670c4574b692a83359797c66598b78ab",
   "types": {
     "fidelity.test/rows/uploads.AttachInput": {
       "kind": "struct",

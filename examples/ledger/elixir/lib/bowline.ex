@@ -863,7 +863,7 @@ defmodule Ledger.Invoices do
   def create(transport, %Types.CreateInvoiceInput{} = input, opts \\ []) do
     Transport.call(
       transport,
-      "invoices.create",
+      "invoices",
       :post,
       Types.CreateInvoiceInput.to_map(input),
       &Types.Invoice.from_map/1,
@@ -886,11 +886,11 @@ defmodule Ledger.Invoices do
   @spec get(Transport.t(), Types.GetInvoiceInput.t(), Transport.call_opts()) ::
           {:ok, Types.Invoice.t()} | {:error, BowlineClient.Error.t()}
   def get(transport, %Types.GetInvoiceInput{} = input, opts \\ []) do
-    Transport.call(
+    Transport.rest(
       transport,
-      "invoices.get",
+      "invoices/#{URI.encode_www_form(to_string(input.id))}",
       :get,
-      Types.GetInvoiceInput.to_map(input),
+      Map.drop(Types.GetInvoiceInput.to_map(input), ["id"]),
       &Types.Invoice.from_map/1,
       opts
     )
@@ -910,9 +910,9 @@ defmodule Ledger.Invoices do
   @spec list(Transport.t(), Types.ListInvoicesInput.t(), Transport.call_opts()) ::
           {:ok, Types.Page.t(Types.Invoice.t())} | {:error, BowlineClient.Error.t()}
   def list(transport, %Types.ListInvoicesInput{} = input, opts \\ []) do
-    Transport.call(
+    Transport.rest(
       transport,
-      "invoices.list",
+      "invoices",
       :get,
       Types.ListInvoicesInput.to_map(input),
       &decode_output_2/1,
@@ -935,11 +935,11 @@ defmodule Ledger.Invoices do
   @spec void(Transport.t(), Types.VoidInvoiceInput.t(), Transport.call_opts()) ::
           {:ok, Types.Invoice.t()} | {:error, BowlineClient.Error.t()}
   def void(transport, %Types.VoidInvoiceInput{} = input, opts \\ []) do
-    Transport.call(
+    Transport.rest(
       transport,
-      "invoices.void",
-      :post,
-      Types.VoidInvoiceInput.to_map(input),
+      "invoices/#{URI.encode_www_form(to_string(input.id))}",
+      :delete,
+      Map.drop(Types.VoidInvoiceInput.to_map(input), ["id"]),
       &Types.Invoice.from_map/1,
       opts
     )
