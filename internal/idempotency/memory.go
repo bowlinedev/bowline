@@ -2,6 +2,7 @@ package idempotency
 
 import (
 	"context"
+	"slices"
 	"sync"
 	"time"
 )
@@ -92,21 +93,30 @@ func (m *Memory) reserve() {
 		return
 	}
 	m.sweep(true)
-	for len(m.entries) >= m.maxKeys {
-		oldest, found := "", time.Time{}
-		for key, e := range m.entries {
-			if e.inFlight {
-				continue
-			}
-			if found.IsZero() || e.expires.Before(found) {
-				oldest, found = key, e.expires
-			}
-		}
-		if found.IsZero() {
-			return
-		}
-		delete(m.entries, oldest)
+	if len(m.entries) < m.maxKeys {
+		return
 	}
+	batch := max(m.maxKeys/16, 1)
+	candidates := make([]eviction, 0, len(m.entries))
+	for key, e := range m.entries {
+		if e.inFlight {
+			continue
+		}
+		candidates = append(candidates, eviction{key: key, expires: e.expires})
+	}
+	if len(candidates) == 0 {
+		return
+	}
+	batch = min(batch, len(candidates))
+	slices.SortFunc(candidates, func(a, b eviction) int { return a.expires.Compare(b.expires) })
+	for _, c := range candidates[:batch] {
+		delete(m.entries, c.key)
+	}
+}
+
+type eviction struct {
+	key     string
+	expires time.Time
 }
 
 func (m *Memory) sweep(force bool) {
