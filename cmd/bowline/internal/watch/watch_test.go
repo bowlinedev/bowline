@@ -1,6 +1,7 @@
 package watch
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -16,7 +17,7 @@ func TestDetectsWritesAddsAndRemoves(t *testing.T) {
 	ctx := t.Context()
 	events := make(chan []Change, 10)
 	go Run(ctx, dir, 20*time.Millisecond, func(c []Change) { events <- c })
-	time.Sleep(60 * time.Millisecond)
+	waitForWatcher(t, dir, events)
 	os.WriteFile(a, []byte("package x\n\nvar y = 1\n"), 0o644)
 	got := receive(t, events)
 	if len(got) != 1 || got[0].Path != a || got[0].Removed {
@@ -39,6 +40,35 @@ func TestDetectsWritesAddsAndRemoves(t *testing.T) {
 	case c := <-events:
 		t.Fatalf("unexpected event %+v", c)
 	case <-time.After(100 * time.Millisecond):
+	}
+}
+
+func waitForWatcher(t *testing.T, dir string, events chan []Change) {
+	t.Helper()
+	deadline := time.Now().Add(10 * time.Second)
+	for i := 0; time.Now().Before(deadline); i++ {
+		probe := filepath.Join(dir, fmt.Sprintf("probe%d.go", i))
+		if err := os.WriteFile(probe, []byte("package x\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		select {
+		case <-events:
+			os.Remove(probe)
+			drain(events)
+			return
+		case <-time.After(200 * time.Millisecond):
+		}
+	}
+	t.Fatal("the watcher never reported a change, so the baseline scan never ran")
+}
+
+func drain(events chan []Change) {
+	for {
+		select {
+		case <-events:
+		case <-time.After(300 * time.Millisecond):
+			return
+		}
 	}
 }
 
