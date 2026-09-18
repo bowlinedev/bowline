@@ -10,6 +10,8 @@ Start with `quickstart.md`. It goes from an empty directory to a typed TypeScrip
 - `guides/subscriptions.md`: streaming over SSE, or multiplexed on one WebSocket.
 - `guides/uploads.md`: typed multipart uploads.
 - `guides/idempotency.md`: keys, replay, stores.
+- `guides/routing.md`: giving a procedure its own URL and HTTP method, and where its input then comes from.
+- `guides/middleware.md`: wrapping a call, reading its typed input, and watching the lifecycle from outside the chain.
 
 ## The contract
 
@@ -44,6 +46,7 @@ To add a language, see `plugins.md` for the external generator protocol and `cer
 - `guides/signing.md`: signed service-to-service calls.
 - `guides/federation.md`: composing several services into one client behind a gateway.
 - `guides/registry.md`: the registry and the "who breaks if I change this" query.
+- `guides/observability.md`: OpenTelemetry traces and metrics through the `otel` module.
 
 ## Promises and process
 
