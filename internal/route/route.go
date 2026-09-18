@@ -45,6 +45,7 @@ type compiled struct {
 	pattern
 	method string
 	key    string
+	source string
 }
 
 type Table struct {
@@ -104,7 +105,7 @@ func New(entries []Entry) (*Table, error) {
 		if err != nil {
 			return nil, err
 		}
-		t.entries = append(t.entries, compiled{pattern: p, method: e.Method, key: e.Key})
+		t.entries = append(t.entries, compiled{pattern: p, method: e.Method, key: e.Key, source: e.Pattern})
 	}
 	for i, a := range t.entries {
 		for j, b := range t.entries {
@@ -203,4 +204,21 @@ func (t *Table) Allowed(path string) []string {
 		}
 	}
 	return methods
+}
+
+func (t *Table) MatchPattern(escaped, pattern string) ([]Param, bool) {
+	var buf [stackSegments]string
+	segs := segmentsInto(buf[:0], escaped)
+	if len(segs) == 0 {
+		return nil, false
+	}
+	for _, c := range t.entries {
+		if c.source != pattern {
+			continue
+		}
+		if params, ok := c.match(segs); ok {
+			return params, true
+		}
+	}
+	return nil, false
 }
