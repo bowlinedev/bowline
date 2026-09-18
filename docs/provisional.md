@@ -11,11 +11,17 @@ If you use one of these, pin a minor version and read the changelog before upgra
 ## github.com/bowlinedev/bowline
 
 ```
+func AutoPatch
 func APIKeyAuth
 func BasicAuth
 func BearerAuth
 func CallTimeout
 func Drain
+func ETags
+func IfMatch
+func IfNoneMatch
+func ProblemDetails
+func ProblemTypeBase
 func Public
 func Requires
 func Method
@@ -25,6 +31,7 @@ func OnHandlerReady
 func Path
 func Typed
 type Observer
+type ProblemOption
 type SecurityScheme
 type SecuritySchemeKind
 type TypedNext
@@ -35,6 +42,8 @@ type TypedNext
 `Observer`, `Observe`, `ObserveFunc` and `OnHandlerReady` are the lifecycle hooks. The open question is whether `CallFinished` should also see the response body and status, which it cannot today.
 
 `BearerAuth`, `BasicAuth`, `APIKeyAuth`, `SecurityScheme`, `Public` and `Requires`, with the `Scheme` and `Secure` methods on a router, describe how a caller authenticates. The open questions are whether alternative schemes should be expressible (today several schemes on one procedure all apply together, where OpenAPI can also express "either of these"), and whether OAuth2 flows and scopes belong here or alongside the existing tool scopes.
+
+`ProblemDetails` adds an RFC 9457 `application/problem+json` representation of an error, chosen by content negotiation so the frozen envelope stays the default. `ETags` computes an entity tag for a cacheable read and answers `304`, with `IfMatch` and `IfNoneMatch` for a procedure that implements optimistic concurrency itself. `AutoPatch` derives a `PATCH` route from a `GET` and a `PUT` on the same path. The open questions are whether problem+json should be selectable per procedure, whether a weak entity tag belongs alongside the strong one, and whether `AutoPatch` should be declarable per route rather than for the whole handler.
 
 `CallTimeout` and `Drain` bound a call and end streams at shutdown. The open questions are whether a per-procedure override belongs alongside the handler-wide deadline, and whether `Drain` should also refuse new calls rather than only ending open streams.
 

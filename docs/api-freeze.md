@@ -28,13 +28,16 @@ const IdempotencyNew
 const IdempotencyStored
 const Internal
 const InvalidArgument
+const JSONPatchMediaType
 const KindMutation
 const KindQuery
 const KindSubscription
 const KindUpload
+const MergePatchMediaType
 const NotFound
 const OutOfRange
 const PermissionDenied
+const ProblemMediaType
 const ResourceExhausted
 const SecurityAPIKey
 const SecurityHTTP
@@ -89,6 +92,7 @@ field StreamFailure.Body
 field StreamFailure.Err
 field StreamFailure.Status
 func APIKeyAuth
+func AutoPatch
 func BasicAuth
 func BearerAuth
 func CSRF
@@ -98,11 +102,14 @@ func Deprecated
 func Description
 func Destructive
 func Drain
+func ETags
 func Errorf
 func Errors
 func Heartbeat
 func Idempotency
 func Idempotent
+func IfMatch
+func IfNoneMatch
 func Logger
 func MaxBody
 func MaxBodySize
@@ -117,6 +124,8 @@ func Observe
 func ObserveFunc
 func OnHandlerReady
 func Path
+func ProblemDetails
+func ProblemTypeBase
 func Production
 func Public
 func Query
@@ -137,6 +146,7 @@ func WireAs
 func WithContract
 func WithIdempotencyScope
 method Call.ResponseHeader
+method Call.SetETag
 method Code.HTTPStatus
 method Coded.Code
 method Error.Error
@@ -175,6 +185,7 @@ type Item
 type Middleware
 type Next
 type Observer
+type ProblemOption
 type ProcOption
 type Procedure
 type ProcedureKind

@@ -52,6 +52,64 @@ This is a description, not a gate. A procedure that declares `bearer` still runs
 
 The payoff is in the export. `bowline export openapi` now emits `components.securitySchemes`, a `security` requirement on each operation, and `tags` from the mount name. That is what a documentation tool reads to show a lock icon, and what Fern, Speakeasy or openapi-generator read to put credentials into an SDK for a language Bowline does not generate itself.
 
+## Errors a non-Bowline client can read
+
+A generated client understands Bowline's error envelope, because it was generated from the same contract. Anything else — a browser, a partner's HTTP library, an API gateway — does better with the standard shape. `ProblemDetails()` adds an RFC 9457 representation, chosen by content negotiation:
+
+sketch: the frozen envelope stays the default; only a client that asks gets problem+json
+
+```go
+handler := routes.Handler(
+	bowline.ProblemDetails(bowline.ProblemTypeBase("https://api.example.com/errors/")),
+)
+```
+
+A request with `Accept: application/problem+json` gets `{"type": "...", "title": "Not Found", "status": 404, "detail": "...", "code": "NOT_FOUND"}`. Every other request gets the envelope it got before, which is why this does not break the frozen wire format. Redaction applies to both: a 5xx says `internal error` in either shape. Without a type base the `type` is `about:blank`, which is what RFC 9457 says an unspecified type means.
+
+## Caching and optimistic concurrency
+
+`ETags()` hashes the response of a cacheable read and answers `304 Not Modified` when the caller's `If-None-Match` still matches. It costs one SHA-256 over the response body, so it is off by default:
+
+sketch: the runtime computes the tag; a procedure may set its own instead
+
+```go
+handler := routes.Handler(bowline.ETags())
+
+func (a *API) getInvoice(ctx context.Context, in GetInvoiceInput) (ledger.Invoice, error) {
+	inv, err := a.store.Invoice(in.ID)
+	if err != nil {
+		return ledger.Invoice{}, err
+	}
+	bowline.CallFrom(ctx).SetETag(inv.Version)
+	return inv, nil
+}
+```
+
+A procedure-supplied tag wins, which is what you want when the store already has a version: the tag then means "this row", not "these bytes".
+
+For writes, `bowline.IfMatch(ctx)` returns the tags the caller sent so a mutation can refuse a stale update. The runtime deliberately does not decide this for you, because only the store knows the current version:
+
+sketch: optimistic concurrency, enforced by the procedure
+
+```go
+if !slices.Contains(bowline.IfMatch(ctx), current.Version) {
+	return ledger.Invoice{}, bowline.Errorf(bowline.FailedPrecondition, "the invoice has changed")
+}
+```
+
+## PATCH without writing one
+
+`AutoPatch()` derives a `PATCH` route for every path that has both a `GET` query and a `PUT` mutation. A patch request reads the current value through the real query, applies the patch, and writes the result through the real mutation — so validation, middleware, authorisation and idempotency all run exactly as they would for a hand-written call. Both `application/merge-patch+json` (RFC 7386) and `application/json-patch+json` (RFC 6902, including `test`) are accepted.
+
+```
+PATCH /invoices/3
+Content-Type: application/merge-patch+json
+
+{"note": "net 60"}
+```
+
+The read is a real call, so a `PATCH` to something that does not exist answers with the read's own `404`, and a failing `test` operation answers `400` without writing anything.
+
 ## The HTTP server
 
 Bowline is an `http.Handler`, so the connection-level limits are the standard library's and Bowline cannot set them for you:

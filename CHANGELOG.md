@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Errors: `ProblemDetails()` adds an RFC 9457 `application/problem+json` representation, chosen by content negotiation so a client that does not ask for it still gets the frozen envelope. Production redaction applies to both shapes. `ProblemTypeBase` sets the `type` URI prefix; without it the type is `about:blank`, as the RFC specifies.
+- Conditional requests: `ETags()` hashes the body of a cacheable read, sets an `ETag` and answers `304 Not Modified` for a matching `If-None-Match`. A procedure can set its own tag with `Call.SetETag`, which is what you want when the store already has a version. `IfMatch` and `IfNoneMatch` hand the caller's tags to a procedure so it can refuse a stale write itself; the runtime does not guess, because only the store knows the current version.
+- PATCH: `AutoPatch()` derives a `PATCH` route for every path carrying both a `GET` query and a `PUT` mutation. It reads through the real query, applies the patch and writes through the real mutation, so validation, middleware and idempotency all run. Accepts `application/merge-patch+json` (RFC 7386) and `application/json-patch+json` (RFC 6902, including `test`).
+
 - Security: a procedure can now describe how a caller authenticates. `Router.Scheme(name, scheme)` declares a `BearerAuth`, `BasicAuth` or `APIKeyAuth` scheme, `Router.Secure(names...)` requires schemes for everything beneath it, `Public()` opts a procedure out and `Requires(names...)` adds one. It describes and never enforces: middleware still decides who gets in, and a test pins that.
 - OpenAPI: the export now carries `components.securitySchemes`, a `security` requirement per operation, and `tags` taken from the mount name. Until now the export could not say an API was authenticated at all, so an SDK generated from it by Fern, Speakeasy or openapi-generator had no credentials and documentation tools showed the API as open. This is what makes the export a usable fallback for languages Bowline does not generate.
 - Contract format 1.4: adds the top-level `security` map and `security` on procedures. The schema's `$id` now tracks the format version, which it had stopped doing at 1.2.
