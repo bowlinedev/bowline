@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Annotated
+from urllib.parse import quote
 
 from bowline_client import CallOptions, Method, SyncTransport, Transport
 from pydantic import BaseModel, ConfigDict, Field
@@ -47,16 +48,36 @@ class InvoicesClient:
         self._transport = transport
 
     async def create(self, input: CreateInput, options: CallOptions | None = None) -> Invoice:
-        return await self._transport.call("invoices.create", Method.POST, input, Invoice, options)
+        return await self._transport.call(
+            "invoices", Method.POST, input, Invoice, options, rest=True
+        )
 
     async def get(self, input: GetInput, options: CallOptions | None = None) -> Invoice:
-        return await self._transport.call("invoices.get", Method.GET, input, Invoice, options)
+        return await self._transport.call(
+            f"invoices/{quote(str(input.id), safe='')}",
+            Method.GET,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("id",),
+        )
 
     async def line(self, input: LineInput, options: CallOptions | None = None) -> Invoice:
-        return await self._transport.call("invoices.line", Method.GET, input, Invoice, options)
+        return await self._transport.call(
+            f"invoices/{quote(str(input.invoiceId), safe='')}/lines/{quote(str(input.lineId), safe='')}",
+            Method.GET,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("invoiceId", "lineId"),
+        )
 
     async def list(self, input: ListInput, options: CallOptions | None = None) -> Invoice:
-        return await self._transport.call("invoices.list", Method.GET, input, Invoice, options)
+        return await self._transport.call(
+            "invoices", Method.GET, input, Invoice, options, rest=True
+        )
 
 
 class Client:
@@ -74,16 +95,32 @@ class SyncInvoicesClient:
         self._transport = transport
 
     def create(self, input: CreateInput, options: CallOptions | None = None) -> Invoice:
-        return self._transport.call("invoices.create", Method.POST, input, Invoice, options)
+        return self._transport.call("invoices", Method.POST, input, Invoice, options, rest=True)
 
     def get(self, input: GetInput, options: CallOptions | None = None) -> Invoice:
-        return self._transport.call("invoices.get", Method.GET, input, Invoice, options)
+        return self._transport.call(
+            f"invoices/{quote(str(input.id), safe='')}",
+            Method.GET,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("id",),
+        )
 
     def line(self, input: LineInput, options: CallOptions | None = None) -> Invoice:
-        return self._transport.call("invoices.line", Method.GET, input, Invoice, options)
+        return self._transport.call(
+            f"invoices/{quote(str(input.invoiceId), safe='')}/lines/{quote(str(input.lineId), safe='')}",
+            Method.GET,
+            input,
+            Invoice,
+            options,
+            rest=True,
+            drop=("invoiceId", "lineId"),
+        )
 
     def list(self, input: ListInput, options: CallOptions | None = None) -> Invoice:
-        return self._transport.call("invoices.list", Method.GET, input, Invoice, options)
+        return self._transport.call("invoices", Method.GET, input, Invoice, options, rest=True)
 
 
 class SyncClient:

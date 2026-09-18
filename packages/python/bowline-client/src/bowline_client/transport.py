@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import AsyncIterator, Callable, Iterator, Mapping
+from collections.abc import AsyncIterator, Callable, Iterator, Mapping, Sequence
 from typing import Any, BinaryIO, TypeVar
 
 import httpx
@@ -16,8 +16,11 @@ T = TypeVar("T")
 HeadersSource = Callable[[], Mapping[str, str]]
 
 
-def _encode(input: BaseModel) -> dict[str, Any]:
-    return input.model_dump(mode="json", exclude_unset=True, by_alias=True)
+def _encode(input: BaseModel, drop: Sequence[str] = ()) -> dict[str, Any]:
+    payload = input.model_dump(mode="json", exclude_unset=True, by_alias=True)
+    for name in drop:
+        payload.pop(name, None)
+    return payload
 
 
 def _decode(output: type[T], body: bytes) -> T:
@@ -38,14 +41,44 @@ def _headers(
     return merged
 
 
+def _sends_body(method: Method) -> bool:
+    return method not in (Method.GET, Method.DELETE, Method.HEAD)
+
+
+def _param(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return str(value)
+
+
+def _query(payload: Mapping[str, Any]) -> tuple[tuple[str, str], ...]:
+    params: list[tuple[str, str]] = []
+    for key, value in payload.items():
+        if value is None:
+            continue
+        if isinstance(value, list):
+            params.extend((key, _param(item)) for item in value)
+            continue
+        params.append((key, _param(value)))
+    return tuple(params)
+
+
 def _request(
-    base: str, path: str, method: Method, input: BaseModel
-) -> tuple[str, str, dict[str, str] | None, bytes | None]:
+    base: str,
+    path: str,
+    method: Method,
+    input: BaseModel,
+    rest: bool = False,
+    drop: Sequence[str] = (),
+) -> tuple[str, str, tuple[tuple[str, str], ...] | None, bytes | None]:
     url = f"{base}/{path}"
-    payload = json.dumps(_encode(input), separators=(",", ":"))
-    if method is Method.GET:
-        return "GET", url, {"input": payload}, None
-    return "POST", url, None, payload.encode()
+    payload = _encode(input, drop)
+    body = json.dumps(payload, separators=(",", ":"))
+    if _sends_body(method):
+        return method.value, url, None, body.encode()
+    if rest:
+        return method.value, url, _query(payload), None
+    return method.value, url, (("input", body),), None
 
 
 def _timeout(options: CallOptions | None) -> httpx.Timeout | httpx._client.UseClientDefault:
@@ -68,8 +101,10 @@ def _message(event: Event, output: type[T]) -> T | None:
     return None
 
 
-def _multipart(input: BaseModel, file: BinaryIO, filename: str) -> list[tuple[str, Any]]:
-    payload = json.dumps(_encode(input), separators=(",", ":")).encode()
+def _multipart(
+    input: BaseModel, file: BinaryIO, filename: str, drop: Sequence[str] = ()
+) -> list[tuple[str, Any]]:
+    payload = json.dumps(_encode(input, drop), separators=(",", ":")).encode()
     return [
         ("input", (None, payload, "application/json")),
         ("file", (filename, file, "application/octet-stream")),
@@ -95,8 +130,11 @@ class Transport:
         input: BaseModel,
         output: type[T],
         options: CallOptions | None = None,
+        *,
+        rest: bool = False,
+        drop: Sequence[str] = (),
     ) -> T:
-        verb, url, params, content = _request(self._base, path, method, input)
+        verb, url, params, content = _request(self._base, path, method, input, rest, drop)
         headers = _headers(self._headers, options, "application/json")
         if content is not None:
             headers["content-type"] = "application/json"
@@ -122,8 +160,11 @@ class Transport:
         output: type[T],
         options: CallOptions | None = None,
         method: Method = Method.GET,
+        *,
+        rest: bool = False,
+        drop: Sequence[str] = (),
     ) -> AsyncIterator[T]:
-        verb, url, params, content = _request(self._base, path, method, input)
+        verb, url, params, content = _request(self._base, path, method, input, rest, drop)
         headers = _headers(self._headers, options, "text/event-stream")
         if content is not None:
             headers["content-type"] = "application/json"
@@ -156,12 +197,14 @@ class Transport:
         filename: str,
         output: type[T],
         options: CallOptions | None = None,
+        *,
+        drop: Sequence[str] = (),
     ) -> T:
         headers = _headers(self._headers, options, "application/json")
         try:
             response = await self._client.post(
                 f"{self._base}/{path}",
-                files=_multipart(input, file, filename),
+                files=_multipart(input, file, filename, drop),
                 headers=headers,
                 timeout=_timeout(options),
             )
@@ -194,8 +237,11 @@ class SyncTransport:
         input: BaseModel,
         output: type[T],
         options: CallOptions | None = None,
+        *,
+        rest: bool = False,
+        drop: Sequence[str] = (),
     ) -> T:
-        verb, url, params, content = _request(self._base, path, method, input)
+        verb, url, params, content = _request(self._base, path, method, input, rest, drop)
         headers = _headers(self._headers, options, "application/json")
         if content is not None:
             headers["content-type"] = "application/json"
@@ -221,8 +267,11 @@ class SyncTransport:
         output: type[T],
         options: CallOptions | None = None,
         method: Method = Method.GET,
+        *,
+        rest: bool = False,
+        drop: Sequence[str] = (),
     ) -> Iterator[T]:
-        verb, url, params, content = _request(self._base, path, method, input)
+        verb, url, params, content = _request(self._base, path, method, input, rest, drop)
         headers = _headers(self._headers, options, "text/event-stream")
         if content is not None:
             headers["content-type"] = "application/json"
@@ -255,12 +304,14 @@ class SyncTransport:
         filename: str,
         output: type[T],
         options: CallOptions | None = None,
+        *,
+        drop: Sequence[str] = (),
     ) -> T:
         headers = _headers(self._headers, options, "application/json")
         try:
             response = self._client.post(
                 f"{self._base}/{path}",
-                files=_multipart(input, file, filename),
+                files=_multipart(input, file, filename, drop),
                 headers=headers,
                 timeout=_timeout(options),
             )

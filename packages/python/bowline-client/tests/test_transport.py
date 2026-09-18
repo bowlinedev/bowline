@@ -16,11 +16,28 @@ from bowline_client import (
     Transport,
 )
 
-from .conftest import GetInput, Item, Tick
+from .conftest import Echo, GetInput, Item, Tick
 
 
 class Size(Empty):
     n: int
+
+
+class ListInput(Empty):
+    limit: int
+    status: str | None = None
+    tags: list[str] = []
+    deep: bool = False
+
+
+class RemoveInput(Empty):
+    id: int
+    force: bool
+
+
+class ReplaceInput(Empty):
+    id: int
+    title: str
 
 
 async def test_get_encodes_input_and_decodes_output(
@@ -43,6 +60,31 @@ async def test_post_sends_json_and_merges_headers(
     item = await transport.call("items.create", Method.POST, GetInput(id=4), Item, options)
     assert item.name == "{'id': 4}|application/json|yes"
     assert seen["headers"]["authorization"] == "Bearer override"
+
+
+async def test_rest_path_sends_fields_as_query_parameters(transport: Transport) -> None:
+    input = ListInput(limit=20, status=None, tags=["a", "b"], deep=True)
+    echo = await transport.call("invoices", Method.GET, input, Echo, rest=True)
+    assert echo.method == "GET"
+    assert echo.query == "limit=20&tags=a&tags=b&deep=true"
+    assert echo.body == ""
+
+
+async def test_rest_path_drops_path_fields_from_a_bodyless_request(transport: Transport) -> None:
+    input = RemoveInput(id=7, force=True)
+    echo = await transport.call("invoices/7", Method.DELETE, input, Echo, rest=True, drop=("id",))
+    assert echo.method == "DELETE"
+    assert echo.path == "/v1/invoices/7"
+    assert echo.query == "force=true"
+    assert echo.body == ""
+
+
+async def test_rest_path_drops_path_fields_from_a_json_body(transport: Transport) -> None:
+    input = ReplaceInput(id=7, title="Q3")
+    echo = await transport.call("invoices/7", Method.PUT, input, Echo, rest=True, drop=("id",))
+    assert echo.method == "PUT"
+    assert echo.query == ""
+    assert echo.body == '{"title":"Q3"}'
 
 
 async def test_envelope_maps_to_error(transport: Transport) -> None:

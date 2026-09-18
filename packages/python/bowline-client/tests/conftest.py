@@ -32,6 +32,15 @@ class Tick(BaseModel):
     n: int
 
 
+class Echo(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    method: str
+    path: str
+    query: str
+    body: str
+
+
 ENVELOPE = {
     "error": {
         "code": "NOT_FOUND",
@@ -58,6 +67,16 @@ SSE_ERROR = (
 
 
 def handler(request: httpx.Request) -> httpx.Response:
+    if request.url.path.startswith("/v1/invoices"):
+        return httpx.Response(
+            200,
+            json={
+                "method": request.method,
+                "path": request.url.path,
+                "query": request.url.query.decode(),
+                "body": request.content.decode(),
+            },
+        )
     path = request.url.path.rsplit("/", 1)[-1]
     if path == "items.get":
         if request.method != "GET":

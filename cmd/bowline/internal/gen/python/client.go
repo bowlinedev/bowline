@@ -132,17 +132,15 @@ func (g *generator) writeMethod(b *strings.Builder, name string, p *contract.Pro
 		inputParam = "input: Empty | None = None"
 		inputArg = "input or Empty()"
 	}
-	method := "Method.POST"
-	if p.Method == http.MethodGet {
-		method = "Method.GET"
-	}
+	method := methodConst(p.Method)
 	def := "def"
 	await := ""
 	if fl.async {
 		def = "async def"
 		await = "await "
 	}
-	path := strconv.Quote(p.Path)
+	path := g.pathArg(p)
+	drop := dropArg(p)
 	var params []string
 	var call string
 	var returns string
@@ -160,16 +158,33 @@ func (g *generator) writeMethod(b *strings.Builder, name string, p *contract.Pro
 		if p.Method != http.MethodGet {
 			args = append(args, "method="+method)
 		}
+		if p.HTTPPath != "" {
+			args = append(args, "rest=True")
+		}
+		if drop != "" {
+			args = append(args, drop)
+		}
 		call = "self._transport.subscribe(" + strings.Join(args, ", ") + ")"
 	case "upload":
 		g.uses["BinaryIO"] = true
 		params = []string{"self", inputParam, "file: BinaryIO", "filename: str", "options: CallOptions | None = None"}
 		returns = output
-		call = await + "self._transport.upload(" + strings.Join([]string{path, inputArg, "file", "filename", output, "options"}, ", ") + ")"
+		uploadArgs := []string{path, inputArg, "file", "filename", output, "options"}
+		if drop != "" {
+			uploadArgs = append(uploadArgs, drop)
+		}
+		call = await + "self._transport.upload(" + strings.Join(uploadArgs, ", ") + ")"
 	default:
 		params = []string{"self", inputParam, "options: CallOptions | None = None"}
 		returns = output
-		call = await + "self._transport.call(" + strings.Join([]string{path, method, inputArg, output, "options"}, ", ") + ")"
+		callArgs := []string{path, method, inputArg, output, "options"}
+		if p.HTTPPath != "" {
+			callArgs = append(callArgs, "rest=True")
+		}
+		if drop != "" {
+			callArgs = append(callArgs, drop)
+		}
+		call = await + "self._transport.call(" + strings.Join(callArgs, ", ") + ")"
 	}
 	signature := "    " + def + " " + name + "(" + strings.Join(params, ", ") + ") -> " + returns + ":"
 	if len(signature) > 100 {
@@ -181,11 +196,104 @@ func (g *generator) writeMethod(b *strings.Builder, name string, p *contract.Pro
 	line := "        return " + call
 	if len(line) > 100 {
 		open := strings.Index(call, "(")
-		args := strings.Split(call[open+1:len(call)-1], ", ")
-		line = "        return " + call[:open+1] + "\n            " + strings.Join(args, ", ") + "\n        )"
+		args := splitArgs(call[open+1 : len(call)-1])
+		joined := strings.Join(args, ", ")
+		if len(joined)+12 > 100 {
+			joined = strings.Join(args, ",\n            ") + ","
+		}
+		line = "        return " + call[:open+1] + "\n            " + joined + "\n        )"
 	}
 	b.WriteString(line)
 	b.WriteString("\n\n")
+}
+
+func splitArgs(args string) []string {
+	var out []string
+	var quote byte
+	depth := 0
+	start := 0
+	for i := 0; i < len(args); i++ {
+		c := args[i]
+		switch {
+		case quote != 0:
+			if c == quote {
+				quote = 0
+			}
+		case c == '\'' || c == '"':
+			quote = c
+		case c == '(' || c == '[' || c == '{':
+			depth++
+		case c == ')' || c == ']' || c == '}':
+			depth--
+		case c == ',' && depth == 0:
+			out = append(out, strings.TrimSpace(args[start:i]))
+			start = i + 1
+		}
+	}
+	return append(out, strings.TrimSpace(args[start:]))
+}
+
+func methodConst(method string) string {
+	switch method {
+	case http.MethodGet:
+		return "Method.GET"
+	case http.MethodPut:
+		return "Method.PUT"
+	case http.MethodPatch:
+		return "Method.PATCH"
+	case http.MethodDelete:
+		return "Method.DELETE"
+	}
+	return "Method.POST"
+}
+
+func dropArg(p *contract.Procedure) string {
+	if p.HTTPPath == "" {
+		return ""
+	}
+	names, err := contract.PathParams(p.HTTPPath)
+	if err != nil || len(names) == 0 {
+		return ""
+	}
+	quoted := make([]string, len(names))
+	for i, name := range names {
+		quoted[i] = strconv.Quote(name)
+	}
+	tail := ""
+	if len(quoted) == 1 {
+		tail = ","
+	}
+	return "drop=(" + strings.Join(quoted, ", ") + tail + ")"
+}
+
+func (g *generator) pathArg(p *contract.Procedure) string {
+	if p.HTTPPath == "" {
+		return strconv.Quote(p.Path)
+	}
+	segments, err := contract.ParsePath(p.HTTPPath)
+	if err != nil {
+		return strconv.Quote(p.Path)
+	}
+	var b strings.Builder
+	interpolated := false
+	for i, seg := range segments {
+		if i > 0 {
+			b.WriteString("/")
+		}
+		if !seg.Param {
+			b.WriteString(seg.Text)
+			continue
+		}
+		interpolated = true
+		g.uses["quote"] = true
+		b.WriteString("{quote(str(input.")
+		b.WriteString(attrName(seg.Text))
+		b.WriteString("), safe='')}")
+	}
+	if !interpolated {
+		return strconv.Quote(b.String())
+	}
+	return "f" + strconv.Quote(b.String())
 }
 
 type Sample struct {
