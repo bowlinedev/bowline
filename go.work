@@ -4,6 +4,7 @@ use (
 	.
 	./cmd/bowline
 	./mcp
+	./otel
 	./gateway
 	./transport/websocket
 	./agent

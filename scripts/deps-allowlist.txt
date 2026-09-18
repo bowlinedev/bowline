@@ -2,6 +2,7 @@
 cmd/bowline = golang.org/x/tools
 transport/websocket = github.com/coder/websocket
 mcp =
+otel = go.opentelemetry.io/otel go.opentelemetry.io/otel/metric go.opentelemetry.io/otel/trace
 agent =
 playground =
 contracttest =

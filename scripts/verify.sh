@@ -18,7 +18,7 @@ step() {
 
 go_modules() {
   local m
-  for m in . cmd/bowline transport/websocket mcp agent playground contracttest conformance gateway registry adapters/fiber examples/ledger examples/nethttp-minimal examples/go-client examples/federation/billing examples/routers/*; do
+  for m in . cmd/bowline transport/websocket mcp otel agent playground contracttest conformance gateway registry adapters/fiber examples/ledger examples/nethttp-minimal examples/go-client examples/federation/billing examples/routers/*; do
     [ -f "$m/go.mod" ] || continue
     printf -- '-- %s\n' "$m"
     (cd "$m" && go vet ./... && go test -race ./...) || return 1
