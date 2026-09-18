@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"maps"
 	"mime"
 	"net/http"
 	"runtime/debug"
+	"slices"
 	"strings"
 	"time"
 
@@ -40,6 +42,7 @@ func StrictInput() HandlerOption {
 
 type handler struct {
 	routes     map[string]*route
+	observers  []Observer
 	table      *routing.Table
 	maxBody    int64
 	log        *slog.Logger
@@ -85,6 +88,15 @@ func (r *Router) Handler(opts ...HandlerOption) http.Handler {
 		h.table = table
 	}
 	h.signedBody = signingLimit(h)
+	if len(h.observers) > 0 {
+		ready := make([]*Procedure, 0, len(h.routes))
+		for _, name := range slices.Sorted(maps.Keys(h.routes)) {
+			ready = append(ready, &h.routes[name].procedure)
+		}
+		for _, o := range h.observers {
+			o.HandlerReady(ready)
+		}
+	}
 	return h
 }
 
@@ -285,7 +297,18 @@ func (h *handler) invoke(ctx context.Context, rt *route, in any) (out any, err e
 			err = Errorf(Internal, "panic: %v", rec)
 		}
 	}()
-	return rt.next(ctx, in)
+	if len(h.observers) == 0 {
+		return rt.next(ctx, in)
+	}
+	call := CallFrom(ctx)
+	for _, o := range h.observers {
+		ctx = o.CallStarted(ctx, call)
+	}
+	out, err = rt.next(ctx, in)
+	for _, o := range h.observers {
+		o.CallFinished(ctx, call, err)
+	}
+	return out, err
 }
 
 func (h *handler) writeError(w http.ResponseWriter, proc *Procedure, statusOverride int, err error) {
