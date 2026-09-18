@@ -1,5 +1,5 @@
-github.com/bowlinedev/bowline v0.6.1-0.20260915233623-229fa381a8b1 h1:yr/jeBwYsC/QGUaiagO8Fb9SnqPEI3QHs8/TL3nO7Oc=
-github.com/bowlinedev/bowline v0.6.1-0.20260915233623-229fa381a8b1/go.mod h1:QnIKfuTN7Lm8pRibyY3h+a8K4TwPb3S+5mt5/fh5U5U=
+github.com/bowlinedev/bowline v1.0.1-0.20260918101204-f5d0a477768c h1:hWXZ7P7imQoDZBkisme8IT3BRB8A5FjwSgkKSnP4emA=
+github.com/bowlinedev/bowline v1.0.1-0.20260918101204-f5d0a477768c/go.mod h1:QnIKfuTN7Lm8pRibyY3h+a8K4TwPb3S+5mt5/fh5U5U=
 github.com/bowlinedev/bowline/gateway v0.0.0-20260915233623-229fa381a8b1 h1:pcfWFfIw4pVIiMq9r5O5hDXU+wXBh+ARzfWr1sNLbEw=
 github.com/bowlinedev/bowline/gateway v0.0.0-20260915233623-229fa381a8b1/go.mod h1:iuUk4WZ+26oJTsTfu2F9OPsBuaboDY2IVYZ/nRmVi/I=
 github.com/bowlinedev/bowline/mcp v0.6.1-0.20260915233623-229fa381a8b1 h1:HeJlZPdWTdqWc1sziKZBpvQ8Xau6mjkhZucBAVmEUww=
