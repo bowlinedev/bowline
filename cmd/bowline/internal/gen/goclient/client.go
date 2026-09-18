@@ -160,6 +160,7 @@ func (g *generator) inputParam(p *contract.Procedure) (param, arg string) {
 
 func (g *generator) writeCall(b *strings.Builder, n *node, name string, p *contract.Procedure) {
 	param, arg := g.inputParam(p)
+	arg = g.payloadArg(p, arg)
 	method := "http.MethodPost"
 	if p.Method == http.MethodGet {
 		method = "http.MethodGet"
@@ -175,7 +176,7 @@ func (g *generator) writeCall(b *strings.Builder, n *node, name string, p *contr
 		b.WriteString("\treturn ")
 		b.WriteString(n.client())
 		b.WriteString(".call(ctx, ")
-		b.WriteString(strconv.Quote(p.Path))
+		b.WriteString(g.pathExpr(p))
 		b.WriteString(", ")
 		b.WriteString(method)
 		b.WriteString(", ")
@@ -199,7 +200,7 @@ func (g *generator) writeCall(b *strings.Builder, n *node, name string, p *contr
 	b.WriteString("\terr := ")
 	b.WriteString(n.client())
 	b.WriteString(".call(ctx, ")
-	b.WriteString(strconv.Quote(p.Path))
+	b.WriteString(g.pathExpr(p))
 	b.WriteString(", ")
 	b.WriteString(method)
 	b.WriteString(", ")
@@ -211,6 +212,7 @@ func (g *generator) writeCall(b *strings.Builder, n *node, name string, p *contr
 func (g *generator) writeSubscription(b *strings.Builder, n *node, name string, p *contract.Procedure) {
 	g.uses["iter"] = true
 	param, arg := g.inputParam(p)
+	arg = g.payloadArg(p, arg)
 	method := "http.MethodPost"
 	if p.Method == http.MethodGet {
 		method = "http.MethodGet"
@@ -228,7 +230,7 @@ func (g *generator) writeSubscription(b *strings.Builder, n *node, name string, 
 	b.WriteString("\tresp, err := ")
 	b.WriteString(n.client())
 	b.WriteString(".open(ctx, ")
-	b.WriteString(strconv.Quote(p.Path))
+	b.WriteString(g.pathExpr(p))
 	b.WriteString(", ")
 	b.WriteString(method)
 	b.WriteString(", ")
@@ -238,13 +240,14 @@ func (g *generator) writeSubscription(b *strings.Builder, n *node, name string, 
 	b.WriteString("\treturn stream[")
 	b.WriteString(out)
 	b.WriteString("](resp, ")
-	b.WriteString(strconv.Quote(p.Path))
+	b.WriteString(g.pathExpr(p))
 	b.WriteString("), nil\n}\n\n")
 }
 
 func (g *generator) writeUpload(b *strings.Builder, n *node, name string, p *contract.Procedure) {
 	g.uses["multipart"] = true
 	param, arg := g.inputParam(p)
+	arg = g.payloadArg(p, arg)
 	if isEmptyStruct(p.Output) {
 		b.WriteString("func (")
 		b.WriteString(n.receiver())
@@ -256,7 +259,7 @@ func (g *generator) writeUpload(b *strings.Builder, n *node, name string, p *con
 		b.WriteString("\treturn ")
 		b.WriteString(n.client())
 		b.WriteString(".upload(ctx, ")
-		b.WriteString(strconv.Quote(p.Path))
+		b.WriteString(g.pathExpr(p))
 		b.WriteString(", ")
 		b.WriteString(arg)
 		b.WriteString(", name, file, nil)\n}\n\n")
@@ -278,7 +281,7 @@ func (g *generator) writeUpload(b *strings.Builder, n *node, name string, p *con
 	b.WriteString("\terr := ")
 	b.WriteString(n.client())
 	b.WriteString(".upload(ctx, ")
-	b.WriteString(strconv.Quote(p.Path))
+	b.WriteString(g.pathExpr(p))
 	b.WriteString(", ")
 	b.WriteString(arg)
 	b.WriteString(", name, file, &out)\n")
@@ -537,3 +540,117 @@ const uploadRuntime = `func (c *Client) upload(ctx context.Context, path string,
 	return decodeBody(resp.Body, path, out)
 }
 `
+
+func pathParams(p *contract.Procedure) []string {
+	if p.HTTPPath == "" {
+		return nil
+	}
+	names, err := contract.PathParams(p.HTTPPath)
+	if err != nil {
+		return nil
+	}
+	return names
+}
+
+func (g *generator) inputFields(t *contract.Type) []*contract.Field {
+	for range 8 {
+		if t == nil {
+			return nil
+		}
+		switch t.Kind {
+		case contract.Struct:
+			return t.Fields
+		case contract.Ref:
+			decl, ok := g.doc.Types[t.ID]
+			if !ok {
+				return nil
+			}
+			if decl.Kind == "struct" {
+				return decl.Fields
+			}
+			if decl.Kind == "generic" {
+				t = decl.Body
+				continue
+			}
+			return nil
+		default:
+			return nil
+		}
+	}
+	return nil
+}
+
+func (g *generator) pathExpr(p *contract.Procedure) string {
+	if p.HTTPPath == "" {
+		return strconv.Quote(p.Path)
+	}
+	segments, err := contract.ParsePath(p.HTTPPath)
+	if err != nil {
+		return strconv.Quote(p.Path)
+	}
+	var parts []string
+	var literal strings.Builder
+	flush := func() {
+		if literal.Len() > 0 {
+			parts = append(parts, strconv.Quote(literal.String()))
+			literal.Reset()
+		}
+	}
+	for i, seg := range segments {
+		if i > 0 {
+			literal.WriteString("/")
+		}
+		if !seg.Param {
+			literal.WriteString(seg.Text)
+			continue
+		}
+		flush()
+		g.uses["net/url"] = true
+		parts = append(parts, "url.PathEscape(fmt.Sprint(in."+fieldName(seg.Text)+"))")
+	}
+	flush()
+	return strings.Join(parts, "+")
+}
+
+func (g *generator) payloadArg(p *contract.Procedure, arg string) string {
+	params := pathParams(p)
+	if len(params) == 0 || arg == "struct{}{}" {
+		return arg
+	}
+	consumed := map[string]bool{}
+	for _, name := range params {
+		consumed[name] = true
+	}
+	var rest []*contract.Field
+	for _, f := range g.inputFields(p.Input) {
+		if !consumed[f.Name] {
+			rest = append(rest, f)
+		}
+	}
+	if len(rest) == 0 {
+		return "struct{}{}"
+	}
+	var decl, lit strings.Builder
+	decl.WriteString("struct{ ")
+	lit.WriteString("{")
+	for i, f := range rest {
+		name := fieldName(f.Name)
+		if i > 0 {
+			decl.WriteString("; ")
+			lit.WriteString(", ")
+		}
+		decl.WriteString(name)
+		decl.WriteString(" ")
+		decl.WriteString(g.fieldType(f))
+		decl.WriteString(" `json:\"")
+		decl.WriteString(f.Name)
+		decl.WriteString(g.tagOptions(f))
+		decl.WriteString("\"`")
+		lit.WriteString(name)
+		lit.WriteString(": in.")
+		lit.WriteString(name)
+	}
+	decl.WriteString(" }")
+	lit.WriteString("}")
+	return decl.String() + lit.String()
+}
