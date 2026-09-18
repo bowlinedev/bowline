@@ -25,7 +25,7 @@ source: examples/federation/gateway/bowline.gateway.json:1-17
     "ledger": {
       "url": "http://127.0.0.1:8080/api",
       "contract": "../../ledger/api/bowline.contract.json",
-      "version": "sha256:c8bd354f5a48c124c23d9f0aa0f7aabc848331b76a28f21732d59be8646af85d"
+      "version": "sha256:d42858681c4e95b20b1f05ef6427f059d1f336ad786e0c224d4b72ffa0f63842"
     },
     "billing": {
       "url": "http://127.0.0.1:8081/api",

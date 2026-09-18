@@ -1,6 +1,6 @@
 {
   "bowline": "1.2",
-  "hash": "sha256:b4b655241dfd4beaeb97baa5176d0b2abc1851c2024069c923a6617ea085adca",
+  "hash": "sha256:71517959afc4bf2e422cb2d4427636d61bc1d53d5b8f3e1552277a6b4e45f7d1",
   "types": {
     "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.CreateChargeInput": {
       "kind": "struct",
@@ -974,6 +974,7 @@
       "path": "ledger.invoices.create",
       "kind": "mutation",
       "method": "POST",
+      "httpPath": "invoices",
       "input": {
         "kind": "ref",
         "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.CreateInvoiceInput"
@@ -990,6 +991,7 @@
       "path": "ledger.invoices.get",
       "kind": "query",
       "method": "GET",
+      "httpPath": "invoices/{id}",
       "input": {
         "kind": "ref",
         "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.GetInvoiceInput"
@@ -1139,6 +1141,7 @@
       "path": "ledger.invoices.list",
       "kind": "query",
       "method": "GET",
+      "httpPath": "invoices",
       "input": {
         "kind": "ref",
         "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.ListInvoicesInput"
@@ -1326,7 +1329,8 @@
     {
       "path": "ledger.invoices.void",
       "kind": "mutation",
-      "method": "POST",
+      "method": "DELETE",
+      "httpPath": "invoices/{id}",
       "input": {
         "kind": "ref",
         "id": "ledger:github.com/bowlinedev/bowline/examples/ledger/api.VoidInvoiceInput"
