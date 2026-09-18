@@ -97,6 +97,9 @@ func Method
 func Mount
 func Mutation
 func NewRouter
+func Observe
+func ObserveFunc
+func OnHandlerReady
 func Path
 func Production
 func Query
@@ -109,6 +112,7 @@ func Signed
 func StrictInput
 func Subscription
 func Tool
+func Typed
 func Upload
 func Use
 func WireAs
@@ -123,6 +127,9 @@ method Error.WithDetails
 method IdempotencyStore.Abort
 method IdempotencyStore.Begin
 method IdempotencyStore.Complete
+method Observer.CallFinished
+method Observer.CallStarted
+method Observer.HandlerReady
 method Procedure.Method
 method Procedure.SendsBody
 method Router.Handler
@@ -146,6 +153,7 @@ type Issue
 type Item
 type Middleware
 type Next
+type Observer
 type ProcOption
 type Procedure
 type ProcedureKind
@@ -154,6 +162,7 @@ type Router
 type Stream
 type StreamFailure
 type ToolOption
+type TypedNext
 type Wire
 ```
 
