@@ -64,6 +64,13 @@ func Analyze(prog *Program, entry string) (*contract.Document, []Diagnostic) {
 		if proc.Input == nil || proc.Output == nil {
 			continue
 		}
+		proc.HTTPPath = spec.HTTPPath
+		if spec.HTTPPath != "" {
+			if d := checkPathParams(doc, proc, spec, prog); d != nil {
+				diags = append(diags, *d)
+				continue
+			}
+		}
 		seenErrors := map[string]bool{}
 		for _, ref := range spec.Errors {
 			id, ok := c.errorDecl(ref, spec.Path)
@@ -98,4 +105,71 @@ func (c *collector) procedureType(t types.Type, spec procedureSpec, role string)
 		return c.fail(spec.Pos, spec.Path, fmt.Sprintf("%s type %s must be a named type or struct{}", role, t), "declare a named struct for it")
 	}
 	return c.typeNode(u, spec.Pos, spec.Path+" "+role)
+}
+
+func bindablePrimitive(name string) bool {
+	switch name {
+	case "string", "int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64":
+		return true
+	}
+	return false
+}
+
+func inputFields(doc *contract.Document, node *contract.Type) []*contract.Field {
+	for range 8 {
+		if node == nil {
+			return nil
+		}
+		switch node.Kind {
+		case "struct":
+			return node.Fields
+		case "ref":
+			decl, ok := doc.Types[node.ID]
+			if !ok {
+				return nil
+			}
+			if decl.Kind == "struct" {
+				return decl.Fields
+			}
+			if decl.Kind == "generic" {
+				node = decl.Body
+				continue
+			}
+			return nil
+		default:
+			return nil
+		}
+	}
+	return nil
+}
+
+func checkPathParams(doc *contract.Document, proc *contract.Procedure, spec procedureSpec, prog *Program) *Diagnostic {
+	params, err := contract.PathParams(spec.HTTPPath)
+	if err != nil {
+		return &Diagnostic{Pos: prog.Position(spec.Pos), Path: spec.Path, Message: err.Error(), Fix: "use segments separated by slashes, with parameters wrapped in braces, as in invoices/{id}"}
+	}
+	if len(params) == 0 {
+		return nil
+	}
+	fields := inputFields(doc, proc.Input)
+	if fields == nil {
+		return &Diagnostic{Pos: prog.Position(spec.Pos), Path: spec.Path, Message: fmt.Sprintf("path %q has parameters but the input is not a struct", spec.HTTPPath), Fix: "give the procedure a named struct input with one field per path parameter"}
+	}
+	byName := map[string]*contract.Field{}
+	for _, f := range fields {
+		byName[f.Name] = f
+	}
+	for _, name := range params {
+		f, ok := byName[name]
+		if !ok {
+			return &Diagnostic{Pos: prog.Position(spec.Pos), Path: spec.Path, Message: fmt.Sprintf("path parameter %q has no matching input field", name), Fix: fmt.Sprintf("add a field with the JSON name %q to the input struct, or rename the parameter", name)}
+		}
+		if f.Type == nil || f.Type.Kind != "primitive" || !bindablePrimitive(f.Type.Name) {
+			return &Diagnostic{Pos: prog.Position(spec.Pos), Path: spec.Path, Message: fmt.Sprintf("path parameter %q maps to a field that is not a string or an integer", name), Fix: "a path parameter must be carried by a string or integer field, because it travels as one path segment"}
+		}
+		if f.Optional || f.Nullable {
+			return &Diagnostic{Pos: prog.Position(spec.Pos), Path: spec.Path, Message: fmt.Sprintf("path parameter %q maps to an optional or nullable field", name), Fix: "a path parameter is always present, so make the field required"}
+		}
+	}
+	return nil
 }

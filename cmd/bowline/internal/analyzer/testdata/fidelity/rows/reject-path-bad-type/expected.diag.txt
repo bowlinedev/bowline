@@ -1,0 +1,1 @@
+rows/reject-path-bad-type/api.go:16:27: get: path parameter "when" maps to a field that is not a string or an integer. a path parameter must be carried by a string or integer field, because it travels as one path segment

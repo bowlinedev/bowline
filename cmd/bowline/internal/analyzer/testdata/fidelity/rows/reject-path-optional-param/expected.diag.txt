@@ -1,0 +1,1 @@
+rows/reject-path-optional-param/api.go:16:27: get: path parameter "id" maps to an optional or nullable field. a path parameter is always present, so make the field required

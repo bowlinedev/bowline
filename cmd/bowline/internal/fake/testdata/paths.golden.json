@@ -1,0 +1,18 @@
+{
+  "invoices.create": {
+    "id": 1,
+    "total": "ember"
+  },
+  "invoices.get": {
+    "id": 2,
+    "total": "meadow willow lantern"
+  },
+  "invoices.line": {
+    "id": 3,
+    "total": "grove mesa river"
+  },
+  "invoices.list": {
+    "id": 4,
+    "total": "saffron nova umber"
+  }
+}
