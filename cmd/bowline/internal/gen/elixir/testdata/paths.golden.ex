@@ -203,7 +203,7 @@ defmodule Golden.Paths.Invoices do
   def create(transport, %Types.CreateInput{} = input, opts \\ []) do
     Transport.call(
       transport,
-      "invoices.create",
+      "invoices",
       :post,
       Types.CreateInput.to_map(input),
       &Types.Invoice.from_map/1,
@@ -227,9 +227,9 @@ defmodule Golden.Paths.Invoices do
   def get(transport, %Types.GetInput{} = input, opts \\ []) do
     Transport.call(
       transport,
-      "invoices.get",
+      "invoices/#{URI.encode_www_form(to_string(input.id))}",
       :get,
-      Types.GetInput.to_map(input),
+      Map.drop(Types.GetInput.to_map(input), ["id"]),
       &Types.Invoice.from_map/1,
       opts
     )
@@ -251,9 +251,9 @@ defmodule Golden.Paths.Invoices do
   def line(transport, %Types.LineInput{} = input, opts \\ []) do
     Transport.call(
       transport,
-      "invoices.line",
+      "invoices/#{URI.encode_www_form(to_string(input.invoice_id))}/lines/#{URI.encode_www_form(to_string(input.line_id))}",
       :get,
-      Types.LineInput.to_map(input),
+      Map.drop(Types.LineInput.to_map(input), ["invoiceId", "lineId"]),
       &Types.Invoice.from_map/1,
       opts
     )
@@ -275,7 +275,7 @@ defmodule Golden.Paths.Invoices do
   def list(transport, %Types.ListInput{} = input, opts \\ []) do
     Transport.call(
       transport,
-      "invoices.list",
+      "invoices",
       :get,
       Types.ListInput.to_map(input),
       &Types.Invoice.from_map/1,
