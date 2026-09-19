@@ -15,21 +15,21 @@
   "dependencies": {
     "@bowlinedev/client": "workspace:*",
     "@bowlinedev/react-query": "workspace:*",
-    "@react-router/node": "7.18.4",
-    "@react-router/serve": "7.18.4",
-    "@tanstack/react-query": "5.90.2",
+    "@react-router/node": "8.4.0",
+    "@react-router/serve": "8.4.0",
+    "@tanstack/react-query": "5.103.0",
     "isbot": "5.2.2",
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
-    "react-router": "7.18.4"
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-router": "8.4.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.55.0",
-    "@react-router/dev": "7.18.4",
-    "@types/node": "24.7.0",
-    "@types/react": "19.1.12",
-    "@types/react-dom": "19.1.9",
-    "typescript": "5.9.2",
-    "vite": "7.1.5"
+    "@playwright/test": "1.63.0",
+    "@react-router/dev": "8.4.0",
+    "@types/node": "26.6.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "7.0.2",
+    "vite": "8.3.0"
   }
 }
