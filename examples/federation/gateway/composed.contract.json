@@ -1,6 +1,6 @@
 {
   "bowline": "1.4",
-  "hash": "sha256:cc249cfbaf67a7f85b33707fe9f85f491f7c77caa957eb65a1abb09d2a26eded",
+  "hash": "sha256:b841ed3070a65cbf67a96abb9615526765c644328e442ee7c0348be3a62da74d",
   "types": {
     "billing:github.com/bowlinedev/bowline/examples/federation/billing/api.CreateChargeInput": {
       "kind": "struct",
@@ -38,7 +38,7 @@
             "kind": "primitive",
             "name": "string"
           },
-          "example": "1.3.0"
+          "example": "1.4.0"
         }
       ]
     },
@@ -287,7 +287,7 @@
             "kind": "primitive",
             "name": "string"
           },
-          "example": "1.3.0"
+          "example": "1.4.0"
         }
       ]
     },

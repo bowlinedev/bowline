@@ -22,7 +22,7 @@ func New(store *ledger.Store, log *slog.Logger, token string) *API {
 
 type HealthOutput struct {
 	OK      bool   `json:"ok" example:"true"`
-	Version string `json:"version" example:"1.3.0"`
+	Version string `json:"version" example:"1.4.0"`
 }
 
 func Routes() *bowline.Router {

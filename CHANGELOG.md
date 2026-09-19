@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.4.0
 
 - MCP: every listed tool now carries all four annotation hints. `idempotentHint` comes from the procedure's `Idempotent()` declaration, or from being a query, and `openWorldHint` is false because a procedure's domain is the API itself. Only two hints were sent before, and the protocol's defaults for the missing pair are the cautious ones — `destructiveHint` true, `openWorldHint` true — so a read-only query was being presented to hosts as potentially destructive and reaching outside the system.
 

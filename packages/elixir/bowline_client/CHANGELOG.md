@@ -1,5 +1,9 @@
 # bowline_client
 
+## 1.4.0
+
+- Released with bowline 1.4.0; see the root CHANGELOG for what changed.
+
 ## 1.3.0
 
 - Released with bowline 1.3.0; see the root CHANGELOG for what changed.
