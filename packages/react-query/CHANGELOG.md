@@ -1,5 +1,9 @@
 # @bowlinedev/react-query
 
+## 1.4.1
+
+- Released with bowline 1.4.1; see the root CHANGELOG for what changed.
+
 ## 1.4.0
 
 - Released with bowline 1.4.0; see the root CHANGELOG for what changed.

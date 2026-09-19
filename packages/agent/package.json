@@ -1,6 +1,6 @@
 {
   "name": "@bowlinedev/agent",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Tool definitions and a dispatcher for LLM agents over Bowline contracts",
   "keywords": [
     "bowline",

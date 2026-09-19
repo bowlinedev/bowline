@@ -1,6 +1,6 @@
 {
   "name": "@bowlinedev/swr",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "SWR bindings for Bowline clients",
   "keywords": [
     "bowline",

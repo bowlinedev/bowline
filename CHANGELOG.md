@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.1
+
+- PATCH: a generated `PATCH` chose its route by iterating a map, so when two paths ended in the same segments — `posts/{postId}` and `users/{id}/posts/{postId}` — a request that matched both reached whichever the runtime happened to visit first. A patch to `/users/7/posts/3` hit the wrong procedure most of the time, with the path parameters of the shorter route. Patch routes are now ordered by the same rule the router uses, most specific first, so a `PATCH` always reaches the procedure its `GET` and `PUT` do.
+- PATCH: JSON Patch `copy` inserted the source value itself rather than a duplicate, so a later operation on the copy also changed the original. RFC 6902 requires an independent value; the copy is now deep.
+- PATCH: an integer too large for a float64 no longer loses precision passing through a patch. `9007199254740993` came back as `9007199254740992` even when the patch never touched that field, silently corrupting an identifier. Documents that need it are decoded exactly, and a `test` operation still compares numbers by value, so `1` and `1.0` remain equal.
+- Clients: `@bowlinedev/client` declares `zod` as an optional peer dependency. A generated `bowline.zod.ts` imports it, and nothing said so.
+- CI: the contract gate posts its report when it can rather than failing when it cannot. A pull request from a fork gets a read-only token, so the comment step aborted the job before the gate itself ran, and no outside contributor could pass CI.
+- Modules: every module now pins the runtime at the release it ships with. The pins had drifted as far back as a pseudo-version from before 1.0, so `go install .../cmd/bowline@v1.4.0` built the CLI against an older runtime than the tag named.
+
 ## 1.4.0
 
 - MCP: every listed tool now carries all four annotation hints. `idempotentHint` comes from the procedure's `Idempotent()` declaration, or from being a query, and `openWorldHint` is false because a procedure's domain is the API itself. Only two hints were sent before, and the protocol's defaults for the missing pair are the cautious ones — `destructiveHint` true, `openWorldHint` true — so a read-only query was being presented to hosts as potentially destructive and reaching outside the system.

@@ -1,6 +1,6 @@
 {
   "name": "@bowlinedev/react-query",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "TanStack Query bindings for Bowline clients",
   "keywords": [
     "bowline",

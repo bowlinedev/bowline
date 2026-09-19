@@ -1,6 +1,6 @@
 {
   "bowline": "1.4",
-  "hash": "sha256:e472267e03e4886a83e06881756e6c6ad572fc92a7746b9e9f8126dcfe435405",
+  "hash": "sha256:ae43f394af517e02831d83c7d0974b3f7bd20e13642a2700331ff78481c48e8b",
   "security": {
     "bearer": {
       "kind": "http",
@@ -128,7 +128,7 @@
             "kind": "primitive",
             "name": "string"
           },
-          "example": "1.4.0"
+          "example": "1.4.1"
         }
       ]
     },

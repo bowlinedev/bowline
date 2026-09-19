@@ -12,4 +12,4 @@ export { toAnthropic, toJSONSchema, toOpenAI } from "./encode.js";
 export type { Tool, ToolsOptions } from "./tools.js";
 export { describe, tools } from "./tools.js";
 
-export const version = "1.4.0";
+export const version = "1.4.1";
