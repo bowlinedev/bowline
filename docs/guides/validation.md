@@ -70,7 +70,7 @@ Rules are compiled once per procedure when the router is built. Checking a valid
 
 ## Zod schemas
 
-Setting `"zod": true` on the TypeScript target writes a `bowline.zod.ts` file next to the client. It exports `schemas` (one Zod schema per declared type), `inputs` (keyed by procedure path), and `errors` (keyed by variant name). These carry the same rules the server enforces, so a form can validate before sending the request, and the client and server can never disagree.
+Setting `"zod": true` on the TypeScript target writes a `bowline.zod.ts` file next to the client. The generated file imports `zod`, which is an optional peer dependency of `@bowlinedev/client`, so install it alongside: `npm install zod`. It exports `schemas` (one Zod schema per declared type), `inputs` (keyed by procedure path), and `errors` (keyed by variant name). These carry the same rules the server enforces, so a form can validate before sending the request, and the client and server can never disagree.
 
 ```json
 { "entry": "./api.Routes", "targets": { "ts": { "out": "web/src/bowline.ts", "zod": true } } }
