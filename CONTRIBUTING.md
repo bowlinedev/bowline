@@ -32,6 +32,14 @@ Pull requests that change an example's contract get a comment from the contract 
 
 Every module and package in this repository shares one version number. `scripts/release-prep.sh vX.Y.Z` sets it everywhere, opens the changelog section, refreshes the lock files, and regenerates the examples. `scripts/verify.sh` runs the whole verification locally, and `scripts/tag-modules.sh vX.Y.Z` prints the tag commands.
 
+A Go module cannot require a version that is not published yet, so the module pins move in three rounds and each one waits for the previous tag to reach the proxy:
+
+1. Tag and push `vX.Y.Z` and `playground/vX.Y.Z`; neither requires another module in this repository.
+2. `scripts/repin-modules.sh vX.Y.Z transport/websocket mcp agent contracttest registry adapters/fiber gateway otel stores/sql stores/redis`, then commit, push, tag and push those ten.
+3. `scripts/repin-modules.sh vX.Y.Z cmd/bowline`, which also pins `gateway`, `mcp`, `playground` and `registry`, then commit, push, tag and push the CLI.
+
+Skipping this leaves every module requiring whatever pseudo-version it was last tidied against, so `go install` builds the CLI against a different runtime than the tag names.
+
 Changesets is used only to publish: `changeset publish` pushes the npm packages whose version is not on the registry yet. Do not add a changeset to bump a version; the release script owns versions.
 
 `docs/lts.md` covers release cadence, support windows, and what gets backported.
