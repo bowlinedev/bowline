@@ -1,5 +1,5 @@
-github.com/bowlinedev/bowline v1.0.1-0.20260918121552-87a9d0280421 h1:9HuU7HJpa/DHhRRpZb6erXzCjYc/NeETq6lqpeLZo3E=
-github.com/bowlinedev/bowline v1.0.1-0.20260918121552-87a9d0280421/go.mod h1:QnIKfuTN7Lm8pRibyY3h+a8K4TwPb3S+5mt5/fh5U5U=
+github.com/bowlinedev/bowline v1.4.1 h1:TmIRYDX18gOH/YcnhzGjKIX5VCij9wjvFBsDs6NtDl0=
+github.com/bowlinedev/bowline v1.4.1/go.mod h1:QnIKfuTN7Lm8pRibyY3h+a8K4TwPb3S+5mt5/fh5U5U=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/go-logr/logr v1.2.2/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=

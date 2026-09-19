@@ -1,9 +1,7 @@
 github.com/alicebob/miniredis/v2 v2.39.0 h1:M7WbmV5BmV56L8KTG0rw6vEQ+woTOghpDgin2xv4A0g=
 github.com/alicebob/miniredis/v2 v2.39.0/go.mod h1:TcL7YfarKPGDAthEtl5NBeHZfeUQj6OXMm/+iu5cLMM=
-github.com/bowlinedev/bowline v1.2.0 h1:yKXpzqq3Tg90s9DG9vQ79rIfpr8IbFxYYpj6TVZBRoE=
-github.com/bowlinedev/bowline v1.2.0/go.mod h1:QnIKfuTN7Lm8pRibyY3h+a8K4TwPb3S+5mt5/fh5U5U=
-github.com/bowlinedev/bowline v1.2.1-0.20260918192852-5b5ffccde772 h1:znt8t0UGB9nyqNWUvzOR29QLW3WxBIiEz2O8SlYKM1A=
-github.com/bowlinedev/bowline v1.2.1-0.20260918192852-5b5ffccde772/go.mod h1:QnIKfuTN7Lm8pRibyY3h+a8K4TwPb3S+5mt5/fh5U5U=
+github.com/bowlinedev/bowline v1.4.1 h1:TmIRYDX18gOH/YcnhzGjKIX5VCij9wjvFBsDs6NtDl0=
+github.com/bowlinedev/bowline v1.4.1/go.mod h1:QnIKfuTN7Lm8pRibyY3h+a8K4TwPb3S+5mt5/fh5U5U=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=
 github.com/bsm/ginkgo/v2 v2.12.0/go.mod h1:SwYbGRRDovPVboqFv0tPTcG1sN61LM1Z4ARdbAV9g4c=
 github.com/bsm/gomega v1.27.10 h1:yeMWxP2pV2fG3FgAODIY8EiRE3dy0aeFYt4l7wh6yKA=

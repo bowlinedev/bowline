@@ -3,7 +3,7 @@ module github.com/bowlinedev/bowline/stores/sql
 go 1.25.0
 
 require (
-	github.com/bowlinedev/bowline v1.2.1-0.20260918192852-5b5ffccde772
+	github.com/bowlinedev/bowline v1.4.1
 	github.com/jackc/pgx/v5 v5.11.0
 	modernc.org/sqlite v1.59.0
 )

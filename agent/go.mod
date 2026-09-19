@@ -2,4 +2,4 @@ module github.com/bowlinedev/bowline/agent
 
 go 1.24
 
-require github.com/bowlinedev/bowline v0.6.1-0.20260915233623-229fa381a8b1
+require github.com/bowlinedev/bowline v1.4.1

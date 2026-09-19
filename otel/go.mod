@@ -3,7 +3,7 @@ module github.com/bowlinedev/bowline/otel
 go 1.25.0
 
 require (
-	github.com/bowlinedev/bowline v1.0.1-0.20260918121552-87a9d0280421
+	github.com/bowlinedev/bowline v1.4.1
 	go.opentelemetry.io/otel v1.46.0
 	go.opentelemetry.io/otel/metric v1.46.0
 	go.opentelemetry.io/otel/sdk v1.46.0
