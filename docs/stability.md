@@ -29,7 +29,7 @@ Packages under `internal/` in any module are not part of the API and are not cov
 
 `apidiff` cannot check the minimum Go version, so it has its own rule. The minimum may go up in a minor release, never in a patch, and never beyond the oldest release that Go itself still supports. A minor release that raises it says so in the first line of its changelog entry.
 
-The runtime and every module an application imports declare `go 1.24`. The CLI declares a newer version, because `golang.org/x/tools` only supports the two most recent Go releases. That higher floor does not affect applications, because `go install` fetches whatever toolchain the CLI needs under the default `GOTOOLCHAIN=auto`.
+The runtime and every module that depends only on the standard library declare `go 1.24`. The CLI declares a newer version, because `golang.org/x/tools` only supports the two most recent Go releases, and `adapters/fiber`, `otel` and `stores/sql` follow the floors of the third-party libraries they wrap. That higher floor does not affect applications, because `go install` fetches whatever toolchain the CLI needs under the default `GOTOOLCHAIN=auto`.
 
 ## 2. The contract document
 
