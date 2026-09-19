@@ -20,8 +20,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
-    "@playwright/test": "1.55.0",
-    "@types/node": "24.7.0",
-    "typescript": "5.9.2"
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.6.1",
+    "typescript": "7.0.2"
   }
 }

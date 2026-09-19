@@ -50,9 +50,9 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@types/node": "24.7.0",
-    "tsup": "8.5.0",
-    "vitest": "3.2.4",
+    "@types/node": "26.6.1",
+    "tsup": "8.5.1",
+    "vitest": "5.0.1",
     "zod": "^4.1.0"
   },
   "publishConfig": {
