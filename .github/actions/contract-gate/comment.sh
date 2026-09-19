@@ -8,9 +8,18 @@ if [ -z "$number" ]; then
   exit 0
 fi
 body="$(printf '%s\n### Contract changes in `%s`\n\n%s\n' "$marker" "$DIRECTORY" "$(cat "$report")")"
-existing="$(gh api "repos/${GITHUB_REPOSITORY}/issues/${number}/comments" --paginate --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -n1)"
+fork="$(jq -r '.pull_request.head.repo.full_name // empty' "$GITHUB_EVENT_PATH")"
+if [ -n "$fork" ] && [ "$fork" != "$GITHUB_REPOSITORY" ]; then
+  echo "contract gate: pull request comes from $fork, so the token cannot comment; the report is in the step log above" >&2
+  exit 0
+fi
+
+existing="$(gh api "repos/${GITHUB_REPOSITORY}/issues/${number}/comments" --paginate --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -n1 || true)"
 if [ -n "$existing" ]; then
-  gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${existing}" -f body="$body" >/dev/null
+  target=(-X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${existing}")
 else
-  gh api -X POST "repos/${GITHUB_REPOSITORY}/issues/${number}/comments" -f body="$body" >/dev/null
+  target=(-X POST "repos/${GITHUB_REPOSITORY}/issues/${number}/comments")
+fi
+if ! gh api "${target[@]}" -f body="$body" >/dev/null; then
+  echo "contract gate: could not post the report as a comment; it is in the step log above" >&2
 fi
