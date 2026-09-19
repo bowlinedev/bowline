@@ -48,7 +48,7 @@ func Export(opts Options, args []string) int {
 	}
 	info := openapi.Info{}
 	if cfg.OpenAPI != nil {
-		info = openapi.Info{Title: cfg.OpenAPI.Title, Version: cfg.OpenAPI.Version, ServerURL: cfg.OpenAPI.ServerURL}
+		info = openapi.Info{Title: cfg.OpenAPI.Title, Version: cfg.OpenAPI.Version, ServerURL: cfg.OpenAPI.ServerURL, AutoPatch: cfg.OpenAPI.AutoPatch, ETags: cfg.OpenAPI.ETags, Problem: cfg.OpenAPI.Problem}
 	}
 	data, err := openapi.Export(doc, info)
 	if err != nil {

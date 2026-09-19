@@ -196,16 +196,19 @@ func (s *schemas) object(fields []*contract.Field, env map[string]*contract.Type
 }
 
 func applyRules(prop schema, f *contract.Field) schema {
-	if len(f.Rules) == 0 && f.Doc == "" {
+	if len(f.Rules) == 0 && f.Doc == "" && f.Example == nil {
 		return prop
 	}
-	if _, isRef := prop["$ref"]; isRef && (len(f.Rules) > 0 || f.Doc != "") {
+	if _, isRef := prop["$ref"]; isRef {
 		prop = schema{"allOf": []schema{prop}}
 	}
 	out := schema{}
 	maps.Copy(out, prop)
 	if f.Doc != "" {
 		out["description"] = f.Doc
+	}
+	if f.Example != nil {
+		out["examples"] = []any{f.Example}
 	}
 	class := classOf(f.Type)
 	for _, r := range f.Rules {

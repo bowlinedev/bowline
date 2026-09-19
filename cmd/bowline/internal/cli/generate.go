@@ -111,7 +111,7 @@ func render(doc *contract.Document, cfg *Config, env []string) (map[string][]byt
 		if out == "" {
 			out = path.Join(path.Dir(cfg.Contract), "openapi.json")
 		}
-		spec, err := openapi.Export(doc, openapi.Info{Title: cfg.OpenAPI.Title, Version: cfg.OpenAPI.Version, ServerURL: cfg.OpenAPI.ServerURL})
+		spec, err := openapi.Export(doc, openapi.Info{Title: cfg.OpenAPI.Title, Version: cfg.OpenAPI.Version, ServerURL: cfg.OpenAPI.ServerURL, AutoPatch: cfg.OpenAPI.AutoPatch, ETags: cfg.OpenAPI.ETags, Problem: cfg.OpenAPI.Problem})
 		if err != nil {
 			return nil, nil, fmt.Errorf("openapi: %w", err)
 		}

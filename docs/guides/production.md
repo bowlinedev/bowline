@@ -108,6 +108,12 @@ Content-Type: application/merge-patch+json
 {"note": "net 60"}
 ```
 
+`AutoPatch` is a handler option, so the contract cannot know you enabled it. Tell the exporter as well, and the `PATCH` route appears in the OpenAPI document alongside the rest:
+
+```json
+{ "openapi": { "autoPatch": true, "etags": true } }
+```
+
 The read is a real call, so a `PATCH` to something that does not exist answers with the read's own `404`, and a failing `test` operation answers `400` without writing anything. The write is a real call too: CSRF, an `Idempotency-Key`, validation and your middleware all apply exactly as they would to the `PUT`.
 
 One thing a generated `PATCH` cannot do on its own is make read-modify-write atomic. Two patches to different fields of the same resource can interleave — read, read, write, write — and the second write silently drops the first. That is inherent to the pattern, not specific to Bowline, and `TestConcurrentPatchLosesAnUpdateWithoutIfMatch` demonstrates it deliberately.

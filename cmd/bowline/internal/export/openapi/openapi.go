@@ -17,6 +17,9 @@ type Info struct {
 	Title     string
 	Version   string
 	ServerURL string
+	AutoPatch bool
+	ETags     bool
+	Problem   bool
 }
 
 type document struct {
@@ -68,6 +71,86 @@ func requirement(names []string) []any {
 		both[name] = []any{}
 	}
 	return []any{both}
+}
+
+func addPatchOperations(out document, doc *contract.Document, info Info) {
+	reads := map[string]*contract.Procedure{}
+	writes := map[string]*contract.Procedure{}
+	for _, p := range doc.Procedures {
+		switch {
+		case p.HTTPPath == "":
+		case p.Kind == "query" && p.Method == http.MethodGet:
+			reads[p.HTTPPath] = p
+		case p.Kind == "mutation" && p.Method == http.MethodPut:
+			writes[p.HTTPPath] = p
+		}
+	}
+	for path, write := range writes {
+		read, paired := reads[path]
+		if !paired {
+			continue
+		}
+		route := "/" + path
+		existing, ok := out.Paths[route]
+		if !ok {
+			continue
+		}
+		body := schema{
+			"required": true,
+			"content": schema{
+				"application/merge-patch+json": schema{"schema": schema{"type": "object"}},
+				"application/json-patch+json":  schema{"schema": jsonPatchSchema()},
+			},
+		}
+		op := schema{
+			"operationId": write.Path + ".patch",
+			"description": "Applies a patch to the value returned by " + read.Path + " and writes the result through " + write.Path + ".",
+			"requestBody": body,
+			"responses":   patchResponses(existing, info),
+		}
+		if tag := tagOf(write.Path); tag != "" {
+			op["tags"] = []any{tag}
+		}
+		if names := requirement(write.Security); names != nil {
+			op["security"] = names
+		}
+		if params, ok := existing["get"].(schema)["parameters"]; ok {
+			op["parameters"] = params
+		}
+		existing["patch"] = op
+		out.Paths[route] = existing
+	}
+}
+
+func patchResponses(existing schema, info Info) schema {
+	out := schema{}
+	if get, ok := existing["get"].(schema); ok {
+		if responses, ok := get["responses"].(schema); ok {
+			maps.Copy(out, responses)
+		}
+	}
+	out["412"] = schema{"$ref": "#/components/responses/FAILED_PRECONDITION"}
+	if info.ETags {
+		out["428"] = schema{"$ref": "#/components/responses/FAILED_PRECONDITION"}
+	}
+	out["415"] = schema{"$ref": "#/components/responses/INVALID_ARGUMENT"}
+	return out
+}
+
+func jsonPatchSchema() schema {
+	return schema{
+		"type": "array",
+		"items": schema{
+			"type":     "object",
+			"required": []string{"op", "path"},
+			"properties": schema{
+				"op":    schema{"type": "string", "enum": []any{"add", "remove", "replace", "move", "copy", "test"}},
+				"path":  schema{"type": "string"},
+				"from":  schema{"type": "string"},
+				"value": schema{},
+			},
+		},
+	}
 }
 
 func tagOf(path string) string {
@@ -160,6 +243,9 @@ func Export(doc *contract.Document, info Info) ([]byte, error) {
 			continue
 		}
 		out.Paths[route] = schema{method: op}
+	}
+	if info.AutoPatch {
+		addPatchOperations(out, doc, info)
 	}
 	for _, name := range slices.Sorted(maps.Keys(tags)) {
 		out.Tags = append(out.Tags, schema{"name": name})

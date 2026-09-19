@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- OpenAPI: a field's `example` now reaches the exported document. The contract has carried examples since format 1.2 and the export silently dropped every one, so documentation tools showed none and SDK generators had nothing to sample.
+- OpenAPI: `"openapi": {"autoPatch": true}` in `bowline.json` documents the `PATCH` route that `AutoPatch()` serves, with both patch media types, the path parameters, the write procedure's security, and the `412`, `415` and `428` responses. A generated route that no reader could discover was documentation the contract was failing to tell the truth about.
+
 - PATCH: a generated `PATCH` now runs through the CSRF guard and honours an `Idempotency-Key`, which it did not before. A forged cross-origin `PATCH` was accepted, and a repeated idempotency key ran the write twice; both are fixed and covered by tests.
 - PATCH: JSON Patch now supports arrays, which RFC 6902 requires and the first implementation did not have at all: `add` inserts and shifts, `-` appends, `remove` shifts left, and indices are checked against the array length. It also enforces the rules it was missing — `replace` and `remove` fail on a location that does not exist, an index may not have a leading zero or be negative, `-` only addresses the end when adding, and a location may not be moved into one of its own children. `add` onto an existing object member replaces it, which it should, while `replace` on an absent member now fails, which it did not.
 - Conditional requests: `If-Match` uses strong comparison and `If-None-Match` uses weak comparison, as RFC 9110 requires. Before, both stripped the weak prefix, so a weak entity tag wrongly satisfied `If-Match` — the one place where the distinction protects against a lost update. A `PATCH` whose `If-None-Match` matches is now refused with `412`.

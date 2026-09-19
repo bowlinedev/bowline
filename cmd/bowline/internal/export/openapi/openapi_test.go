@@ -6,6 +6,7 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/bowlinedev/bowline/contract"
@@ -133,5 +134,72 @@ func TestDefaultsAndServers(t *testing.T) {
 	}
 	if _, has := parsed["servers"]; has {
 		t.Fatal("servers must be omitted without a URL")
+	}
+}
+
+func TestAutoPatchOperationsAreDocumented(t *testing.T) {
+	doc := &contract.Document{
+		Bowline: contract.Version,
+		Types:   map[string]*contract.TypeDecl{},
+		Errors:  map[string]*contract.ErrorDecl{},
+		Procedures: []*contract.Procedure{
+			{Path: "things.get", Kind: "query", Method: "GET", HTTPPath: "things/{id}",
+				Input:  &contract.Type{Kind: contract.Struct, Fields: []*contract.Field{{Name: "id", Type: &contract.Type{Kind: contract.Primitive, Name: "int64"}}}},
+				Output: &contract.Type{Kind: contract.Struct}},
+			{Path: "things.save", Kind: "mutation", Method: "PUT", HTTPPath: "things/{id}", Security: []string{"bearer"},
+				Input:  &contract.Type{Kind: contract.Struct, Fields: []*contract.Field{{Name: "id", Type: &contract.Type{Kind: contract.Primitive, Name: "int64"}}}},
+				Output: &contract.Type{Kind: contract.Struct}},
+		},
+		Security: map[string]*contract.SecurityScheme{"bearer": {Kind: "http", Scheme: "bearer"}},
+	}
+	raw, err := Export(doc, Info{Title: "t", Version: "1", AutoPatch: true, ETags: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out map[string]any
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatal(err)
+	}
+	path, ok := out["paths"].(map[string]any)["/things/{id}"].(map[string]any)
+	if !ok {
+		t.Fatalf("no /things/{id} path: %s", raw)
+	}
+	patch, ok := path["patch"].(map[string]any)
+	if !ok {
+		t.Fatalf("AutoPatch was configured but no patch operation was documented: %v", path)
+	}
+	body := patch["requestBody"].(map[string]any)["content"].(map[string]any)
+	for _, media := range []string{"application/merge-patch+json", "application/json-patch+json"} {
+		if _, ok := body[media]; !ok {
+			t.Errorf("the patch body does not advertise %s", media)
+		}
+	}
+	responses := patch["responses"].(map[string]any)
+	for _, code := range []string{"412", "428", "415"} {
+		if _, ok := responses[code]; !ok {
+			t.Errorf("the patch operation does not document a %s response", code)
+		}
+	}
+	if patch["security"] == nil {
+		t.Error("the patch operation must inherit the write procedure's security")
+	}
+	if patch["parameters"] == nil {
+		t.Error("the patch operation must carry the path parameters")
+	}
+}
+
+func TestPatchIsAbsentWhenNotConfigured(t *testing.T) {
+	doc := &contract.Document{
+		Bowline: contract.Version, Types: map[string]*contract.TypeDecl{}, Errors: map[string]*contract.ErrorDecl{},
+		Procedures: []*contract.Procedure{
+			{Path: "things.get", Kind: "query", Method: "GET", HTTPPath: "things/{id}",
+				Input: &contract.Type{Kind: contract.Struct}, Output: &contract.Type{Kind: contract.Struct}},
+			{Path: "things.save", Kind: "mutation", Method: "PUT", HTTPPath: "things/{id}",
+				Input: &contract.Type{Kind: contract.Struct}, Output: &contract.Type{Kind: contract.Struct}},
+		},
+	}
+	raw, _ := Export(doc, Info{Title: "t", Version: "1"})
+	if strings.Contains(string(raw), `"patch"`) {
+		t.Fatal("a patch operation was documented without AutoPatch")
 	}
 }

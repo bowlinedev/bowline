@@ -56,6 +56,9 @@
         "additionalProperties": false,
         "properties": {
           "city": {
+            "examples": [
+              "Paris"
+            ],
             "type": "string"
           }
         },
@@ -151,19 +154,31 @@
         "additionalProperties": false,
         "properties": {
           "active": {
+            "examples": [
+              true
+            ],
             "type": "boolean"
           },
           "age": {
+            "examples": [
+              36
+            ],
             "format": "int32",
             "minimum": 0,
             "type": "integer"
           },
           "big": {
+            "examples": [
+              "9007199254740993"
+            ],
             "format": "int64",
             "type": "string"
           },
           "blob": {
             "contentEncoding": "base64",
+            "examples": [
+              "aGVsbG8="
+            ],
             "type": "string"
           },
           "counts": {
@@ -171,22 +186,52 @@
               "format": "int32",
               "type": "integer"
             },
+            "examples": [
+              {
+                "x": 1
+              }
+            ],
             "type": "object"
           },
           "email": {
+            "examples": [
+              "ada@example.com"
+            ],
             "format": "email",
             "type": "string"
           },
           "home": {
-            "$ref": "#/components/schemas/Address"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              }
+            ],
+            "examples": [
+              {
+                "city": "Rome"
+              }
+            ]
           },
           "level": {
-            "$ref": "#/components/schemas/Level"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Level"
+              }
+            ],
+            "examples": [
+              10
+            ]
           },
           "name": {
+            "examples": [
+              "Ada Lovelace"
+            ],
             "type": "string"
           },
           "nick": {
+            "examples": [
+              "ada"
+            ],
             "type": "string"
           },
           "ratings": {
@@ -196,21 +241,53 @@
             "type": "array"
           },
           "ratio": {
+            "examples": [
+              0.75
+            ],
             "format": "double",
             "type": "number"
           },
-          "raw": {},
+          "raw": {
+            "examples": [
+              {
+                "any": 1
+              }
+            ]
+          },
           "since": {
+            "examples": [
+              "2026-01-01T00:00:00Z"
+            ],
             "format": "date-time",
             "type": "string"
           },
           "slug": {
-            "$ref": "#/components/schemas/Slug"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Slug"
+              }
+            ],
+            "examples": [
+              "ada-lovelace"
+            ]
           },
           "status": {
-            "$ref": "#/components/schemas/Status"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Status"
+              }
+            ],
+            "examples": [
+              "sent"
+            ]
           },
           "tags": {
+            "examples": [
+              [
+                "a",
+                "b"
+              ]
+            ],
             "items": {
               "type": "string"
             },
@@ -218,6 +295,9 @@
           },
           "timeout": {
             "description": "Duration in nanoseconds.",
+            "examples": [
+              1500000000
+            ],
             "format": "int64",
             "type": "integer"
           }

@@ -30,6 +30,9 @@ type OpenAPIConfig struct {
 	Title     string `json:"title"`
 	Version   string `json:"version"`
 	ServerURL string `json:"serverUrl"`
+	AutoPatch bool   `json:"autoPatch,omitempty"`
+	ETags     bool   `json:"etags,omitempty"`
+	Problem   bool   `json:"problemDetails,omitempty"`
 }
 
 type Target struct {
