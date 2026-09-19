@@ -36,3 +36,9 @@ examples/federation/registry-data/
 /examples/ledger/tmp/
 /examples/federation/gateway/dev/
 /examples/federation/gateway/tmp/
+*.pem
+*.key
+*.p12
+.env
+.env.*
+!.env.example
