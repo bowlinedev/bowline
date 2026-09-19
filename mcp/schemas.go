@@ -72,6 +72,8 @@ func ToolsFromContract(doc *contract.Document, source SchemaSource) ([]Tool, err
 			Output:      output,
 			ReadOnly:    p.Tool.ReadOnly,
 			Destructive: p.Tool.Destructive,
+			Idempotent:  p.Tool.ReadOnly || p.Idempotent,
+			OpenWorld:   false,
 			Scopes:      append([]string(nil), p.Tool.Scopes...),
 		})
 	}

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- MCP: every listed tool now carries all four annotation hints. `idempotentHint` comes from the procedure's `Idempotent()` declaration, or from being a query, and `openWorldHint` is false because a procedure's domain is the API itself. Only two hints were sent before, and the protocol's defaults for the missing pair are the cautious ones — `destructiveHint` true, `openWorldHint` true — so a read-only query was being presented to hosts as potentially destructive and reaching outside the system.
+
 - OpenAPI: a field's `example` now reaches the exported document. The contract has carried examples since format 1.2 and the export silently dropped every one, so documentation tools showed none and SDK generators had nothing to sample.
 - OpenAPI: `"openapi": {"autoPatch": true}` in `bowline.json` documents the `PATCH` route that `AutoPatch()` serves, with both patch media types, the path parameters, the write procedure's security, and the `412`, `415` and `428` responses. A generated route that no reader could discover was documentation the contract was failing to tell the truth about.
 

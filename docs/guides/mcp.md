@@ -99,7 +99,16 @@ When the procedure fails, the Bowline error envelope is used as the structured c
 }}
 ```
 
-`tools/list` reports each tool's `inputSchema`, `outputSchema`, and annotations with `readOnlyHint`, `destructiveHint`, and the procedure path as `title`.
+`tools/list` reports each tool's `inputSchema`, `outputSchema`, and all four annotation hints, with the procedure path as `title`. Every hint is always present and always a boolean, because a host cannot warn anyone about a hint that is absent and some directories refuse a server that omits one:
+
+| Hint | Where it comes from |
+|---|---|
+| `readOnlyHint` | true for a query |
+| `destructiveHint` | `Destructive()` on the tool |
+| `idempotentHint` | true for a query, or a mutation that declares `Idempotent()` |
+| `openWorldHint` | always false: a procedure's domain is this API, which is closed |
+
+The protocol's defaults are the cautious ones — `destructiveHint` defaults to true and `openWorldHint` to true — so omitting a hint says something stronger than saying nothing. Bowline states all four rather than leaving a client to assume the worst.
 
 ## Authentication
 

@@ -19,6 +19,8 @@ type Tool struct {
 	Output      json.RawMessage
 	ReadOnly    bool
 	Destructive bool
+	Idempotent  bool
+	OpenWorld   bool
 	Scopes      []string
 }
 
@@ -120,7 +122,7 @@ func (s *Server) list() []listedTool {
 			Description:  t.Description,
 			InputSchema:  input,
 			OutputSchema: t.Output,
-			Annotations:  annotations{Title: t.Procedure, ReadOnlyHint: t.ReadOnly, DestructiveHint: t.Destructive},
+			Annotations:  annotations{Title: t.Procedure, ReadOnlyHint: t.ReadOnly, DestructiveHint: t.Destructive, IdempotentHint: t.Idempotent, OpenWorldHint: t.OpenWorld},
 		})
 	}
 	return out

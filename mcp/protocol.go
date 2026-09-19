@@ -56,6 +56,8 @@ type annotations struct {
 	Title           string `json:"title"`
 	ReadOnlyHint    bool   `json:"readOnlyHint"`
 	DestructiveHint bool   `json:"destructiveHint"`
+	IdempotentHint  bool   `json:"idempotentHint"`
+	OpenWorldHint   bool   `json:"openWorldHint"`
 }
 
 type listedTool struct {
