@@ -23,6 +23,9 @@ jobs:
             package: .
             target: FuzzHandler
           - module: .
+            package: .
+            target: FuzzQueryInputMatchesParseQuery
+          - module: .
             package: ./contract
             target: FuzzContractParse
           - module: .

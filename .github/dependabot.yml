@@ -18,6 +18,9 @@ updates:
       - /cmd/bowline
       - /transport/websocket
       - /adapters/fiber
+      - /otel
+      - /stores/sql
+      - /stores/redis
     schedule:
       interval: weekly
     groups:
