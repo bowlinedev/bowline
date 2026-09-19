@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"io"
 	"maps"
+	"math/big"
 	"mime"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -36,11 +38,45 @@ func AutoPatch(opts ...PatchOption) HandlerOption {
 }
 
 type patchRoute struct {
-	read  *route
-	write *route
+	path     string
+	segments int
+	literals int
+	read     *route
+	write    *route
 }
 
-func (h *handler) buildPatchRoutes() map[string]*patchRoute {
+func deepCopyJSON(value any) any {
+	switch v := value.(type) {
+	case map[string]any:
+		out := make(map[string]any, len(v))
+		for key, item := range v {
+			out[key] = deepCopyJSON(item)
+		}
+		return out
+	case []any:
+		out := make([]any, len(v))
+		for i, item := range v {
+			out[i] = deepCopyJSON(item)
+		}
+		return out
+	}
+	return value
+}
+
+func patchSpecificity(path string) (segments, literals int) {
+	for part := range strings.SplitSeq(strings.Trim(path, "/"), "/") {
+		if part == "" {
+			continue
+		}
+		segments++
+		if !strings.HasPrefix(part, "{") {
+			literals++
+		}
+	}
+	return segments, literals
+}
+
+func (h *handler) buildPatchRoutes() []*patchRoute {
 	if !h.autoPatch {
 		return nil
 	}
@@ -58,25 +94,112 @@ func (h *handler) buildPatchRoutes() map[string]*patchRoute {
 			writes[path] = rt
 		}
 	}
-	out := map[string]*patchRoute{}
+	out := make([]*patchRoute, 0, len(reads))
 	for path, read := range reads {
-		if write, ok := writes[path]; ok {
-			out[path] = &patchRoute{read: read, write: write}
+		write, ok := writes[path]
+		if !ok {
+			continue
 		}
+		segments, literals := patchSpecificity(path)
+		out = append(out, &patchRoute{path: path, segments: segments, literals: literals, read: read, write: write})
 	}
 	if len(out) == 0 {
 		return nil
 	}
+	slices.SortFunc(out, func(a, b *patchRoute) int {
+		if d := b.segments - a.segments; d != 0 {
+			return d
+		}
+		if d := b.literals - a.literals; d != 0 {
+			return d
+		}
+		return strings.Compare(a.path, b.path)
+	})
 	return out
+}
+
+const exactFloat64Digits = 15
+
+func mayLosePrecision(data []byte) bool {
+	for i := 0; i < len(data); i++ {
+		if data[i] < '0' || data[i] > '9' {
+			continue
+		}
+		digits, dotted := 0, false
+		for ; i < len(data); i++ {
+			switch c := data[i]; {
+			case c >= '0' && c <= '9':
+				digits++
+			case c == '.' && !dotted:
+				dotted = true
+			default:
+				goto done
+			}
+		}
+	done:
+		if digits > exactFloat64Digits {
+			return true
+		}
+	}
+	return false
+}
+
+func decodeJSON(data []byte, out *any) error {
+	if !mayLosePrecision(data) {
+		return json.Unmarshal(data, out)
+	}
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.UseNumber()
+	return decoder.Decode(out)
+}
+
+func jsonEqual(a, b any) bool {
+	switch left := a.(type) {
+	case json.Number:
+		right, ok := b.(json.Number)
+		if !ok {
+			return false
+		}
+		if left == right {
+			return true
+		}
+		x, okx := new(big.Rat).SetString(left.String())
+		y, oky := new(big.Rat).SetString(right.String())
+		return okx && oky && x.Cmp(y) == 0
+	case map[string]any:
+		right, ok := b.(map[string]any)
+		if !ok || len(left) != len(right) {
+			return false
+		}
+		for key, value := range left {
+			other, ok := right[key]
+			if !ok || !jsonEqual(value, other) {
+				return false
+			}
+		}
+		return true
+	case []any:
+		right, ok := b.([]any)
+		if !ok || len(left) != len(right) {
+			return false
+		}
+		for i, value := range left {
+			if !jsonEqual(value, right[i]) {
+				return false
+			}
+		}
+		return true
+	}
+	return a == b
 }
 
 func applyMergePatch(target, patch []byte) ([]byte, error) {
 	var patched any
-	if err := json.Unmarshal(patch, &patched); err != nil {
+	if err := decodeJSON(patch, &patched); err != nil {
 		return nil, fmt.Errorf("the patch is not JSON: %w", err)
 	}
 	var current any
-	if err := json.Unmarshal(target, &current); err != nil {
+	if err := decodeJSON(target, &current); err != nil {
 		return nil, fmt.Errorf("the current value is not JSON: %w", err)
 	}
 	return json.Marshal(mergeValue(current, patched))
@@ -114,7 +237,7 @@ func applyJSONPatch(target, patch []byte) ([]byte, error) {
 		return nil, fmt.Errorf("the patch is not a JSON Patch document: %w", err)
 	}
 	var doc any
-	if err := json.Unmarshal(target, &doc); err != nil {
+	if err := decodeJSON(target, &doc); err != nil {
 		return nil, fmt.Errorf("the current value is not JSON: %w", err)
 	}
 	for i, op := range ops {
@@ -131,13 +254,13 @@ func applyOperation(doc any, op patchOperation) (any, error) {
 	switch op.Op {
 	case "add":
 		var value any
-		if err := json.Unmarshal(op.Value, &value); err != nil {
+		if err := decodeJSON(op.Value, &value); err != nil {
 			return nil, fmt.Errorf("value is not JSON: %w", err)
 		}
 		return addAt(doc, op.Path, value)
 	case "replace":
 		var value any
-		if err := json.Unmarshal(op.Value, &value); err != nil {
+		if err := decodeJSON(op.Value, &value); err != nil {
 			return nil, fmt.Errorf("value is not JSON: %w", err)
 		}
 		return replaceAt(doc, op.Path, value)
@@ -148,7 +271,7 @@ func applyOperation(doc any, op patchOperation) (any, error) {
 		if err != nil {
 			return nil, err
 		}
-		return addAt(doc, op.Path, value)
+		return addAt(doc, op.Path, deepCopyJSON(value))
 	case "move":
 		if op.From != op.Path && strings.HasPrefix(op.Path, op.From+"/") {
 			return nil, errors.New("a location cannot be moved into one of its children")
@@ -168,12 +291,12 @@ func applyOperation(doc any, op patchOperation) (any, error) {
 			return nil, err
 		}
 		var want any
-		if err := json.Unmarshal(op.Value, &want); err != nil {
+		if err := decodeJSON(op.Value, &want); err != nil {
 			return nil, fmt.Errorf("value is not JSON: %w", err)
 		}
-		got, _ := json.Marshal(value)
-		expected, _ := json.Marshal(want)
-		if !bytes.Equal(got, expected) {
+		if !jsonEqual(value, want) {
+			got, _ := json.Marshal(value)
+			expected, _ := json.Marshal(want)
 			return nil, fmt.Errorf("the value is %s, not %s", got, expected)
 		}
 		return doc, nil
@@ -376,8 +499,9 @@ func (h *handler) patchRouteFor(req *http.Request) (*patchRoute, []routing.Param
 	if len(h.patches) == 0 || req.Method != http.MethodPatch || h.table == nil {
 		return nil, nil, false
 	}
-	for path, pair := range h.patches {
-		if match, ok := h.table.MatchPattern(req.URL.EscapedPath(), path); ok {
+	escaped := req.URL.EscapedPath()
+	for _, pair := range h.patches {
+		if match, ok := h.table.MatchPattern(escaped, pair.path); ok {
 			return pair, match, true
 		}
 	}

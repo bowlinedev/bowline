@@ -71,7 +71,7 @@ type handler struct {
 	etags                bool
 	autoPatch            bool
 	patchRequiresIfMatch bool
-	patches              map[string]*patchRoute
+	patches              []*patchRoute
 	csrf                 *csrf.Guard
 	securityHeaders      bool
 
