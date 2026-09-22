@@ -11,17 +11,17 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@astrojs/node": "11.1.5",
+    "@astrojs/node": "11.1.6",
     "@astrojs/solid-js": "7.0.2",
     "@bowlinedev/client": "workspace:*",
     "@bowlinedev/solid": "workspace:*",
-    "astro": "7.3.2",
+    "astro": "7.3.3",
     "solid-js": "1.9.15"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
-    "@playwright/test": "1.55.0",
-    "@types/node": "24.7.0",
-    "typescript": "5.9.2"
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.6.2",
+    "typescript": "7.0.2"
   }
 }
