@@ -50,10 +50,10 @@
   },
   "devDependencies": {
     "@bowlinedev/client": "workspace:*",
-    "@sveltejs/kit": "2.70.3",
-    "svelte": "5.57.0",
-    "tsup": "8.5.0",
-    "vitest": "3.2.4"
+    "@sveltejs/kit": "3.0.0",
+    "svelte": "5.57.1",
+    "tsup": "8.5.1",
+    "vitest": "5.0.3"
   },
   "publishConfig": {
     "access": "public"
